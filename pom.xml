@@ -39,6 +39,11 @@
             <groupId>de.flapdoodle.embed</groupId>
             <artifactId>de.flapdoodle.embed.mongo</artifactId>
         </dependency>
+        <!-- Spring Integration - Java DSL -->
+        <dependency>
+          <groupId>org.springframework.integration</groupId>
+          <artifactId>spring-integration-java-dsl</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
