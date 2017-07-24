@@ -1,5 +1,6 @@
 package sanchez.sanchez.sergio.config;
 
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,10 +24,14 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import org.bson.types.ObjectId;
+import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.dsl.channel.MessageChannels;
 import org.springframework.integration.dsl.support.GenericHandler;
+import org.springframework.integration.mongodb.outbound.MongoDbStoringMessageHandler;
 import org.springframework.integration.splitter.AbstractMessageSplitter;
 import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageHandler;
+import sanchez.sanchez.sergio.persistence.entity.CommentEntity;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaEntity;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaTypeEnum;
 
@@ -74,6 +79,14 @@ public class InfrastructureConfiguration {
     }
     
     @Bean
+    @ServiceActivator(inputChannel = "storeChannel")
+    public MessageHandler mongodbAdapter(MongoDbFactory mongo) throws Exception {
+        MongoDbStoringMessageHandler adapter = new MongoDbStoringMessageHandler(mongo);
+        adapter.setCollectionNameExpression(new LiteralExpression("comments"));
+        return adapter;
+    }
+    
+    @Bean
     @Autowired
     public IntegrationFlow processUsers(MongoDbFactory mongo, PollerMetadata poller) {
         return IntegrationFlows.from(mongoMessageSource(mongo), c -> c.poller(poller))
@@ -100,37 +113,47 @@ public class InfrastructureConfiguration {
                         -> m.subFlowMapping(SocialMediaTypeEnum.FACEBOOK, sf -> sf.handle(new GenericHandler<SocialMediaEntity>() {
                                 @Override
                                 public Object handle(SocialMediaEntity payload, Map<String, Object> headers) {
-                                    logger.info("TEST FACEBOOK Channel for user id: " + headers.get("user-id"));
-                                    return payload;
+                                    ObjectId userId = (ObjectId)headers.get("user-id");
+                                    logger.info("TEST FACEBOOK Channel for user id: " + userId);
+                                    return Arrays.asList(new CommentEntity[] { 
+                                        new CommentEntity("Comentario 1 from facebook dirigido a " + userId, userId),
+                                        new CommentEntity("Comentario 2 from facebook dirigido a " + userId, userId)
+                                    });
                                 }
                             }))
                             .subFlowMapping(SocialMediaTypeEnum.YOUTUBE, sf -> sf.handle(new GenericHandler<SocialMediaEntity>() {
                                 @Override
                                 public Object handle(SocialMediaEntity payload, Map<String, Object> headers) {
-                                    logger.info("TEST YOUTUBE Channel for user id: " + headers.get("user-id"));
-                                    return payload;
+                                    ObjectId userId = (ObjectId)headers.get("user-id");
+                                    logger.info("TEST YOUTUBE Channel for user id: " + userId);
+                                    return Arrays.asList(new CommentEntity[] { 
+                                        new CommentEntity("Comentario 1 from youtube dirigido a " + userId, userId),
+                                        new CommentEntity("Comentario 2 from youtube dirigido a " + userId, userId)
+                                    });
                                 }
                             }))
                             .subFlowMapping(SocialMediaTypeEnum.INSTAGRAM, sf -> sf.handle(new GenericHandler<SocialMediaEntity>() {
                                 @Override
                                 public Object handle(SocialMediaEntity payload, Map<String, Object> headers) {
-                                    logger.info("TEST INSTAGRAM Channel for user id: " + headers.get("user-id"));
-                                    return payload;
+                                    ObjectId userId = (ObjectId)headers.get("user-id");
+                                    logger.info("TEST INSTAGRAM Channel for user id: " + userId);
+                                    return Arrays.asList(new CommentEntity[] { 
+                                        new CommentEntity("Comentario 1 from instagram dirigido a " + userId, userId),
+                                        new CommentEntity("Comentario 2 from instagram dirigido a " + userId, userId)
+                                    });
                                 }
                             }))
                 )
                 .channel("directChannel_2")
                 .aggregate()
                 .channel("directChannel_3")
-                .wireTap(sf -> sf.handle(message -> 
-                    logger.info("Finish Social Media for user  "  + message.getHeaders().get("user-id"))
-                ))
+                .<List<List<CommentEntity>>, List<CommentEntity>>transform(comments -> 
+                        comments.stream().flatMap(List::stream).collect(Collectors.toList()))
                 .aggregate()
                 .channel("directChannel_4")
-                .handle(usersEntity -> 
-                    logger.info("users:" + usersEntity.getPayload() + " on thread "
-                        + Thread.currentThread().getName())
-                )
+                .<List<List<CommentEntity>>, List<CommentEntity>>transform(comments -> 
+                        comments.stream().flatMap(List::stream).collect(Collectors.toList()))
+                .channel("storeChannel")
                 .get();
     }
     
