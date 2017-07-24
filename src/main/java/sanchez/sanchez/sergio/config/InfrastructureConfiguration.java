@@ -10,7 +10,6 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.mongodb.MongoDbFactory;
 import org.springframework.expression.common.LiteralExpression;
 import org.springframework.integration.annotation.IntegrationComponentScan;
-import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.core.MessageSource;
 import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.IntegrationFlows;
@@ -25,9 +24,11 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import org.bson.types.ObjectId;
 import org.springframework.integration.dsl.channel.MessageChannels;
+import org.springframework.integration.dsl.support.GenericHandler;
 import org.springframework.integration.splitter.AbstractMessageSplitter;
 import org.springframework.messaging.Message;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaEntity;
+import sanchez.sanchez.sergio.persistence.entity.SocialMediaTypeEnum;
 
 /**
  *
@@ -73,42 +74,61 @@ public class InfrastructureConfiguration {
     }
     
     @Bean
-    public DirectChannel directChannel_1() {
-        return new DirectChannel();
-    }
-    
-    
-    @Bean
-    public DirectChannel directChannel_2() {
-        return new DirectChannel();
-    }
-    
-    
-    @Bean
     @Autowired
     public IntegrationFlow processUsers(MongoDbFactory mongo, PollerMetadata poller) {
         return IntegrationFlows.from(mongoMessageSource(mongo), c -> c.poller(poller))
-                .<List<UserEntity>, Map<ObjectId, List<SocialMediaEntity>>>transform(userEntitiesList -> 
-                    userEntitiesList.stream().collect(Collectors.toMap(UserEntity::getId, UserEntity::getSocialMedia))
+                .<List<UserEntity>, Map<ObjectId, List<SocialMediaEntity>>>transform(userEntitiesList
+                        -> userEntitiesList.stream().collect(Collectors.toMap(UserEntity::getId, UserEntity::getSocialMedia))
                 )
                 .split(new AbstractMessageSplitter() {
                     @Override
                     protected Object splitMessage(Message<?> msg) {
-                        return ((Map<ObjectId, List<SocialMediaEntity>>)msg.getPayload()).entrySet();
+                        return ((Map<ObjectId, List<SocialMediaEntity>>) msg.getPayload()).entrySet();
                     }
                 })
-                .channel(this.directChannel_1())
+                .channel("directChannel_1")
+                .enrichHeaders(s -> s.headerExpressions(h -> h.put("user-id", "payload.key")))
                 .split(new AbstractMessageSplitter() {
                     @Override
                     protected Object splitMessage(Message<?> msg) {
-                        return ((Entry<ObjectId, List<SocialMediaEntity>>)msg.getPayload()).getValue();
+                        return ((Entry<ObjectId, List<SocialMediaEntity>>) msg.getPayload()).getValue();
                     }
                 })
                 .channel(MessageChannels.executor("executorChannel", this.taskExecutor()))
+                .<SocialMediaEntity, SocialMediaTypeEnum>route(p -> p.getType(),
+                        m
+                        -> m.subFlowMapping(SocialMediaTypeEnum.FACEBOOK, sf -> sf.handle(new GenericHandler<SocialMediaEntity>() {
+                                @Override
+                                public Object handle(SocialMediaEntity payload, Map<String, Object> headers) {
+                                    logger.info("TEST FACEBOOK Channel for user id: " + headers.get("user-id"));
+                                    return payload;
+                                }
+                            }))
+                            .subFlowMapping(SocialMediaTypeEnum.YOUTUBE, sf -> sf.handle(new GenericHandler<SocialMediaEntity>() {
+                                @Override
+                                public Object handle(SocialMediaEntity payload, Map<String, Object> headers) {
+                                    logger.info("TEST YOUTUBE Channel for user id: " + headers.get("user-id"));
+                                    return payload;
+                                }
+                            }))
+                            .subFlowMapping(SocialMediaTypeEnum.INSTAGRAM, sf -> sf.handle(new GenericHandler<SocialMediaEntity>() {
+                                @Override
+                                public Object handle(SocialMediaEntity payload, Map<String, Object> headers) {
+                                    logger.info("TEST INSTAGRAM Channel for user id: " + headers.get("user-id"));
+                                    return payload;
+                                }
+                            }))
+                )
+                .channel("directChannel_2")
                 .aggregate()
-                .channel(this.directChannel_2())
+                .channel("directChannel_3")
+                .wireTap(sf -> sf.handle(message -> 
+                    logger.info("Finish Social Media for user  "  + message.getHeaders().get("user-id"))
+                ))
+                .aggregate()
+                .channel("directChannel_4")
                 .handle(usersEntity -> 
-                    logger.debug("users:" + usersEntity.getPayload() + " on thread "
+                    logger.info("users:" + usersEntity.getPayload() + " on thread "
                         + Thread.currentThread().getName())
                 )
                 .get();
