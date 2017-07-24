@@ -12,6 +12,7 @@ import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
+import sanchez.sanchez.sergio.persistence.utils.CascadeSave;
 
 /**
  *
@@ -32,6 +33,7 @@ public class UserEntity {
     private Integer age;
     
     @DBRef
+    @CascadeSave
     private List<SocialMediaEntity> socialMedia;
 
     @PersistenceConstructor

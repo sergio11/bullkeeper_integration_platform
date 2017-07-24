@@ -1,12 +1,8 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package sanchez.sanchez.sergio.persistence.entity;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -22,6 +18,16 @@ public class SocialMediaEntity {
     
     @Field("access_token")
     private String accessToken;
+    
+    @Field("social_media_type")
+    private SocialMediaTypeEnum type;
+
+    @PersistenceConstructor
+    public SocialMediaEntity(String accessToken, SocialMediaTypeEnum type) {
+        this.accessToken = accessToken;
+        this.type = type;
+    }
+   
 
     public ObjectId getId() {
         return id;
@@ -35,11 +41,17 @@ public class SocialMediaEntity {
         this.accessToken = accessToken;
     }
 
+    public SocialMediaTypeEnum getType() {
+        return type;
+    }
+
+    public void setType(SocialMediaTypeEnum type) {
+        this.type = type;
+    }
+
     @Override
     public String toString() {
-        return "SocialMediaEntity{" + "id=" + id + ", accessToken=" + accessToken + '}';
+        return "SocialMediaEntity{" + "id=" + id + ", accessToken=" + accessToken + ", type=" + type + '}';
     }
-    
-    
-    
+
 }

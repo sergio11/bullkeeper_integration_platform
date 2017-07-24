@@ -10,16 +10,24 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.mongodb.MongoDbFactory;
 import org.springframework.expression.common.LiteralExpression;
 import org.springframework.integration.annotation.IntegrationComponentScan;
+import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.core.MessageSource;
 import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.IntegrationFlows;
-import org.springframework.integration.dsl.channel.MessageChannels;
 import org.springframework.integration.dsl.core.Pollers;
-import org.springframework.integration.dsl.support.GenericHandler;
 import org.springframework.integration.mongodb.inbound.MongoDbMessageSource;
 import org.springframework.integration.scheduling.PollerMetadata;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import sanchez.sanchez.sergio.persistence.entity.UserEntity;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
+import org.bson.types.ObjectId;
+import org.springframework.integration.dsl.channel.MessageChannels;
+import org.springframework.integration.splitter.AbstractMessageSplitter;
+import org.springframework.messaging.Message;
+import sanchez.sanchez.sergio.persistence.entity.SocialMediaEntity;
 
 /**
  *
@@ -65,18 +73,44 @@ public class InfrastructureConfiguration {
     }
     
     @Bean
+    public DirectChannel directChannel_1() {
+        return new DirectChannel();
+    }
+    
+    
+    @Bean
+    public DirectChannel directChannel_2() {
+        return new DirectChannel();
+    }
+    
+    
+    @Bean
     @Autowired
     public IntegrationFlow processUsers(MongoDbFactory mongo, PollerMetadata poller) {
         return IntegrationFlows.from(mongoMessageSource(mongo), c -> c.poller(poller))
-                /*.split()
-                .channel(MessageChannels.executor("executorChannel", this.taskExecutor()))
-                .handle((GenericHandler<UserEntity>) (payload, headers) -> {
-                    logger.debug("user:" + payload + " on thread "
-                        + Thread.currentThread().getName());
-                    return payload;
+                .<List<UserEntity>, Map<ObjectId, List<SocialMediaEntity>>>transform(userEntitiesList -> 
+                    userEntitiesList.stream().collect(Collectors.toMap(UserEntity::getId, UserEntity::getSocialMedia))
+                )
+                .split(new AbstractMessageSplitter() {
+                    @Override
+                    protected Object splitMessage(Message<?> msg) {
+                        return ((Map<ObjectId, List<SocialMediaEntity>>)msg.getPayload()).entrySet();
+                    }
                 })
-                .aggregate()*/
-                .handle(users -> logger.info(users.toString()))
+                .channel(this.directChannel_1())
+                .split(new AbstractMessageSplitter() {
+                    @Override
+                    protected Object splitMessage(Message<?> msg) {
+                        return ((Entry<ObjectId, List<SocialMediaEntity>>)msg.getPayload()).getValue();
+                    }
+                })
+                .channel(MessageChannels.executor("executorChannel", this.taskExecutor()))
+                .aggregate()
+                .channel(this.directChannel_2())
+                .handle(usersEntity -> 
+                    logger.debug("users:" + usersEntity.getPayload() + " on thread "
+                        + Thread.currentThread().getName())
+                )
                 .get();
     }
     

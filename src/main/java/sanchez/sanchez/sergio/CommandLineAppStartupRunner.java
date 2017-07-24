@@ -10,6 +10,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaEntity;
+import sanchez.sanchez.sergio.persistence.entity.SocialMediaTypeEnum;
 import sanchez.sanchez.sergio.persistence.entity.UserEntity;
 import sanchez.sanchez.sergio.persistence.repository.UserRepository;
 
@@ -28,11 +29,35 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
     
     static {
     
-        usersTest.add(new UserEntity("Sergio", "Martín", 11, Collections.<SocialMediaEntity>emptyList()));
-        usersTest.add(new UserEntity("Pedro", "Sánchez", 12, Collections.<SocialMediaEntity>emptyList()));
-        usersTest.add(new UserEntity("Maite", "Pérez", 14, Collections.<SocialMediaEntity>emptyList()));
-        usersTest.add(new UserEntity("David", "García", 14, Collections.<SocialMediaEntity>emptyList()));
-        usersTest.add(new UserEntity("Elena", "Iglesias", 12, Collections.<SocialMediaEntity>emptyList()));
+        usersTest.add(new UserEntity("Sergio", "Martín", 11, Arrays.asList( new SocialMediaEntity[] { 
+            new SocialMediaEntity("abc", SocialMediaTypeEnum.FACEBOOK),
+            new SocialMediaEntity("abc", SocialMediaTypeEnum.INSTAGRAM),
+            new SocialMediaEntity("abc", SocialMediaTypeEnum.YOUTUBE)
+        })));
+        
+        usersTest.add(new UserEntity("Pedro", "Sánchez", 12, Arrays.asList( new SocialMediaEntity[] { 
+            new SocialMediaEntity("abc", SocialMediaTypeEnum.FACEBOOK),
+            new SocialMediaEntity("abc", SocialMediaTypeEnum.INSTAGRAM),
+            new SocialMediaEntity("abc", SocialMediaTypeEnum.YOUTUBE)
+        })));
+        
+        usersTest.add(new UserEntity("Maite", "Pérez", 14, Arrays.asList( new SocialMediaEntity[] { 
+            new SocialMediaEntity("abc", SocialMediaTypeEnum.FACEBOOK),
+            new SocialMediaEntity("abc", SocialMediaTypeEnum.INSTAGRAM),
+            new SocialMediaEntity("abc", SocialMediaTypeEnum.YOUTUBE)
+        })));
+        
+        usersTest.add(new UserEntity("David", "García", 14, Arrays.asList( new SocialMediaEntity[] { 
+            new SocialMediaEntity("abc", SocialMediaTypeEnum.FACEBOOK),
+            new SocialMediaEntity("abc", SocialMediaTypeEnum.INSTAGRAM),
+            new SocialMediaEntity("abc", SocialMediaTypeEnum.YOUTUBE)
+        })));
+        
+        usersTest.add(new UserEntity("Elena", "Iglesias", 12, Arrays.asList( new SocialMediaEntity[] { 
+            new SocialMediaEntity("abc", SocialMediaTypeEnum.FACEBOOK),
+            new SocialMediaEntity("abc", SocialMediaTypeEnum.INSTAGRAM),
+            new SocialMediaEntity("abc", SocialMediaTypeEnum.YOUTUBE)
+        })));
     
     }
 
