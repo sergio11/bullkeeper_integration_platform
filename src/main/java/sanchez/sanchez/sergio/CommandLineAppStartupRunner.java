@@ -30,7 +30,7 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
     static {
     
         usersTest.add(new UserEntity("Sergio", "Martín", 11, Arrays.asList( new SocialMediaEntity[] { 
-            new SocialMediaEntity("EAACEdEose0cBANvWyUYMhpdxsB7LKrKvw3XLrICc86G9XyIWctYPF0Mk4zZBD1WBYiZBBugd7rCz7RDuK0xO8xk3Cp6K91HuzcJbBNRL7Jiw9aibtPkOdtfwHePKffk5DCXDXZCmoEiHIBfIb1U5p8Q4U0tef6CzBHwLumSa56L7DPPwgNYZCRq4YCtH8R8ZD", SocialMediaTypeEnum.FACEBOOK),
+            new SocialMediaEntity("EAACEdEose0cBAP9Jloqys8ZCmFbdmVkTlKgNhwzAEMvmvWNGi8jCLZCoEyRyGthJxG1jz1YZCBWXErTtJMyAH6rMvpFTo39z3tWEgQ0W6ACh0fZAREwNDRZAEl7sIoZAViLNc88dFpoAZCENH2NFqQ9SL5fPKkQZBMqxpjBwTCLafGLrcaKRhVW1Fiya9FZCAyUgZD", SocialMediaTypeEnum.FACEBOOK),
             new SocialMediaEntity("sergio_access_token_instagram", SocialMediaTypeEnum.INSTAGRAM),
             new SocialMediaEntity("sergio_access_token_youtube", SocialMediaTypeEnum.YOUTUBE)
         })));

@@ -65,6 +65,7 @@ public class InfrastructureConfiguration {
     @Bean(name = PollerMetadata.DEFAULT_POLLER)
     public PollerMetadata poller() {
         return Pollers.fixedDelay(10, TimeUnit.SECONDS)
+                .errorChannel("customErrorChannel")
                 .get();
     }
     
