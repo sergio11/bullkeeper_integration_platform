@@ -1,5 +1,6 @@
 package sanchez.sanchez.sergio.persistence.entity;
 
+import java.util.Date;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceConstructor;
@@ -19,6 +20,12 @@ public class CommentEntity {
     @Field("message")
     private String message;
     
+    @Field("likes")
+    private Long likes = 0l;
+    
+    @Field("created_time")
+    private Date createdTime;
+    
     private ObjectId user;
 
     @PersistenceConstructor
@@ -26,9 +33,8 @@ public class CommentEntity {
         this.message = message;
         this.user = user;
     }
-
-    public CommentEntity(String message) {
-        this.message = message;
+    
+    public CommentEntity() {
     }
     
     public ObjectId getId() {
@@ -47,12 +53,25 @@ public class CommentEntity {
         this.message = message;
     }
 
+    public Long getLikes() {
+        return likes;
+    }
+
+    public void setLikes(Long likes) {
+        this.likes = likes;
+    }
+
     public ObjectId getUser() {
         return user;
     }
 
     public void setUser(ObjectId user) {
         this.user = user;
+    }
+
+    @Override
+    public String toString() {
+        return "CommentEntity{" + "id=" + id + ", message=" + message + ", likes=" + likes + ", createdTime=" + createdTime + '}';
     }
 
 }

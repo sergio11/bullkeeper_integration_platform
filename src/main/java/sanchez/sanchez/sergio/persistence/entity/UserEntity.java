@@ -32,6 +32,8 @@ public class UserEntity {
     
     private Integer age;
     
+    
+    
     @DBRef
     @CascadeSave
     private List<SocialMediaEntity> socialMedia;

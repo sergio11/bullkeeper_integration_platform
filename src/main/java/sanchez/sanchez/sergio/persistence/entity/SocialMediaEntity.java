@@ -21,6 +21,9 @@ public class SocialMediaEntity {
     
     @Field("social_media_type")
     private SocialMediaTypeEnum type;
+    
+    @Field("invalid_token")
+    private Boolean invalidToken = Boolean.FALSE;
 
     @PersistenceConstructor
     public SocialMediaEntity(String accessToken, SocialMediaTypeEnum type) {
@@ -49,9 +52,16 @@ public class SocialMediaEntity {
         this.type = type;
     }
 
-    @Override
-    public String toString() {
-        return "SocialMediaEntity{" + "id=" + id + ", accessToken=" + accessToken + ", type=" + type + '}';
+    public Boolean getInvalidToken() {
+        return invalidToken;
     }
 
+    public void setInvalidToken(Boolean invalidToken) {
+        this.invalidToken = invalidToken;
+    }
+
+    @Override
+    public String toString() {
+        return "SocialMediaEntity{" + "id=" + id + ", accessToken=" + accessToken + ", type=" + type + ", invalidToken=" + invalidToken + '}';
+    }
 }

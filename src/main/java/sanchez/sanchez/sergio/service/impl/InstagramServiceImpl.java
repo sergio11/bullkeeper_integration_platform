@@ -6,6 +6,7 @@
 package sanchez.sanchez.sergio.service.impl;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,10 +25,7 @@ public class InstagramServiceImpl implements IInstagramService {
 
     @Override
     public List<CommentEntity> getComments(String accessToken) {
-        return Arrays.asList(new CommentEntity[]{
-            new CommentEntity("Comentario 1 from instagram dirigido a "),
-            new CommentEntity("Comentario 2 from instagram dirigido a ")
-        });
+        return Collections.<CommentEntity>emptyList();
     }
     
 }

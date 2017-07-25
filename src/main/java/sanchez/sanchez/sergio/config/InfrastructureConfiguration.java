@@ -27,7 +27,6 @@ import javax.annotation.PostConstruct;
 import org.bson.types.ObjectId;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.dsl.channel.MessageChannels;
-import org.springframework.integration.dsl.support.GenericHandler;
 import org.springframework.integration.mongodb.outbound.MongoDbStoringMessageHandler;
 import org.springframework.integration.splitter.AbstractMessageSplitter;
 import org.springframework.messaging.Message;
@@ -58,16 +57,15 @@ public class InfrastructureConfiguration {
     
     @Autowired
     private IYoutubeService youtubeService;
-    
-    
-    
+   
     /**
      * The Pollers builder factory can be used to configure common bean definitions or 
      * those created from IntegrationFlowBuilder EIP-methods
      */
     @Bean(name = PollerMetadata.DEFAULT_POLLER)
     public PollerMetadata poller() {
-        return Pollers.fixedDelay(10, TimeUnit.SECONDS).get();
+        return Pollers.fixedDelay(10, TimeUnit.SECONDS)
+                .get();
     }
     
     @Bean
@@ -80,7 +78,6 @@ public class InfrastructureConfiguration {
     }
     
     /**
-     * 
      * MongoDbMessageSource is an instance of MessageSource which returns a Message with a payload 
      * which is the result of execution of a Query
      */
@@ -102,6 +99,14 @@ public class InfrastructureConfiguration {
         return adapter;
     }
     
+    @Bean
+    public IntegrationFlow errorFlow() {
+        return IntegrationFlows.from("errorChannel")
+                .handle("errorService", "handleException")
+                .get();
+    }
+    
+   
     @Bean
     @Autowired
     public IntegrationFlow processUsers(MongoDbFactory mongo, PollerMetadata poller) {

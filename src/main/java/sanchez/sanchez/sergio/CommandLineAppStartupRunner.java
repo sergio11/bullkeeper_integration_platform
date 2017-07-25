@@ -30,33 +30,33 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
     static {
     
         usersTest.add(new UserEntity("Sergio", "Martín", 11, Arrays.asList( new SocialMediaEntity[] { 
-            new SocialMediaEntity("abc", SocialMediaTypeEnum.FACEBOOK),
-            new SocialMediaEntity("abc", SocialMediaTypeEnum.INSTAGRAM),
-            new SocialMediaEntity("abc", SocialMediaTypeEnum.YOUTUBE)
+            new SocialMediaEntity("EAACEdEose0cBANvWyUYMhpdxsB7LKrKvw3XLrICc86G9XyIWctYPF0Mk4zZBD1WBYiZBBugd7rCz7RDuK0xO8xk3Cp6K91HuzcJbBNRL7Jiw9aibtPkOdtfwHePKffk5DCXDXZCmoEiHIBfIb1U5p8Q4U0tef6CzBHwLumSa56L7DPPwgNYZCRq4YCtH8R8ZD", SocialMediaTypeEnum.FACEBOOK),
+            new SocialMediaEntity("sergio_access_token_instagram", SocialMediaTypeEnum.INSTAGRAM),
+            new SocialMediaEntity("sergio_access_token_youtube", SocialMediaTypeEnum.YOUTUBE)
         })));
         
         usersTest.add(new UserEntity("Pedro", "Sánchez", 12, Arrays.asList( new SocialMediaEntity[] { 
-            new SocialMediaEntity("abc", SocialMediaTypeEnum.FACEBOOK),
-            new SocialMediaEntity("abc", SocialMediaTypeEnum.INSTAGRAM),
-            new SocialMediaEntity("abc", SocialMediaTypeEnum.YOUTUBE)
+            new SocialMediaEntity("pedro_access_token_facebook", SocialMediaTypeEnum.FACEBOOK),
+            new SocialMediaEntity("pedro_access_token_instagram", SocialMediaTypeEnum.INSTAGRAM),
+            new SocialMediaEntity("pedro_access_token_instagram", SocialMediaTypeEnum.YOUTUBE)
         })));
         
         usersTest.add(new UserEntity("Maite", "Pérez", 14, Arrays.asList( new SocialMediaEntity[] { 
-            new SocialMediaEntity("abc", SocialMediaTypeEnum.FACEBOOK),
-            new SocialMediaEntity("abc", SocialMediaTypeEnum.INSTAGRAM),
-            new SocialMediaEntity("abc", SocialMediaTypeEnum.YOUTUBE)
+            new SocialMediaEntity("maite_access_token_facebook", SocialMediaTypeEnum.FACEBOOK),
+            new SocialMediaEntity("maite_access_token_instagram", SocialMediaTypeEnum.INSTAGRAM),
+            new SocialMediaEntity("maite_access_token_youtube", SocialMediaTypeEnum.YOUTUBE)
         })));
         
         usersTest.add(new UserEntity("David", "García", 14, Arrays.asList( new SocialMediaEntity[] { 
-            new SocialMediaEntity("abc", SocialMediaTypeEnum.FACEBOOK),
-            new SocialMediaEntity("abc", SocialMediaTypeEnum.INSTAGRAM),
-            new SocialMediaEntity("abc", SocialMediaTypeEnum.YOUTUBE)
+            new SocialMediaEntity("david_access_token_facebook", SocialMediaTypeEnum.FACEBOOK),
+            new SocialMediaEntity("david_access_token_instagram", SocialMediaTypeEnum.INSTAGRAM),
+            new SocialMediaEntity("david_access_token_youtube", SocialMediaTypeEnum.YOUTUBE)
         })));
         
         usersTest.add(new UserEntity("Elena", "Iglesias", 12, Arrays.asList( new SocialMediaEntity[] { 
-            new SocialMediaEntity("abc", SocialMediaTypeEnum.FACEBOOK),
-            new SocialMediaEntity("abc", SocialMediaTypeEnum.INSTAGRAM),
-            new SocialMediaEntity("abc", SocialMediaTypeEnum.YOUTUBE)
+            new SocialMediaEntity("elena_access_token_facebook", SocialMediaTypeEnum.FACEBOOK),
+            new SocialMediaEntity("elena_access_token_instagram", SocialMediaTypeEnum.INSTAGRAM),
+            new SocialMediaEntity("elena_access_token_youtube", SocialMediaTypeEnum.YOUTUBE)
         })));
     
     }
