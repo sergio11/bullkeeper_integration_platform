@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+import javax.annotation.PostConstruct;
 import org.bson.types.ObjectId;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.dsl.channel.MessageChannels;
@@ -31,9 +32,13 @@ import org.springframework.integration.mongodb.outbound.MongoDbStoringMessageHan
 import org.springframework.integration.splitter.AbstractMessageSplitter;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHandler;
+import org.springframework.util.Assert;
 import sanchez.sanchez.sergio.persistence.entity.CommentEntity;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaEntity;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaTypeEnum;
+import sanchez.sanchez.sergio.service.IFacebookService;
+import sanchez.sanchez.sergio.service.IInstagramService;
+import sanchez.sanchez.sergio.service.IYoutubeService;
 
 /**
  *
@@ -44,6 +49,17 @@ import sanchez.sanchez.sergio.persistence.entity.SocialMediaTypeEnum;
 public class InfrastructureConfiguration {
     
     private static Logger logger = LoggerFactory.getLogger(InfrastructureConfiguration.class);
+    
+    @Autowired
+    private IFacebookService facebookService;
+    
+    @Autowired
+    private IInstagramService instagramService;
+    
+    @Autowired
+    private IYoutubeService youtubeService;
+    
+    
     
     /**
      * The Pollers builder factory can be used to configure common bean definitions or 
@@ -110,39 +126,12 @@ public class InfrastructureConfiguration {
                 .channel(MessageChannels.executor("executorChannel", this.taskExecutor()))
                 .<SocialMediaEntity, SocialMediaTypeEnum>route(p -> p.getType(),
                         m
-                        -> m.subFlowMapping(SocialMediaTypeEnum.FACEBOOK, sf -> sf.handle(new GenericHandler<SocialMediaEntity>() {
-                                @Override
-                                public Object handle(SocialMediaEntity payload, Map<String, Object> headers) {
-                                    ObjectId userId = (ObjectId)headers.get("user-id");
-                                    logger.info("TEST FACEBOOK Channel for user id: " + userId);
-                                    return Arrays.asList(new CommentEntity[] { 
-                                        new CommentEntity("Comentario 1 from facebook dirigido a " + userId, userId),
-                                        new CommentEntity("Comentario 2 from facebook dirigido a " + userId, userId)
-                                    });
-                                }
-                            }))
-                            .subFlowMapping(SocialMediaTypeEnum.YOUTUBE, sf -> sf.handle(new GenericHandler<SocialMediaEntity>() {
-                                @Override
-                                public Object handle(SocialMediaEntity payload, Map<String, Object> headers) {
-                                    ObjectId userId = (ObjectId)headers.get("user-id");
-                                    logger.info("TEST YOUTUBE Channel for user id: " + userId);
-                                    return Arrays.asList(new CommentEntity[] { 
-                                        new CommentEntity("Comentario 1 from youtube dirigido a " + userId, userId),
-                                        new CommentEntity("Comentario 2 from youtube dirigido a " + userId, userId)
-                                    });
-                                }
-                            }))
-                            .subFlowMapping(SocialMediaTypeEnum.INSTAGRAM, sf -> sf.handle(new GenericHandler<SocialMediaEntity>() {
-                                @Override
-                                public Object handle(SocialMediaEntity payload, Map<String, Object> headers) {
-                                    ObjectId userId = (ObjectId)headers.get("user-id");
-                                    logger.info("TEST INSTAGRAM Channel for user id: " + userId);
-                                    return Arrays.asList(new CommentEntity[] { 
-                                        new CommentEntity("Comentario 1 from instagram dirigido a " + userId, userId),
-                                        new CommentEntity("Comentario 2 from instagram dirigido a " + userId, userId)
-                                    });
-                                }
-                            }))
+                        -> m.subFlowMapping(SocialMediaTypeEnum.FACEBOOK, 
+                                sf -> sf.handle(SocialMediaEntity.class, (p, h) -> facebookService.getComments(p.getAccessToken())))
+                            .subFlowMapping(SocialMediaTypeEnum.YOUTUBE, 
+                                sf -> sf.handle(SocialMediaEntity.class, (p, h) -> youtubeService.getComments(p.getAccessToken())))
+                            .subFlowMapping(SocialMediaTypeEnum.INSTAGRAM, 
+                                sf -> sf.handle(SocialMediaEntity.class, (p, h) -> instagramService.getComments(p.getAccessToken())))
                 )
                 .channel("directChannel_2")
                 .aggregate()
@@ -155,6 +144,14 @@ public class InfrastructureConfiguration {
                         comments.stream().flatMap(List::stream).collect(Collectors.toList()))
                 .channel("storeChannel")
                 .get();
+    }
+    
+    
+    @PostConstruct
+    protected void init(){
+        Assert.notNull(facebookService, "The Facebook Service can not be null");
+        Assert.notNull(instagramService, "The Instagram Service can not be null");
+        Assert.notNull(youtubeService, "The Youtube Service can not be null");
     }
     
 }

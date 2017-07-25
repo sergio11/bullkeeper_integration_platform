@@ -26,6 +26,10 @@ public class CommentEntity {
         this.message = message;
         this.user = user;
     }
+
+    public CommentEntity(String message) {
+        this.message = message;
+    }
     
     public ObjectId getId() {
         return id;

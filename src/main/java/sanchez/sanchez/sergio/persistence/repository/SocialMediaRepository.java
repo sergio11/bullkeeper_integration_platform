@@ -11,6 +11,4 @@ import sanchez.sanchez.sergio.persistence.entity.SocialMediaEntity;
  * @author sergio
  */
 @Repository
-public interface SocialMediaRepository extends MongoRepository<SocialMediaEntity, ObjectId> {
-    
-}
+public interface SocialMediaRepository extends MongoRepository<SocialMediaEntity, ObjectId> {}
