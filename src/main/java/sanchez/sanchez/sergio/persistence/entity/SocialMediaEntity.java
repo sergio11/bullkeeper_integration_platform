@@ -52,7 +52,7 @@ public class SocialMediaEntity {
         this.type = type;
     }
 
-    public Boolean getInvalidToken() {
+    public Boolean isInvalidToken() {
         return invalidToken;
     }
 

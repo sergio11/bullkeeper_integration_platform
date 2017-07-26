@@ -1,6 +1,8 @@
 package sanchez.sanchez.sergio.config;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,9 +31,12 @@ import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.dsl.channel.MessageChannels;
 import org.springframework.integration.mongodb.outbound.MongoDbStoringMessageHandler;
 import org.springframework.integration.splitter.AbstractMessageSplitter;
+import org.springframework.integration.support.MessageBuilder;
+import org.springframework.integration.transformer.GenericTransformer;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHandler;
 import org.springframework.messaging.MessageHeaders;
+import org.springframework.messaging.MessagingException;
 import org.springframework.util.Assert;
 import sanchez.sanchez.sergio.persistence.entity.CommentEntity;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaEntity;
@@ -58,7 +63,7 @@ public class InfrastructureConfiguration {
     
     @Autowired
     private IYoutubeService youtubeService;
-   
+    
    
     /**
      * The Pollers builder factory can be used to configure common bean definitions or 
@@ -101,16 +106,20 @@ public class InfrastructureConfiguration {
         return adapter;
     }
     
-    
-    
     @Bean
-    public IntegrationFlow errorFlow() {
-        return IntegrationFlows.from("customErrorChannel")
-                .handle("errorService", "handleException")
+    public IntegrationFlow socialMediaErrorFlow() {
+        return IntegrationFlows.from("socialMediaErrorChannel")
+                .wireTap(sf -> sf.handle("errorService", "handleException"))
+                .<MessagingException>handle((p, h)
+                        -> MessageBuilder.withPayload(Collections.<CommentEntity>emptyList())
+                        .copyHeaders(p.getFailedMessage().getHeaders())
+                        .setHeader("ERROR", true)
+                        .build()
+                )
+                .channel("directChannel_2")
                 .get();
     }
     
-   
     @Bean
     @Autowired
     public IntegrationFlow processUsers(MongoDbFactory mongo, PollerMetadata poller) {
@@ -124,11 +133,11 @@ public class InfrastructureConfiguration {
                         return ((Map<ObjectId, List<SocialMediaEntity>>) msg.getPayload()).entrySet();
                     }
                 })
-                .channel("directChannel_1")
                 .enrichHeaders(s -> 
-                        s.headerExpressions(h -> h.put("user-id", "payload.key"))
-                        .header(MessageHeaders.ERROR_CHANNEL, "customErrorChannel")
+                    s.headerExpressions(h -> h.put("user-id", "payload.key"))
+                    .header(MessageHeaders.ERROR_CHANNEL, "socialMediaErrorChannel")
                 )
+                .channel("directChannel_1")
                 .split(new AbstractMessageSplitter() {
                     @Override
                     protected Object splitMessage(Message<?> msg) {
@@ -148,8 +157,18 @@ public class InfrastructureConfiguration {
                 .channel("directChannel_2")
                 .aggregate()
                 .channel("directChannel_3")
-                .<List<List<CommentEntity>>, List<CommentEntity>>transform(comments -> 
-                        comments.stream().flatMap(List::stream).collect(Collectors.toList()))
+                .transform(new GenericTransformer<Message<List<List<CommentEntity>>>, List<CommentEntity>>() {
+                    @Override
+                    public List<CommentEntity> transform(Message<List<List<CommentEntity>>> message) {
+                        ObjectId userId = (ObjectId)message.getHeaders().get("user-id");
+                        List<CommentEntity> userComments = new ArrayList<>();
+                        message.getPayload().stream().flatMap(List::stream).forEach(commentEntity -> {
+                            commentEntity.setUser(userId);
+                            userComments.add(commentEntity);
+                        });
+                        return userComments;
+                    }
+                })
                 .aggregate()
                 .channel("directChannel_4")
                 .<List<List<CommentEntity>>, List<CommentEntity>>transform(comments -> 
