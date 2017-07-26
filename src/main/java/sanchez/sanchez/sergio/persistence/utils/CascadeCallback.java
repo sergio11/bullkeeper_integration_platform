@@ -5,16 +5,15 @@ import java.util.List;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.util.ReflectionUtils;
-import sanchez.sanchez.sergio.persistence.repository.SocialMediaRepository;
 
 public class CascadeCallback implements ReflectionUtils.FieldCallback {
 
     private Object source;
-    private SocialMediaRepository repository;
+    private MongoOperations mongoOperations;
 
-    public CascadeCallback(final Object source, final SocialMediaRepository repository) {
+    public CascadeCallback(final Object source, final MongoOperations mongoOperations) {
         this.source = source;
-        this.repository = repository;
+        this.mongoOperations = mongoOperations;
     }
 
     @Override
@@ -28,8 +27,14 @@ public class CascadeCallback implements ReflectionUtils.FieldCallback {
                 final FieldCallback callback = new FieldCallback();
 
                 ReflectionUtils.doWithFields(fieldValue.getClass(), callback);
-
-                repository.save((List)fieldValue);
+                
+                if(fieldValue instanceof List) {
+                    List valueList = (List)fieldValue;
+                    for(Object value: valueList)
+                        mongoOperations.save(value);
+                } else {
+                    mongoOperations.save(fieldValue);
+                }
             }
         }
 

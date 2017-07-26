@@ -27,6 +27,7 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import org.bson.types.ObjectId;
+import org.springframework.integration.config.EnableIntegration;
 import org.springframework.integration.core.GenericSelector;
 import org.springframework.integration.dsl.channel.MessageChannels;
 import org.springframework.integration.splitter.AbstractMessageSplitter;
@@ -48,6 +49,7 @@ import sanchez.sanchez.sergio.service.IYoutubeService;
  * @author sergio
  */
 @Configuration
+@EnableIntegration
 @IntegrationComponentScan
 public class InfrastructureConfiguration {
     

@@ -2,11 +2,11 @@ package sanchez.sanchez.sergio;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaEntity;
@@ -18,7 +18,9 @@ import sanchez.sanchez.sergio.persistence.repository.UserRepository;
  *
  * @author sergio
  */
+
 @Component
+@Profile("dev")
 public class CommandLineAppStartupRunner implements CommandLineRunner {
     
     private static final Logger logger = LoggerFactory.getLogger(CommandLineAppStartupRunner.class);
