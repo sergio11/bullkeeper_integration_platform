@@ -26,12 +26,16 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import org.bson.types.ObjectId;
 import org.springframework.integration.annotation.ServiceActivator;
+import org.springframework.integration.channel.MessagePublishingErrorHandler;
 import org.springframework.integration.dsl.channel.MessageChannels;
 import org.springframework.integration.mongodb.outbound.MongoDbStoringMessageHandler;
 import org.springframework.integration.splitter.AbstractMessageSplitter;
 import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
+import org.springframework.messaging.MessageHeaders;
 import org.springframework.util.Assert;
+import org.springframework.util.ErrorHandler;
 import sanchez.sanchez.sergio.persistence.entity.CommentEntity;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaEntity;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaTypeEnum;
@@ -58,6 +62,7 @@ public class InfrastructureConfiguration {
     @Autowired
     private IYoutubeService youtubeService;
    
+   
     /**
      * The Pollers builder factory can be used to configure common bean definitions or 
      * those created from IntegrationFlowBuilder EIP-methods
@@ -65,7 +70,6 @@ public class InfrastructureConfiguration {
     @Bean(name = PollerMetadata.DEFAULT_POLLER)
     public PollerMetadata poller() {
         return Pollers.fixedDelay(10, TimeUnit.SECONDS)
-                .errorChannel("customErrorChannel")
                 .get();
     }
     
@@ -100,9 +104,11 @@ public class InfrastructureConfiguration {
         return adapter;
     }
     
+    
+    
     @Bean
     public IntegrationFlow errorFlow() {
-        return IntegrationFlows.from("errorChannel")
+        return IntegrationFlows.from("customErrorChannel")
                 .handle("errorService", "handleException")
                 .get();
     }
@@ -122,7 +128,10 @@ public class InfrastructureConfiguration {
                     }
                 })
                 .channel("directChannel_1")
-                .enrichHeaders(s -> s.headerExpressions(h -> h.put("user-id", "payload.key")))
+                .enrichHeaders(s -> 
+                        s.headerExpressions(h -> h.put("user-id", "payload.key"))
+                        .header(MessageHeaders.ERROR_CHANNEL, "customErrorChannel")
+                )
                 .split(new AbstractMessageSplitter() {
                     @Override
                     protected Object splitMessage(Message<?> msg) {
