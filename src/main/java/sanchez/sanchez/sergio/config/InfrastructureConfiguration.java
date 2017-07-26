@@ -27,14 +27,12 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import org.bson.types.ObjectId;
-import org.springframework.integration.annotation.ServiceActivator;
+import org.springframework.integration.core.GenericSelector;
 import org.springframework.integration.dsl.channel.MessageChannels;
-import org.springframework.integration.mongodb.outbound.MongoDbStoringMessageHandler;
 import org.springframework.integration.splitter.AbstractMessageSplitter;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.integration.transformer.GenericTransformer;
 import org.springframework.messaging.Message;
-import org.springframework.messaging.MessageHandler;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.MessagingException;
 import org.springframework.util.Assert;
@@ -96,14 +94,6 @@ public class InfrastructureConfiguration {
         messageSource.setEntityClass(UserEntity.class);
         messageSource.setCollectionNameExpression(new LiteralExpression("users"));
         return messageSource;
-    }
-    
-    @Bean
-    @ServiceActivator(inputChannel = "storeChannel")
-    public MessageHandler mongodbAdapter(MongoDbFactory mongo) throws Exception {
-        MongoDbStoringMessageHandler adapter = new MongoDbStoringMessageHandler(mongo);
-        adapter.setCollectionNameExpression(new LiteralExpression("comments"));
-        return adapter;
     }
     
     @Bean
@@ -174,6 +164,13 @@ public class InfrastructureConfiguration {
                 .<List<List<CommentEntity>>, List<CommentEntity>>transform(comments -> 
                         comments.stream().flatMap(List::stream).collect(Collectors.toList()))
                 .channel("storeChannel")
+                .filter(new GenericSelector<List<CommentEntity>> () {
+                    @Override
+                    public boolean accept(List<CommentEntity> commentEntities) {
+                        return commentEntities.size() > 0;
+                    }
+                })
+                .handle("commentService", "saveComments")
                 .get();
     }
     
