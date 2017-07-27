@@ -12,6 +12,6 @@ import sanchez.sanchez.sergio.persistence.entity.SocialMediaTypeEnum;
  * @author sergio
  */
 @Repository
-public interface SocialMediaRepository extends MongoRepository<SocialMediaEntity, ObjectId> {
+public interface SocialMediaRepository extends MongoRepository<SocialMediaEntity, ObjectId>, SocialMediaRepositoryCustom {
     SocialMediaEntity findByAccessTokenAndType(String accessToken, SocialMediaTypeEnum type);
 }

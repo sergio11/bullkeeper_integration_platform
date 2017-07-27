@@ -18,8 +18,10 @@ import sanchez.sanchez.sergio.persistence.utils.CascadeSave;
  *
  * @author sergio
  */
-@Document(collection="users")
+@Document(collection = UserEntity.COLLECTION_NAME)
 public class UserEntity {
+    
+    public final static String COLLECTION_NAME = "users";
     
     @Id
     private ObjectId id;
@@ -31,28 +33,18 @@ public class UserEntity {
     private String lastName;
     
     private Integer age;
-    
-    
-    
-    @DBRef
-    @CascadeSave
-    private List<SocialMediaEntity> socialMedia;
 
     @PersistenceConstructor
-    public UserEntity(String firstName, String lastName, Integer age, List<SocialMediaEntity> socialMedia) {
+    public UserEntity(String firstName, String lastName, Integer age) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.age = age;
-        this.socialMedia = socialMedia;
     }
-    
-    
 
     public ObjectId getId() {
         return id;
     }
-
-
+    
     public String getFirstName() {
         return firstName;
     }
@@ -77,19 +69,8 @@ public class UserEntity {
         this.age = age;
     }
 
-    public List<SocialMediaEntity> getSocialMedia() {
-        return socialMedia;
-    }
-
-    public void setSocialMedia(List<SocialMediaEntity> socialMedia) {
-        this.socialMedia = socialMedia;
-    }
-
     @Override
     public String toString() {
-        return "UserEntity{" + "id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", age=" + age + ", socialMedia=" + socialMedia + '}';
+        return "UserEntity{" + "id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", age=" + age + '}';
     }
-    
-    
-   
 }

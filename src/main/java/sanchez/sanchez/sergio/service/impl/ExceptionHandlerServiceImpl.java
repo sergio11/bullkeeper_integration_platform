@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import sanchez.sanchez.sergio.exception.GetCommentsProcessException;
 import sanchez.sanchez.sergio.exception.InvalidAccessTokenException;
 import sanchez.sanchez.sergio.exception.visitor.IExceptionVisitor;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaEntity;
@@ -33,22 +34,17 @@ public class ExceptionHandlerServiceImpl implements IExceptionHandlerService, IE
         Throwable cause = messageException.getPayload().getCause();
         if (cause instanceof IVisitable)
                 ((IVisitable<IExceptionVisitor>)cause).accept(this);
-        else
+        else {
             logger.error(cause.toString());
+           cause.printStackTrace();
+        }
+            
     }
 
     @Override
     public void visit(InvalidAccessTokenException exception) {
         logger.info("handleInvalidAccessToken ...");
-
-        SocialMediaEntity socialMedia = socialMediaRepository.findByAccessTokenAndType(exception.getAccessToken(),
-                exception.getSocialMediaType());
-
-        socialMedia.setInvalidToken(Boolean.TRUE);
-        
-        logger.info("Social Media : "  + socialMedia.toString());
-
-        socialMediaRepository.save(socialMedia);
+        socialMediaRepository.setAccessTokenAsInvalid(exception.getAccessToken(), exception.getSocialMediaType());
     }
     
    
@@ -57,5 +53,9 @@ public class ExceptionHandlerServiceImpl implements IExceptionHandlerService, IE
         Assert.notNull(socialMediaRepository, "The SocialMediaRepository can not be null");
     }
 
-    
+    @Override
+    public void visit(GetCommentsProcessException exception) {
+        logger.error(exception.getCause().toString());
+    }
+
 }

@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import sanchez.sanchez.sergio.exception.GetCommentsProcessException;
 import sanchez.sanchez.sergio.exception.InvalidAccessTokenException;
 import sanchez.sanchez.sergio.mapper.IFacebookCommentMapper;
 import sanchez.sanchez.sergio.persistence.entity.CommentEntity;
@@ -90,11 +91,11 @@ public class FacebookServiceImpl implements IFacebookService {
             comments.addAll(getAllCommentsForPosts(facebookClient));
             // Get all Comments for all albums.
             comments.addAll(getAllCommentsForAlbums(facebookClient));
-            logger.debug("Total comments : " + comments.size());
+            logger.debug("Total Facebook comments : " + comments.size());
         } catch (FacebookOAuthException e) {
             throw new InvalidAccessTokenException(SocialMediaTypeEnum.FACEBOOK, accessToken);
-        } catch (FacebookException e) {
-            logger.error(e.toString());
+        } catch (Exception e) {
+            throw new GetCommentsProcessException(e);
         }
         // map all facebook comments to comments entities.
         return facebookCommentMapper.facebookCommentsToCommentEntities(comments);

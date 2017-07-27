@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import sanchez.sanchez.sergio.exception.GetCommentsProcessException;
 import sanchez.sanchez.sergio.exception.InvalidAccessTokenException;
 import sanchez.sanchez.sergio.mapper.IInstagramCommentMapper;
 import sanchez.sanchez.sergio.persistence.entity.CommentEntity;
@@ -58,14 +59,13 @@ public class InstagramServiceImpl implements IInstagramService {
                 Comments comments = mediaData.getComments();
                 userComments.addAll(comments.getComments());
             }
+            logger.debug("Total Instagram Comments: " + userComments.size());
         } catch (InstagramBadRequestException  e) {
             throw new InvalidAccessTokenException(SocialMediaTypeEnum.INSTAGRAM, accessToken);
         } catch (Exception e) {
-            logger.error(e.toString());
+            throw new GetCommentsProcessException(e);
         }
-        
-        logger.debug("Total Instagram Comments: " + userComments.size());
-        
+  
         return instagramMapper.instagramCommentsToCommentEntities(userComments);
         
     }

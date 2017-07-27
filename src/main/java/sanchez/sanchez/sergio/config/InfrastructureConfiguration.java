@@ -1,6 +1,7 @@
 package sanchez.sanchez.sergio.config;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
@@ -21,22 +22,20 @@ import org.springframework.integration.scheduling.PollerMetadata;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import sanchez.sanchez.sergio.persistence.entity.UserEntity;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.*;
-import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
-import org.bson.types.ObjectId;
+import org.springframework.integration.aggregator.MessageGroupProcessor;
 import org.springframework.integration.config.EnableIntegration;
 import org.springframework.integration.core.GenericSelector;
 import org.springframework.integration.dsl.channel.MessageChannels;
-import org.springframework.integration.splitter.AbstractMessageSplitter;
+import org.springframework.integration.store.MessageGroup;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.integration.transformer.GenericTransformer;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.MessagingException;
 import org.springframework.util.Assert;
+import sanchez.sanchez.sergio.models.IterationResult;
 import sanchez.sanchez.sergio.persistence.entity.CommentEntity;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaEntity;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaTypeEnum;
@@ -70,8 +69,7 @@ public class InfrastructureConfiguration {
      */
     @Bean(name = PollerMetadata.DEFAULT_POLLER)
     public PollerMetadata poller() {
-        return Pollers.fixedDelay(10, TimeUnit.SECONDS)
-                .get();
+        return Pollers.fixedDelay(20, TimeUnit.SECONDS).get();
     }
     
     @Bean
@@ -91,10 +89,10 @@ public class InfrastructureConfiguration {
     @Bean
     @Autowired
     public MessageSource<Object> mongoMessageSource(MongoDbFactory mongo) {
-        MongoDbMessageSource messageSource = new MongoDbMessageSource(mongo, new LiteralExpression("{}"));
+        MongoDbMessageSource messageSource = new MongoDbMessageSource(mongo, new LiteralExpression("{invalidToken: {$ne: true}}"));
         messageSource.setExpectSingleResult(false);
-        messageSource.setEntityClass(UserEntity.class);
-        messageSource.setCollectionNameExpression(new LiteralExpression("users"));
+        messageSource.setEntityClass(SocialMediaEntity.class);
+        messageSource.setCollectionNameExpression(new LiteralExpression(SocialMediaEntity.COLLECTION_NAME));
         return messageSource;
     }
     
@@ -108,7 +106,7 @@ public class InfrastructureConfiguration {
                         .setHeader("ERROR", true)
                         .build()
                 )
-                .channel("directChannel_2")
+                .channel("directChannel_1")
                 .get();
     }
     
@@ -116,26 +114,11 @@ public class InfrastructureConfiguration {
     @Autowired
     public IntegrationFlow processUsers(MongoDbFactory mongo, PollerMetadata poller) {
         return IntegrationFlows.from(mongoMessageSource(mongo), c -> c.poller(poller))
-                .<List<UserEntity>, Map<ObjectId, List<SocialMediaEntity>>>transform(userEntitiesList
-                        -> userEntitiesList.stream().collect(Collectors.toMap(UserEntity::getId, UserEntity::getSocialMedia))
-                )
-                .split(new AbstractMessageSplitter() {
-                    @Override
-                    protected Object splitMessage(Message<?> msg) {
-                        return ((Map<ObjectId, List<SocialMediaEntity>>) msg.getPayload()).entrySet();
-                    }
-                })
+                .split()
                 .enrichHeaders(s -> 
-                    s.headerExpressions(h -> h.put("user-id", "payload.key"))
+                    s.headerExpressions(h -> h.put("user", "payload.userEntity"))
                     .header(MessageHeaders.ERROR_CHANNEL, "socialMediaErrorChannel")
                 )
-                .channel("directChannel_1")
-                .split(new AbstractMessageSplitter() {
-                    @Override
-                    protected Object splitMessage(Message<?> msg) {
-                        return ((Entry<ObjectId, List<SocialMediaEntity>>) msg.getPayload()).getValue();
-                    }
-                })
                 .channel(MessageChannels.executor("executorChannel", this.taskExecutor()))
                 .<SocialMediaEntity, SocialMediaTypeEnum>route(p -> p.getType(),
                         m
@@ -146,33 +129,37 @@ public class InfrastructureConfiguration {
                             .subFlowMapping(SocialMediaTypeEnum.INSTAGRAM, 
                                 sf -> sf.handle(SocialMediaEntity.class, (p, h) -> instagramService.getComments(p.getAccessToken())))
                 )
+                .channel("directChannel_1")
+                .transform(new GenericTransformer<Message<List<CommentEntity>>, List<CommentEntity>>() {
+                    @Override
+                    public List<CommentEntity> transform(Message<List<CommentEntity>> message) {
+                        UserEntity user = (UserEntity)message.getHeaders().get("user");
+                        List<CommentEntity> comments = message.getPayload();
+                        for(CommentEntity comment: comments) {
+                            comment.setUserEntity(user);
+                        }
+                        return comments;
+                    }
+                })
+                .aggregate(a -> a.outputProcessor(new MessageGroupProcessor() {
+                    @Override
+                    public Object processMessageGroup(MessageGroup mg) {
+                        Integer failedTaskCount = 0;
+                        Integer totalTaskCount =  mg.getMessages().size();
+                        List<CommentEntity> comments = new ArrayList<>();
+                        for(Message<?> message: mg.getMessages()){
+                            if(message.getHeaders().containsKey("ERROR"))
+                                failedTaskCount++;
+                            else
+                                comments.addAll((List<CommentEntity>)message.getPayload());
+                        }
+                        
+                        return new IterationResult(totalTaskCount, failedTaskCount, comments);
+                        
+                    }
+                }))
                 .channel("directChannel_2")
-                .aggregate()
-                .channel("directChannel_3")
-                .transform(new GenericTransformer<Message<List<List<CommentEntity>>>, List<CommentEntity>>() {
-                    @Override
-                    public List<CommentEntity> transform(Message<List<List<CommentEntity>>> message) {
-                        ObjectId userId = (ObjectId)message.getHeaders().get("user-id");
-                        List<CommentEntity> userComments = new ArrayList<>();
-                        message.getPayload().stream().flatMap(List::stream).forEach(commentEntity -> {
-                            commentEntity.setUser(userId);
-                            userComments.add(commentEntity);
-                        });
-                        return userComments;
-                    }
-                })
-                .aggregate()
-                .channel("directChannel_4")
-                .<List<List<CommentEntity>>, List<CommentEntity>>transform(comments -> 
-                        comments.stream().flatMap(List::stream).collect(Collectors.toList()))
-                .channel("storeChannel")
-                .filter(new GenericSelector<List<CommentEntity>> () {
-                    @Override
-                    public boolean accept(List<CommentEntity> commentEntities) {
-                        return commentEntities.size() > 0;
-                    }
-                })
-                .handle("commentService", "saveComments")
+                .handle("resultService", "saveIteration")
                 .get();
     }
     

@@ -1,7 +1,9 @@
 
 package sanchez.sanchez.sergio.service.impl;
+import com.google.api.client.auth.oauth2.TokenResponseException;
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
+import com.google.api.client.googleapis.auth.clientlogin.ClientLoginResponseException;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +21,10 @@ import com.google.api.services.youtube.model.CommentThreadListResponse;
 import java.util.ArrayList;
 import javax.annotation.PostConstruct;
 import org.springframework.util.Assert;
+import sanchez.sanchez.sergio.exception.GetCommentsProcessException;
+import sanchez.sanchez.sergio.exception.InvalidAccessTokenException;
 import sanchez.sanchez.sergio.mapper.IYoutubeCommentMapper;
+import sanchez.sanchez.sergio.persistence.entity.SocialMediaTypeEnum;
 
 /**
  *
@@ -84,9 +89,13 @@ public class YoutubeServiceImpl implements IYoutubeService {
                     userComments.addAll(getCommentRelatedToChannel(youTube, channel.getId()));
                 }
             }
-  
-        } catch (Throwable t) {
-            t.printStackTrace();
+            logger.debug("·Total Facebook Comments: " + userComments.size());
+        
+            
+        } catch (TokenResponseException  e) {
+            throw new InvalidAccessTokenException(SocialMediaTypeEnum.YOUTUBE, refreshToken);
+        } catch (Throwable e) {
+            throw new GetCommentsProcessException(e);
         }
         return youtubeCommentMapper.youtubeCommentsToCommentEntities(userComments);
     }

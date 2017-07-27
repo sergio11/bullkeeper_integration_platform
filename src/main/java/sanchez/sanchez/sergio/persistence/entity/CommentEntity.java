@@ -4,6 +4,7 @@ import java.util.Date;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceConstructor;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -11,8 +12,10 @@ import org.springframework.data.mongodb.core.mapping.Field;
  *
  * @author sergio
  */
-@Document(collection="comments")
+@Document(collection = CommentEntity.COLLECTION_NAME)
 public class CommentEntity {
+    
+    public final static String COLLECTION_NAME = "comments";
     
     @Id
     private ObjectId id;
@@ -26,15 +29,16 @@ public class CommentEntity {
     @Field("created_time")
     private Date createdTime;
     
-    private ObjectId user;
+    @DBRef
+    private UserEntity userEntity;
+    
+    public CommentEntity(){}
 
     @PersistenceConstructor
-    public CommentEntity(String message, ObjectId user) {
+    public CommentEntity(String message, Date createdTime, UserEntity userEntity) {
         this.message = message;
-        this.user = user;
-    }
-    
-    public CommentEntity() {
+        this.createdTime = createdTime;
+        this.userEntity = userEntity;
     }
     
     public ObjectId getId() {
@@ -61,12 +65,12 @@ public class CommentEntity {
         this.likes = likes;
     }
 
-    public ObjectId getUser() {
-        return user;
+    public UserEntity getUserEntity() {
+        return userEntity;
     }
 
-    public void setUser(ObjectId user) {
-        this.user = user;
+    public void setUserEntity(UserEntity userEntity) {
+        this.userEntity = userEntity;
     }
 
     public Date getCreatedTime() {
@@ -76,10 +80,9 @@ public class CommentEntity {
     public void setCreatedTime(Date createdTime) {
         this.createdTime = createdTime;
     }
-    
+
     @Override
     public String toString() {
-        return "CommentEntity{" + "id=" + id + ", message=" + message + ", likes=" + likes + ", createdTime=" + createdTime + '}';
+        return "CommentEntity{" + "id=" + id + ", message=" + message + ", likes=" + likes + ", createdTime=" + createdTime + ", userEntity=" + userEntity + '}';
     }
-
 }
