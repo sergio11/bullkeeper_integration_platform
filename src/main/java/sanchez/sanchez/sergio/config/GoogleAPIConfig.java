@@ -9,12 +9,14 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.youtube.YouTube;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import javax.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.util.Assert;
 
 /**
  *
@@ -22,6 +24,12 @@ import org.springframework.core.io.Resource;
  */
 @Configuration
 public class GoogleAPIConfig {
+    
+    @Value("client_secret.json")
+    private Resource clientSecret;
+    
+    @Value("{youtube.application.name}")
+    private String applicationName;
     
     @Bean
     public JsonFactory provideJsonFactory() {
@@ -35,8 +43,7 @@ public class GoogleAPIConfig {
     
     @Bean 
     public InputStreamReader provideInputStreamReader() throws IOException {
-       Resource resource = new ClassPathResource("/client_secrets.json");
-       return new InputStreamReader(resource.getInputStream(), "UTF-8");
+       return new InputStreamReader(clientSecret.getInputStream(), "UTF-8");
     }
     
     @Bean
@@ -59,6 +66,14 @@ public class GoogleAPIConfig {
     @Bean
     @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public YouTube provideYoutubeApi(String refreshToken) throws IOException{
-        return new YouTube.Builder(provideHttpTransport(), provideJsonFactory(), provideGoogleCredential(refreshToken)).build();
+        return new YouTube.Builder(provideHttpTransport(), provideJsonFactory(), provideGoogleCredential(refreshToken))
+                .setApplicationName(applicationName)
+                .build();
+    }
+    
+    @PostConstruct
+    protected void init(){
+        Assert.notNull(clientSecret, "Client Secret cannot be null");
+        
     }
 }

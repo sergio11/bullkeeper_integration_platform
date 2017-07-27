@@ -72,6 +72,7 @@ public class YoutubeServiceImpl implements IYoutubeService {
     @Override
     public List<CommentEntity> getComments(String refreshToken) {
         
+        logger.debug("Call Youtube Data API for refreshToken : " + refreshToken + " on thread: " + Thread.currentThread().getName());
         List<Comment> userComments = new ArrayList<>();
         try {
             YouTube youTube = appCtx.getBean(YouTube.class, refreshToken);
@@ -85,7 +86,6 @@ public class YoutubeServiceImpl implements IYoutubeService {
             }
   
         } catch (Throwable t) {
-            System.err.println("Throwable: " + t.getMessage());
             t.printStackTrace();
         }
         return youtubeCommentMapper.youtubeCommentsToCommentEntities(userComments);

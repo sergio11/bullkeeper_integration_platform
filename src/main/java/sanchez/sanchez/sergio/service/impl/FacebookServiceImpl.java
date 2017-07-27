@@ -57,7 +57,7 @@ public class FacebookServiceImpl implements IFacebookService {
         Connection<Post> userFeed = facebookClient.fetchConnection("me/feed", Post.class);
         // Iterate over the feed to access the particular pages
         for (List<Post> userFeedPage : userFeed) {
-            logger.info("Total Posts : " + userFeedPage.size());
+            logger.debug("Total Posts : " + userFeedPage.size());
             // Iterate over the list of contained data 
             // to access the individual object
             for (Post post : userFeedPage) {
@@ -71,7 +71,7 @@ public class FacebookServiceImpl implements IFacebookService {
         List<Comment> commentsForAlbums = new ArrayList<Comment>();
         Connection<Album> userAlbums = facebookClient.fetchConnection("me/albums", Album.class);
         for (List<Album> userAlbumsPage : userAlbums) {
-            logger.info("Total Albums : " + userAlbumsPage.size());
+            logger.debug("Total Albums : " + userAlbumsPage.size());
             for (Album album : userAlbumsPage) {
                 commentsForAlbums.addAll(getCommentsByObject(facebookClient, album.getId()));
             }
@@ -84,13 +84,13 @@ public class FacebookServiceImpl implements IFacebookService {
         
         List<Comment> comments = new ArrayList<Comment>();
         try {
-            logger.info("Call Facebook API");
+            logger.debug("Call Facebook API for accessToken : " + accessToken + " on thread: " + Thread.currentThread().getName());
             FacebookClient facebookClient = new DefaultFacebookClient(accessToken, Version.VERSION_2_8);
             // Get all comments for all posts.
             comments.addAll(getAllCommentsForPosts(facebookClient));
             // Get all Comments for all albums.
             comments.addAll(getAllCommentsForAlbums(facebookClient));
-            logger.info("Total comments : " + comments.size());
+            logger.debug("Total comments : " + comments.size());
         } catch (FacebookOAuthException e) {
             throw new InvalidAccessTokenException(SocialMediaTypeEnum.FACEBOOK, accessToken);
         } catch (FacebookException e) {

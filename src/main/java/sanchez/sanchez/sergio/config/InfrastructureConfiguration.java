@@ -23,6 +23,7 @@ import sanchez.sanchez.sergio.persistence.entity.UserEntity;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import org.bson.types.ObjectId;
@@ -79,6 +80,7 @@ public class InfrastructureConfiguration {
         executor.setCorePoolSize(5);
         executor.setMaxPoolSize(10);
         executor.setQueueCapacity(25);
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
         return executor;
     }
     

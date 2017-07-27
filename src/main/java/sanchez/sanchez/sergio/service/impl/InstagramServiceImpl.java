@@ -46,7 +46,7 @@ public class InstagramServiceImpl implements IInstagramService {
     @Override
     public List<CommentEntity> getComments(String accessToken) {
         
-        logger.info("Call Instagram API ...");
+        logger.debug("Call Instagram API for accessToken : " + accessToken + " on thread: " + Thread.currentThread().getName());
         
         List<CommentData> userComments = new ArrayList<>();
         
@@ -64,7 +64,7 @@ public class InstagramServiceImpl implements IInstagramService {
             logger.error(e.toString());
         }
         
-        logger.info("Total Instagram Comments: " + userComments.size());
+        logger.debug("Total Instagram Comments: " + userComments.size());
         
         return instagramMapper.instagramCommentsToCommentEntities(userComments);
         
