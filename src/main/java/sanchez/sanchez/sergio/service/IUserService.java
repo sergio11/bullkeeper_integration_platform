@@ -1,9 +1,7 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package sanchez.sanchez.sergio.service;
+
+import org.springframework.data.domain.Page;
+import sanchez.sanchez.sergio.dto.UserDTO;
 
 /**
  *
@@ -11,4 +9,5 @@ package sanchez.sanchez.sergio.service;
  */
 public interface IUserService {
     Long getTotalUsers();
+    Page<UserDTO> findPaginated(Integer page, Integer size);
 }

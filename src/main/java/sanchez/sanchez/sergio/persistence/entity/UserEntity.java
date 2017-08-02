@@ -60,6 +60,10 @@ public class UserEntity {
     public void setAge(Integer age) {
         this.age = age;
     }
+    
+    public String getFullName(){
+        return this.firstName + this.lastName;
+    }
 
     @Override
     public String toString() {
