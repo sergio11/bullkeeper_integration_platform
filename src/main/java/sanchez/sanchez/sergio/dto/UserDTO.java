@@ -11,6 +11,8 @@ public class UserDTO implements Serializable {
     private String firstName;
     private String lastName;
     private Integer age;
+    
+    public UserDTO(){}
 
     public UserDTO(String firstName, String lastName, Integer age) {
         this.firstName = firstName;

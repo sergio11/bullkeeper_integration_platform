@@ -2,15 +2,17 @@
 <!--[if IE 8]> <html lang="en" class="ie8 no-js"  xmlns:th="http://www.thymeleaf.org"> <![endif]-->
 <!--[if IE 9]> <html lang="en" class="ie9 no-js"  xmlns:th="http://www.thymeleaf.org"> <![endif]-->
 <!--[if !IE]><!-->
-<html lang="en"  xmlns:th="http://www.thymeleaf.org">
+<html lang="en"  
+    xmlns:th="http://www.thymeleaf.org"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" >
 <!--<![endif]-->
-    <head>
+    <head th:fragment="site-head">
         <title>Dashboard</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta content="Admin Dashboard" name="description">
-        <meta content="Spring MVC Spring Integration Thymeleaf" name="keywords">
-        <meta content="sergio" name="author">
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta content="Admin Dashboard" name="description"/>
+        <meta content="Spring MVC Spring Integration Thymeleaf" name="keywords"/>
+        <meta content="sergio" name="author"/>
        
         <link href="http://cdn.jsdelivr.net/webjars/font-awesome/4.2.0/css/font-awesome.min.css"
           th:href="@{/webjars/font-awesome/4.2.0/css/font-awesome.min.css}"

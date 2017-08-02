@@ -12,6 +12,8 @@ public class CommentDTO implements Serializable {
     private Long likes;
     private String createdTime;
     private String user;
+    
+    public CommentDTO(){}
 
     public CommentDTO(String message, Long likes, String createdTime, String user) {
         this.message = message;

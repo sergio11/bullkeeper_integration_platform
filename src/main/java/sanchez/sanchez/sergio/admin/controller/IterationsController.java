@@ -3,8 +3,8 @@ package sanchez.sanchez.sergio.admin.controller;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import org.springframework.web.bind.annotation.RequestParam;
 import sanchez.sanchez.sergio.dto.IterationDTO;
 import sanchez.sanchez.sergio.service.IIterationService;
@@ -23,11 +23,12 @@ public class IterationsController {
         this.iterationService = iterationService;
     }
     
-    @RequestMapping(value = "/", params = { "page", "size" }, method = GET)
-    public String findPaginated(Model model, @RequestParam( "page" ) int page, 
-            @RequestParam( "size" ) int size) {
+    @GetMapping(value = { "", "/" })
+    public String findPaginated(Model model, 
+            @RequestParam( value = "page", required = false, defaultValue = "1" ) int page, 
+            @RequestParam( value= "size", required = false, defaultValue = "10") int size) {
         
-        Page<IterationDTO> resultPage = iterationService.findPaginated( page, size );
+        Page<IterationDTO> resultPage = iterationService.findPaginated( page - 1, size );
         model.addAttribute("page", resultPage);
         return "iterations";
     

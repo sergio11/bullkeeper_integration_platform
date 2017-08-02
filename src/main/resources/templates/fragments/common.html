@@ -3,10 +3,43 @@
     xmlns:th="http://www.thymeleaf.org" >
     <head>
         <title>TODO supply a title</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
+        <!-- breadcrumb -->
+        <th:block th:fragment="breadcrumb(path)">
+            <ul class="page-breadcrumb">
+                <li th:each="item, iterStat:${path}">
+                    <i class="fa fa-home"></i>
+                    <a href="#" th:href="@{${item.url}}" th:text="#{${item.text}}">item</a>
+                    <i th:if="${!iterStat.last}" class="fa fa-angle-right"></i>
+                </li>
+            </ul>
+        </th:block>
+        <!-- pagination -->
+        <th:block th:fragment="pagination(page)">
+            <nav>
+                <ul class="pagination">
+                    <li th:class="${not page.hasPrevious()} ? disabled : ''">
+                        <a href="#" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    <th:block th:each="i: ${page.totalPages}">
+                        <li th:class="${page.number + 1 eq i} ? active : ''" >
+                            <a href="#" th:href="@{${#httpServletRequest.requestURI}(page=${i},size=${page.size})}">
+                                <span th:text="${i}"></span> 
+                                <span class="sr-only" th:if="${page.number eq i}">(current)</span>
+                            </a>
+                        </li>
+                    </th:block>
+                    <li th:class="${not page.hasNext()} ? disabled : ''">
+                        <a href="#" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </th:block>
         <!-- Navigation Fragment -->
         <th:block th:fragment="navigation">
             <!-- Navigation -->
@@ -19,8 +52,9 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href="index.html">SB Admin</a>
+                    <a class="navbar-brand" th:href="@{/admin/home}">SB Admin</a>
                 </div>
+                <!-- Top Menu Items -->
                 <!-- Top Menu Items -->
                 <ul class="nav navbar-right top-nav"></ul>
                 <!-- Sidebar Menu Items - These collapse to the responsive navigation menu on small screens -->
@@ -30,10 +64,16 @@
                             <a href="index.html"><i class="fa fa-fw fa-dashboard"></i> Dashboard</a>
                         </li>
                         <li>
-                            <a href="charts.html"><i class="fa fa-fw fa-bar-chart-o"></i> Charts</a>
+                            <a th:href="@{/admin/users/}">
+                                <span class="fa fa-fw fa-users"></span>
+                                <span th:text="#{dashboard.menu.users}">Users</span>
+                            </a>
                         </li>
                         <li>
-                            <a href="tables.html"><i class="fa fa-fw fa-table"></i> Tables</a>
+                            <a th:href="@{/admin/comments/}">
+                                <span class="fa fa-fw fa-comments"></span> 
+                                <span th:text="#{dashboard.menu.comments}">Comments</span>
+                            </a>
                         </li>
                         <li>
                             <a href="forms.html"><i class="fa fa-fw fa-edit"></i> Forms</a>
