@@ -21,6 +21,7 @@
         <org.mapstruct.version>1.1.0.Final</org.mapstruct.version>
         <jInstagram.version>1.2.1</jInstagram.version>
         <youtube.data.api.client.version>v3-rev183-1.22.0</youtube.data.api.client.version>
+        <springfox.version>2.6.1</springfox.version>
     </properties>
     <dependencies>
         <dependency>
@@ -47,7 +48,12 @@
           <groupId>org.springframework.integration</groupId>
           <artifactId>spring-integration-java-dsl</artifactId>
         </dependency>
-        
+        <!-- Spring starter web -->
+        <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>com.restfb</groupId>
             <artifactId>restfb</artifactId>
@@ -70,6 +76,17 @@
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId> <!-- use mapstruct-jdk8 for Java 8 or higher -->
             <version>${org.mapstruct.version}</version>
+        </dependency>
+        <!-- Swagger -->
+        <dependency>  
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>${springfox.version}</version>
+        </dependency>  
+        <dependency>  
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>${springfox.version}</version>
         </dependency>
     </dependencies>
     <build>

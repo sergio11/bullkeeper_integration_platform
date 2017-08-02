@@ -1,7 +1,6 @@
 package sanchez.sanchez.sergio.config;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
@@ -26,7 +25,6 @@ import java.util.concurrent.*;
 import javax.annotation.PostConstruct;
 import org.springframework.integration.aggregator.MessageGroupProcessor;
 import org.springframework.integration.config.EnableIntegration;
-import org.springframework.integration.core.GenericSelector;
 import org.springframework.integration.dsl.channel.MessageChannels;
 import org.springframework.integration.store.MessageGroup;
 import org.springframework.integration.support.MessageBuilder;
