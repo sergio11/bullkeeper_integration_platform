@@ -1,7 +1,7 @@
 package sanchez.sanchez.sergio.config;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,10 +33,11 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.MessagingException;
 import org.springframework.util.Assert;
-import sanchez.sanchez.sergio.models.IterationResult;
+import sanchez.sanchez.sergio.persistence.entity.IterationEntity;
 import sanchez.sanchez.sergio.persistence.entity.CommentEntity;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaEntity;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaTypeEnum;
+import sanchez.sanchez.sergio.persistence.entity.TaskEntity;
 import sanchez.sanchez.sergio.service.IFacebookService;
 import sanchez.sanchez.sergio.service.IInstagramService;
 import sanchez.sanchez.sergio.service.IYoutubeService;
@@ -51,6 +52,11 @@ import sanchez.sanchez.sergio.service.IYoutubeService;
 public class InfrastructureConfiguration {
     
     private static Logger logger = LoggerFactory.getLogger(InfrastructureConfiguration.class);
+    
+    private static String USER_HEADER = "user";
+    private static String TASK_START_HEADER = "taskStart";
+    private static String ITERATION_START_HEADER = "iterationStart";
+    private static String TASK_ERROR_HEADER = "taskError";
     
     @Autowired
     private IFacebookService facebookService;
@@ -101,7 +107,7 @@ public class InfrastructureConfiguration {
                 .<MessagingException>handle((p, h)
                         -> MessageBuilder.withPayload(Collections.<CommentEntity>emptyList())
                         .copyHeaders(p.getFailedMessage().getHeaders())
-                        .setHeader("ERROR", true)
+                        .setHeader(TASK_ERROR_HEADER, true)
                         .build()
                 )
                 .channel("directChannel_1")
@@ -112,10 +118,12 @@ public class InfrastructureConfiguration {
     @Autowired
     public IntegrationFlow processUsers(MongoDbFactory mongo, PollerMetadata poller) {
         return IntegrationFlows.from(mongoMessageSource(mongo), c -> c.poller(poller))
+                .enrichHeaders(s -> s.header(ITERATION_START_HEADER, new Date()))
                 .split()
                 .enrichHeaders(s -> 
-                    s.headerExpressions(h -> h.put("user", "payload.userEntity"))
+                    s.headerExpressions(h -> h.put(USER_HEADER, "payload.userEntity"))
                     .header(MessageHeaders.ERROR_CHANNEL, "socialMediaErrorChannel")
+                    .header(TASK_START_HEADER, new Date())
                 )
                 .channel(MessageChannels.executor("executorChannel", this.taskExecutor()))
                 .<SocialMediaEntity, SocialMediaTypeEnum>route(p -> p.getType(),
@@ -128,36 +136,38 @@ public class InfrastructureConfiguration {
                                 sf -> sf.handle(SocialMediaEntity.class, (p, h) -> instagramService.getComments(p.getAccessToken())))
                 )
                 .channel("directChannel_1")
-                .transform(new GenericTransformer<Message<List<CommentEntity>>, List<CommentEntity>>() {
+                .transform(new GenericTransformer<Message<List<CommentEntity>>, TaskEntity>() {
                     @Override
-                    public List<CommentEntity> transform(Message<List<CommentEntity>> message) {
-                        UserEntity user = (UserEntity)message.getHeaders().get("user");
+                    public TaskEntity transform(Message<List<CommentEntity>> message) {
+                        UserEntity user = (UserEntity)message.getHeaders().get(USER_HEADER);
+                        Date taskStart = (Date)message.getHeaders().get(TASK_START_HEADER);
+                        Boolean isSuccess = message.getHeaders().containsKey(TASK_ERROR_HEADER);
                         List<CommentEntity> comments = message.getPayload();
                         for(CommentEntity comment: comments) {
                             comment.setUserEntity(user);
                         }
-                        return comments;
+                        return new TaskEntity(taskStart, new Date(), isSuccess, comments, user);
                     }
                 })
                 .aggregate(a -> a.outputProcessor(new MessageGroupProcessor() {
                     @Override
                     public Object processMessageGroup(MessageGroup mg) {
-                        Integer failedTaskCount = 0;
-                        Integer totalTaskCount =  mg.getMessages().size();
-                        List<CommentEntity> comments = new ArrayList<>();
+                        Date iterationStart = (Date)mg.getOne().getHeaders().get(ITERATION_START_HEADER);
+                        IterationEntity iterationEntity = new IterationEntity(iterationStart, new Date());
                         for(Message<?> message: mg.getMessages()){
-                            if(message.getHeaders().containsKey("ERROR"))
-                                failedTaskCount++;
+                            TaskEntity task = (TaskEntity)message.getPayload();
+                            if(task.isSuccess())
+                                iterationEntity.setTotalComments(iterationEntity.getTotalComments() + task.getComments().size());
                             else
-                                comments.addAll((List<CommentEntity>)message.getPayload());
+                                iterationEntity.setTotalFailedTasks(iterationEntity.getTotalFailedTasks() + 1);
+                            iterationEntity.addTask(task);
+                            
                         }
-                        
-                        return new IterationResult(totalTaskCount, failedTaskCount, comments);
-                        
+                        return iterationEntity;
                     }
                 }))
                 .channel("directChannel_2")
-                .handle("resultService", "saveIteration")
+                .handle("iterationService", "save")
                 .get();
     }
     
