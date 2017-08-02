@@ -22,6 +22,9 @@
         <jInstagram.version>1.2.1</jInstagram.version>
         <youtube.data.api.client.version>v3-rev183-1.22.0</youtube.data.api.client.version>
         <springfox.version>2.6.1</springfox.version>
+        <bootstrap.version>3.3.7</bootstrap.version>
+        <jquery.version>1.11.1</jquery.version>
+        <font.awesome.version>4.2.0</font.awesome.version>
     </properties>
     <dependencies>
         <dependency>
@@ -50,10 +53,14 @@
         </dependency>
         <!-- Spring starter web -->
         <dependency>
-          <groupId>org.springframework.boot</groupId>
-          <artifactId>spring-boot-starter-web</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>nz.net.ultraq.thymeleaf</groupId>
+            <artifactId>thymeleaf-layout-dialect</artifactId>
+            <version>2.1.2</version>
+        </dependency>
         <dependency>
             <groupId>com.restfb</groupId>
             <artifactId>restfb</artifactId>
@@ -87,6 +94,22 @@
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
             <version>${springfox.version}</version>
+        </dependency>
+        <!-- web jars -->
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>bootstrap</artifactId>
+            <version>${bootstrap.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>jquery</artifactId>
+            <version>${jquery.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>font-awesome</artifactId>
+            <version>${font.awesome.version}</version>
         </dependency>
     </dependencies>
     <build>

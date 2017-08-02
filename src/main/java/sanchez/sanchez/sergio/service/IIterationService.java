@@ -8,4 +8,5 @@ import sanchez.sanchez.sergio.persistence.entity.IterationEntity;
  */
 public interface IIterationService {
     void save(IterationEntity iterationResult);
+    Long getTotalIterations();
 }

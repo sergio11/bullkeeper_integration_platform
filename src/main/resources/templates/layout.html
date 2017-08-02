@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<!--[if IE 8]> <html lang="en" class="ie8 no-js"  xmlns:th="http://www.thymeleaf.org"> <![endif]-->
+<!--[if IE 9]> <html lang="en" class="ie9 no-js"  xmlns:th="http://www.thymeleaf.org"> <![endif]-->
+<!--[if !IE]><!-->
+<html lang="en"  xmlns:th="http://www.thymeleaf.org">
+<!--<![endif]-->
+    <head>
+        <title>Dashboard</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta content="Admin Dashboard" name="description">
+        <meta content="Spring MVC Spring Integration Thymeleaf" name="keywords">
+        <meta content="sergio" name="author">
+       
+        <link href="http://cdn.jsdelivr.net/webjars/font-awesome/4.2.0/css/font-awesome.min.css"
+          th:href="@{/webjars/font-awesome/4.2.0/css/font-awesome.min.css}"
+          rel="stylesheet" media="screen" />
+        
+        <link href="http://cdn.jsdelivr.net/webjars/bootstrap/3.3.7/css/bootstrap.min.css"
+          th:href="@{/webjars/bootstrap/3.3.7/css/bootstrap.min.css}"
+          rel="stylesheet" media="screen" />
+        
+        <link href="../static/css/sb-admin.css"
+          th:href="@{css/sb-admin.css}" rel="stylesheet" media="screen"/>
+
+        <!-- Morris Charts CSS -->
+        <link href="../static/css/plugins/morris.css"
+          th:href="@{css/plugins/morris.css}" rel="stylesheet" media="screen"/>
+        
+        
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+        
+        
+    </head>
+    <body>
+        <div id="wrapper">
+            <!-- Navigation -->
+            <th:block th:replace="fragments/common::navigation" />
+            <div id="page-wrapper">
+                <div class="container-fluid">
+                    <th:block layout:fragment="content"></th:block>
+                </div>
+            </div>
+        </div>
+        
+        <script src="http://cdn.jsdelivr.net/webjars/jquery/1.11.1/jquery.min.js"
+            th:src="@{/webjars/jquery/1.11.1/jquery.min.js}"></script>
+            
+        <script src="http://cdn.jsdelivr.net/webjars/bootstrap/3.3.7/js/bootstrap.min.js"
+            th:src="@{/webjars/bootstrap/3.3.7/js/bootstrap.min.js}"></script>
+            
+        <!-- Morris Charts JavaScript -->
+        <script src="../static/js/plugins/morris/raphael.min.js" 
+            th:src="@{js/plugins/morris/raphael.min.js}"></script>
+        <script src="../static/js/plugins/morris/morris.min.js"
+            th:src="@{js/plugins/morris/morris.min.js}"></script>
+    </body>
+</html>

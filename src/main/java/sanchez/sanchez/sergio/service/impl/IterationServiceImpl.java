@@ -33,5 +33,10 @@ public class IterationServiceImpl implements IIterationService {
     protected void init() {
         Assert.notNull(iterationRepository, "IterationRepository cannot be null");
     }
+
+    @Override
+    public Long getTotalIterations() {
+        return iterationRepository.count();
+    }
     
 }
