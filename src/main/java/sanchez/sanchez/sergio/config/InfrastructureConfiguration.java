@@ -23,6 +23,7 @@ import sanchez.sanchez.sergio.persistence.entity.UserEntity;
 import java.util.List;
 import java.util.concurrent.*;
 import javax.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.integration.aggregator.MessageGroupProcessor;
 import org.springframework.integration.config.EnableIntegration;
 import org.springframework.integration.dsl.channel.MessageChannels;
@@ -66,6 +67,9 @@ public class InfrastructureConfiguration {
     
     @Autowired
     private IYoutubeService youtubeService;
+    
+    @Value("${poller.integration.flow.time}")
+    private Integer pollerTime;
    
     /**
      * The Pollers builder factory can be used to configure common bean definitions or 
@@ -73,7 +77,7 @@ public class InfrastructureConfiguration {
      */
     @Bean(name = PollerMetadata.DEFAULT_POLLER)
     public PollerMetadata poller() {
-        return Pollers.fixedDelay(20, TimeUnit.SECONDS).get();
+        return Pollers.fixedDelay(pollerTime, TimeUnit.SECONDS).get();
     }
     
     @Bean
@@ -114,8 +118,8 @@ public class InfrastructureConfiguration {
                 .get();
     }
     
-    /*@Bean
-    @Autowired*/
+    @Bean
+    @Autowired
     public IntegrationFlow processUsers(MongoDbFactory mongo, PollerMetadata poller) {
         return IntegrationFlows.from(mongoMessageSource(mongo), c -> c.poller(poller))
                 .enrichHeaders(s -> s.header(ITERATION_START_HEADER, new Date()))
@@ -141,7 +145,7 @@ public class InfrastructureConfiguration {
                     public TaskEntity transform(Message<List<CommentEntity>> message) {
                         UserEntity user = (UserEntity)message.getHeaders().get(USER_HEADER);
                         Date taskStart = (Date)message.getHeaders().get(TASK_START_HEADER);
-                        Boolean isSuccess = message.getHeaders().containsKey(TASK_ERROR_HEADER);
+                        Boolean isSuccess = !message.getHeaders().containsKey(TASK_ERROR_HEADER);
                         List<CommentEntity> comments = message.getPayload();
                         for(CommentEntity comment: comments) {
                             comment.setUserEntity(user);
@@ -154,6 +158,7 @@ public class InfrastructureConfiguration {
                     public Object processMessageGroup(MessageGroup mg) {
                         Date iterationStart = (Date)mg.getOne().getHeaders().get(ITERATION_START_HEADER);
                         IterationEntity iterationEntity = new IterationEntity(iterationStart, new Date());
+                        iterationEntity.setTotalTasks(mg.getMessages().size());
                         for(Message<?> message: mg.getMessages()){
                             TaskEntity task = (TaskEntity)message.getPayload();
                             if(task.isSuccess())

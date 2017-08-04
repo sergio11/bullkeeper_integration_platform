@@ -22,9 +22,10 @@ import org.springframework.util.Assert;
  *
  * @author sergio
  */
+@Configuration
 public class GoogleAPIConfig {
     
-    @Value("client_secret.json")
+    @Value("classpath:client_secret.json")
     private Resource clientSecret;
     
     @Value("{youtube.application.name}")
