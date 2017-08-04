@@ -1,23 +1,34 @@
 package sanchez.sanchez.sergio.dto;
 
 import java.io.Serializable;
+import org.springframework.hateoas.ResourceSupport;
 
 /**
  *
  * @author sergio
  */
-public class UserDTO implements Serializable {
+public class UserDTO extends ResourceSupport implements Serializable {
     
+    private String identity;
     private String firstName;
     private String lastName;
     private Integer age;
     
     public UserDTO(){}
 
-    public UserDTO(String firstName, String lastName, Integer age) {
+    public UserDTO(String identity, String firstName, String lastName, Integer age) {
+        this.identity = identity;
         this.firstName = firstName;
         this.lastName = lastName;
         this.age = age;
+    }
+
+    public String getIdentity() {
+        return identity;
+    }
+
+    public void setIdentity(String identity) {
+        this.identity = identity;
     }
 
     public String getFirstName() {

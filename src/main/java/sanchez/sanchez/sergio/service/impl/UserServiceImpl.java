@@ -1,5 +1,6 @@
 package sanchez.sanchez.sergio.service.impl;
 
+import org.bson.types.ObjectId;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -41,6 +42,23 @@ public class UserServiceImpl implements IUserService {
                return userEntityMapper.userEntityToUserDTO(u);
             }
         });
+    }
+
+    @Override
+    public Page<UserDTO> findPaginated(Pageable pageable) {
+        Page<UserEntity> usersPage = userRepository.findAll(pageable);
+        return usersPage.map(new Converter<UserEntity, UserDTO>(){
+            @Override
+            public UserDTO convert(UserEntity u) {
+               return userEntityMapper.userEntityToUserDTO(u);
+            }
+        });
+    }
+
+    @Override
+    public UserDTO getUserById(String id) {
+        UserEntity userEntity = userRepository.findOne(new ObjectId(id));
+        return userEntityMapper.userEntityToUserDTO(userEntity);
     }
     
 }

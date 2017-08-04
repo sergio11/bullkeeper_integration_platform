@@ -1,12 +1,19 @@
 package sanchez.sanchez.sergio.config;
 
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.core.Ordered;
+import org.springframework.data.web.HateoasPageableHandlerMethodArgumentResolver;
+import org.springframework.data.web.HateoasSortHandlerMethodArgumentResolver;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.data.web.PagedResourcesAssemblerArgumentResolver;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 
@@ -37,5 +44,32 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(localeChangeInterceptor);
+    }
+    
+    @Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
+        argumentResolvers.add(pageableResolver());
+        argumentResolvers.add(sortResolver());
+        argumentResolvers.add(pagedResourcesAssemblerArgumentResolver());
+    }
+    
+    @Bean
+    public HateoasSortHandlerMethodArgumentResolver sortResolver() {
+        return new HateoasSortHandlerMethodArgumentResolver();
+    }
+
+    @Bean
+    public HateoasPageableHandlerMethodArgumentResolver pageableResolver() {
+        return new HateoasPageableHandlerMethodArgumentResolver(sortResolver());
+    }
+
+    @Bean
+    public PagedResourcesAssembler<?> pagedResourcesAssembler() {
+        return new PagedResourcesAssembler<Object>(pageableResolver(), null);
+    }
+
+    @Bean
+    public PagedResourcesAssemblerArgumentResolver pagedResourcesAssemblerArgumentResolver() {
+        return new PagedResourcesAssemblerArgumentResolver(pageableResolver(), null);
     }
 }
