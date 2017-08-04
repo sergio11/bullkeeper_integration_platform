@@ -1,6 +1,7 @@
 package sanchez.sanchez.sergio.service.impl;
 
 import javax.annotation.PostConstruct;
+import org.bson.types.ObjectId;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -37,6 +38,34 @@ public class CommentsServiceImpl implements ICommentsService {
     public Page<CommentDTO> findPaginated(Integer page, Integer size) {
         Pageable pageable = new PageRequest(page, size); //get 5 profiles on a page
         Page<CommentEntity> commentsPage = commentRepository.findAll(pageable);
+        return commentsPage.map(new Converter<CommentEntity, CommentDTO>(){
+            @Override
+            public CommentDTO convert(CommentEntity s) {
+               return commentEntityMapper.commentEntityToCommentDTO(s);
+            }
+        });
+    }
+    
+    @Override
+    public CommentDTO getCommentById(String id) {
+        CommentEntity commentEntity = commentRepository.findOne(new ObjectId(id));
+        return commentEntityMapper.commentEntityToCommentDTO(commentEntity);
+    }
+
+    @Override
+    public Page<CommentDTO> findPaginated(Pageable pageable) {
+        Page<CommentEntity> commentsPage = commentRepository.findAll(pageable);
+        return commentsPage.map(new Converter<CommentEntity, CommentDTO>(){
+            @Override
+            public CommentDTO convert(CommentEntity s) {
+               return commentEntityMapper.commentEntityToCommentDTO(s);
+            }
+        });
+    }
+
+    @Override
+    public Page<CommentDTO> getCommentByUserId(Pageable pageable, String userId) {
+        Page<CommentEntity> commentsPage =  commentRepository.findAllByUserEntityId(new ObjectId(userId), pageable);
         return commentsPage.map(new Converter<CommentEntity, CommentDTO>(){
             @Override
             public CommentDTO convert(CommentEntity s) {

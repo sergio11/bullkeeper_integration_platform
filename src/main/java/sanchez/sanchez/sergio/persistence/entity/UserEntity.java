@@ -62,7 +62,7 @@ public class UserEntity {
     }
     
     public String getFullName(){
-        return this.firstName + this.lastName;
+        return this.firstName + " - " + this.lastName;
     }
 
     @Override

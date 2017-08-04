@@ -114,8 +114,8 @@ public class InfrastructureConfiguration {
                 .get();
     }
     
-    @Bean
-    @Autowired
+    /*@Bean
+    @Autowired*/
     public IntegrationFlow processUsers(MongoDbFactory mongo, PollerMetadata poller) {
         return IntegrationFlows.from(mongoMessageSource(mongo), c -> c.poller(poller))
                 .enrichHeaders(s -> s.header(ITERATION_START_HEADER, new Date()))

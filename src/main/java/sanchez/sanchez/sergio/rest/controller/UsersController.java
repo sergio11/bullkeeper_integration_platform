@@ -13,30 +13,44 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedResources;
+import sanchez.sanchez.sergio.dto.SocialMediaDTO;
 import sanchez.sanchez.sergio.dto.UserDTO;
 import sanchez.sanchez.sergio.rest.ApiHelper;
+import sanchez.sanchez.sergio.rest.exception.SocialMediaNotFoundException;
+import sanchez.sanchez.sergio.rest.exception.CommentsByUserNotFoundException;
 import sanchez.sanchez.sergio.rest.exception.ResourceNotFoundException;
 import sanchez.sanchez.sergio.rest.exception.UserNotFoundException;
+import sanchez.sanchez.sergio.rest.hal.ICommentHAL;
+import sanchez.sanchez.sergio.rest.hal.ISocialMediaHAL;
 import sanchez.sanchez.sergio.rest.hal.IUserHAL;
 import sanchez.sanchez.sergio.rest.response.APIResponse;
+import sanchez.sanchez.sergio.rest.response.CommentResponseCode;
+import sanchez.sanchez.sergio.rest.response.SocialMediaResponseCode;
 import sanchez.sanchez.sergio.rest.response.UserResponseCode;
+import sanchez.sanchez.sergio.service.ICommentsService;
+import sanchez.sanchez.sergio.service.ISocialMediaService;
 import sanchez.sanchez.sergio.service.IUserService;
 
 @Api
-@RestController
+@RestController("RestUserController")
 @RequestMapping("/api/v1/users/")
-public class UsersController implements IUserHAL {
+public class UsersController implements IUserHAL, ICommentHAL, ISocialMediaHAL {
 
     private static Logger logger = LoggerFactory.getLogger(UsersController.class);
     
     private final IUserService userService;
+    private final ICommentsService commentService;
+    private final ISocialMediaService socialMediaService;
 
-    public UsersController(IUserService userService) {
+    public UsersController(IUserService userService, ICommentsService commentService, ISocialMediaService socialMediaService) {
         this.userService = userService;
+        this.commentService = commentService;
+        this.socialMediaService = socialMediaService;
     }
     
     @GetMapping(path = {"/", "/all"})
@@ -55,11 +69,39 @@ public class UsersController implements IUserHAL {
     @GetMapping(path = "/{id}")
     @ApiOperation(value = "GET_USER_BY_ID", nickname = "GET_USER_BY_ID", notes = "Get User By Id",
             response = ResponseEntity.class)
-    public ResponseEntity<APIResponse<UserDTO>> getAnalystById(@ApiParam(value = "id", required = true) @PathVariable String id) throws Throwable {
+    public ResponseEntity<APIResponse<UserDTO>> getUserById(@ApiParam(value = "id", required = true) @PathVariable String id) throws Throwable {
         logger.debug("Get User with id: " + id);
         return Optional.ofNullable(userService.getUserById(id))
                 .map(userResource -> addLinksToUser(userResource))
                 .map(userResource -> ApiHelper.<UserDTO>createAndSendResponse(UserResponseCode.SINGLE_USER, userResource, HttpStatus.OK))
                 .orElseThrow(() -> { throw new UserNotFoundException(); });
+    }
+    
+    
+    @GetMapping(path = "/{id}/comments")
+    @ApiOperation(value = "GET_COMMENTS_BY_USER", nickname = "GET_COMMENTS_BY_USER", notes = "Get Comments By User Id",
+            response = ResponseEntity.class)
+    public ResponseEntity<APIResponse<PagedResources>> getCommentsByUserId(
+            @PageableDefault Pageable p, 
+            PagedResourcesAssembler pagedAssembler,
+            @ApiParam(value = "id", required = true) @PathVariable String id) throws Throwable {
+        logger.debug("Get Comments by user with id: " + id);
+        return Optional.ofNullable(commentService.getCommentByUserId(p, id))
+                .map(commentsPage -> addLinksToComments(commentsPage))
+                .map(commentsPage -> pagedAssembler.toResource(commentsPage))
+                .map(commentsPageResource -> ApiHelper.<PagedResources>createAndSendResponse(CommentResponseCode.ALL_COMMENTS_BY_USER, commentsPageResource, HttpStatus.OK))
+                .orElseThrow(() -> { throw new CommentsByUserNotFoundException(); });
+    }
+    
+    @GetMapping(path = "/{id}/social")
+    @ApiOperation(value = "GET_SOCIAL_MEDIA_BY_USER_ID", nickname = "GET_SOCIAL_MEDIA_BY_USER_ID", notes = "Get Social Madia By User Id",
+            response = ResponseEntity.class)
+    public ResponseEntity<APIResponse<List<SocialMediaDTO>>> getSocialMediaByUserId(
+            @ApiParam(value = "id", required = true) @PathVariable String id) throws Throwable {
+        logger.debug("Get Social Media by User Id " + id);
+        return Optional.ofNullable(socialMediaService.getSocialMediaByUser(id))
+                .map(socialMediaResource -> addLinksToSocialMedia(socialMediaResource))
+                .map(socialMediaResource -> ApiHelper.<List<SocialMediaDTO>>createAndSendResponse(SocialMediaResponseCode.SOCIAL_MEDIA_BY_USER, socialMediaResource, HttpStatus.OK))
+                .orElseThrow(() -> { throw new SocialMediaNotFoundException(); });
     }
 }

@@ -10,8 +10,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.LocaleResolver;
 import sanchez.sanchez.sergio.rest.ApiHelper;
+import sanchez.sanchez.sergio.rest.exception.CommentsByUserNotFoundException;
+import sanchez.sanchez.sergio.rest.exception.SocialMediaNotFoundException;
 import sanchez.sanchez.sergio.rest.exception.UserNotFoundException;
 import sanchez.sanchez.sergio.rest.response.APIResponse;
+import sanchez.sanchez.sergio.rest.response.CommentResponseCode;
+import sanchez.sanchez.sergio.rest.response.SocialMediaResponseCode;
 import sanchez.sanchez.sergio.rest.response.UserResponseCode;
 
 /**
@@ -34,6 +38,21 @@ public class UserErrorController {
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleUserNotFoundException(UserNotFoundException resourceNotFound, HttpServletRequest request) {
         return ApiHelper.<String>createAndSendResponse(UserResponseCode.USER_NOT_FOUND,
-                messageSource.getMessage("analyst.not.found", new Object[]{}, localeResolver.resolveLocale(request)), HttpStatus.NOT_FOUND);
+                messageSource.getMessage("user.not.found", new Object[]{}, localeResolver.resolveLocale(request)), HttpStatus.NOT_FOUND);
     }
+    
+    @ExceptionHandler(CommentsByUserNotFoundException.class)
+    @ResponseBody
+    protected ResponseEntity<APIResponse<String>> handleCommentsByUserNotFoundException(CommentsByUserNotFoundException commentsByUserNotFound, HttpServletRequest request){
+        return ApiHelper.<String>createAndSendResponse(CommentResponseCode.COMMENTS_BY_USER_NOT_FOUND,
+                messageSource.getMessage("comments.by.user.not.found", new Object[]{}, localeResolver.resolveLocale(request)), HttpStatus.NOT_FOUND);
+    }
+    
+    @ExceptionHandler(SocialMediaNotFoundException.class)
+    @ResponseBody
+    protected ResponseEntity<APIResponse<String>> handleSocialMediaNotFoundException(SocialMediaNotFoundException socialMediaNotFoundException, HttpServletRequest request){
+        return ApiHelper.<String>createAndSendResponse(SocialMediaResponseCode.SOCIAL_MEDIA_BY_USER_NOT_FOUND,
+                messageSource.getMessage("social.media.by.user.not.found", new Object[]{}, localeResolver.resolveLocale(request)), HttpStatus.NOT_FOUND);
+    }
+    
 }

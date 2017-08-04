@@ -22,7 +22,6 @@ import org.springframework.util.Assert;
  *
  * @author sergio
  */
-@Configuration
 public class GoogleAPIConfig {
     
     @Value("client_secret.json")

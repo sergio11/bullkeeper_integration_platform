@@ -1,13 +1,15 @@
 package sanchez.sanchez.sergio.dto;
 
 import java.io.Serializable;
+import org.springframework.hateoas.ResourceSupport;
 
 /**
  *
  * @author sergio
  */
-public class CommentDTO implements Serializable {
+public class CommentDTO extends ResourceSupport implements Serializable {
     
+    private String identity;
     private String message;
     private Long likes;
     private String createdTime;
@@ -15,13 +17,22 @@ public class CommentDTO implements Serializable {
     
     public CommentDTO(){}
 
-    public CommentDTO(String message, Long likes, String createdTime, String user) {
+    public CommentDTO(String identity, String message, Long likes, String createdTime, String user) {
+        this.identity = identity;
         this.message = message;
         this.likes = likes;
         this.createdTime = createdTime;
         this.user = user;
     }
 
+    public String getIdentity() {
+        return identity;
+    }
+
+    public void setIdentity(String identity) {
+        this.identity = identity;
+    }
+    
     public String getMessage() {
         return message;
     }
