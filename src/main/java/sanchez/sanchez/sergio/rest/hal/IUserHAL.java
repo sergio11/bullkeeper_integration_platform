@@ -28,7 +28,7 @@ public interface IUserHAL {
                 Link commentsLink = linkTo(methodLinkBuilder).withRel("comments");
                 userResource.add(commentsLink);
                 
-                ResponseEntity<APIResponse<List<SocialMediaDTO>>> socialMediasLinkBuilder = methodOn(UsersController.class)
+                ResponseEntity<APIResponse<Iterable<SocialMediaDTO>>> socialMediasLinkBuilder = methodOn(UsersController.class)
                         .getSocialMediaByUserId(userResource.getIdentity());
                 Link socialMediaLink = linkTo(socialMediasLinkBuilder).withRel("socialMedia");
                 userResource.add(socialMediaLink);
@@ -39,7 +39,7 @@ public interface IUserHAL {
         return userResource;
     }
 
-    default List<UserDTO> addLinksToUsers(final List<UserDTO> usersResources) {
+    default Iterable<UserDTO> addLinksToUsers(final Iterable<UserDTO> usersResources) {
         for (UserDTO userResource : usersResources) {
             addLinksToUser(userResource);
         }

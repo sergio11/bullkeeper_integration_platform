@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -97,12 +96,12 @@ public class UsersController implements IUserHAL, ICommentHAL, ISocialMediaHAL {
     @GetMapping(path = "/{id}/social")
     @ApiOperation(value = "GET_SOCIAL_MEDIA_BY_USER_ID", nickname = "GET_SOCIAL_MEDIA_BY_USER_ID", notes = "Get Social Madia By User Id",
             response = ResponseEntity.class)
-    public ResponseEntity<APIResponse<List<SocialMediaDTO>>> getSocialMediaByUserId(
+    public ResponseEntity<APIResponse<Iterable<SocialMediaDTO>>> getSocialMediaByUserId(
             @ApiParam(value = "id", required = true) @PathVariable String id) throws Throwable {
         logger.debug("Get Social Media by User Id " + id);
         return Optional.ofNullable(socialMediaService.getSocialMediaByUser(id))
                 .map(socialMediaResource -> addLinksToSocialMedia(socialMediaResource))
-                .map(socialMediaResource -> ApiHelper.<List<SocialMediaDTO>>createAndSendResponse(SocialMediaResponseCode.SOCIAL_MEDIA_BY_USER, socialMediaResource, HttpStatus.OK))
+                .map(socialMediaResource -> ApiHelper.<Iterable<SocialMediaDTO>>createAndSendResponse(SocialMediaResponseCode.SOCIAL_MEDIA_BY_USER, socialMediaResource, HttpStatus.OK))
                 .orElseThrow(() -> { throw new SocialMediaNotFoundException(); });
     }
 }

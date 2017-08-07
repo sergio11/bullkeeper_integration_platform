@@ -1,7 +1,5 @@
 package sanchez.sanchez.sergio.rest.hal;
 
-
-import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.hateoas.Link;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
@@ -20,7 +18,7 @@ public interface ICommentHAL {
         return commentResource;
     }
 
-    default List<CommentDTO> addLinksToComments(final List<CommentDTO> commentsResources) {
+    default Iterable<CommentDTO> addLinksToComments(final Iterable<CommentDTO> commentsResources) {
         for (CommentDTO commentResurce : commentsResources) {
             addLinksToComment(commentResurce);
         }

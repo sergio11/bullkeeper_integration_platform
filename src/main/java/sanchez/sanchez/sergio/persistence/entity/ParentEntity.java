@@ -1,6 +1,7 @@
 package sanchez.sanchez.sergio.persistence.entity;
 
 
+import java.util.HashSet;
 import java.util.Set;
 import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -14,7 +15,7 @@ public class ParentEntity  extends UserEntity {
 	private String password;
 	@Field("children")
     @CascadeSave
-    private Set<UserEntity> children;
+    private Set<UserEntity> children = new HashSet<>();
 	
 	
 	@PersistenceConstructor
