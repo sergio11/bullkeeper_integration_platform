@@ -5,7 +5,8 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.hateoas.Link;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
-import sanchez.sanchez.sergio.dto.CommentDTO;
+
+import sanchez.sanchez.sergio.dto.response.CommentDTO;
 import sanchez.sanchez.sergio.rest.controller.CommentsController;
 /**
  *

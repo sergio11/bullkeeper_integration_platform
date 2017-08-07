@@ -8,7 +8,8 @@ import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import sanchez.sanchez.sergio.dto.CommentDTO;
+
+import sanchez.sanchez.sergio.dto.response.CommentDTO;
 import sanchez.sanchez.sergio.service.ICommentsService;
 
 /**

@@ -6,7 +6,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.Named;
-import sanchez.sanchez.sergio.dto.CommentDTO;
+
+import sanchez.sanchez.sergio.dto.response.CommentDTO;
 import sanchez.sanchez.sergio.persistence.entity.CommentEntity;
 
 /**

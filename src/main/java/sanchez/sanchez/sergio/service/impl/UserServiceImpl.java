@@ -6,7 +6,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import sanchez.sanchez.sergio.dto.UserDTO;
+
+import sanchez.sanchez.sergio.dto.response.UserDTO;
 import sanchez.sanchez.sergio.mapper.IUserEntityMapper;
 import sanchez.sanchez.sergio.persistence.entity.UserEntity;
 import sanchez.sanchez.sergio.persistence.repository.UserRepository;

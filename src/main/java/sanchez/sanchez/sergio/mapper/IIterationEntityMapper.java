@@ -6,7 +6,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.Named;
-import sanchez.sanchez.sergio.dto.IterationDTO;
+
+import sanchez.sanchez.sergio.dto.response.IterationDTO;
 import sanchez.sanchez.sergio.persistence.entity.IterationEntity;
 
 /**

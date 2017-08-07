@@ -1,7 +1,8 @@
 package sanchez.sanchez.sergio.service;
 
 import org.springframework.data.domain.Page;
-import sanchez.sanchez.sergio.dto.IterationDTO;
+
+import sanchez.sanchez.sergio.dto.response.IterationDTO;
 import sanchez.sanchez.sergio.persistence.entity.IterationEntity;
 
 /**

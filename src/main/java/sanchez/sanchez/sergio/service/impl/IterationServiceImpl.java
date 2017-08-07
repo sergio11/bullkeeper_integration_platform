@@ -9,7 +9,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-import sanchez.sanchez.sergio.dto.IterationDTO;
+
+import sanchez.sanchez.sergio.dto.response.IterationDTO;
 import sanchez.sanchez.sergio.mapper.IIterationEntityMapper;
 import sanchez.sanchez.sergio.persistence.entity.IterationEntity;
 import sanchez.sanchez.sergio.persistence.repository.IterationRepository;

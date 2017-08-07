@@ -1,4 +1,4 @@
-package sanchez.sanchez.sergio.dto;
+package sanchez.sanchez.sergio.dto.response;
 
 import java.io.Serializable;
 

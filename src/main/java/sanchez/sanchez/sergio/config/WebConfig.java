@@ -27,7 +27,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
         // move Swagger UI under /documentation
-        registry.addRedirectViewController("/documentation/v2/api-docs", "/v2/api-docs?group=smart-lamp");
+        registry.addRedirectViewController("/documentation/v2/api-docs", "/v2/api-docs?group=bullyTect");
         registry.addRedirectViewController("/documentation/swagger-resources/configuration/ui", "/swagger-resources/configuration/ui");
         registry.addRedirectViewController("/documentation/swagger-resources/configuration/security", "/swagger-resources/configuration/security");
         registry.addRedirectViewController("/documentation/swagger-resources", "/swagger-resources");

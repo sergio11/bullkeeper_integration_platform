@@ -24,7 +24,7 @@ public class SwaggerConfig {
     @Bean
     public Docket sadrApi() {
         return new Docket(DocumentationType.SWAGGER_2)
-                .groupName("cyberbulling")
+                .groupName("bullyTect")
                 .apiInfo(apiInfo())
                 .select()
                 .apis(RequestHandlerSelectors.withClassAnnotation(Api.class))
@@ -40,8 +40,8 @@ public class SwaggerConfig {
      */
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("Cyber Bulling REST API")
-                .description("REST API for CyberBulling")
+                .title("Bully Tect REST API")
+                .description("REST API for Bully Tect")
                 .version("0.0.1-SNAPSHOT")
                 .license("Open source licensing")
                 .licenseUrl("https://help.github.com/articles/open-source-licensing/")

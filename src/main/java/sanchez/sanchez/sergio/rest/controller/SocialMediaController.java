@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import sanchez.sanchez.sergio.dto.SocialMediaDTO;
+import sanchez.sanchez.sergio.dto.response.SocialMediaDTO;
 import sanchez.sanchez.sergio.rest.ApiHelper;
 import sanchez.sanchez.sergio.rest.exception.SocialMediaNotFoundException;
 import sanchez.sanchez.sergio.rest.hal.ISocialMediaHAL;
@@ -44,4 +44,26 @@ public class SocialMediaController implements ISocialMediaHAL {
                 .map(socialMediaResource -> ApiHelper.<SocialMediaDTO>createAndSendResponse(SocialMediaResponseCode.SOCIAL_MEDIA_BY_USER, socialMediaResource, HttpStatus.OK))
                 .orElseThrow(() -> { throw new SocialMediaNotFoundException(); });
     }
+    
+    
+    /*@PostMapping(path = "/")
+    @ApiOperation(value = "ADD_SOCIAL_MEDIA", nickname = "ADD_SOCIAL_MEDIA", notes="Add Social Media", response = ResponseEntity.class)
+    public ResponseEntity<APIResponse<SocialMediaDTO>> addSocialMedia(
+    		@ApiParam(value = "socialMedia", required = true) @Valid @RequestBody CreateAnalystDTO createAnalystDTO) throws Throwable {
+    	logger.debug("Add Social Media");
+        return Optional.ofNullable(analystService.save(createAnalystDTO))
+        		.map(analystResource -> addLinksToAnalyst(analystResource))
+        		.map(analystResource -> apiHelper.<SimpleAnalystDTO>createAndSendResponse(AnalystResponseCode.ANALYST_CREATED, HttpStatus.OK, analystResource))
+                .orElseThrow(() -> {
+                    throw new ResourceNotFoundException();
+                });
+    }
+    
+    @PostMapping(path = "/")
+    @ApiOperation(value = "UPDATE_SOCIAL_MEDIA", nickname = "UPDATE_SOCIAL_MEDIA", notes="Update Social Media", response = ResponseEntity.class)
+    
+    
+    @DeleteMapping(path = "/{id}")
+	@ApiOperation(value = "DELETE_SOCIAL_MEDIA", nickname = "DELETE_SOCIAL_MEDIA", notes = "Delete Social Media", response = ResponseEntity.class)
+    */
 }

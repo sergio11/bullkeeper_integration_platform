@@ -17,7 +17,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedResources;
-import sanchez.sanchez.sergio.dto.CommentDTO;
+
+import sanchez.sanchez.sergio.dto.response.CommentDTO;
 import sanchez.sanchez.sergio.rest.ApiHelper;
 import sanchez.sanchez.sergio.rest.exception.CommentNotFoundException;
 import sanchez.sanchez.sergio.rest.exception.ResourceNotFoundException;

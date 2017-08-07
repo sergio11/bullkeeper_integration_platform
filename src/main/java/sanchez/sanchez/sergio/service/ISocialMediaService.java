@@ -1,7 +1,8 @@
 package sanchez.sanchez.sergio.service;
 
 import java.util.List;
-import sanchez.sanchez.sergio.dto.SocialMediaDTO;
+
+import sanchez.sanchez.sergio.dto.response.SocialMediaDTO;
 
 /**
  *

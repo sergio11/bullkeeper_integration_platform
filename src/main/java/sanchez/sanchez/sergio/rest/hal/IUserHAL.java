@@ -5,12 +5,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.http.ResponseEntity;
-import sanchez.sanchez.sergio.dto.UserDTO;
+
+import sanchez.sanchez.sergio.dto.response.SocialMediaDTO;
+import sanchez.sanchez.sergio.dto.response.UserDTO;
 import sanchez.sanchez.sergio.rest.controller.UsersController;
 import sanchez.sanchez.sergio.rest.response.APIResponse;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
-import sanchez.sanchez.sergio.dto.SocialMediaDTO;
 
 /**
  *

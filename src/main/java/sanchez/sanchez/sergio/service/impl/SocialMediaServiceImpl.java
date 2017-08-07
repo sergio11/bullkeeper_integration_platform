@@ -5,7 +5,8 @@ import javax.annotation.PostConstruct;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-import sanchez.sanchez.sergio.dto.SocialMediaDTO;
+
+import sanchez.sanchez.sergio.dto.response.SocialMediaDTO;
 import sanchez.sanchez.sergio.mapper.ISocialMediaEntityMapper;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaEntity;
 import sanchez.sanchez.sergio.persistence.repository.SocialMediaRepository;

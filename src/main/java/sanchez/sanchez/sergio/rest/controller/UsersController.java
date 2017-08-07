@@ -18,8 +18,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedResources;
-import sanchez.sanchez.sergio.dto.SocialMediaDTO;
-import sanchez.sanchez.sergio.dto.UserDTO;
+
+import sanchez.sanchez.sergio.dto.response.SocialMediaDTO;
+import sanchez.sanchez.sergio.dto.response.UserDTO;
 import sanchez.sanchez.sergio.rest.ApiHelper;
 import sanchez.sanchez.sergio.rest.exception.SocialMediaNotFoundException;
 import sanchez.sanchez.sergio.rest.exception.CommentsByUserNotFoundException;

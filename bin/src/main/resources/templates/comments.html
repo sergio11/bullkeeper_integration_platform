@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:th="http://www.thymeleaf.org"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorator="layout">
+    <head>
+        <title>TODO supply a title</title>
+    </head>
+    <body>
+        <th:block layout:fragment="content">
+
+            <th:block th:include="fragments/common::breadcrumb(${ {{url:'/admin/home',text:'dashboard.menu.home'},{url:#httpServletRequest.requestURI,text:'dashboard.menu.comments'}} })"/>
+            
+            <div class="content-box-large">
+                <div class="panel-heading">
+                    <div class="panel-title" th:text="#{comments.all.title}">Comments</div>
+                </div>
+                <div class="panel-body">
+                    <table id="posts" cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered ">
+                        <thead>
+                            <tr>
+                                <th class="text-uppercase text-center" th:text="#{comments.all.th.message}">Message</th>
+                                <th class="text-uppercase text-center" th:text="#{comments.all.th.likes}">Likes</th>
+                                <th class="text-uppercase text-center" th:text="#{comments.all.th.createdTime}">CreatedTime</th>
+                                <th class="text-uppercase text-center" th:text="#{comments.all.th.user}">User</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${page.hasContent()}" th:each="c:${page.content}">
+                                <td th:text="${c.message}" class="text-center">Message</td>
+                                <td th:text="${c.likes}" class="text-center">likes</td>
+                                <td th:text="${c.createdTime}" class="text-center">CreatedTime</td>
+                                <td th:text="${c.user}" class="text-center">user</td>
+                            </tr>
+                            <tr class="warning" th:if="${not page.hasContent()}">
+                                <td colspan="7" class="text-center" th:text="#{comments.all.not.found}">No Comments found</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <th:block th:if="${page.hasContent()}" th:include="fragments/common::pagination(${page})" />
+                    
+                </div>
+            </div>
+        </th:block>
+    </body>
+</html>

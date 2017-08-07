@@ -25,6 +25,7 @@
         <bootstrap.version>3.3.7</bootstrap.version>
         <jquery.version>1.11.1</jquery.version>
         <font.awesome.version>4.2.0</font.awesome.version>
+        <jjwt.version>0.7.0</jjwt.version>
     </properties>
     <dependencies>
         <dependency>
@@ -116,6 +117,20 @@
             <groupId>org.webjars</groupId>
             <artifactId>font-awesome</artifactId>
             <version>${font.awesome.version}</version>
+        </dependency>
+        <!-- Security -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
+            <version>${jjwt.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mobile</artifactId>
         </dependency>
     </dependencies>
     <build>
