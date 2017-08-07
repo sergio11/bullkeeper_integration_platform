@@ -5,7 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.hateoas.Link;
 import org.springframework.http.ResponseEntity;
 import sanchez.sanchez.sergio.dto.response.ParentDTO;
-import sanchez.sanchez.sergio.dto.response.UserDTO;
+import sanchez.sanchez.sergio.dto.response.SonDTO;
 import sanchez.sanchez.sergio.rest.controller.ParentsController;
 import sanchez.sanchez.sergio.rest.controller.UsersController;
 import sanchez.sanchez.sergio.rest.response.APIResponse;
@@ -23,7 +23,7 @@ public interface IParentHAL {
         parentResource.add(selfLink);
         if(parentResource.getChildren() > 0) {
         	 try {
-                 ResponseEntity<APIResponse<Iterable<UserDTO>>> methodLinkBuilder = methodOn(ParentsController.class)
+                 ResponseEntity<APIResponse<Iterable<SonDTO>>> methodLinkBuilder = methodOn(ParentsController.class)
                          .getChildrenOfParent(parentResource.getIdentity());
                  Link childrenLink = linkTo(methodLinkBuilder).withRel("children");
                  parentResource.add(childrenLink);

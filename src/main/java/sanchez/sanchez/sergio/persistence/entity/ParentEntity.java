@@ -15,7 +15,7 @@ public class ParentEntity  extends UserEntity {
 	private String password;
 	@Field("children")
     @CascadeSave
-    private Set<UserEntity> children = new HashSet<>();
+    private Set<SonEntity> children = new HashSet<>();
 	
 	
 	@PersistenceConstructor
@@ -41,12 +41,15 @@ public class ParentEntity  extends UserEntity {
 		this.password = password;
 	}
 
-	public Set<UserEntity> getChildren() {
+	public Set<SonEntity> getChildren() {
 		return children;
 	}
 
-	public void addChildren(UserEntity children) {
-		this.children.add(children);
+	public void setChildren(Set<SonEntity> children) {
+		this.children = children;
 	}
 	
+	public void addSon(SonEntity sonEntity) {
+		this.children.add(sonEntity);
+	}
 }
