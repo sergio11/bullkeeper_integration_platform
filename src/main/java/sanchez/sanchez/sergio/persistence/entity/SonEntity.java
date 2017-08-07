@@ -7,11 +7,14 @@ public class SonEntity extends UserEntity {
 	
 	@DBRef
 	private SchoolEntity school;
+	@DBRef
+	private ParentEntity parent;
 
 	@PersistenceConstructor
-	public SonEntity(String firstName, String lastName, Integer age, SchoolEntity school) {
+	public SonEntity(String firstName, String lastName, Integer age, SchoolEntity school, ParentEntity parent) {
 		super(firstName, lastName, age);
 		this.school = school;
+		this.parent = parent;
 	}
 
 	public SchoolEntity getSchool() {
@@ -22,4 +25,11 @@ public class SonEntity extends UserEntity {
 		this.school = school;
 	}
 
+	public ParentEntity getParent() {
+		return parent;
+	}
+
+	public void setParent(ParentEntity parent) {
+		this.parent = parent;
+	}
 }

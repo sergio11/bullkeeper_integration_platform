@@ -28,7 +28,6 @@ import sanchez.sanchez.sergio.dto.request.RegisterParentDTO;
 import sanchez.sanchez.sergio.dto.request.RegisterSonDTO;
 import sanchez.sanchez.sergio.dto.response.ParentDTO;
 import sanchez.sanchez.sergio.dto.response.SonDTO;
-import sanchez.sanchez.sergio.dto.response.UserDTO;
 import sanchez.sanchez.sergio.rest.ApiHelper;
 import sanchez.sanchez.sergio.rest.exception.ResourceNotFoundException;
 import sanchez.sanchez.sergio.rest.exception.UserNotFoundException;
@@ -100,7 +99,7 @@ public class ParentsController implements IParentHAL, ISonHAL {
     		@ApiParam(value = "id", required = true) @PathVariable String id) throws Throwable {
         logger.debug("Get Children of Parent with id: " + id);
         return Optional.ofNullable(parentsService.getChildrenOfParent(id))
-                .map(sonsResources -> addLinksToSons(sonsResources))
+                .map(sonsResources -> addLinksToChildren(sonsResources))
                 .map(sonsResources -> ApiHelper.<Iterable<SonDTO>>createAndSendResponse(ParentResponseCode.CHILDREN_OF_PARENT, sonsResources, HttpStatus.OK))
                 .orElseThrow(() -> { throw new UserNotFoundException(); });
     }

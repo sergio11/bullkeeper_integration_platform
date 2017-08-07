@@ -15,6 +15,7 @@ import sanchez.sanchez.sergio.mapper.SonEntityMapper;
 import sanchez.sanchez.sergio.persistence.entity.ParentEntity;
 import sanchez.sanchez.sergio.persistence.entity.SonEntity;
 import sanchez.sanchez.sergio.persistence.repository.ParentRepository;
+import sanchez.sanchez.sergio.persistence.repository.SonRepository;
 import sanchez.sanchez.sergio.service.IParentsService;
 
 @Service
@@ -23,12 +24,14 @@ public class ParentsServiceImpl implements IParentsService {
 	private final ParentRepository parentRepository;
 	private final ParentEntityMapper parentEntityMapper;
 	private final SonEntityMapper  sonEntityMapper;
+	private final SonRepository sonRepository;
 	
-	public ParentsServiceImpl(ParentRepository parentRepository, ParentEntityMapper parentEntityMapper, SonEntityMapper sonEntityMapper) {
+	public ParentsServiceImpl(ParentRepository parentRepository, ParentEntityMapper parentEntityMapper, SonEntityMapper sonEntityMapper, SonRepository sonRepository) {
 		super();
 		this.parentRepository = parentRepository;
 		this.parentEntityMapper = parentEntityMapper;
 		this.sonEntityMapper = sonEntityMapper;
+		this.sonRepository = sonRepository;
 	}
 
 	@Override
@@ -62,8 +65,8 @@ public class ParentsServiceImpl implements IParentsService {
 
 	@Override
 	public Iterable<SonDTO> getChildrenOfParent(String id) {
-		ParentEntity parentEntity = parentRepository.findOne(new ObjectId(id));
-		return sonEntityMapper.sonEntitiesToSonDTOs(parentEntity.getChildren());
+		Iterable<SonEntity> children = sonRepository.findByParentId(new ObjectId(id));
+		return sonEntityMapper.sonEntitiesToSonDTOs(children);
 	}
 
 	@Override
@@ -77,7 +80,7 @@ public class ParentsServiceImpl implements IParentsService {
 	public SonDTO addSon(String parentId, RegisterSonDTO registerSonDTO) {
 		SonEntity sonToAdd = sonEntityMapper.registerSonDTOToSonEntity(registerSonDTO);
 		ParentEntity parentEntity = parentRepository.findOne(new ObjectId(parentId));
-		parentEntity.addSon(sonToAdd);
+		sonToAdd.setParent(parentEntity);
 		parentRepository.save(parentEntity);
 		return sonEntityMapper.sonEntityToSonDTO(sonToAdd);
 	}

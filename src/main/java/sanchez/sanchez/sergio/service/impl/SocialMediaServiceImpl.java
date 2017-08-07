@@ -6,8 +6,9 @@ import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import sanchez.sanchez.sergio.dto.request.AddSocialMediaDTO;
 import sanchez.sanchez.sergio.dto.response.SocialMediaDTO;
-import sanchez.sanchez.sergio.mapper.ISocialMediaEntityMapper;
+import sanchez.sanchez.sergio.mapper.SocialMediaEntityMapper;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaEntity;
 import sanchez.sanchez.sergio.persistence.repository.SocialMediaRepository;
 import sanchez.sanchez.sergio.service.ISocialMediaService;
@@ -20,9 +21,9 @@ import sanchez.sanchez.sergio.service.ISocialMediaService;
 public class SocialMediaServiceImpl implements ISocialMediaService {
     
     private final SocialMediaRepository socialMediaRepository;
-    private final ISocialMediaEntityMapper socialMediaMapper;
+    private final SocialMediaEntityMapper socialMediaMapper;
 
-    public SocialMediaServiceImpl(SocialMediaRepository socialMediaRepository, ISocialMediaEntityMapper socialMediaMapper) {
+    public SocialMediaServiceImpl(SocialMediaRepository socialMediaRepository, SocialMediaEntityMapper socialMediaMapper) {
         this.socialMediaRepository = socialMediaRepository;
         this.socialMediaMapper = socialMediaMapper;
     }
@@ -39,7 +40,15 @@ public class SocialMediaServiceImpl implements ISocialMediaService {
         return socialMediaMapper.socialMediaEntityToSocialMediaDTO(socialMediaEntity);
     }
     
-    @PostConstruct
+   
+	@Override
+	public SocialMediaDTO save(AddSocialMediaDTO addSocialMediaDTO) {
+		SocialMediaEntity socialMediaEntityToSave = socialMediaMapper.addSocialMediaDTOToSocialMediaEntity(addSocialMediaDTO);
+		SocialMediaEntity socialMediaEntitySaved = socialMediaRepository.save(socialMediaEntityToSave);
+		return socialMediaMapper.socialMediaEntityToSocialMediaDTO(socialMediaEntitySaved);
+	}
+	
+	@PostConstruct
     protected void init(){
         Assert.notNull(socialMediaRepository, "Social Media Repository cannot be null");
         Assert.notNull(socialMediaMapper, "Social Media Mapper cannot be null");

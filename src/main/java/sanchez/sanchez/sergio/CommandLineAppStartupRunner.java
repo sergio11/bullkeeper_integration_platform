@@ -33,6 +33,8 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
     private static List<SocialMediaEntity> socialMedias = new ArrayList<>();
     
     static {
+    	
+    	
         
         UserEntity sergio = new UserEntity("Sergio", "Martín", 11);
         

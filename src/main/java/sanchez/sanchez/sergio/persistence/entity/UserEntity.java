@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
  * @author sergio
  */
 @Document(collection = UserEntity.COLLECTION_NAME)
-public class UserEntity {
+public abstract class UserEntity {
     
     public final static String COLLECTION_NAME = "users";
     

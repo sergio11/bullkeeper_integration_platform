@@ -38,6 +38,7 @@ import sanchez.sanchez.sergio.persistence.entity.IterationEntity;
 import sanchez.sanchez.sergio.persistence.entity.CommentEntity;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaEntity;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaTypeEnum;
+import sanchez.sanchez.sergio.persistence.entity.SonEntity;
 import sanchez.sanchez.sergio.persistence.entity.TaskEntity;
 import sanchez.sanchez.sergio.service.IFacebookService;
 import sanchez.sanchez.sergio.service.IInstagramService;
@@ -125,7 +126,7 @@ public class InfrastructureConfiguration {
                 .enrichHeaders(s -> s.header(ITERATION_START_HEADER, new Date()))
                 .split()
                 .enrichHeaders(s -> 
-                    s.headerExpressions(h -> h.put(USER_HEADER, "payload.userEntity"))
+                    s.headerExpressions(h -> h.put(USER_HEADER, "payload.sonEntity"))
                     .header(MessageHeaders.ERROR_CHANNEL, "socialMediaErrorChannel")
                     .header(TASK_START_HEADER, new Date())
                 )
@@ -143,14 +144,14 @@ public class InfrastructureConfiguration {
                 .transform(new GenericTransformer<Message<List<CommentEntity>>, TaskEntity>() {
                     @Override
                     public TaskEntity transform(Message<List<CommentEntity>> message) {
-                        UserEntity user = (UserEntity)message.getHeaders().get(USER_HEADER);
+                    	SonEntity sonEntity = (SonEntity)message.getHeaders().get(USER_HEADER);
                         Date taskStart = (Date)message.getHeaders().get(TASK_START_HEADER);
                         Boolean isSuccess = !message.getHeaders().containsKey(TASK_ERROR_HEADER);
                         List<CommentEntity> comments = message.getPayload();
                         for(CommentEntity comment: comments) {
-                            comment.setUserEntity(user);
+                            comment.setSonEntity(sonEntity);
                         }
-                        return new TaskEntity(taskStart, new Date(), isSuccess, comments, user);
+                        return new TaskEntity(taskStart, new Date(), isSuccess, comments, sonEntity);
                     }
                 })
                 .aggregate(a -> a.outputProcessor(new MessageGroupProcessor() {

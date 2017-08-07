@@ -30,15 +30,15 @@ public class CommentEntity {
     private Date createdTime;
     
     @DBRef
-    private UserEntity userEntity;
+    private SonEntity sonEntity;
     
     public CommentEntity(){}
 
     @PersistenceConstructor
-    public CommentEntity(String message, Date createdTime, UserEntity userEntity) {
+    public CommentEntity(String message, Date createdTime, SonEntity sonEntity) {
         this.message = message;
         this.createdTime = createdTime;
-        this.userEntity = userEntity;
+        this.sonEntity = sonEntity;
     }
     
     public ObjectId getId() {
@@ -65,15 +65,15 @@ public class CommentEntity {
         this.likes = likes;
     }
 
-    public UserEntity getUserEntity() {
-        return userEntity;
-    }
+    public SonEntity getSonEntity() {
+		return sonEntity;
+	}
 
-    public void setUserEntity(UserEntity userEntity) {
-        this.userEntity = userEntity;
-    }
+	public void setSonEntity(SonEntity sonEntity) {
+		this.sonEntity = sonEntity;
+	}
 
-    public Date getCreatedTime() {
+	public Date getCreatedTime() {
         return createdTime;
     }
 
@@ -83,6 +83,6 @@ public class CommentEntity {
 
     @Override
     public String toString() {
-        return "CommentEntity{" + "id=" + id + ", message=" + message + ", likes=" + likes + ", createdTime=" + createdTime + ", userEntity=" + userEntity + '}';
+        return "CommentEntity{" + "id=" + id + ", message=" + message + ", likes=" + likes + ", createdTime=" + createdTime + ", userEntity=" + sonEntity + '}';
     }
 }

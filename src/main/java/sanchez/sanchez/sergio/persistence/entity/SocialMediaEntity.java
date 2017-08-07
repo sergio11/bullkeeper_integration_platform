@@ -29,13 +29,13 @@ public class SocialMediaEntity {
     private Boolean invalidToken = Boolean.FALSE;
     
     @DBRef
-    private UserEntity userEntity;
+    private SonEntity sonEntity;
 
     @PersistenceConstructor
-    public SocialMediaEntity(String accessToken, SocialMediaTypeEnum type, UserEntity userEntity) {
+    public SocialMediaEntity(String accessToken, SocialMediaTypeEnum type, SonEntity sonEntity) {
         this.accessToken = accessToken;
         this.type = type;
-        this.userEntity = userEntity;
+        this.sonEntity = sonEntity;
     }
     
     public ObjectId getId() {
@@ -66,17 +66,17 @@ public class SocialMediaEntity {
         this.invalidToken = invalidToken;
     }
 
-    public UserEntity getUserEntity() {
-        return userEntity;
-    }
+	public SonEntity getSonEntity() {
+		return sonEntity;
+	}
 
-    public void setUserEntity(UserEntity userEntity) {
-        this.userEntity = userEntity;
-    }
+	public void setSonEntity(SonEntity sonEntity) {
+		this.sonEntity = sonEntity;
+	}
 
-    @Override
-    public String toString() {
-        return "SocialMediaEntity{" + "id=" + id + ", accessToken=" + accessToken + ", type=" + type + ", invalidToken=" + invalidToken + ", userEntity=" + userEntity + '}';
-    }
-    
+	@Override
+	public String toString() {
+		return "SocialMediaEntity [id=" + id + ", accessToken=" + accessToken + ", type=" + type + ", invalidToken="
+				+ invalidToken + ", sonEntity=" + sonEntity + "]";
+	}
 }

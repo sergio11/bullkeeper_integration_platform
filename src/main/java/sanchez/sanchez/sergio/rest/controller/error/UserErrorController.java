@@ -16,7 +16,7 @@ import sanchez.sanchez.sergio.rest.exception.UserNotFoundException;
 import sanchez.sanchez.sergio.rest.response.APIResponse;
 import sanchez.sanchez.sergio.rest.response.CommentResponseCode;
 import sanchez.sanchez.sergio.rest.response.SocialMediaResponseCode;
-import sanchez.sanchez.sergio.rest.response.UserResponseCode;
+import sanchez.sanchez.sergio.rest.response.ChildrenResponseCode;
 
 /**
  *
@@ -37,7 +37,7 @@ public class UserErrorController {
     @ExceptionHandler(UserNotFoundException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleUserNotFoundException(UserNotFoundException resourceNotFound, HttpServletRequest request) {
-        return ApiHelper.<String>createAndSendResponse(UserResponseCode.USER_NOT_FOUND,
+        return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.USER_NOT_FOUND,
                 messageSource.getMessage("user.not.found", new Object[]{}, localeResolver.resolveLocale(request)), HttpStatus.NOT_FOUND);
     }
     

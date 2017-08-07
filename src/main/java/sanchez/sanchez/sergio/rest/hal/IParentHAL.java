@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import sanchez.sanchez.sergio.dto.response.ParentDTO;
 import sanchez.sanchez.sergio.dto.response.SonDTO;
 import sanchez.sanchez.sergio.rest.controller.ParentsController;
-import sanchez.sanchez.sergio.rest.controller.UsersController;
+import sanchez.sanchez.sergio.rest.controller.ChildrenController;
 import sanchez.sanchez.sergio.rest.response.APIResponse;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
@@ -19,7 +19,7 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 public interface IParentHAL {
     
     default ParentDTO addLinksToParent(final ParentDTO parentResource) {
-        Link selfLink = linkTo(UsersController.class).slash(parentResource.getIdentity()).withSelfRel();
+        Link selfLink = linkTo(ChildrenController.class).slash(parentResource.getIdentity()).withSelfRel();
         parentResource.add(selfLink);
         if(parentResource.getChildren() > 0) {
         	 try {
