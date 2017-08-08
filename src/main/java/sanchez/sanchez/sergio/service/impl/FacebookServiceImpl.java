@@ -5,13 +5,16 @@ import com.restfb.DefaultFacebookClient;
 import com.restfb.FacebookClient;
 import com.restfb.Parameter;
 import com.restfb.Version;
-import com.restfb.exception.FacebookException;
 import com.restfb.exception.FacebookOAuthException;
 import com.restfb.types.Album;
 import com.restfb.types.Comment;
 import com.restfb.types.Post;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +28,7 @@ import sanchez.sanchez.sergio.mapper.IFacebookCommentMapper;
 import sanchez.sanchez.sergio.persistence.entity.CommentEntity;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaTypeEnum;
 import sanchez.sanchez.sergio.service.IFacebookService;
+import sanchez.sanchez.sergio.util.StreamUtils;
 
 /**
  * @author sergio
@@ -42,57 +46,54 @@ public class FacebookServiceImpl implements IFacebookService {
     @Autowired
     private IFacebookCommentMapper facebookCommentMapper;
     
-    private List<Comment> getCommentsByObject(FacebookClient facebookClient, String objectId) {
-        List<Comment> comments = new ArrayList<>();
+    private Stream<Comment> getCommentsByObjectAfterThan(final FacebookClient facebookClient, final String objectId, final Date startDate) {
+    	
         Connection<Comment> commentConnection
-                = facebookClient.fetchConnection(objectId + "/comments",
-                        Comment.class, Parameter.with("limit", 10));
-        for (List<Comment> commentPage : commentConnection) {
-            comments.addAll(commentPage);
-        }
-        return comments;
+                = facebookClient.fetchConnection(objectId + "/comments", Comment.class);
+        
+        return StreamUtils.asStream(commentConnection.iterator())
+	        	.flatMap(List::stream)
+	        	.flatMap(comment -> StreamUtils.defaultIfEmpty(
+	        			getCommentsByObjectAfterThan(facebookClient, comment.getId(), startDate), () -> comment))
+	        	.filter(comment -> startDate != null ? comment.getCreatedTime().after(startDate) : true);
     }
     
-    private List<Comment> getAllCommentsForPosts(FacebookClient facebookClient) {
-        List<Comment> commentsForPosts = new ArrayList<Comment>();
+    private List<Comment> getAllCommentsFromPostsAfterThan(final FacebookClient facebookClient, final Date startDate) {
         Connection<Post> userFeed = facebookClient.fetchConnection("me/feed", Post.class);
         // Iterate over the feed to access the particular pages
-        for (List<Post> userFeedPage : userFeed) {
-            logger.debug("Total Posts : " + userFeedPage.size());
-            // Iterate over the list of contained data 
-            // to access the individual object
-            for (Post post : userFeedPage) {
-                commentsForPosts.addAll(getCommentsByObject(facebookClient, post.getId()));
-            }
-        }
-        return commentsForPosts;
+        return StreamUtils.asStream(userFeed.iterator())
+        		.flatMap(List::stream)
+        		.flatMap(post -> {
+        			logger.debug("POST ID -> " + post.getId());
+        			return getCommentsByObjectAfterThan(facebookClient, post.getId(), startDate);
+        		})
+        		.collect(Collectors.toList());
+  
     }
     
-    private List<Comment> getAllCommentsForAlbums(FacebookClient facebookClient) {
-        List<Comment> commentsForAlbums = new ArrayList<Comment>();
+    private List<Comment> getAllCommentsFromAlbumsAfterThan(FacebookClient facebookClient, Date startDate) {
         Connection<Album> userAlbums = facebookClient.fetchConnection("me/albums", Album.class);
-        for (List<Album> userAlbumsPage : userAlbums) {
-            logger.debug("Total Albums : " + userAlbumsPage.size());
-            for (Album album : userAlbumsPage) {
-                commentsForAlbums.addAll(getCommentsByObject(facebookClient, album.getId()));
-            }
-        }
-        return commentsForAlbums;
+        // Iterate over the albums to access the particular pages
+        return StreamUtils.asStream(userAlbums.iterator())
+        		.flatMap(List::stream)
+        		.flatMap(album -> getCommentsByObjectAfterThan(facebookClient, album.getId(), startDate))
+        		.collect(Collectors.toList());
     }
    
     @Override
-    public List<CommentEntity> getComments(String accessToken) {
+    public List<CommentEntity> getCommentsLaterThan(Date startDate, String accessToken) {
         
         List<Comment> comments = new ArrayList<Comment>();
         try {
             logger.debug("Call Facebook API for accessToken : " + accessToken + " on thread: " + Thread.currentThread().getName());
             FacebookClient facebookClient = new DefaultFacebookClient(accessToken, Version.VERSION_2_8);
             // Get all comments for all posts.
-            comments.addAll(getAllCommentsForPosts(facebookClient));
+            comments.addAll(getAllCommentsFromPostsAfterThan(facebookClient, startDate));
             // Get all Comments for all albums.
-            comments.addAll(getAllCommentsForAlbums(facebookClient));
+            comments.addAll(getAllCommentsFromAlbumsAfterThan(facebookClient, startDate));
             logger.debug("Total Facebook comments : " + comments.size());
         } catch (FacebookOAuthException e) {
+        	logger.debug(accessToken + " IS INVALID");
             throw new InvalidAccessTokenException(SocialMediaTypeEnum.FACEBOOK, accessToken);
         } catch (Exception e) {
             throw new GetCommentsProcessException(e);

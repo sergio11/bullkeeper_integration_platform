@@ -1,5 +1,8 @@
 package sanchez.sanchez.sergio.service.impl;
 
+import java.util.Date;
+import java.util.List;
+
 import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,6 +10,7 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -17,7 +21,6 @@ import sanchez.sanchez.sergio.persistence.repository.IterationRepository;
 import sanchez.sanchez.sergio.service.IIterationService;
 
 /**
- *
  * @author sergio
  */
 @Service("iterationService")
@@ -59,10 +62,16 @@ public class IterationServiceImpl implements IIterationService {
         });
     }
     
+    @Override
+	public Date getLastProbing() {
+    	PageRequest request = new PageRequest(0, 1, new Sort(Sort.Direction.DESC, "finishDate"));
+    	List<IterationEntity> iterations = iterationRepository.findAll(request).getContent();
+    	return iterations.size() > 0 ? iterations.get(0).getFinishDate() : null;
+	}
+    
     @PostConstruct
     protected void init() {
         Assert.notNull(iterationRepository, "IterationRepository cannot be null");
         Assert.notNull(iterationEntityMapper, "IIterationEntityMapper cannot be null");
     }
-    
 }

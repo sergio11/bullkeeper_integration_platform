@@ -80,8 +80,9 @@ public class CommentEntity {
     public void setCreatedTime(Date createdTime) {
         this.createdTime = createdTime;
     }
+    
 
-    @Override
+	@Override
     public String toString() {
         return "CommentEntity{" + "id=" + id + ", message=" + message + ", likes=" + likes + ", createdTime=" + createdTime + ", userEntity=" + sonEntity + '}';
     }

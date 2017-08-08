@@ -8,6 +8,7 @@ package sanchez.sanchez.sergio.service.impl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import org.jinstagram.Instagram;
@@ -45,7 +46,7 @@ public class InstagramServiceImpl implements IInstagramService {
     private IInstagramCommentMapper instagramMapper;
 
     @Override
-    public List<CommentEntity> getComments(String accessToken) {
+    public List<CommentEntity> getCommentsLaterThan(Date startDate, String accessToken) {
         
         logger.debug("Call Instagram API for accessToken : " + accessToken + " on thread: " + Thread.currentThread().getName());
         

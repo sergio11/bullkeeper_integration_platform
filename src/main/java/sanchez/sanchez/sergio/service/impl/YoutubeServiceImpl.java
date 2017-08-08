@@ -19,6 +19,8 @@ import com.google.api.services.youtube.model.CommentListResponse;
 import com.google.api.services.youtube.model.CommentThread;
 import com.google.api.services.youtube.model.CommentThreadListResponse;
 import java.util.ArrayList;
+import java.util.Date;
+
 import javax.annotation.PostConstruct;
 import org.springframework.util.Assert;
 import sanchez.sanchez.sergio.exception.GetCommentsProcessException;
@@ -75,7 +77,7 @@ public class YoutubeServiceImpl implements IYoutubeService {
     
     
     @Override
-    public List<CommentEntity> getComments(String refreshToken) {
+    public List<CommentEntity> getCommentsLaterThan(Date startDate, String refreshToken) {
         
         logger.debug("Call Youtube Data API for refreshToken : " + refreshToken + " on thread: " + Thread.currentThread().getName());
         List<Comment> userComments = new ArrayList<>();

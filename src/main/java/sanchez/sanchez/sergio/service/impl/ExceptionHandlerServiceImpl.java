@@ -35,15 +35,14 @@ public class ExceptionHandlerServiceImpl implements IExceptionHandlerService, IE
         if (cause instanceof IVisitable)
                 ((IVisitable<IExceptionVisitor>)cause).accept(this);
         else {
-            logger.error(cause.toString());
-           cause.printStackTrace();
+            logger.error(cause.fillInStackTrace().toString());
+         
         }
             
     }
 
     @Override
     public void visit(InvalidAccessTokenException exception) {
-        logger.info("handleInvalidAccessToken ...");
         socialMediaRepository.setAccessTokenAsInvalid(exception.getAccessToken(), exception.getSocialMediaType());
     }
     

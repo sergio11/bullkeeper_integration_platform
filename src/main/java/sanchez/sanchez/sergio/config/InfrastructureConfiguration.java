@@ -16,11 +16,14 @@ import org.springframework.integration.core.MessageSource;
 import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.IntegrationFlows;
 import org.springframework.integration.dsl.core.Pollers;
+import org.springframework.integration.dsl.support.Consumer;
+import org.springframework.integration.dsl.support.GenericHandler;
 import org.springframework.integration.mongodb.inbound.MongoDbMessageSource;
 import org.springframework.integration.scheduling.PollerMetadata;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import sanchez.sanchez.sergio.persistence.entity.UserEntity;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,6 +45,7 @@ import sanchez.sanchez.sergio.persistence.entity.SonEntity;
 import sanchez.sanchez.sergio.persistence.entity.TaskEntity;
 import sanchez.sanchez.sergio.service.IFacebookService;
 import sanchez.sanchez.sergio.service.IInstagramService;
+import sanchez.sanchez.sergio.service.IIterationService;
 import sanchez.sanchez.sergio.service.IYoutubeService;
 
 /**
@@ -69,8 +73,13 @@ public class InfrastructureConfiguration {
     @Autowired
     private IYoutubeService youtubeService;
     
+    @Autowired
+    private IIterationService iterationService;
+    
     @Value("${poller.integration.flow.time}")
     private Integer pollerTime;
+   
+    private Date lastProbing;
    
     /**
      * The Pollers builder factory can be used to configure common bean definitions or 
@@ -134,11 +143,11 @@ public class InfrastructureConfiguration {
                 .<SocialMediaEntity, SocialMediaTypeEnum>route(p -> p.getType(),
                         m
                         -> m.subFlowMapping(SocialMediaTypeEnum.FACEBOOK, 
-                                sf -> sf.handle(SocialMediaEntity.class, (p, h) -> facebookService.getComments(p.getAccessToken())))
+                                sf -> sf.handle(SocialMediaEntity.class, (p, h) -> facebookService.getCommentsLaterThan(lastProbing, p.getAccessToken())))
                             .subFlowMapping(SocialMediaTypeEnum.YOUTUBE, 
-                                sf -> sf.handle(SocialMediaEntity.class, (p, h) -> youtubeService.getComments(p.getAccessToken())))
+                                sf -> sf.handle(SocialMediaEntity.class, (p, h) -> youtubeService.getCommentsLaterThan(lastProbing, p.getAccessToken())))
                             .subFlowMapping(SocialMediaTypeEnum.INSTAGRAM, 
-                                sf -> sf.handle(SocialMediaEntity.class, (p, h) -> instagramService.getComments(p.getAccessToken())))
+                                sf -> sf.handle(SocialMediaEntity.class, (p, h) -> instagramService.getCommentsLaterThan(lastProbing, p.getAccessToken())))
                 )
                 .channel("directChannel_1")
                 .transform(new GenericTransformer<Message<List<CommentEntity>>, TaskEntity>() {
@@ -173,6 +182,13 @@ public class InfrastructureConfiguration {
                     }
                 }))
                 .channel("directChannel_2")
+                .wireTap(sf -> sf.handle(new Consumer<IterationEntity>(){
+					@Override
+					public void accept(IterationEntity iteration) {
+						// save last Probing
+						lastProbing = iteration.getFinishDate();
+					}
+                }))
                 .handle("iterationService", "save")
                 .get();
     }
@@ -183,6 +199,11 @@ public class InfrastructureConfiguration {
         Assert.notNull(facebookService, "The Facebook Service can not be null");
         Assert.notNull(instagramService, "The Instagram Service can not be null");
         Assert.notNull(youtubeService, "The Youtube Service can not be null");
+        Assert.notNull(iterationService, "The Iteration Service can not be null");
+        
+        // Get Last Probing
+        lastProbing = iterationService.getLastProbing();
+        
     }
     
 }
