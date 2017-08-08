@@ -24,4 +24,5 @@ public interface IFacebookCommentMapper {
 	
     @IterableMapping(qualifiedByName = "facebookCommentToCommentEntity")
     List<CommentEntity> facebookCommentsToCommentEntities(List<Comment> facebookComments);
+       
 }
