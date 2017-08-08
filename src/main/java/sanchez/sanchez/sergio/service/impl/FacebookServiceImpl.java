@@ -12,23 +12,21 @@ import com.restfb.types.Conversation;
 import com.restfb.types.Message;
 import com.restfb.types.Post;
 import com.restfb.types.User;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import sanchez.sanchez.sergio.exception.GetCommentsProcessException;
 import sanchez.sanchez.sergio.exception.InvalidAccessTokenException;
 import sanchez.sanchez.sergio.mapper.IFacebookCommentMapper;
+import sanchez.sanchez.sergio.mapper.IFacebookMessageMapper;
 import sanchez.sanchez.sergio.persistence.entity.CommentEntity;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaTypeEnum;
 import sanchez.sanchez.sergio.service.IFacebookService;
@@ -47,8 +45,13 @@ public class FacebookServiceImpl implements IFacebookService {
     @Value("${facebook.app.secret}")
     private String appSecret;
     
-    @Autowired
-    private IFacebookCommentMapper facebookCommentMapper;
+    private final IFacebookCommentMapper facebookCommentMapper;
+    private final IFacebookMessageMapper facebookMessageMapper;
+
+    public FacebookServiceImpl(IFacebookCommentMapper facebookCommentMapper, IFacebookMessageMapper facebookMessageMapper) {
+        this.facebookCommentMapper = facebookCommentMapper;
+        this.facebookMessageMapper = facebookMessageMapper;
+    }
     
     private Stream<Comment> getCommentsByObjectAfterThan(final FacebookClient facebookClient, final String objectId, final Date startDate, User user) {
 
@@ -65,65 +68,70 @@ public class FacebookServiceImpl implements IFacebookService {
                        (startDate != null ? comment.getCreatedTime().after(startDate) : true));
     }
     
-    private List<Comment> getAllCommentsFromPostsAfterThan(final FacebookClient facebookClient, final Date startDate, User user) {
+    // Get Comments Stream from all posts.
+    private Stream<Comment> getAllCommentsFromPostsAfterThan(final FacebookClient facebookClient, final Date startDate, User user) {
         Connection<Post> userFeed = facebookClient.fetchConnection("me/feed", Post.class);
         // Iterate over the feed to access the particular pages
         return StreamUtils.asStream(userFeed.iterator())
         		.flatMap(List::stream)
-        		.flatMap(post -> getCommentsByObjectAfterThan(facebookClient, post.getId(), startDate, user))
-        		.collect(Collectors.toList());
+        		.flatMap(post -> getCommentsByObjectAfterThan(facebookClient, post.getId(), startDate, user));
   
     }
     
-    private List<Comment> getAllCommentsFromAlbumsAfterThan(FacebookClient facebookClient, Date startDate, User user) {
+    // Get Comments Stream from all albums.
+    private Stream<Comment> getAllCommentsFromAlbumsAfterThan(FacebookClient facebookClient, Date startDate, User user) {
         Connection<Album> userAlbums = facebookClient.fetchConnection("me/albums", Album.class);
         // Iterate over the albums to access the particular pages
         return StreamUtils.asStream(userAlbums.iterator())
         		.flatMap(List::stream)
-        		.flatMap(album -> getCommentsByObjectAfterThan(facebookClient, album.getId(), startDate, user))
-        		.collect(Collectors.toList());
+        		.flatMap(album -> getCommentsByObjectAfterThan(facebookClient, album.getId(), startDate, user));
     }
     
-    /*private List<CommentEntity> getAllCommentsFromConversationsAfterThan(FacebookClient facebookClient, Date startDate) {
-    	Connection<Conversation> conversations = facebookClient.fetchConnection("me/conversations", Conversation.class);
-    	return StreamUtils.asStream(conversations.iterator())
-    			.flatMap(List::stream)
-    			.flatMap(conversation -> {
-    				Connection<Message> messages = facebookClient.fetchConnection(
-    						conversation.getId() + "/messages", Message.class, Parameter.with("fields", "message,created_time,from,id"));
-    				return StreamUtils.asStream(messages.iterator());
-    			})
-    			.flatMap(List::stream)
-    			.filter(message -> startDate != null ? message.getCreatedTime().after(startDate) : true);
-    			
-    			
-   
-    	
-    }*/
+    // Get Message from Facebook Conversations
+    private Stream<CommentEntity> getAllCommentsFromConversationsAfterThan(FacebookClient facebookClient, Date startDate, User user) {
+    	   Connection<Conversation> conversations = facebookClient.fetchConnection("me/conversations", Conversation.class);
+        return StreamUtils.asStream(conversations.iterator())
+                .flatMap(List::stream)
+                .flatMap(conversation -> {
+                    Connection<Message> messages = facebookClient.fetchConnection(
+                            conversation.getId() + "/messages", Message.class, Parameter.with("fields", "message,created_time,from,id"));
+                    return StreamUtils.asStream(messages.iterator());
+                })
+                .flatMap(List::stream)
+                .filter(message
+                        -> !message.getFrom().getId().equals(user.getId())
+                && (startDate != null ? message.getCreatedTime().after(startDate) : true))
+                .map(message -> facebookMessageMapper.facebookMessageToCommentEntity(message));
+    }
    
     @Override
     public List<CommentEntity> getCommentsLaterThan(Date startDate, String accessToken) {
         
-        List<Comment> comments = new ArrayList<Comment>();
+        List<CommentEntity> comments = new ArrayList<CommentEntity>();
         try {
             logger.debug("Call Facebook API for accessToken : " + accessToken + " on thread: " + Thread.currentThread().getName());
             FacebookClient facebookClient = new DefaultFacebookClient(accessToken, Version.VERSION_2_8);
             // Get Information about access token owner
             User user = facebookClient.fetchObject("me", User.class);
-            // Get all comments for all posts.
-            comments.addAll(getAllCommentsFromPostsAfterThan(facebookClient, startDate, user));
-            // Get all Comments for all albums.
-            comments.addAll(getAllCommentsFromAlbumsAfterThan(facebookClient, startDate, user));
+            
+            StreamUtils.concat(
+                StreamUtils.concat(
+                    getAllCommentsFromPostsAfterThan(facebookClient, startDate, user),
+                    getAllCommentsFromAlbumsAfterThan(facebookClient, startDate, user)
+                )
+                .map(comment -> facebookCommentMapper.facebookCommentToCommentEntity(comment)),
+                getAllCommentsFromConversationsAfterThan(facebookClient, startDate, user)
+            )
+            .collect(Collectors.toList());
             
             logger.debug("Total Facebook comments : " + comments.size());
         } catch (FacebookOAuthException e) {
-        	logger.debug(accessToken + " IS INVALID");
+            logger.error(e.getErrorMessage());
             throw new InvalidAccessTokenException(SocialMediaTypeEnum.FACEBOOK, accessToken);
         } catch (Exception e) {
             throw new GetCommentsProcessException(e);
         }
-        // map all facebook comments to comments entities.
-        return facebookCommentMapper.facebookCommentsToCommentEntities(comments);
+        return comments;
     }
    
     @PostConstruct

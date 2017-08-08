@@ -3,16 +3,13 @@ package sanchez.sanchez.sergio;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import javax.annotation.PostConstruct;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
-
 import sanchez.sanchez.sergio.persistence.entity.AuthorityEntity;
 import sanchez.sanchez.sergio.persistence.entity.AuthorityEnum;
 import sanchez.sanchez.sergio.persistence.entity.ParentEntity;
@@ -20,7 +17,6 @@ import sanchez.sanchez.sergio.persistence.entity.SchoolEntity;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaEntity;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaTypeEnum;
 import sanchez.sanchez.sergio.persistence.entity.SonEntity;
-import sanchez.sanchez.sergio.persistence.entity.UserEntity;
 import sanchez.sanchez.sergio.persistence.repository.AuthorityRepository;
 import sanchez.sanchez.sergio.persistence.repository.ParentRepository;
 import sanchez.sanchez.sergio.persistence.repository.SchoolRepository;
@@ -96,7 +92,7 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
     	childrenList.add(sergio);
         
         socialMedias.addAll(Arrays.asList( new SocialMediaEntity[] { 
-            new SocialMediaEntity("EAACEdEose0cBAANlGNPZCupp7VnxfGYwMnb2raB2CjyzLsdwyUpIIZBUkhmOEZCicBNArOdzWNj29MSSbq0cWl7KrZAPsvkbx0kHxmvTVMX85B5Pp81rH2pCo9YQ3ZBwi5X6gkbTDmsZC43YXX0NBNlEZApyY3EEyl0HAx85dEi2kJipO70imk1w4oKCWzwzcEZD", SocialMediaTypeEnum.FACEBOOK, sergio),
+            new SocialMediaEntity("EAACEdEose0cBADvGqtd4UZBoW2QdFeYGyuxGLu97n4RdZBGa8wxPWhKSNFtAjWnmIGuNd54rc52DnjlN30n7lyp6rht5qhOqColo4zMTnoDZBeEMd8yME792bjXsY0AUBKIZA4Lh8ZAU0BF2nDWZAPxIM75g9NqdfvqjcMNgFGkHBVWM1UqgLUPyHKzZA7hNU0ZD", SocialMediaTypeEnum.FACEBOOK, sergio),
             new SocialMediaEntity("3303539559.5d2b345.6fb7b3f97e5142fd93973592ccc4c07d", SocialMediaTypeEnum.INSTAGRAM, sergio),
             new SocialMediaEntity("sergio_access_token_youtube", SocialMediaTypeEnum.YOUTUBE, sergio)
         }));

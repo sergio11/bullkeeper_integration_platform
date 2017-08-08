@@ -25,4 +25,5 @@ public interface ICommentEntityMapper {
 	
     @IterableMapping(qualifiedByName = "commentEntityToCommentDTO")
     List<CommentDTO> commentEntitiesToCommentDTOs(List<CommentEntity> commentEntities);
+    
 }
