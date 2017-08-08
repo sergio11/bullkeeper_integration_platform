@@ -6,6 +6,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import sanchez.sanchez.sergio.dto.request.AddSchoolDTO;
 import sanchez.sanchez.sergio.dto.response.SchoolDTO;
 import sanchez.sanchez.sergio.mapper.ISchoolEntityMapper;
 import sanchez.sanchez.sergio.persistence.entity.SchoolEntity;
@@ -63,5 +65,19 @@ public class SchoolServiceImpl implements ISchoolService {
 	public SchoolDTO getSchoolById(String id) {
 		SchoolEntity schoolEntity = schoolRepository.findOne(new ObjectId(id));
 		return schoolEntityMapper.schoolEntityToSchoolDTO(schoolEntity);
+	}
+
+	@Override
+	public SchoolDTO save(AddSchoolDTO addSchoolDTO) {
+		SchoolEntity schoolToSave = schoolEntityMapper.addSchoolDTOToSchoolEntity(addSchoolDTO);
+		SchoolEntity schoolSaved = schoolRepository.save(schoolToSave);
+		return schoolEntityMapper.schoolEntityToSchoolDTO(schoolSaved);
+	}
+
+	@Override
+	public SchoolDTO delete(String id) {
+		SchoolEntity schoolToDelete = schoolRepository.findOne(new ObjectId(id));
+		schoolRepository.delete(schoolToDelete);
+		return schoolEntityMapper.schoolEntityToSchoolDTO(schoolToDelete);
 	}
 }

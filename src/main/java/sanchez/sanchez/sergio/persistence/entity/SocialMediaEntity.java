@@ -30,6 +30,8 @@ public class SocialMediaEntity {
     
     @DBRef
     private SonEntity sonEntity;
+    
+    public SocialMediaEntity(){}
 
     @PersistenceConstructor
     public SocialMediaEntity(String accessToken, SocialMediaTypeEnum type, SonEntity sonEntity) {

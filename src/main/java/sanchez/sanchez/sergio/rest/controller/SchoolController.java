@@ -1,6 +1,9 @@
 package sanchez.sanchez.sergio.rest.controller;
 
 import java.util.Optional;
+
+import javax.validation.Valid;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
@@ -9,14 +12,18 @@ import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import sanchez.sanchez.sergio.dto.request.AddSchoolDTO;
 import sanchez.sanchez.sergio.dto.response.SchoolDTO;
 import sanchez.sanchez.sergio.rest.ApiHelper;
 import sanchez.sanchez.sergio.rest.exception.SchoolNotFoundException;
@@ -27,7 +34,7 @@ import sanchez.sanchez.sergio.rest.response.SchoolResponseCode;
 import sanchez.sanchez.sergio.service.ISchoolService;
 
 @Api
-@RestController("RestSocialMediaController")
+@RestController("RestSchoolController")
 @RequestMapping("/api/v1/schools/")
 public class SchoolController implements ISchoolHAL {
 
@@ -83,8 +90,29 @@ public class SchoolController implements ISchoolHAL {
                 .orElseThrow(() -> { throw new SchoolNotFoundException(); });
     }
     
+    @PutMapping(path = "/")
+    @ApiOperation(value = "CREATE_SCHOOL", nickname = "CREATE_SCHOOL", notes = "Create School",
+    	response = ResponseEntity.class)
+    public ResponseEntity<APIResponse<SchoolDTO>> saveSchool(
+    		@ApiParam(value = "school", required = true) 
+				@Valid @RequestBody AddSchoolDTO addSchoolDTO) throws Throwable {        
+    	
+        return Optional.ofNullable(schoolService.save(addSchoolDTO))
+                .map(schoolResource -> addLinksToSchool(schoolResource))
+                .map(schoolResource -> ApiHelper.<SchoolDTO>createAndSendResponse(SchoolResponseCode.SCHOOL_SAVED, schoolResource, HttpStatus.OK))
+                .orElseThrow(() -> { throw new SchoolNotFoundException(); });
+    }
     
     
-    
+    @DeleteMapping(path = "/{id}")
+    @ApiOperation(value = "DELETE_SCHOOL", nickname = "DELETE_SCHOOL", notes = "Delete School",
+		response = ResponseEntity.class)
+    public ResponseEntity<APIResponse<SchoolDTO>> deleteSchool(
+    		@ApiParam(value = "id", required = true) @PathVariable String id) throws Throwable {        
+    	
+        return Optional.ofNullable(schoolService.delete(id))
+                .map(schoolResource -> ApiHelper.<SchoolDTO>createAndSendResponse(SchoolResponseCode.SCHOOL_DELETED, schoolResource, HttpStatus.OK))
+                .orElseThrow(() -> { throw new SchoolNotFoundException(); });
+    }
    
 }

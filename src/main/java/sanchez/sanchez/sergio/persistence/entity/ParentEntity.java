@@ -11,6 +11,7 @@ public class ParentEntity  extends UserEntity {
 	@Field("password")
 	private String password;
 	
+	public ParentEntity(){}
 	
 	@PersistenceConstructor
 	public ParentEntity(String firstName, String lastName, Integer age, String email, String password) {

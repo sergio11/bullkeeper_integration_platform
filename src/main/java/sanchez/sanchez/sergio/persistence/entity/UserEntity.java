@@ -25,6 +25,8 @@ public abstract class UserEntity {
     private String lastName;
     
     private Integer age;
+    
+    public UserEntity(){}
 
     @PersistenceConstructor
     public UserEntity(String firstName, String lastName, Integer age) {

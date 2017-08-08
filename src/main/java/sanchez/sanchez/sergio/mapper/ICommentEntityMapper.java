@@ -18,7 +18,7 @@ public interface ICommentEntityMapper {
     
     @Mappings({
         @Mapping(expression="java(commentEntity.getId().toString())", target = "identity" ),
-        @Mapping(source = "commentEntity.userEntity.fullName", target = "user"),
+        @Mapping(source = "commentEntity.sonEntity.fullName", target = "user"),
         @Mapping(source = "commentEntity.createdTime", target = "createdTime", dateFormat = "dd/MM/yyyy")
     })
     @Named("commentEntityToCommentDTO")

@@ -66,7 +66,7 @@ public class CommentsServiceImpl implements ICommentsService {
 
     @Override
     public Page<CommentDTO> getCommentBySonId(Pageable pageable, String userId) {
-        Page<CommentEntity> commentsPage =  commentRepository.findAllByUserEntityId(new ObjectId(userId), pageable);
+        Page<CommentEntity> commentsPage =  commentRepository.findAllBySonEntityId(new ObjectId(userId), pageable);
         return commentsPage.map(new Converter<CommentEntity, CommentDTO>(){
             @Override
             public CommentDTO convert(CommentEntity s) {

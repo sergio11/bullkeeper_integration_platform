@@ -30,7 +30,7 @@ public class SocialMediaServiceImpl implements ISocialMediaService {
     
     @Override
     public List<SocialMediaDTO> getSocialMediaByUser(String id) {
-        List<SocialMediaEntity> socialMediaEntities = socialMediaRepository.findByUserEntityId(new ObjectId(id));
+        List<SocialMediaEntity> socialMediaEntities = socialMediaRepository.findBySonEntityId(new ObjectId(id));
         return socialMediaMapper.socialMediaEntitiesToSocialMediaDTO(socialMediaEntities);
     }   
     

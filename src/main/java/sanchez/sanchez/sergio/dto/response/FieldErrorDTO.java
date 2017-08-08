@@ -7,6 +7,7 @@ public class FieldErrorDTO extends ResourceSupport {
 	private final String field;
     private final String message;
     
+    
 	public FieldErrorDTO(String field, String message) {
 		super();
 		this.field = field;

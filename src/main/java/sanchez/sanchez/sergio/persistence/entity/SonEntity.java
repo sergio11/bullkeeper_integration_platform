@@ -9,6 +9,8 @@ public class SonEntity extends UserEntity {
 	private SchoolEntity school;
 	@DBRef
 	private ParentEntity parent;
+	
+	public SonEntity(){}
 
 	@PersistenceConstructor
 	public SonEntity(String firstName, String lastName, Integer age, SchoolEntity school, ParentEntity parent) {

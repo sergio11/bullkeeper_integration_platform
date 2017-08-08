@@ -21,12 +21,12 @@ import sanchez.sanchez.sergio.persistence.repository.SonRepository;
 public abstract class SocialMediaEntityMapper {
 	
 	@Autowired
-	private SonRepository sonRepository;
+	protected SonRepository sonRepository;
     
     @Mappings({
         @Mapping(expression="java(socialMediaEntity.getId().toString())", target = "identity" ),
         @Mapping(expression="java(socialMediaEntity.getType().name())", target = "type" ),
-        @Mapping(source="socialMediaEntity.userEntity.fullName", target = "user" )
+        @Mapping(source="socialMediaEntity.sonEntity.fullName", target = "user" )
     })
     @Named("socialMediaEntityToSocialMediaDTO")
     public abstract SocialMediaDTO socialMediaEntityToSocialMediaDTO(SocialMediaEntity socialMediaEntity); 
@@ -35,8 +35,8 @@ public abstract class SocialMediaEntityMapper {
     public abstract List<SocialMediaDTO> socialMediaEntitiesToSocialMediaDTO(List<SocialMediaEntity> socialMediaEntities);
     
     @Mappings({
-    	@Mapping(expression="java(SocialMediaTypeEnum.valueOf(addSocialMediaDTO.type))", target = "type" ),
-    	@Mapping(expression="java(sonRepository.findOne(new org.bson.types.ObjectId(addSocialMediaDTO.getUser()))", target = "sonEntity" )
+    	@Mapping(expression="java(sanchez.sanchez.sergio.persistence.entity.SocialMediaTypeEnum.valueOf(addSocialMediaDTO.getType()))", target = "type" ),
+    	@Mapping(expression="java(sonRepository.findOne(new org.bson.types.ObjectId(addSocialMediaDTO.getUser())))", target = "sonEntity" )
     })
     public abstract SocialMediaEntity addSocialMediaDTOToSocialMediaEntity(AddSocialMediaDTO addSocialMediaDTO);
     

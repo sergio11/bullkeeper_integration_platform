@@ -9,11 +9,11 @@ public class ParentDTO extends ResourceSupport {
     private String lastName;
     private Integer age;
     private String email;
-    private Integer children;
+    private Long children;
     
     public ParentDTO(){}
 
-	public ParentDTO(String identity, String firstName, String lastName, Integer age, String email, Integer children) {
+	public ParentDTO(String identity, String firstName, String lastName, Integer age, String email, Long children) {
 		super();
 		this.identity = identity;
 		this.firstName = firstName;
@@ -63,12 +63,11 @@ public class ParentDTO extends ResourceSupport {
 		this.email = email;
 	}
 
-	public Integer getChildren() {
+	public Long getChildren() {
 		return children;
 	}
 
-	public void setChildren(Integer children) {
+	public void setChildren(Long children) {
 		this.children = children;
 	}
-
 }

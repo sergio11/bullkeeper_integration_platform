@@ -12,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import sanchez.sanchez.sergio.dto.request.RegisterParentDTO;
 import sanchez.sanchez.sergio.dto.response.ParentDTO;
 import sanchez.sanchez.sergio.persistence.entity.ParentEntity;
+import sanchez.sanchez.sergio.persistence.repository.SonRepository;
 
 /**
  * @author sergio
@@ -21,10 +22,13 @@ public abstract class ParentEntityMapper {
 	
 	@Autowired
     protected PasswordEncoder passwordEncoder;
+	
+	@Autowired
+	protected SonRepository sonRepository;
     
     @Mappings({
         @Mapping(expression="java(parentEntity.getId().toString())", target = "identity" ),
-        @Mapping(expression="java(parentEntity.getChildren().size())", target = "children" )
+        @Mapping(expression="java(sonRepository.countByParentId(parentEntity.getId()))", target = "children" )
     })
     @Named("parentEntityToParentDTO")
     public abstract ParentDTO parentEntityToParentDTO(ParentEntity parentEntity); 
@@ -33,7 +37,7 @@ public abstract class ParentEntityMapper {
     public abstract List<ParentDTO> parentEntitiesToParentDTOs(List<ParentEntity> parentEntities);
     
     @Mappings({ 
-		@Mapping(expression="java(passwordEncoder.encode(registerParentDTO.getPassword()))", target = "password")
+		@Mapping(expression="java(passwordEncoder.encode(registerParentDTO.getPasswordClear()))", target = "password")
 	})
     public abstract ParentEntity registerParentDTOToParentEntity(RegisterParentDTO registerParentDTO);
 }

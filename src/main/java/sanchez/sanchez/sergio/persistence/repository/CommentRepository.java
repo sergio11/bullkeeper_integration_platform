@@ -14,5 +14,5 @@ import sanchez.sanchez.sergio.persistence.entity.CommentEntity;
  */
 @Repository
 public interface CommentRepository extends MongoRepository<CommentEntity, ObjectId> {
-    Page<CommentEntity> findAllByUserEntityId(ObjectId userId, Pageable pageable);
+    Page<CommentEntity> findAllBySonEntityId(ObjectId userId, Pageable pageable);
 }

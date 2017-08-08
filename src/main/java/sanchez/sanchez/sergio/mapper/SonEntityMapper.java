@@ -19,11 +19,11 @@ import sanchez.sanchez.sergio.persistence.repository.SchoolRepository;
 public abstract class SonEntityMapper {
 	
 	@Autowired
-	private SchoolRepository schoolRepository;
+	protected SchoolRepository schoolRepository;
     
     @Mappings({
         @Mapping(expression="java(sonEntity.getId().toString())", target = "identity" ),
-        @Mapping(expression="java(sonEntity.school.name)", target = "school" )
+        @Mapping(source="sonEntity.school.name", target = "school" )
     })
     @Named("sonEntityToSonDTO")
     public abstract SonDTO sonEntityToSonDTO(SonEntity sonEntity); 
@@ -32,7 +32,7 @@ public abstract class SonEntityMapper {
     public abstract Iterable<SonDTO> sonEntitiesToSonDTOs(Iterable<SonEntity> sonEntities);
     
     @Mappings({
-        @Mapping(expression="java(schoolRepository.findOne(new org.bson.types.ObjectId(registerSonDTO.getSchool()))", target = "school" )
+        @Mapping(expression="java(schoolRepository.findOne(new org.bson.types.ObjectId(registerSonDTO.getSchool())))", target = "school" )
     })
     public abstract SonEntity registerSonDTOToSonEntity(RegisterSonDTO registerSonDTO);
 }

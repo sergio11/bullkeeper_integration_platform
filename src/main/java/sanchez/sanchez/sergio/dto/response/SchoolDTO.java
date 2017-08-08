@@ -13,6 +13,7 @@ public class SchoolDTO extends ResourceSupport {
 	private Integer tfno;
 	private String email;
 	
+	public SchoolDTO(){}
 	
 	public SchoolDTO(String identity, String name, String residence, String location, String province, Integer tfno,
 			String email) {
