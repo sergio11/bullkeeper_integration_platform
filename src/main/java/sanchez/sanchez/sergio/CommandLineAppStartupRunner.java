@@ -96,7 +96,7 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
     	childrenList.add(sergio);
         
         socialMedias.addAll(Arrays.asList( new SocialMediaEntity[] { 
-            new SocialMediaEntity("EAACEdEose0cBAOsbuixfhK8KpzurEMyZAeebScLISGSUkcgHS3h2GGERGHPDazieRbZBx1Sj6er8kpG6Sb3QXub0h5BIzqxiBvSlvZC4vuZBFodlaDzuFHRL4q8RDARqNcxcBliuwzoZAuGZAkeLuoZBE7yEHq7bWSk4NrRAXLtZBeqelzJLsTr3A9ooVhE52fgZD", SocialMediaTypeEnum.FACEBOOK, sergio),
+            new SocialMediaEntity("EAACEdEose0cBAANlGNPZCupp7VnxfGYwMnb2raB2CjyzLsdwyUpIIZBUkhmOEZCicBNArOdzWNj29MSSbq0cWl7KrZAPsvkbx0kHxmvTVMX85B5Pp81rH2pCo9YQ3ZBwi5X6gkbTDmsZC43YXX0NBNlEZApyY3EEyl0HAx85dEi2kJipO70imk1w4oKCWzwzcEZD", SocialMediaTypeEnum.FACEBOOK, sergio),
             new SocialMediaEntity("3303539559.5d2b345.6fb7b3f97e5142fd93973592ccc4c07d", SocialMediaTypeEnum.INSTAGRAM, sergio),
             new SocialMediaEntity("sergio_access_token_youtube", SocialMediaTypeEnum.YOUTUBE, sergio)
         }));

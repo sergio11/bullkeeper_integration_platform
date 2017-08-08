@@ -51,20 +51,18 @@ public class FacebookServiceImpl implements IFacebookService {
     private IFacebookCommentMapper facebookCommentMapper;
     
     private Stream<Comment> getCommentsByObjectAfterThan(final FacebookClient facebookClient, final String objectId, final Date startDate, User user) {
-    	
+
         Connection<Comment> commentConnection
                 = facebookClient.fetchConnection(objectId + "/comments", Comment.class);
-        
+
         return StreamUtils.asStream(commentConnection.iterator())
-	        	.flatMap(List::stream)
-	        	.flatMap(comment -> StreamUtils.defaultIfEmpty(
-	        			getCommentsByObjectAfterThan(facebookClient, comment.getId(), startDate, user), () -> comment))
-	        	.filter(comment -> {
-	        		logger.debug("CURRENT USER -> " + user.getId() + " - " + user.getName());
-	        		logger.debug("COMMENT FROM -> " + comment.getFrom().getId() + " - " + comment.getFrom().getName() + " - " + comment.getMessage());
-	        		return startDate != null ? comment.getCreatedTime().after(startDate) : true;
-	        	});
-	        			
+                .flatMap(List::stream)
+                .flatMap(comment
+                        -> StreamUtils.concat(
+                        getCommentsByObjectAfterThan(facebookClient, comment.getId(), startDate, user), comment)
+                )
+                .filter(comment -> !comment.getFrom().getId().equals(user.getId()) &&
+                       (startDate != null ? comment.getCreatedTime().after(startDate) : true));
     }
     
     private List<Comment> getAllCommentsFromPostsAfterThan(final FacebookClient facebookClient, final Date startDate, User user) {
@@ -72,10 +70,7 @@ public class FacebookServiceImpl implements IFacebookService {
         // Iterate over the feed to access the particular pages
         return StreamUtils.asStream(userFeed.iterator())
         		.flatMap(List::stream)
-        		.flatMap(post -> {
-        			logger.debug("POST ID -> " + post.getId());
-        			return getCommentsByObjectAfterThan(facebookClient, post.getId(), startDate, user);
-        		})
+        		.flatMap(post -> getCommentsByObjectAfterThan(facebookClient, post.getId(), startDate, user))
         		.collect(Collectors.toList());
   
     }
