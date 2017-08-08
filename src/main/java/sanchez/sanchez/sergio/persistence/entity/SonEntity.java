@@ -18,7 +18,7 @@ public class SonEntity extends UserEntity {
 		this.school = school;
 		this.parent = parent;
 	}
-
+	
 	public SchoolEntity getSchool() {
 		return school;
 	}

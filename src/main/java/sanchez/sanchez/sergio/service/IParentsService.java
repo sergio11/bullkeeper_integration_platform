@@ -1,5 +1,6 @@
 package sanchez.sanchez.sergio.service;
 
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -17,6 +18,7 @@ public interface IParentsService {
     Page<ParentDTO> findPaginated(Integer page, Integer size);
     Page<ParentDTO> findPaginated(Pageable pageable);
     ParentDTO getParentById(String id);
+    ParentDTO getParentById(ObjectId id);
     Iterable<SonDTO> getChildrenOfParent(String id);
     ParentDTO save(final RegisterParentDTO registerParent);
     SonDTO addSon(String parentId, RegisterSonDTO registerSonDTO);

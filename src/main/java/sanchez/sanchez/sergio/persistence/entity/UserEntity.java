@@ -3,6 +3,7 @@ package sanchez.sanchez.sergio.persistence.entity;
 import org.springframework.data.annotation.Id;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.PersistenceConstructor;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -26,20 +27,33 @@ public abstract class UserEntity {
     
     private Integer age;
     
+    @DBRef
+    private AuthorityEntity authority;
+    
     public UserEntity(){}
 
     @PersistenceConstructor
+    public UserEntity(String firstName, String lastName, Integer age, AuthorityEntity authority) {
+		super();
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.age = age;
+		this.authority = authority;
+	}
+    
     public UserEntity(String firstName, String lastName, Integer age) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.age = age;
-    }
+		super();
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.age = age;
+	}
 
     public ObjectId getId() {
         return id;
     }
     
-    public String getFirstName() {
+   
+	public String getFirstName() {
         return firstName;
     }
 
@@ -66,8 +80,17 @@ public abstract class UserEntity {
     public String getFullName(){
         return this.firstName + " - " + this.lastName;
     }
+    
+    
+	public AuthorityEntity getAuthority() {
+		return authority;
+	}
 
-    @Override
+	public void setAuthority(AuthorityEntity authority) {
+		this.authority = authority;
+	}
+
+	@Override
     public String toString() {
         return "UserEntity{" + "id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", age=" + age + '}';
     }

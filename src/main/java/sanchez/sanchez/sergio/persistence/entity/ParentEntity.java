@@ -14,15 +14,19 @@ public class ParentEntity  extends UserEntity {
 	public ParentEntity(){}
 	
 	@PersistenceConstructor
-	public ParentEntity(String firstName, String lastName, Integer age, String email, String password) {
-		super(firstName, lastName, age);
+	public ParentEntity(String firstName, String lastName, Integer age, AuthorityEntity authority, String email,
+			String password) {
+		super(firstName, lastName, age, authority);
 		this.email = email;
 		this.password = password;
 	}
+	
 
 	public String getEmail() {
 		return email;
 	}
+
+	
 
 	public void setEmail(String email) {
 		this.email = email;

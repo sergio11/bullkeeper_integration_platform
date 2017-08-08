@@ -3,6 +3,7 @@ package sanchez.sanchez.sergio.config.security;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -56,12 +58,41 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity httpSecurity) throws Exception {
 		httpSecurity.csrf().disable()
 				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
-				.antMatchers(HttpMethod.OPTIONS, "/**").permitAll().antMatchers(ApiHelper.AUTHENTICATION_ANY_REQUEST)
-				.permitAll().anyRequest().authenticated();
+					.antMatchers(HttpMethod.OPTIONS, "/**")
+						.permitAll()
+					.antMatchers(ApiHelper.AUTHENTICATION_ANY_REQUEST)
+						.permitAll()
+					.anyRequest()
+						.authenticated()
+				.and()
+				.exceptionHandling()
+                	.authenticationEntryPoint((request, response, authException) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED));
 
 		// Custom JWT based security filter
 		httpSecurity.addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class);
 	}
+	
+	@Override
+    public void configure(WebSecurity web) throws Exception {
+        web.ignoring()
+        	.antMatchers(
+        			"/documentation/v2/api-docs",
+        			"/documentation/swagger-resources/configuration/ui",
+        			"/documentation/swagger-resources/configuration/security",
+        			"/documentation/swagger-resources",
+        			"/documentation/configuration/ui",
+        			"/documentation/configuration/security",
+        			"/documentation/swagger-ui.html**",
+        			"/documentation/webjars/**",
+        			"/v2/api-docs",
+        			"/swagger-resources/configuration/ui",
+        			"/swagger-resources/configuration/security",
+        			"/swagger-resources",
+        			"/configuration/ui",
+        			"/configuration/security",
+        			"/swagger-ui.html**",
+        			"/webjars/**");
+    }
     
     @PostConstruct
     public void init(){

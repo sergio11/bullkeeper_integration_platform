@@ -85,4 +85,10 @@ public class ParentsServiceImpl implements IParentsService {
 		return sonEntityMapper.sonEntityToSonDTO(sonToAdd);
 	}
 
+	@Override
+	public ParentDTO getParentById(ObjectId id) {
+		ParentEntity parentEntity = parentRepository.findOne(id);
+        return parentEntityMapper.parentEntityToParentDTO(parentEntity);
+	}
+
 }

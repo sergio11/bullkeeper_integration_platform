@@ -98,7 +98,7 @@ public class InfrastructureConfiguration {
     @Bean
     @Autowired
     public MessageSource<Object> mongoMessageSource(MongoDbFactory mongo) {
-        MongoDbMessageSource messageSource = new MongoDbMessageSource(mongo, new LiteralExpression("{invalidToken: {$ne: true}}"));
+        MongoDbMessageSource messageSource = new MongoDbMessageSource(mongo, new LiteralExpression("{ 'invalid_token' : false }"));
         messageSource.setExpectSingleResult(false);
         messageSource.setEntityClass(SocialMediaEntity.class);
         messageSource.setCollectionNameExpression(new LiteralExpression(SocialMediaEntity.COLLECTION_NAME));

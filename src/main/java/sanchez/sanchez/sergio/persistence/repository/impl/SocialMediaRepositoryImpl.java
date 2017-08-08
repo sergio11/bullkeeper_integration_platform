@@ -24,16 +24,10 @@ public class SocialMediaRepositoryImpl implements SocialMediaRepositoryCustom {
     @Override
     public void setAccessTokenAsInvalid(String accessToken, SocialMediaTypeEnum type) {
         
-        logger.debug("UPDATE SOCIAL MEDIA WITH ACCESS_TOKEN: " + accessToken + " AND SOCIAL MEDIA: " + type.name());
-        
-        Query query = new Query(Criteria
-                .where("access_token")
-                .is(accessToken)
-                .and("social_media_type")
-                .is(type.name()));
-        Update update = Update
-            .update("invalid_token", "true");
-        Boolean result = mongoTemplate.updateFirst(query, update, SocialMediaEntity.class).isUpdateOfExisting();
+       mongoTemplate.updateFirst(
+        		new Query(Criteria.where("access_token").is(accessToken)
+                    .and("social_media_type").is(type.name())),
+        		Update.update("invalid_token", "true"), SocialMediaEntity.class);
         
     }   
 }

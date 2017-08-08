@@ -13,12 +13,15 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import sanchez.sanchez.sergio.persistence.entity.AuthorityEntity;
+import sanchez.sanchez.sergio.persistence.entity.AuthorityEnum;
 import sanchez.sanchez.sergio.persistence.entity.ParentEntity;
 import sanchez.sanchez.sergio.persistence.entity.SchoolEntity;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaEntity;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaTypeEnum;
 import sanchez.sanchez.sergio.persistence.entity.SonEntity;
 import sanchez.sanchez.sergio.persistence.entity.UserEntity;
+import sanchez.sanchez.sergio.persistence.repository.AuthorityRepository;
 import sanchez.sanchez.sergio.persistence.repository.ParentRepository;
 import sanchez.sanchez.sergio.persistence.repository.SchoolRepository;
 import sanchez.sanchez.sergio.persistence.repository.SocialMediaRepository;
@@ -40,14 +43,31 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
     private final ParentRepository parentRepository;
     private final SonRepository sonRepository;
     private final SocialMediaRepository socialMediaRepository;
+    private final AuthorityRepository authorityRepository;
     
     
+    private static List<AuthorityEntity> authoritiesList = new ArrayList<>();
     private static List<SchoolEntity> schoolList = new ArrayList<>();
     private static List<ParentEntity> parentList = new ArrayList<>();
     private static List<SonEntity> childrenList = new ArrayList<>();
     private static List<SocialMediaEntity> socialMedias = new ArrayList<>();
     
     static {
+    	
+    	// Authorities
+    	
+    	AuthorityEntity adminRole = new AuthorityEntity(AuthorityEnum.ROLE_ADMIN, "Role for Administrators");
+    	
+    	authoritiesList.add(adminRole);
+    	
+    	AuthorityEntity parentRole = new AuthorityEntity(AuthorityEnum.ROLE_PARENT, "Role for Parents");
+    	
+    	authoritiesList.add(parentRole);
+    	
+    	AuthorityEntity anonymousRole = new AuthorityEntity(AuthorityEnum.ROLE_ANONYMOUS, "Role for Anonymous");
+    	
+    	authoritiesList.add(anonymousRole);
+    	
     	
     	// SCHOOL
     	SchoolEntity school1 = new SchoolEntity("C.E.I.P. Fernando Gavilán", "Avda. Herrera Oria, s/n", "Ubrique", "Cádiz", 956128801, "11008033.edu@juntadeandalucia.es");
@@ -61,11 +81,11 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
     	
     	// PARENTS
     	
-    	ParentEntity federico = new ParentEntity("Federico", "Martín", 36, "federico@gmail.com", "$2a$10$0eCQpFRdw8i6jJzjj/IuNuKpJYnLaO5Yp9xSJ3itcfPmQNXVhmNyu");
+    	ParentEntity federico = new ParentEntity("Federico", "Martín", 36, parentRole, "federico@gmail.com", "$2a$10$0eCQpFRdw8i6jJzjj/IuNuKpJYnLaO5Yp9xSJ3itcfPmQNXVhmNyu");
     	
     	parentList.add(federico);
     	
-    	ParentEntity fernando = new ParentEntity("Fernando", "Muñoz", 40, "fernando@gmail.com", "$2a$10$0eCQpFRdw8i6jJzjj/IuNuKpJYnLaO5Yp9xSJ3itcfPmQNXVhmNyu");
+    	ParentEntity fernando = new ParentEntity("Fernando", "Muñoz", 40, parentRole, "fernando@gmail.com", "$2a$10$0eCQpFRdw8i6jJzjj/IuNuKpJYnLaO5Yp9xSJ3itcfPmQNXVhmNyu");
     	
     	parentList.add(fernando);
     	
@@ -126,12 +146,13 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
     
     
     public CommandLineAppStartupRunner(SchoolRepository schoolRepository, ParentRepository parentRepository,
-			SonRepository sonRepository, SocialMediaRepository socialMediaRepository) {
+			SonRepository sonRepository, SocialMediaRepository socialMediaRepository, AuthorityRepository authorityRepository) {
 		super();
 		this.schoolRepository = schoolRepository;
 		this.parentRepository = parentRepository;
 		this.sonRepository = sonRepository;
 		this.socialMediaRepository = socialMediaRepository;
+		this.authorityRepository = authorityRepository;
 	}
     
     
@@ -141,6 +162,7 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
     	Assert.notNull(parentRepository, "ParentRepository Can not be null");
     	Assert.notNull(sonRepository, "SonRepository Can not be null");
     	Assert.notNull(socialMediaRepository, "SocialMediaRepository Can not be null");
+    	Assert.notNull(authorityRepository, "AuthorityRepository Can not be null");
     }
 
 	@Override
@@ -150,7 +172,9 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
         parentRepository.deleteAll();
         schoolRepository.deleteAll();
         socialMediaRepository.deleteAll();
+        authorityRepository.deleteAll();
         logger.debug("Load Initial Data ...");
+        authorityRepository.save(authoritiesList);
         schoolRepository.save(schoolList);
         parentRepository.save(parentList);
         sonRepository.save(childrenList);
