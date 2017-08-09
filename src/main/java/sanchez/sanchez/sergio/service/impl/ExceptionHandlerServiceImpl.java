@@ -35,7 +35,7 @@ public class ExceptionHandlerServiceImpl implements IExceptionHandlerService, IE
         if (cause instanceof IVisitable)
                 ((IVisitable<IExceptionVisitor>)cause).accept(this);
         else {
-            logger.error(cause.fillInStackTrace().toString());
+            //logger.error(cause.fillInStackTrace().toString());
          
         }
             

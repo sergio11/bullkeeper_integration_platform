@@ -59,7 +59,7 @@ public class GoogleAPIConfig {
                 .setTransport(provideHttpTransport())
                 .setClientSecrets(provideGoogleClientSecrets())
                 .build()
-                .setRefreshToken(refreshToken);
+                .setAccessToken(refreshToken);
     }
     
     

@@ -26,7 +26,6 @@ import org.springframework.util.Assert;
 import sanchez.sanchez.sergio.exception.GetCommentsProcessException;
 import sanchez.sanchez.sergio.exception.InvalidAccessTokenException;
 import sanchez.sanchez.sergio.mapper.IFacebookCommentMapper;
-import sanchez.sanchez.sergio.mapper.IFacebookMessageMapper;
 import sanchez.sanchez.sergio.persistence.entity.CommentEntity;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaTypeEnum;
 import sanchez.sanchez.sergio.service.IFacebookService;
@@ -46,11 +45,9 @@ public class FacebookServiceImpl implements IFacebookService {
     private String appSecret;
     
     private final IFacebookCommentMapper facebookCommentMapper;
-    private final IFacebookMessageMapper facebookMessageMapper;
 
-    public FacebookServiceImpl(IFacebookCommentMapper facebookCommentMapper, IFacebookMessageMapper facebookMessageMapper) {
+    public FacebookServiceImpl(IFacebookCommentMapper facebookCommentMapper) {
         this.facebookCommentMapper = facebookCommentMapper;
-        this.facebookMessageMapper = facebookMessageMapper;
     }
     
     private Stream<Comment> getCommentsByObjectAfterThan(final FacebookClient facebookClient, final String objectId, final Date startDate, User user) {
@@ -65,7 +62,7 @@ public class FacebookServiceImpl implements IFacebookService {
                         getCommentsByObjectAfterThan(facebookClient, comment.getId(), startDate, user), comment)
                 )
                 .filter(comment -> !comment.getFrom().getId().equals(user.getId()) &&
-                       (startDate != null ? comment.getCreatedTime().after(startDate) : true));
+                		(startDate != null ? comment.getCreatedTime().after(startDate) : true));
     }
     
     // Get Comments Stream from all posts.
@@ -86,23 +83,7 @@ public class FacebookServiceImpl implements IFacebookService {
         		.flatMap(List::stream)
         		.flatMap(album -> getCommentsByObjectAfterThan(facebookClient, album.getId(), startDate, user));
     }
-    
-    // Get Message from Facebook Conversations
-    private Stream<CommentEntity> getAllCommentsFromConversationsAfterThan(FacebookClient facebookClient, Date startDate, User user) {
-    	   Connection<Conversation> conversations = facebookClient.fetchConnection("me/conversations", Conversation.class);
-        return StreamUtils.asStream(conversations.iterator())
-                .flatMap(List::stream)
-                .flatMap(conversation -> {
-                    Connection<Message> messages = facebookClient.fetchConnection(
-                            conversation.getId() + "/messages", Message.class, Parameter.with("fields", "message,created_time,from,id"));
-                    return StreamUtils.asStream(messages.iterator());
-                })
-                .flatMap(List::stream)
-                .filter(message
-                        -> !message.getFrom().getId().equals(user.getId())
-                && (startDate != null ? message.getCreatedTime().after(startDate) : true))
-                .map(message -> facebookMessageMapper.facebookMessageToCommentEntity(message));
-    }
+   
    
     @Override
     public List<CommentEntity> getCommentsLaterThan(Date startDate, String accessToken) {
@@ -114,14 +95,11 @@ public class FacebookServiceImpl implements IFacebookService {
             // Get Information about access token owner
             User user = facebookClient.fetchObject("me", User.class);
             
-            StreamUtils.concat(
-                StreamUtils.concat(
-                    getAllCommentsFromPostsAfterThan(facebookClient, startDate, user),
-                    getAllCommentsFromAlbumsAfterThan(facebookClient, startDate, user)
-                )
-                .map(comment -> facebookCommentMapper.facebookCommentToCommentEntity(comment)),
-                getAllCommentsFromConversationsAfterThan(facebookClient, startDate, user)
+            comments = StreamUtils.concat(
+               getAllCommentsFromPostsAfterThan(facebookClient, startDate, user),
+               getAllCommentsFromAlbumsAfterThan(facebookClient, startDate, user)
             )
+            .map(comment -> facebookCommentMapper.facebookCommentToCommentEntity(comment))
             .collect(Collectors.toList());
             
             logger.debug("Total Facebook comments : " + comments.size());

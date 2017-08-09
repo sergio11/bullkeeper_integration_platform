@@ -10,6 +10,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import javax.annotation.PostConstruct;
 import org.jinstagram.Instagram;
 import org.jinstagram.entity.comments.CommentData;
@@ -50,16 +52,24 @@ public class InstagramServiceImpl implements IInstagramService {
         
         logger.debug("Call Instagram API for accessToken : " + accessToken + " on thread: " + Thread.currentThread().getName());
         
-        List<CommentData> userComments = new ArrayList<>();
+        List<CommentEntity> userComments = new ArrayList<>();
         
         try {
             Instagram instagram = new Instagram(accessToken, appSecret);
-            MediaFeed mediaFeed = instagram.getUserRecentMedia();
-            List<MediaFeedData> mediaFeeds = mediaFeed.getData();
-            for (MediaFeedData mediaData : mediaFeeds) { 
-                Comments comments = mediaData.getComments();
-                userComments.addAll(comments.getComments());
-            }
+            String userId = instagram.getCurrentUserInfo().getData().getId();
+
+            userComments = instagram
+            	.getUserRecentMedia()
+            	.getData()
+            	.stream()
+            	.map(mediaFeed -> mediaFeed.getComments())
+            	.map(comments -> comments.getComments())
+            	.flatMap(List::stream)
+            	.filter(commentData -> !commentData.getCommentFrom().getId().equals(userId) && 
+                		( startDate != null ? new Date(Long.parseLong(commentData.getCreatedTime())).after(startDate) : true ))
+            	.map(commentData -> instagramMapper.instagramCommentToCommentEntity(commentData))
+            	.collect(Collectors.toList());
+            
             logger.debug("Total Instagram Comments: " + userComments.size());
         } catch (InstagramBadRequestException  e) {
             throw new InvalidAccessTokenException(SocialMediaTypeEnum.INSTAGRAM, accessToken);
@@ -67,7 +77,7 @@ public class InstagramServiceImpl implements IInstagramService {
             throw new GetCommentsProcessException(e);
         }
   
-        return instagramMapper.instagramCommentsToCommentEntities(userComments);
+        return userComments;
         
     }
     
