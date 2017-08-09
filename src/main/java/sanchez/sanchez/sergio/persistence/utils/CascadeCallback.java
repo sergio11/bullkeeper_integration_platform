@@ -16,27 +16,31 @@ public class CascadeCallback implements ReflectionUtils.FieldCallback {
         this.mongoOperations = mongoOperations;
     }
 
-    @Override
-    public void doWith(final Field field) throws IllegalArgumentException, IllegalAccessException {
-        ReflectionUtils.makeAccessible(field);
+	@Override
+	public void doWith(final Field field) throws IllegalArgumentException, IllegalAccessException {
+		ReflectionUtils.makeAccessible(field);
 
-        if (field.isAnnotationPresent(DBRef.class) && field.isAnnotationPresent(CascadeSave.class)) {
-            final Object fieldValue = field.get(getSource());
-
-            if (fieldValue != null) {
-                final FieldCallback callback = new FieldCallback();
-
-                ReflectionUtils.doWithFields(fieldValue.getClass(), callback);
-                
-                if(fieldValue instanceof List) {
-                    List valueList = (List)fieldValue;
-                    for(Object value: valueList)
-                        mongoOperations.save(value);
-                } else {
-                    mongoOperations.save(fieldValue);
-                }
-            }
-        }
+		if (field.isAnnotationPresent(DBRef.class) && field.isAnnotationPresent(CascadeSave.class)) {
+		
+			final Object fieldValue = field.get(getSource());
+			if (fieldValue != null) {
+				if (fieldValue instanceof List) {
+					List valueList = (List) fieldValue;
+					for(Object value: valueList) {
+						final FieldCallback callback = new FieldCallback();
+						ReflectionUtils.doWithFields(fieldValue.getClass(), callback);
+						mongoOperations.save(value);
+					}
+						
+				} else {
+					final FieldCallback callback = new FieldCallback();
+					ReflectionUtils.doWithFields(fieldValue.getClass(), callback);
+					mongoOperations.save(fieldValue);
+				}
+				
+				
+			}
+		}
 
     }
 

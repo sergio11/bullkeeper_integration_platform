@@ -31,6 +31,7 @@ public class TaskEntity {
     private Boolean success = Boolean.TRUE;
     
     @Field("comments")
+    @DBRef
     @CascadeSave
     private List<CommentEntity> comments;
     
