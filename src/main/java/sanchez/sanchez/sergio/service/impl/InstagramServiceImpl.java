@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import sanchez.sanchez.sergio.exception.GetCommentsProcessException;
@@ -37,6 +38,7 @@ import sanchez.sanchez.sergio.service.IInstagramService;
  * @author sergio
  */
 @Service
+@Profile({"dev", "prod"})
 public class InstagramServiceImpl implements IInstagramService {
     
     private Logger logger = LoggerFactory.getLogger(InstagramServiceImpl.class);

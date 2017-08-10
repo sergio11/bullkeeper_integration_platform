@@ -1,8 +1,6 @@
 package sanchez.sanchez.sergio.mapper;
 
-import com.restfb.types.Comment;
 
-import java.util.Date;
 import java.util.List;
 import org.jinstagram.entity.comments.CommentData;
 import org.mapstruct.IterableMapping;
@@ -21,7 +19,7 @@ public interface IInstagramCommentMapper {
     @Mappings({ 
         @Mapping(target = "id", ignore=true),
         @Mapping(source = "instagramComment.text", target = "message"),
-        @Mapping(expression="java(new java.util.Date(Long.parseLong(commentData.getCreatedTime())))", target = "createdTime")
+        @Mapping(expression="java(new java.util.Date(Long.parseLong(instagramComment.getCreatedTime())))", target = "createdTime")
     })
     @Named("instagramCommentToCommentEntity")
     CommentEntity instagramCommentToCommentEntity(CommentData instagramComment); 

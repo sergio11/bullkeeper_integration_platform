@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -28,6 +30,7 @@ import sanchez.sanchez.sergio.security.jwt.JwtAuthenticationTokenFilter;
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, proxyTargetClass = true)
+@Import(value = { CommonSecurityConfig.class, DatabaseAuthenticationConfig.class })
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	private static Logger logger = LoggerFactory.getLogger(WebSecurityConfig.class);

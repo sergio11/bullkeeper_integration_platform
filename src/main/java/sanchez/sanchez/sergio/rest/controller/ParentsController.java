@@ -1,6 +1,5 @@
 package sanchez.sanchez.sergio.rest.controller;
 
-import java.util.List;
 import java.util.Optional;
 import javax.validation.Valid;
 import org.bson.types.ObjectId;
@@ -62,6 +61,7 @@ public class ParentsController implements IParentHAL, ISonHAL {
     @ApiResponses(value = { 
     		@ApiResponse(code = 200, message= "", response = PagedResources.class)
     })
+    @PreAuthorize("@authorizationService.hasAdminRole()")
     public ResponseEntity<APIResponse<PagedResources>> getAllParents(@PageableDefault Pageable p, 
             PagedResourcesAssembler pagedAssembler) throws Throwable {
         logger.debug("Get all Parents");
@@ -80,6 +80,7 @@ public class ParentsController implements IParentHAL, ISonHAL {
     		@ApiResponse(code = 200, message= "Parent By Id", response = ParentDTO.class),
     		@ApiResponse(code = 404, message= "Parent Not Found")
     })
+    @PreAuthorize("@authorizationService.hasAdminRole()")
     public ResponseEntity<APIResponse<ParentDTO>> getParentById(
     		@ApiParam(value = "id", required = true) @PathVariable String id) throws Throwable {
         logger.debug("Get Parent with id: " + id);
@@ -127,6 +128,7 @@ public class ParentsController implements IParentHAL, ISonHAL {
     @GetMapping(path = {"/{id}/children"})
     @ApiOperation(value = "GET_CHILDREN_OF_PARENT", nickname = "GET_CHILDREN_OF_PARENT", 
             notes = "Get Children of Parent", response = ResponseEntity.class)
+    @PreAuthorize("@authorizationService.hasAdminRole()")
     public ResponseEntity<APIResponse<Iterable<SonDTO>>> getChildrenOfParent(
     		@ApiParam(value = "id", required = true) @PathVariable String id) throws Throwable {
         logger.debug("Get Children of Parent with id: " + id);
@@ -152,6 +154,7 @@ public class ParentsController implements IParentHAL, ISonHAL {
  
     @PutMapping(path = "/{id}/children/add")
     @ApiOperation(value = "ADD_SON_TO_PARENT", nickname = "ADD_SON_TO_PARENT", notes="Add son to parent for analysis", response = ResponseEntity.class)
+    @PreAuthorize("@authorizationService.hasAdminRole()")
     public ResponseEntity<APIResponse<SonDTO>> addSonToParent(
     		@ApiParam(value = "id", required = true) @PathVariable String id,
     		@ApiParam(value = "son", required = true) 

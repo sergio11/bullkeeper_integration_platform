@@ -1,9 +1,15 @@
-package sanchez.sanchez.sergio.config;
+package sanchez.sanchez.sergio.config.rest;
 
 import java.util.List;
+
+import javax.annotation.PostConstruct;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.annotation.Order;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -18,8 +24,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 
 @Configuration
-@Order(Ordered.HIGHEST_PRECEDENCE)
 public class WebConfig extends WebMvcConfigurerAdapter {
+	
+	private static Logger logger = LoggerFactory.getLogger(WebConfig.class);
 
     @Autowired
     private LocaleChangeInterceptor localeChangeInterceptor;
@@ -71,5 +78,10 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     @Bean
     public PagedResourcesAssemblerArgumentResolver pagedResourcesAssemblerArgumentResolver() {
         return new PagedResourcesAssemblerArgumentResolver(pageableResolver(), null);
+    }
+    
+    @PostConstruct
+    protected void init(){
+    	logger.debug("init WebConfig ...");
     }
 }

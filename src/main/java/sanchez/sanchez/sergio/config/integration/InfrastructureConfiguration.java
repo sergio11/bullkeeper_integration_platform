@@ -1,4 +1,4 @@
-package sanchez.sanchez.sergio.config;
+package sanchez.sanchez.sergio.config.integration;
 
 import java.util.Collections;
 import java.util.Date;
@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.mongodb.MongoDbFactory;
 import org.springframework.expression.common.LiteralExpression;
@@ -17,13 +19,10 @@ import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.IntegrationFlows;
 import org.springframework.integration.dsl.core.Pollers;
 import org.springframework.integration.dsl.support.Consumer;
-import org.springframework.integration.dsl.support.GenericHandler;
 import org.springframework.integration.mongodb.inbound.MongoDbMessageSource;
 import org.springframework.integration.scheduling.PollerMetadata;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import sanchez.sanchez.sergio.persistence.entity.UserEntity;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.*;
 import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
@@ -55,6 +54,8 @@ import sanchez.sanchez.sergio.service.IYoutubeService;
 @Configuration
 @EnableIntegration
 @IntegrationComponentScan
+@Profile({"dev", "prod"})
+
 public class InfrastructureConfiguration {
     
     private static Logger logger = LoggerFactory.getLogger(InfrastructureConfiguration.class);

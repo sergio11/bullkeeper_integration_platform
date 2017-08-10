@@ -1,10 +1,7 @@
 
 package sanchez.sanchez.sergio.service.impl;
-import com.google.api.client.auth.oauth2.TokenResponseException;
-import com.google.api.client.googleapis.json.GoogleJsonError;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.util.ArrayMap;
-import com.google.api.client.googleapis.auth.clientlogin.ClientLoginResponseException;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.List;
@@ -16,6 +13,7 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import sanchez.sanchez.sergio.persistence.entity.CommentEntity;
 import sanchez.sanchez.sergio.service.IYoutubeService;
@@ -42,6 +40,7 @@ import sanchez.sanchez.sergio.persistence.entity.SocialMediaTypeEnum;
  * @author sergio
  */
 @Service
+@Profile({"dev", "prod"})
 public class YoutubeServiceImpl implements IYoutubeService {
     
     private Logger logger = LoggerFactory.getLogger(YoutubeServiceImpl.class);

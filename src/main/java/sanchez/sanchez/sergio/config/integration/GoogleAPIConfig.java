@@ -1,4 +1,4 @@
-package sanchez.sanchez.sergio.config;
+package sanchez.sanchez.sergio.config.integration;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
@@ -23,6 +25,7 @@ import org.springframework.util.Assert;
  * @author sergio
  */
 @Configuration
+@Profile({"dev", "prod"})
 public class GoogleAPIConfig {
     
     @Value("classpath:client_secret.json")

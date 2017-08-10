@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Profile;
 
 /**
@@ -15,6 +16,7 @@ import org.springframework.context.annotation.Profile;
 @Configuration
 @EnableAutoConfiguration(exclude = { EmbeddedMongoAutoConfiguration.class })
 @Profile("prod")
+@DependsOn("commonConfig")
 public class ProductionConfig {
     
     private static Logger logger = LoggerFactory.getLogger(ProductionConfig.class);

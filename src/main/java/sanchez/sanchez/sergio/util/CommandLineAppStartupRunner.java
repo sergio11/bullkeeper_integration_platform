@@ -1,4 +1,4 @@
-package sanchez.sanchez.sergio;
+package sanchez.sanchez.sergio.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
