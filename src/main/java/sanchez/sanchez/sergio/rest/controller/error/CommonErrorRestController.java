@@ -1,8 +1,6 @@
 package sanchez.sanchez.sergio.rest.controller.error;
 
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -11,6 +9,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import sanchez.sanchez.sergio.dto.response.ValidationErrorDTO;
@@ -23,14 +23,6 @@ public class CommonErrorRestController{
 	
 	private static Logger logger = LoggerFactory.getLogger(CommonErrorRestController.class);
 	
-	
-	@ExceptionHandler(Exception.class)
-    @ResponseBody
-    protected ResponseEntity<APIResponse<String>> handleException(
-    		Exception exception, HttpServletRequest request, HttpServletResponse response) {
-		logger.debug("Excepción genérica -> " + exception.getClass().getName());
-		return ApiHelper.<String>createAndSendErrorResponse(CommonErrorResponseCode.GENERIC_ERROR, HttpStatus.BAD_REQUEST, exception.getMessage());
-    }
  
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseBody
@@ -44,4 +36,24 @@ public class CommonErrorRestController{
         }
         return ApiHelper.<ValidationErrorDTO>createAndSendErrorResponse(CommonErrorResponseCode.VALIDATION_ERROR, HttpStatus.BAD_REQUEST, validationErrorResource);
     }
+    
+    @ExceptionHandler(LockedException.class)
+    @ResponseBody
+    public ResponseEntity<APIResponse<String>> handleLockedException(LockedException ex) {
+    	return ApiHelper.<String>createAndSendErrorResponse(CommonErrorResponseCode.ACCOUNT_LOCKED, HttpStatus.FORBIDDEN, ex.getMessage());
+    }
+    
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseBody
+    public ResponseEntity<APIResponse<String>> handleAccessDeniedException(AccessDeniedException ex) {
+    	return ApiHelper.<String>createAndSendErrorResponse(CommonErrorResponseCode.ACCESS_DENIED, HttpStatus.FORBIDDEN, ex.getMessage());
+    }
+    
+    /*@ExceptionHandler(Exception.class)
+    @ResponseBody
+    protected ResponseEntity<APIResponse<String>> handleException(
+    		Exception exception, HttpServletRequest request, HttpServletResponse response) {
+		logger.debug("Excepción genérica -> " + exception.getClass().getName());
+		return ApiHelper.<String>createAndSendErrorResponse(CommonErrorResponseCode.GENERIC_ERROR, HttpStatus.BAD_REQUEST, exception.getMessage());
+    }*/
 }

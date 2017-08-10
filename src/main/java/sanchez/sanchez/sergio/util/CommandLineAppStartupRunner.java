@@ -85,6 +85,10 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
     	
     	parentList.add(fernando);
     	
+    	ParentEntity jaime = new ParentEntity("Jaime", "Gómez", 29, "jaime@gmail.com", "$2a$10$0eCQpFRdw8i6jJzjj/IuNuKpJYnLaO5Yp9xSJ3itcfPmQNXVhmNyu", parentRole);
+    	
+    	parentList.add(jaime);
+    	
     	// CHILDREN
     	
     	SonEntity sergio = new SonEntity("Sergio", "Martín", 11, school1, federico);
@@ -139,7 +143,7 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
     
     }
 
-    
+
     
     public CommandLineAppStartupRunner(SchoolRepository schoolRepository, ParentRepository parentRepository,
 			SonRepository sonRepository, SocialMediaRepository socialMediaRepository, AuthorityRepository authorityRepository) {

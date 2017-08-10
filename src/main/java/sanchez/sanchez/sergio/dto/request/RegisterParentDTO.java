@@ -8,7 +8,7 @@ import org.hibernate.validator.constraints.NotBlank;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import sanchez.sanchez.sergio.persistence.constraints.FieldMatch;
-import sanchez.sanchez.sergio.persistence.constraints.ParentEmailUnique;
+import sanchez.sanchez.sergio.persistence.constraints.UserEmailUnique;
 
 @FieldMatch(first = "passwordClear", second = "confirmPassword", message = "{user.pass.not.match}")
 public final class RegisterParentDTO {
@@ -20,9 +20,9 @@ public final class RegisterParentDTO {
     @Size(min = 5, max = 15, message = "{user.firstname.size}")
     private String lastName;
     private Integer age;
-    @NotBlank(message="{parent.email.notnull}")
-    @Email(message="{parent.email.invalid}")
-    @ParentEmailUnique(message="{parent.email.unique}")
+    @NotBlank(message="{user.email.notnull}")
+    @Email(message="{user.email.invalid}")
+    @UserEmailUnique(message="{user.email.unique}")
     private String email;
     
     @NotBlank(message="{parent.pass.notnull}")
@@ -30,14 +30,13 @@ public final class RegisterParentDTO {
 	@JsonProperty("password_clear")
     private String passwordClear;
     
-    @NotBlank(message="{parent.confirm.pass.notnull}")
+    @NotBlank(message="{user.confirm.pass.notnull}")
     @JsonProperty("confirm_password")
     private String confirmPassword;
     
     public RegisterParentDTO(){}
 
-	public RegisterParentDTO(String firstName, String lastName, Integer age,
-			@ParentEmailUnique(message = "{parent.email.unique}") String email, String passwordClear,
+	public RegisterParentDTO(String firstName, String lastName, Integer age, String email, String passwordClear,
 			String confirmPassword) {
 		super();
 		this.firstName = firstName;

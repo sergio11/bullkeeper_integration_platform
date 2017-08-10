@@ -3,7 +3,6 @@ package sanchez.sanchez.sergio.rest.controller;
 import java.util.Optional;
 
 import javax.validation.Valid;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
@@ -23,8 +22,12 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import sanchez.sanchez.sergio.dto.request.AddSchoolDTO;
 import sanchez.sanchez.sergio.dto.response.SchoolDTO;
+import sanchez.sanchez.sergio.dto.response.SonDTO;
+import sanchez.sanchez.sergio.dto.response.ValidationErrorDTO;
 import sanchez.sanchez.sergio.rest.ApiHelper;
 import sanchez.sanchez.sergio.rest.exception.SchoolNotFoundException;
 import sanchez.sanchez.sergio.rest.exception.SocialMediaNotFoundException;
@@ -32,6 +35,7 @@ import sanchez.sanchez.sergio.rest.hal.ISchoolHAL;
 import sanchez.sanchez.sergio.rest.response.APIResponse;
 import sanchez.sanchez.sergio.rest.response.SchoolResponseCode;
 import sanchez.sanchez.sergio.service.ISchoolService;
+import springfox.documentation.annotations.ApiIgnore;
 
 @Api
 @RestController("RestSchoolController")
@@ -50,8 +54,8 @@ public class SchoolController implements ISchoolHAL {
     @ApiOperation(value = "GET_ALL_SCHOOLS", nickname = "GET_ALL_SCHOOLS", notes = "Get all Schools",
             response = ResponseEntity.class)
     public ResponseEntity<APIResponse<PagedResources>> getAllSchools(
-    		@PageableDefault Pageable p, 
-            PagedResourcesAssembler pagedAssembler) throws Throwable {
+    		@ApiIgnore @PageableDefault Pageable p, 
+    		@ApiIgnore PagedResourcesAssembler pagedAssembler) throws Throwable {
     	
         return Optional.ofNullable(schoolService.findPaginated(p))
                 .map(schoolPage -> addLinksToSchool(schoolPage))
@@ -67,8 +71,8 @@ public class SchoolController implements ISchoolHAL {
             response = ResponseEntity.class)
     public ResponseEntity<APIResponse<PagedResources>> getSchoolsByName(
     		@RequestParam(value = "name", required = false) String name,
-    		@PageableDefault Pageable pageable, 
-            PagedResourcesAssembler pagedAssembler) throws Throwable {
+    		@ApiIgnore @PageableDefault Pageable pageable, 
+    		@ApiIgnore PagedResourcesAssembler pagedAssembler) throws Throwable {
     	
         return Optional.ofNullable(schoolService.findByNamePaginated(name, pageable))
                 .map(schoolPage -> addLinksToSchool(schoolPage))
@@ -80,8 +84,10 @@ public class SchoolController implements ISchoolHAL {
     
     
     @GetMapping(path = "/{id}")
-    @ApiOperation(value = "GET_SCHOOL_BY_ID", nickname = "GET_SCHOOL_BY_ID", notes = "Get School By Id",
-            response = ResponseEntity.class)
+    @ApiOperation(value = "GET_SCHOOL_BY_ID", nickname = "GET_SCHOOL_BY_ID", notes = "Get School By Id")
+    @ApiResponses(value = { 
+    		@ApiResponse(code = 200, message= "School By Id", response = SchoolDTO.class)
+    })
     public ResponseEntity<APIResponse<SchoolDTO>> getSchoolById(
     		@ApiParam(value = "id", required = true) @PathVariable String id) throws Throwable {
         logger.debug("Get User with id: " + id);
@@ -94,8 +100,11 @@ public class SchoolController implements ISchoolHAL {
     }
     
     @PutMapping(path = "/")
-    @ApiOperation(value = "CREATE_SCHOOL", nickname = "CREATE_SCHOOL", notes = "Create School",
-    	response = ResponseEntity.class)
+    @ApiOperation(value = "CREATE_SCHOOL", nickname = "CREATE_SCHOOL", notes = "Create School")
+    @ApiResponses(value = { 
+    		@ApiResponse(code = 200, message= "School Saved", response = SchoolDTO.class),
+    		@ApiResponse(code = 403, message = "Validation Errors", response = ValidationErrorDTO.class)
+    })
     public ResponseEntity<APIResponse<SchoolDTO>> saveSchool(
     		@ApiParam(value = "school", required = true) 
 				@Valid @RequestBody AddSchoolDTO addSchoolDTO) throws Throwable {        
@@ -109,8 +118,10 @@ public class SchoolController implements ISchoolHAL {
     
     
     @DeleteMapping(path = "/{id}")
-    @ApiOperation(value = "DELETE_SCHOOL", nickname = "DELETE_SCHOOL", notes = "Delete School",
-		response = ResponseEntity.class)
+    @ApiOperation(value = "DELETE_SCHOOL", nickname = "DELETE_SCHOOL", notes = "Delete School")
+    @ApiResponses(value = { 
+    		@ApiResponse(code = 200, message= "School Deleted", response = SchoolDTO.class)
+    })
     public ResponseEntity<APIResponse<SchoolDTO>> deleteSchool(
     		@ApiParam(value = "id", required = true) @PathVariable String id) throws Throwable {        
     	

@@ -1,6 +1,8 @@
 package sanchez.sanchez.sergio.service.impl;
 
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -15,6 +17,8 @@ import sanchez.sanchez.sergio.service.IAuthorizationService;
 
 @Service("authorizationService")
 public class AuthorizationServiceImpl implements IAuthorizationService {
+	
+	private static Logger logger = LoggerFactory.getLogger(AuthorizationServiceImpl.class);
 	
 	@Autowired
 	protected SonRepository sonRepository;

@@ -1,23 +1,17 @@
 package sanchez.sanchez.sergio.dto.request;
 
-import javax.validation.GroupSequence;
 import javax.validation.constraints.Size;
+
+import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
 
 public final class JwtAuthenticationRequestDTO {
-	
-	public interface UsernameNotBlankCheck {}
-	public interface UsernameSizeCheck {}
-	public interface PasswordNotBlankCheck {}
-	public interface PasswordSizeCheck {}
-	@GroupSequence({ UsernameNotBlankCheck.class, UsernameSizeCheck.class, PasswordNotBlankCheck.class, PasswordSizeCheck.class })
-	public interface OrderedChecks {}
-	
-	@NotBlank(message = "{analyst.username.notnull}", groups = UsernameNotBlankCheck.class)
-    @Size(min = 5, max = 15, message = "{analyst.username.size}", groups = UsernameSizeCheck.class)
+
+	@NotBlank(message = "{user.email.notnull}")
+	@Email(message="{user.email.invalid}")
 	private String email;
-	@NotBlank(message="{analyst.pass.notnull}", groups = PasswordNotBlankCheck.class)
-    @Size(min=8, max=25, message="{analyst.pass.size}", groups = PasswordSizeCheck.class)
+	@NotBlank(message="{user.pass.notnull}")
+    @Size(min=8, max=25, message="{user.pass.size}")
     private String password;
     
     public JwtAuthenticationRequestDTO(){}

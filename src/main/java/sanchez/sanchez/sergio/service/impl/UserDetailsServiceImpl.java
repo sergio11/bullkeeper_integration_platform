@@ -44,10 +44,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         
         return userSystemEntityOptional.map(userSystemEntity -> {
         	
-        	Set<GrantedAuthority> grantedAuthorities = new HashSet<GrantedAuthority>();
+        	Set<SimpleGrantedAuthority> grantedAuthorities = new HashSet<SimpleGrantedAuthority>();
+        	
+        	grantedAuthorities.add(new SimpleGrantedAuthority(userSystemEntity.getAuthority().getAuthority()));
         
             return new UserDetailsImpl<ObjectId>(userSystemEntity.getId(), userSystemEntity.getEmail(),
-            		userSystemEntity.getPassword(), userSystemEntity.getFirstName(), userSystemEntity.getLastName(), grantedAuthorities);
+            		userSystemEntity.getPassword(), userSystemEntity.getFirstName(), userSystemEntity.getLastName(), userSystemEntity.isLocked(),
+            		grantedAuthorities);
 
         }).orElseThrow(() -> new UsernameNotFoundException("User " + email + " was not found in the " +
         "database"));

@@ -19,6 +19,9 @@ public class UserSystemEntity extends PersonEntity {
 	
 	@Field("password")
 	private String password;
+	
+	@Field("is_locked")
+	private Boolean locked = Boolean.FALSE;
     
     @DBRef
     private AuthorityEntity authority;
@@ -26,8 +29,7 @@ public class UserSystemEntity extends PersonEntity {
     public UserSystemEntity(){}
 
     @PersistenceConstructor
-	public UserSystemEntity(String firstName, String lastName, Integer age, String email, String password,
-			AuthorityEntity authority) {
+	public UserSystemEntity(String firstName, String lastName, Integer age, String email, String password, AuthorityEntity authority) {
 		super(firstName, lastName, age);
 		this.email = email;
 		this.password = password;
@@ -50,6 +52,14 @@ public class UserSystemEntity extends PersonEntity {
 		this.password = password;
 	}
 
+	public Boolean isLocked() {
+		return locked;
+	}
+
+	public void setLocked(Boolean locked) {
+		this.locked = locked;
+	}
+
 	public AuthorityEntity getAuthority() {
 		return authority;
 	}
@@ -60,6 +70,7 @@ public class UserSystemEntity extends PersonEntity {
 
 	@Override
 	public String toString() {
-		return "UserSystemEntity [email=" + email + ", password=" + password + ", authority=" + authority + "]";
+		return "UserSystemEntity [email=" + email + ", password=" + password + ", locked=" + locked + ", authority="
+				+ authority + "]";
 	}
 }

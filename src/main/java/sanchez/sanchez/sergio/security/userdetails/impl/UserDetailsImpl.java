@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Set;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
 import sanchez.sanchez.sergio.security.userdetails.CommonUserDetailsAware;
 
 public class UserDetailsImpl<T> implements CommonUserDetailsAware<T> {
@@ -15,19 +17,21 @@ public class UserDetailsImpl<T> implements CommonUserDetailsAware<T> {
     private String password;
     private String firstName;
     private String lastName;
-    private Set<GrantedAuthority> grantedAuthorities;
+    private Boolean locked;
+    private Set<SimpleGrantedAuthority> grantedAuthorities;
     private Date lastPasswordResetDate;
     
     public UserDetailsImpl(){}
 
 	public UserDetailsImpl(T id, String email, String password, String firstName, String lastName,
-			Set<GrantedAuthority> grantedAuthorities) {
+			Boolean locked, Set<SimpleGrantedAuthority> grantedAuthorities) {
 		super();
 		this.id = id;
 		this.email = email;
 		this.password = password;
 		this.firstName = firstName;
 		this.lastName = lastName;
+		this.locked = locked;
 		this.grantedAuthorities = grantedAuthorities;
 	}
 
@@ -70,12 +74,13 @@ public class UserDetailsImpl<T> implements CommonUserDetailsAware<T> {
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
 	}
+	
 
-	public Set<GrantedAuthority> getGrantedAuthorities() {
+	public Set<SimpleGrantedAuthority> getGrantedAuthorities() {
 		return grantedAuthorities;
 	}
 
-	public void setGrantedAuthorities(Set<GrantedAuthority> grantedAuthorities) {
+	public void setGrantedAuthorities(Set<SimpleGrantedAuthority> grantedAuthorities) {
 		this.grantedAuthorities = grantedAuthorities;
 	}
 
@@ -91,17 +96,17 @@ public class UserDetailsImpl<T> implements CommonUserDetailsAware<T> {
 
 	@Override
 	public boolean isAccountNonExpired() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean isAccountNonLocked() {
-		return false;
+		return !locked;
 	}
 
 	@Override
 	public boolean isCredentialsNonExpired() {
-		return false;
+		return true;
 	}
 
 	@Override

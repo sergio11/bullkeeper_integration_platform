@@ -14,4 +14,5 @@ import sanchez.sanchez.sergio.persistence.entity.UserSystemEntity;
 @Repository
 public interface UserSystemRepository extends MongoRepository<UserSystemEntity, ObjectId> {
 	Optional<UserSystemEntity> findOneByEmail(String email);
+	Long countByEmail(String email);
 }

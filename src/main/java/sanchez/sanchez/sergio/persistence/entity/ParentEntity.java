@@ -11,6 +11,5 @@ public class ParentEntity  extends UserSystemEntity {
 			AuthorityEntity authority) {
 		super(firstName, lastName, age, email, password, authority);
 	}
-
 	
 }

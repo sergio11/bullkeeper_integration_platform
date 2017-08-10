@@ -1,14 +1,24 @@
 package sanchez.sanchez.sergio.config.rest;
 
+import java.awt.print.Pageable;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.web.PagedResourcesAssembler;
+
 import io.swagger.annotations.Api;
+import sanchez.sanchez.sergio.security.userdetails.CommonUserDetailsAware;
 import springfox.documentation.builders.ApiInfoBuilder;
+import springfox.documentation.builders.ParameterBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.schema.ModelRef;
 import springfox.documentation.service.ApiInfo;
+import springfox.documentation.service.Parameter;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
@@ -17,6 +27,9 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableSwagger2
 @Profile("dev")
 public class SwaggerConfig {
+	
+	@Value("${jwt.token.header}")
+	private String tokenHeaderName;
    
     /**
      * Create Swagger Api configuration
@@ -26,6 +39,10 @@ public class SwaggerConfig {
     public Docket sadrApi() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .groupName("bullyTect")
+                .ignoredParameterTypes(Pageable.class)
+                .ignoredParameterTypes(PagedResourcesAssembler.class)
+                .ignoredParameterTypes(CommonUserDetailsAware.class)
+                .globalOperationParameters(provideGlobalParameters())
                 .apiInfo(apiInfo())
                 .select()
                 .apis(RequestHandlerSelectors.withClassAnnotation(Api.class))
@@ -33,6 +50,19 @@ public class SwaggerConfig {
                 .build()
                 .pathMapping("/")
                 .useDefaultResponseMessages(false);
+    }
+    
+    @Bean
+    public List<Parameter> provideGlobalParameters(){
+        ParameterBuilder aParameterBuilder = new ParameterBuilder();
+        aParameterBuilder.name(tokenHeaderName).modelRef(new ModelRef("string"))
+        	.parameterType("header")
+        	.description("Authorization Header")
+        	.required(false)
+        	.build();
+        List<Parameter> aParameters = new ArrayList<Parameter>();
+        aParameters.add(aParameterBuilder.build());
+    	return aParameters;
     }
 
     /**

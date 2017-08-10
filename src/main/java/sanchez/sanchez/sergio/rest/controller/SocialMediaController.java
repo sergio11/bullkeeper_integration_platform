@@ -35,7 +35,7 @@ public class SocialMediaController implements ISocialMediaHAL {
     
     @GetMapping(path = "/{id}")
     @ApiOperation(value = "GET_SOCIAL_MEDIA_BY_ID", nickname = "GET_SOCIAL_MEDIA_BY_USER_ID", notes = "Get Social Madia By User Id",
-            response = ResponseEntity.class)
+            response = SocialMediaDTO.class)
     public ResponseEntity<APIResponse<SocialMediaDTO>> getSocialMediaById(
             @ApiParam(value = "id", required = true) @PathVariable String id) throws Throwable {
         logger.debug("Get Social Media by Id " + id);
