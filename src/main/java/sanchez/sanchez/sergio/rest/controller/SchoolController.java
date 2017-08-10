@@ -56,7 +56,8 @@ public class SchoolController implements ISchoolHAL {
         return Optional.ofNullable(schoolService.findPaginated(p))
                 .map(schoolPage -> addLinksToSchool(schoolPage))
                 .map(schoolPage -> pagedAssembler.toResource(schoolPage))
-                .map(schoolPage -> ApiHelper.<PagedResources>createAndSendResponse(SchoolResponseCode.ALL_SCHOOLS, schoolPage, HttpStatus.OK))
+                .map(schoolPage -> ApiHelper.<PagedResources>createAndSendResponse(SchoolResponseCode.ALL_SCHOOLS, 
+                		HttpStatus.OK, schoolPage))
                 .orElseThrow(() -> { throw new SocialMediaNotFoundException(); });
     }
     
@@ -72,7 +73,8 @@ public class SchoolController implements ISchoolHAL {
         return Optional.ofNullable(schoolService.findByNamePaginated(name, pageable))
                 .map(schoolPage -> addLinksToSchool(schoolPage))
                 .map(schoolPage -> pagedAssembler.toResource(schoolPage))
-                .map(schoolPage -> ApiHelper.<PagedResources>createAndSendResponse(SchoolResponseCode.SCHOOLS_BY_NAME, schoolPage, HttpStatus.OK))
+                .map(schoolPage -> ApiHelper.<PagedResources>createAndSendResponse(SchoolResponseCode.SCHOOLS_BY_NAME, 
+                		HttpStatus.OK, schoolPage))
                 .orElseThrow(() -> { throw new SocialMediaNotFoundException(); });
     }
     
@@ -86,7 +88,8 @@ public class SchoolController implements ISchoolHAL {
         
         return Optional.ofNullable(schoolService.getSchoolById(id))
                 .map(schoolResource -> addLinksToSchool(schoolResource))
-                .map(schoolResource -> ApiHelper.<SchoolDTO>createAndSendResponse(SchoolResponseCode.SINGLE_SCHOOL, schoolResource, HttpStatus.OK))
+                .map(schoolResource -> ApiHelper.<SchoolDTO>createAndSendResponse(SchoolResponseCode.SINGLE_SCHOOL, 
+                		HttpStatus.OK, schoolResource))
                 .orElseThrow(() -> { throw new SchoolNotFoundException(); });
     }
     
@@ -99,7 +102,8 @@ public class SchoolController implements ISchoolHAL {
     	
         return Optional.ofNullable(schoolService.save(addSchoolDTO))
                 .map(schoolResource -> addLinksToSchool(schoolResource))
-                .map(schoolResource -> ApiHelper.<SchoolDTO>createAndSendResponse(SchoolResponseCode.SCHOOL_SAVED, schoolResource, HttpStatus.OK))
+                .map(schoolResource -> ApiHelper.<SchoolDTO>createAndSendResponse(SchoolResponseCode.SCHOOL_SAVED, 
+                		HttpStatus.OK, schoolResource))
                 .orElseThrow(() -> { throw new SchoolNotFoundException(); });
     }
     
@@ -111,7 +115,8 @@ public class SchoolController implements ISchoolHAL {
     		@ApiParam(value = "id", required = true) @PathVariable String id) throws Throwable {        
     	
         return Optional.ofNullable(schoolService.delete(id))
-                .map(schoolResource -> ApiHelper.<SchoolDTO>createAndSendResponse(SchoolResponseCode.SCHOOL_DELETED, schoolResource, HttpStatus.OK))
+                .map(schoolResource -> ApiHelper.<SchoolDTO>createAndSendResponse(SchoolResponseCode.SCHOOL_DELETED, 
+                		HttpStatus.OK, schoolResource))
                 .orElseThrow(() -> { throw new SchoolNotFoundException(); });
     }
    

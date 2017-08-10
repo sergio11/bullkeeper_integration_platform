@@ -67,7 +67,7 @@ public class ChildrenController implements ISonHAL, ICommentHAL, ISocialMediaHAL
         return Optional.ofNullable(sonService.findPaginated(p))
                 .map(childrenPage -> addLinksToChildren(childrenPage))
                 .map(childrenPage -> pagedAssembler.toResource(childrenPage))
-                .map(childrenPageResource -> ApiHelper.<PagedResources>createAndSendResponse(ChildrenResponseCode.ALL_USERS, childrenPageResource, HttpStatus.OK))
+                .map(childrenPageResource -> ApiHelper.<PagedResources>createAndSendResponse(ChildrenResponseCode.ALL_USERS, HttpStatus.OK, childrenPageResource))
                 .orElseThrow(() -> { throw new ResourceNotFoundException(); });
     }
     
@@ -80,7 +80,7 @@ public class ChildrenController implements ISonHAL, ICommentHAL, ISocialMediaHAL
         logger.debug("Get User with id: " + id);
         return Optional.ofNullable(sonService.getSonById(id))
                 .map(sonResource -> addLinksToSon(sonResource))
-                .map(sonResource -> ApiHelper.<SonDTO>createAndSendResponse(ChildrenResponseCode.SINGLE_USER, sonResource, HttpStatus.OK))
+                .map(sonResource -> ApiHelper.<SonDTO>createAndSendResponse(ChildrenResponseCode.SINGLE_USER, HttpStatus.OK, sonResource))
                 .orElseThrow(() -> { throw new UserNotFoundException(); });
     }
     
@@ -97,7 +97,8 @@ public class ChildrenController implements ISonHAL, ICommentHAL, ISocialMediaHAL
         return Optional.ofNullable(commentService.getCommentBySonId(p, id))
                 .map(commentsPage -> addLinksToComments(commentsPage))
                 .map(commentsPage -> pagedAssembler.toResource(commentsPage))
-                .map(commentsPageResource -> ApiHelper.<PagedResources>createAndSendResponse(CommentResponseCode.ALL_COMMENTS_BY_USER, commentsPageResource, HttpStatus.OK))
+                .map(commentsPageResource -> ApiHelper.<PagedResources>createAndSendResponse(CommentResponseCode.ALL_COMMENTS_BY_USER, 
+                		HttpStatus.OK, commentsPageResource))
                 .orElseThrow(() -> { throw new CommentsByUserNotFoundException(); });
     }
     
@@ -110,7 +111,8 @@ public class ChildrenController implements ISonHAL, ICommentHAL, ISocialMediaHAL
         logger.debug("Get Social Media by User Id " + id);
         return Optional.ofNullable(socialMediaService.getSocialMediaByUser(id))
                 .map(socialMediaResource -> addLinksToSocialMedia(socialMediaResource))
-                .map(socialMediaResource -> ApiHelper.<Iterable<SocialMediaDTO>>createAndSendResponse(SocialMediaResponseCode.SOCIAL_MEDIA_BY_USER, socialMediaResource, HttpStatus.OK))
+                .map(socialMediaResource -> ApiHelper.<Iterable<SocialMediaDTO>>createAndSendResponse(SocialMediaResponseCode.SOCIAL_MEDIA_BY_USER, 
+                		HttpStatus.OK, socialMediaResource))
                 .orElseThrow(() -> { throw new SocialMediaNotFoundException(); });
     }
     
@@ -125,7 +127,8 @@ public class ChildrenController implements ISonHAL, ICommentHAL, ISocialMediaHAL
         logger.debug("Add Social Media To Son with id -> " + id);
         return Optional.ofNullable(socialMediaService.save(addSocialMediaDTO))
         		.map(socialMediaResource -> addLinksToSocialMedia(socialMediaResource))
-        		.map(socialMediaResource -> ApiHelper.<SocialMediaDTO>createAndSendResponse(SocialMediaResponseCode.SOCIAL_MEDIA_ADDED, socialMediaResource, HttpStatus.OK))
+        		.map(socialMediaResource -> ApiHelper.<SocialMediaDTO>createAndSendResponse(SocialMediaResponseCode.SOCIAL_MEDIA_ADDED, 
+        				HttpStatus.OK, socialMediaResource))
         		.orElseThrow(() -> { throw new SocialMediaNotFoundException(); });        
     }
     
@@ -138,7 +141,8 @@ public class ChildrenController implements ISonHAL, ICommentHAL, ISocialMediaHAL
         logger.debug("Get Invalid Social  Media by User Id " + id);
         return Optional.ofNullable(socialMediaService.getInvalidSocialMediaById(id))
                 .map(socialMediaResource -> addLinksToSocialMedia(socialMediaResource))
-                .map(socialMediaResource -> ApiHelper.<Iterable<SocialMediaDTO>>createAndSendResponse(SocialMediaResponseCode.INVALID_SOCIAL_MEDIA_BY_USER, socialMediaResource, HttpStatus.OK))
+                .map(socialMediaResource -> ApiHelper.<Iterable<SocialMediaDTO>>createAndSendResponse(SocialMediaResponseCode.INVALID_SOCIAL_MEDIA_BY_USER, 
+                		HttpStatus.OK, socialMediaResource))
                 .orElseThrow(() -> { throw new SocialMediaNotFoundException(); });
     }
 }

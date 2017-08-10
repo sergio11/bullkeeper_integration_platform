@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import sanchez.sanchez.sergio.rest.response.APIResponse;
 import sanchez.sanchez.sergio.rest.response.IResponseCodeTypes;
+import sanchez.sanchez.sergio.rest.response.ResponseStatus;
 
 @Component
 public class ApiHelper {
@@ -29,10 +30,18 @@ public class ApiHelper {
         return responseEntity;
     }
     
-    public static <T> ResponseEntity<APIResponse<T>> createAndSendResponse(IResponseCodeTypes responseCode, T data, HttpStatus httpStatusCode) { 
-        HttpHeaders headers = getCommonHeaders();
-        ResponseEntity<APIResponse<T>> responseEntity = new ResponseEntity<APIResponse<T>>(new APIResponse<T>(responseCode, data), headers, httpStatusCode);
-        return responseEntity;
+    public static <T> ResponseEntity<APIResponse<T>> createAndSendResponse(IResponseCodeTypes responseCode, HttpStatus httpStatusCode, T data) { 
+        APIResponse<T> restApiError = new APIResponse<T>(responseCode, ResponseStatus.SUCCESS, httpStatusCode, getInfoUrl(responseCode), data);
+        return createAndSendResponse(restApiError);
+    }
+    
+    public static <T> ResponseEntity<APIResponse<T>> createAndSendErrorResponse(IResponseCodeTypes responseCode, HttpStatus httpStatusCode, T data) { 
+        APIResponse<T> restApiError = new APIResponse<T>(responseCode, ResponseStatus.ERROR, httpStatusCode, getInfoUrl(responseCode), data);
+        return createAndSendResponse(restApiError);
+    }
+    
+    protected static String getInfoUrl(IResponseCodeTypes responseCode){
+        return "http://yourAppUrlToDocumentedApiCodes.com/api/support/" + responseCode.getResponseCode();
     }
     
     @Value("#{'${api.base.path}' + '${api.version}' + '${jwt.route.authentication.path}' + '/**'}")

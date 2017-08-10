@@ -2,7 +2,6 @@ package sanchez.sanchez.sergio.dto.request;
 
 import javax.validation.GroupSequence;
 import javax.validation.constraints.Size;
-
 import org.hibernate.validator.constraints.NotBlank;
 
 public final class JwtAuthenticationRequestDTO {

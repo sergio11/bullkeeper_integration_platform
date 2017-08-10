@@ -68,7 +68,8 @@ public class ParentsController implements IParentHAL, ISonHAL {
         return Optional.ofNullable(parentsService.findPaginated(p))
                 .map(parentsPage -> addLinksToParents(parentsPage))
                 .map(parentsPage -> pagedAssembler.toResource(parentsPage))
-                .map(parentsPageResource -> ApiHelper.<PagedResources>createAndSendResponse(ParentResponseCode.ALL_PARENTS, parentsPageResource, HttpStatus.OK))
+                .map(parentsPageResource -> ApiHelper.<PagedResources>createAndSendResponse(ParentResponseCode.ALL_PARENTS, 
+                		HttpStatus.OK, parentsPageResource))
                 .orElseThrow(() -> { throw new ResourceNotFoundException(); });
     }
     
@@ -86,7 +87,8 @@ public class ParentsController implements IParentHAL, ISonHAL {
         logger.debug("Get Parent with id: " + id);
         return Optional.ofNullable(parentsService.getParentById(id))
                 .map(parentResource -> addLinksToParent(parentResource))
-                .map(parentResource -> ApiHelper.<ParentDTO>createAndSendResponse(ParentResponseCode.SINGLE_PARENT, parentResource, HttpStatus.OK))
+                .map(parentResource -> ApiHelper.<ParentDTO>createAndSendResponse(ParentResponseCode.SINGLE_PARENT, 
+                		HttpStatus.OK, parentResource))
                 .orElseThrow(() -> { throw new UserNotFoundException(); });
     }
     
@@ -101,7 +103,8 @@ public class ParentsController implements IParentHAL, ISonHAL {
         logger.debug("Get Information for Parent with id: " + selfParent.getUserId());
         return Optional.ofNullable(parentsService.getParentById(selfParent.getUserId()))
                 .map(parentResource -> addLinksToParent(parentResource))
-                .map(parentResource -> ApiHelper.<ParentDTO>createAndSendResponse(ParentResponseCode.SELF_PARENT, parentResource, HttpStatus.OK))
+                .map(parentResource -> ApiHelper.<ParentDTO>createAndSendResponse(ParentResponseCode.SELF_PARENT, 
+                		HttpStatus.OK, parentResource))
                 .orElseThrow(() -> {
                     throw new ParentNotFoundException();
                 });
@@ -119,7 +122,8 @@ public class ParentsController implements IParentHAL, ISonHAL {
     	logger.debug("Register Parent");
         return Optional.ofNullable(parentsService.save(registerParentDTO))
         		.map(parentResource -> addLinksToParent(parentResource))
-        		.map(parentResource -> ApiHelper.<ParentDTO>createAndSendResponse(ParentResponseCode.PARENT_REGISTERED_SUCCESSFULLY, parentResource, HttpStatus.OK))
+        		.map(parentResource -> ApiHelper.<ParentDTO>createAndSendResponse(ParentResponseCode.PARENT_REGISTERED_SUCCESSFULLY, 
+        				HttpStatus.OK, parentResource))
                 .orElseThrow(() -> {
                     throw new ResourceNotFoundException();
                 });
@@ -134,7 +138,8 @@ public class ParentsController implements IParentHAL, ISonHAL {
         logger.debug("Get Children of Parent with id: " + id);
         return Optional.ofNullable(parentsService.getChildrenOfParent(id))
                 .map(sonsResources -> addLinksToChildren(sonsResources))
-                .map(sonsResources -> ApiHelper.<Iterable<SonDTO>>createAndSendResponse(ParentResponseCode.CHILDREN_OF_PARENT, sonsResources, HttpStatus.OK))
+                .map(sonsResources -> ApiHelper.<Iterable<SonDTO>>createAndSendResponse(ParentResponseCode.CHILDREN_OF_PARENT, 
+                		HttpStatus.OK, sonsResources))
                 .orElseThrow(() -> { throw new UserNotFoundException(); });
     }
     
@@ -147,7 +152,8 @@ public class ParentsController implements IParentHAL, ISonHAL {
         logger.debug("Get Children of Self Parent");
         return Optional.ofNullable(parentsService.getChildrenOfParent(selfParent.getUserId().toString()))
                 .map(sonsResources -> addLinksToChildren(sonsResources))
-                .map(sonsResources -> ApiHelper.<Iterable<SonDTO>>createAndSendResponse(ParentResponseCode.CHILDREN_OF_PARENT, sonsResources, HttpStatus.OK))
+                .map(sonsResources -> ApiHelper.<Iterable<SonDTO>>createAndSendResponse(ParentResponseCode.CHILDREN_OF_PARENT, 
+                		HttpStatus.OK, sonsResources))
                 .orElseThrow(() -> { throw new UserNotFoundException(); });
     }
     
@@ -162,7 +168,8 @@ public class ParentsController implements IParentHAL, ISonHAL {
     	logger.debug("Add Son To Parent");
     	return Optional.ofNullable(parentsService.addSon(id, registerSonDTO))
         		.map(sonResource -> addLinksToSon(sonResource))
-        		.map(sonResource -> ApiHelper.<SonDTO>createAndSendResponse(ParentResponseCode.ADDED_SON_TO_PARENT, sonResource, HttpStatus.OK))
+        		.map(sonResource -> ApiHelper.<SonDTO>createAndSendResponse(ParentResponseCode.ADDED_SON_TO_PARENT, 
+        				HttpStatus.OK, sonResource))
                 .orElseThrow(() -> {
                     throw new ResourceNotFoundException();
                 });
@@ -179,7 +186,8 @@ public class ParentsController implements IParentHAL, ISonHAL {
     	logger.debug("Add Son To Self Parent");
     	return Optional.ofNullable(parentsService.addSon(selfParent.getUserId().toString(), registerSonDTO))
         		.map(sonResource -> addLinksToSon(sonResource))
-        		.map(sonResource -> ApiHelper.<SonDTO>createAndSendResponse(ParentResponseCode.ADDED_SON_TO_SELF_PARENT, sonResource, HttpStatus.OK))
+        		.map(sonResource -> ApiHelper.<SonDTO>createAndSendResponse(ParentResponseCode.ADDED_SON_TO_SELF_PARENT, 
+        				HttpStatus.OK, sonResource))
                 .orElseThrow(() -> {
                     throw new ResourceNotFoundException();
                 });

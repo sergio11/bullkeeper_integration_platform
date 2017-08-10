@@ -37,22 +37,22 @@ public class UserErrorController {
     @ExceptionHandler(UserNotFoundException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleUserNotFoundException(UserNotFoundException resourceNotFound, HttpServletRequest request) {
-        return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.USER_NOT_FOUND,
-                messageSource.getMessage("user.not.found", new Object[]{}, localeResolver.resolveLocale(request)), HttpStatus.NOT_FOUND);
+        return ApiHelper.<String>createAndSendErrorResponse(ChildrenResponseCode.USER_NOT_FOUND, HttpStatus.NOT_FOUND,
+                messageSource.getMessage("user.not.found", new Object[]{}, localeResolver.resolveLocale(request)));
     }
     
     @ExceptionHandler(CommentsByUserNotFoundException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleCommentsByUserNotFoundException(CommentsByUserNotFoundException commentsByUserNotFound, HttpServletRequest request){
-        return ApiHelper.<String>createAndSendResponse(CommentResponseCode.COMMENTS_BY_USER_NOT_FOUND,
-                messageSource.getMessage("comments.by.user.not.found", new Object[]{}, localeResolver.resolveLocale(request)), HttpStatus.NOT_FOUND);
+        return ApiHelper.<String>createAndSendErrorResponse(CommentResponseCode.COMMENTS_BY_USER_NOT_FOUND, HttpStatus.NOT_FOUND,
+                messageSource.getMessage("comments.by.user.not.found", new Object[]{}, localeResolver.resolveLocale(request)));
     }
     
     @ExceptionHandler(SocialMediaNotFoundException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleSocialMediaNotFoundException(SocialMediaNotFoundException socialMediaNotFoundException, HttpServletRequest request){
-        return ApiHelper.<String>createAndSendResponse(SocialMediaResponseCode.SOCIAL_MEDIA_BY_USER_NOT_FOUND,
-                messageSource.getMessage("social.media.by.user.not.found", new Object[]{}, localeResolver.resolveLocale(request)), HttpStatus.NOT_FOUND);
+        return ApiHelper.<String>createAndSendResponse(SocialMediaResponseCode.SOCIAL_MEDIA_BY_USER_NOT_FOUND, HttpStatus.NOT_FOUND,
+                messageSource.getMessage("social.media.by.user.not.found", new Object[]{}, localeResolver.resolveLocale(request)));
     }
     
 }

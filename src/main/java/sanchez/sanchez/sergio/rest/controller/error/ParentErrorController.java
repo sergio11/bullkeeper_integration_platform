@@ -34,8 +34,8 @@ public class ParentErrorController {
     @ExceptionHandler(ParentNotFoundException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleParentNotFoundException(ParentNotFoundException parentNotFoundException, HttpServletRequest request) {
-        return ApiHelper.<String>createAndSendResponse(ParentResponseCode.PARENT_NOT_FOUND,
-                messageSource.getMessage("parent.not.found", new Object[]{}, localeResolver.resolveLocale(request)), HttpStatus.NOT_FOUND);
+        return ApiHelper.<String>createAndSendErrorResponse(ParentResponseCode.PARENT_NOT_FOUND, HttpStatus.NOT_FOUND,
+                messageSource.getMessage("parent.not.found", new Object[]{}, localeResolver.resolveLocale(request)));
     }
     
 }

@@ -41,7 +41,8 @@ public class SocialMediaController implements ISocialMediaHAL {
         logger.debug("Get Social Media by Id " + id);
         return Optional.ofNullable(socialMediaService.getSocialMediaById(id))
                 .map(socialMediaResource -> addLinksToSocialMedia(socialMediaResource))
-                .map(socialMediaResource -> ApiHelper.<SocialMediaDTO>createAndSendResponse(SocialMediaResponseCode.SOCIAL_MEDIA_BY_USER, socialMediaResource, HttpStatus.OK))
+                .map(socialMediaResource -> ApiHelper.<SocialMediaDTO>createAndSendResponse(SocialMediaResponseCode.SOCIAL_MEDIA_BY_USER, 
+                		HttpStatus.OK, socialMediaResource))
                 .orElseThrow(() -> { throw new SocialMediaNotFoundException(); });
     }
     

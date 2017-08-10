@@ -49,7 +49,8 @@ public class CommentsController implements ICommentHAL {
         return Optional.ofNullable(commentsService.findPaginated(p))
                 .map(commentsPage -> addLinksToComments(commentsPage))
                 .map(commentsPage -> pagedAssembler.toResource(commentsPage))
-                .map(commentsPageResource -> ApiHelper.<PagedResources>createAndSendResponse(CommentResponseCode.ALL_COMMENTS, commentsPageResource, HttpStatus.OK))
+                .map(commentsPageResource -> ApiHelper.<PagedResources>createAndSendResponse(CommentResponseCode.ALL_COMMENTS, 
+                		HttpStatus.OK, commentsPageResource))
                 .orElseThrow(() -> { throw new ResourceNotFoundException(); });
     }
 
@@ -60,7 +61,8 @@ public class CommentsController implements ICommentHAL {
         logger.debug("Get Comment with id: " + id);
         return Optional.ofNullable(commentsService.getCommentById(id))
                 .map(commentResource -> addLinksToComment(commentResource))
-                .map(commentResource -> ApiHelper.<CommentDTO>createAndSendResponse(CommentResponseCode.SINGLE_COMMENT, commentResource, HttpStatus.OK))
+                .map(commentResource -> ApiHelper.<CommentDTO>createAndSendResponse(CommentResponseCode.SINGLE_COMMENT, 
+                		HttpStatus.OK, commentResource))
                 .orElseThrow(() -> { throw new CommentNotFoundException(); });
     }
 }
