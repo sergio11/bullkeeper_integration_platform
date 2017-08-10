@@ -28,6 +28,7 @@ public class SocialMediaEntity {
     @Field("invalid_token")
     private Boolean invalidToken = Boolean.FALSE;
     
+    @Field("target")
     @DBRef
     private SonEntity sonEntity;
     

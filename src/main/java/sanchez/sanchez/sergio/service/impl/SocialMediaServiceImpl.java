@@ -48,6 +48,12 @@ public class SocialMediaServiceImpl implements ISocialMediaService {
 		return socialMediaMapper.socialMediaEntityToSocialMediaDTO(socialMediaEntitySaved);
 	}
 	
+	@Override
+	public List<SocialMediaDTO> getInvalidSocialMediaById(String id) {
+		List<SocialMediaEntity> socialMediaEntities = socialMediaRepository.findByIdAndInvalidTokenTrue(new ObjectId(id));
+		return socialMediaMapper.socialMediaEntitiesToSocialMediaDTO(socialMediaEntities);
+	}
+	
 	@PostConstruct
     protected void init(){
         Assert.notNull(socialMediaRepository, "Social Media Repository cannot be null");

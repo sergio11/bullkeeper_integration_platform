@@ -29,6 +29,7 @@ public class CommentEntity {
     @Field("created_time")
     private Date createdTime;
     
+    @Field("target")
     @DBRef
     private SonEntity sonEntity;
     

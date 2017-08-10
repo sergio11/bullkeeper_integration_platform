@@ -8,8 +8,6 @@ import com.restfb.Version;
 import com.restfb.exception.FacebookOAuthException;
 import com.restfb.types.Album;
 import com.restfb.types.Comment;
-import com.restfb.types.Conversation;
-import com.restfb.types.Message;
 import com.restfb.types.Post;
 import com.restfb.types.User;
 import java.util.ArrayList;

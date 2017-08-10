@@ -35,7 +35,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	private static Logger logger = LoggerFactory.getLogger(WebSecurityConfig.class);
 
-    
     @Autowired
     private AuthenticationProvider authenticationProvider;
     
