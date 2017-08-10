@@ -35,18 +35,19 @@ public class TaskEntity {
     @CascadeSave
     private List<CommentEntity> comments;
     
+    @Field("target")
     @DBRef
-    private UserEntity userEntity;
+    private SonEntity sonEntity;
     
     public TaskEntity(){}
     
     @PersistenceConstructor
-    public TaskEntity(Date startDate, Date finishDate, Boolean success, List<CommentEntity> comments, UserEntity userEntity) {
+    public TaskEntity(Date startDate, Date finishDate, Boolean success, List<CommentEntity> comments, SonEntity sonEntity) {
         this.startDate = startDate;
         this.finishDate = finishDate;
         this.success = success;
         this.comments = comments;
-        this.userEntity = userEntity;
+        this.sonEntity = sonEntity;
     }
 
     public ObjectId getId() {
@@ -85,11 +86,11 @@ public class TaskEntity {
         this.comments = comments;
     }
 
-    public UserEntity getUserEntity() {
-        return userEntity;
-    }
+	public SonEntity getSonEntity() {
+		return sonEntity;
+	}
 
-    public void setUserEntity(UserEntity userEntity) {
-        this.userEntity = userEntity;
-    }
+	public void setSonEntity(SonEntity sonEntity) {
+		this.sonEntity = sonEntity;
+	}
 }

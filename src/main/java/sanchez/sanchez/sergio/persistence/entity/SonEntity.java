@@ -3,7 +3,7 @@ package sanchez.sanchez.sergio.persistence.entity;
 import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 
-public class SonEntity extends UserEntity {
+public class SonEntity extends PersonEntity {
 	
 	@DBRef
 	private SchoolEntity school;
@@ -34,4 +34,5 @@ public class SonEntity extends UserEntity {
 	public void setParent(ParentEntity parent) {
 		this.parent = parent;
 	}
+	
 }

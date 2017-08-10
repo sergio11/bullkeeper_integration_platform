@@ -1,42 +1,16 @@
 package sanchez.sanchez.sergio.persistence.entity;
 
-
 import org.springframework.data.annotation.PersistenceConstructor;
-import org.springframework.data.mongodb.core.mapping.Field;
 
-public class ParentEntity  extends UserEntity {
-	
-	@Field("email")
-	private String email;
-	@Field("password")
-	private String password;
+public class ParentEntity  extends UserSystemEntity {
 	
 	public ParentEntity(){}
-	
+
 	@PersistenceConstructor
-	public ParentEntity(String firstName, String lastName, Integer age, AuthorityEntity authority, String email,
-			String password) {
-		super(firstName, lastName, age, authority);
-		this.email = email;
-		this.password = password;
-	}
-	
-
-	public String getEmail() {
-		return email;
+	public ParentEntity(String firstName, String lastName, Integer age, String email, String password,
+			AuthorityEntity authority) {
+		super(firstName, lastName, age, email, password, authority);
 	}
 
 	
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
 }

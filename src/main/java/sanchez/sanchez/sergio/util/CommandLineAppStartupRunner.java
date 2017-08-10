@@ -47,7 +47,7 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
     private static List<ParentEntity> parentList = new ArrayList<>();
     private static List<SonEntity> childrenList = new ArrayList<>();
     private static List<SocialMediaEntity> socialMedias = new ArrayList<>();
-    
+   
     static {
     	
     	// Authorities
@@ -77,11 +77,11 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
     	
     	// PARENTS
     	
-    	ParentEntity federico = new ParentEntity("Federico", "Martín", 36, parentRole, "federico@gmail.com", "$2a$10$0eCQpFRdw8i6jJzjj/IuNuKpJYnLaO5Yp9xSJ3itcfPmQNXVhmNyu");
+    	ParentEntity federico = new ParentEntity("Federico", "Martín", 36, "federico@gmail.com", "$2a$10$0eCQpFRdw8i6jJzjj/IuNuKpJYnLaO5Yp9xSJ3itcfPmQNXVhmNyu", parentRole);
     	
     	parentList.add(federico);
     	
-    	ParentEntity fernando = new ParentEntity("Fernando", "Muñoz", 40, parentRole, "fernando@gmail.com", "$2a$10$0eCQpFRdw8i6jJzjj/IuNuKpJYnLaO5Yp9xSJ3itcfPmQNXVhmNyu");
+    	ParentEntity fernando = new ParentEntity("Fernando", "Muñoz", 40, "fernando@gmail.com", "$2a$10$0eCQpFRdw8i6jJzjj/IuNuKpJYnLaO5Yp9xSJ3itcfPmQNXVhmNyu", parentRole);
     	
     	parentList.add(fernando);
     	
