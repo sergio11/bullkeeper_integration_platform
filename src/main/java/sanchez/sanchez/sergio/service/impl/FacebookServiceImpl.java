@@ -55,15 +55,14 @@ public class FacebookServiceImpl implements IFacebookService {
     private Stream<Comment> getCommentsByObjectAfterThan(final FacebookClient facebookClient, final String objectId, final Date startDate, User user) {
 
     	Connection<Comment> commentConnection
-        	= facebookClient.fetchConnection(objectId + "/comments", Comment.class, Parameter.with("fields","comment_count"));
+        	= facebookClient.fetchConnection(objectId + "/comments", Comment.class);
         
-
         return StreamUtils.asStream(commentConnection.iterator())
                 .flatMap(List::stream)
                 .flatMap(comment 
                         ->  comment.getCommentCount() > 0 ? StreamUtils.concat(
-                        getCommentsByObjectAfterThan(facebookClient, comment.getId(), startDate, user), comment) : 
-                        	Stream.of(comment)
+                                    getCommentsByObjectAfterThan(facebookClient, comment.getId(), startDate, user), comment) : 
+                                    	Stream.of(comment)
                 ).filter(comment -> !comment.getFrom().getId().equals(user.getId()) &&
                 		(startDate != null ? comment.getCreatedTime().after(startDate) : true));
     }

@@ -4,6 +4,7 @@ import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -17,6 +18,7 @@ import sanchez.sanchez.sergio.config.security.WebSecurityConfig;
 import org.springframework.context.annotation.FilterType;
 
 @Configuration
+@EnableAutoConfiguration
 @TestPropertySource(
 		  locations = "classpath:application-test.properties")
 @Import(value = { EmbeddedMongoAutoConfiguration.class, CommonConfig.class, 
