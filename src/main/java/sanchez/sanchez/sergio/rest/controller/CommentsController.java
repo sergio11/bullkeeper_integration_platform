@@ -2,10 +2,14 @@ package sanchez.sanchez.sergio.rest.controller;
 
 
 import java.util.Optional;
+
+import javax.validation.Valid;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,8 +21,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedResources;
+import org.springframework.hateoas.Resource;
 
 import sanchez.sanchez.sergio.dto.response.CommentDTO;
+import sanchez.sanchez.sergio.persistence.constraints.ValidObjectId;
 import sanchez.sanchez.sergio.rest.ApiHelper;
 import sanchez.sanchez.sergio.rest.exception.CommentNotFoundException;
 import sanchez.sanchez.sergio.rest.exception.ResourceNotFoundException;
@@ -29,6 +35,7 @@ import sanchez.sanchez.sergio.service.ICommentsService;
 
 @Api
 @RestController("RestCommentsController")
+@Validated
 @RequestMapping("/api/v1/comments/")
 public class CommentsController implements ICommentHAL {
 
@@ -43,13 +50,13 @@ public class CommentsController implements ICommentHAL {
     @GetMapping(path = {"/", "/all"})
     @ApiOperation(value = "GET_ALL_COMMENTS", nickname = "GET_ALL_COMMENTS", 
             notes = "Get all Comments", response = ResponseEntity.class)
-    public ResponseEntity<APIResponse<PagedResources>> getAllComments(@PageableDefault Pageable p, 
-            PagedResourcesAssembler pagedAssembler) throws Throwable {
+    public ResponseEntity<APIResponse<PagedResources<Resource<CommentDTO>>>> getAllComments(@PageableDefault Pageable p, 
+            PagedResourcesAssembler<CommentDTO> pagedAssembler) throws Throwable {
         logger.debug("Get all Comments");
         return Optional.ofNullable(commentsService.findPaginated(p))
                 .map(commentsPage -> addLinksToComments(commentsPage))
                 .map(commentsPage -> pagedAssembler.toResource(commentsPage))
-                .map(commentsPageResource -> ApiHelper.<PagedResources>createAndSendResponse(CommentResponseCode.ALL_COMMENTS, 
+                .map(commentsPageResource -> ApiHelper.<PagedResources<Resource<CommentDTO>>>createAndSendResponse(CommentResponseCode.ALL_COMMENTS, 
                 		HttpStatus.OK, commentsPageResource))
                 .orElseThrow(() -> { throw new ResourceNotFoundException(); });
     }
@@ -57,7 +64,9 @@ public class CommentsController implements ICommentHAL {
     @GetMapping(path = "/{id}")
     @ApiOperation(value = "GET_COMMENT_BY_ID", nickname = "GET_COMMENT_BY_ID", notes = "Get Comment By Id",
             response = ResponseEntity.class)
-    public ResponseEntity<APIResponse<CommentDTO>> getCommentById(@ApiParam(value = "id", required = true) @PathVariable String id) throws Throwable {
+    public ResponseEntity<APIResponse<CommentDTO>> getCommentById(
+    		@Valid @ValidObjectId(message = "{comment.id.notvalid}")
+    		@ApiParam(value = "id", required = true) @PathVariable String id) throws Throwable {
         logger.debug("Get Comment with id: " + id);
         return Optional.ofNullable(commentsService.getCommentById(id))
                 .map(commentResource -> addLinksToComment(commentResource))

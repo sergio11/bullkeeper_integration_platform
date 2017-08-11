@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -21,14 +22,18 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedResources;
+import org.springframework.hateoas.Resource;
+
 import sanchez.sanchez.sergio.dto.request.AddSocialMediaDTO;
+import sanchez.sanchez.sergio.dto.response.CommentDTO;
 import sanchez.sanchez.sergio.dto.response.SocialMediaDTO;
 import sanchez.sanchez.sergio.dto.response.SonDTO;
+import sanchez.sanchez.sergio.persistence.constraints.ValidObjectId;
 import sanchez.sanchez.sergio.rest.ApiHelper;
 import sanchez.sanchez.sergio.rest.exception.SocialMediaNotFoundException;
-import sanchez.sanchez.sergio.rest.exception.CommentsByUserNotFoundException;
+import sanchez.sanchez.sergio.rest.exception.CommentsBySonNotFoundException;
 import sanchez.sanchez.sergio.rest.exception.ResourceNotFoundException;
-import sanchez.sanchez.sergio.rest.exception.UserNotFoundException;
+import sanchez.sanchez.sergio.rest.exception.SonNotFoundException;
 import sanchez.sanchez.sergio.rest.hal.ICommentHAL;
 import sanchez.sanchez.sergio.rest.hal.ISocialMediaHAL;
 import sanchez.sanchez.sergio.rest.hal.ISonHAL;
@@ -42,6 +47,7 @@ import sanchez.sanchez.sergio.service.ISonService;
 
 @Api
 @RestController("RestUserController")
+@Validated
 @RequestMapping("/api/v1/children/")
 public class ChildrenController implements ISonHAL, ICommentHAL, ISocialMediaHAL {
 
@@ -61,13 +67,13 @@ public class ChildrenController implements ISonHAL, ICommentHAL, ISocialMediaHAL
     @ApiOperation(value = "GET_ALL_CHILDREN", nickname = "GET_ALL_CHILDREN", 
             notes = "Get all Children", response = ResponseEntity.class)
     @PreAuthorize("@authorizationService.hasAdminRole()")
-    public ResponseEntity<APIResponse<PagedResources>> getAllChildren(@PageableDefault Pageable p, 
-            PagedResourcesAssembler pagedAssembler) throws Throwable {
+    public ResponseEntity<APIResponse<PagedResources<Resource<SonDTO>>>> getAllChildren(@PageableDefault Pageable pageable, 
+            PagedResourcesAssembler<SonDTO> pagedAssembler) throws Throwable {
         logger.debug("Get all Children");
-        return Optional.ofNullable(sonService.findPaginated(p))
+        return Optional.ofNullable(sonService.findPaginated(pageable))
                 .map(childrenPage -> addLinksToChildren(childrenPage))
                 .map(childrenPage -> pagedAssembler.toResource(childrenPage))
-                .map(childrenPageResource -> ApiHelper.<PagedResources>createAndSendResponse(ChildrenResponseCode.ALL_USERS, HttpStatus.OK, childrenPageResource))
+                .map(childrenPageResource -> ApiHelper.<PagedResources<Resource<SonDTO>>>createAndSendResponse(ChildrenResponseCode.ALL_USERS, HttpStatus.OK, childrenPageResource))
                 .orElseThrow(() -> { throw new ResourceNotFoundException(); });
     }
     
@@ -76,12 +82,14 @@ public class ChildrenController implements ISonHAL, ICommentHAL, ISocialMediaHAL
     @ApiOperation(value = "GET_SON_BY_ID", nickname = "GET_SON_BY_ID", notes = "Get Son By Id",
             response = ResponseEntity.class)
     @PreAuthorize("@authorizationService.hasParentRole() && @authorizationService.isYourSon(#id)")
-    public ResponseEntity<APIResponse<SonDTO>> getSonById(@ApiParam(value = "id", required = true) @PathVariable String id) throws Throwable {
+    public ResponseEntity<APIResponse<SonDTO>> getSonById(
+    		@Valid @ValidObjectId(message = "{son.id.notvalid}")
+    		@ApiParam(value = "id", required = true) @PathVariable String id) throws Throwable {
         logger.debug("Get User with id: " + id);
         return Optional.ofNullable(sonService.getSonById(id))
                 .map(sonResource -> addLinksToSon(sonResource))
                 .map(sonResource -> ApiHelper.<SonDTO>createAndSendResponse(ChildrenResponseCode.SINGLE_USER, HttpStatus.OK, sonResource))
-                .orElseThrow(() -> { throw new UserNotFoundException(); });
+                .orElseThrow(() -> { throw new SonNotFoundException(); });
     }
     
     
@@ -89,17 +97,18 @@ public class ChildrenController implements ISonHAL, ICommentHAL, ISocialMediaHAL
     @ApiOperation(value = "GET_COMMENTS_BY_SON", nickname = "GET_COMMENTS_BY_SON", notes = "Get Comments By Son Id",
             response = ResponseEntity.class)
     @PreAuthorize("@authorizationService.hasParentRole() && @authorizationService.isYourSon(#id)")
-    public ResponseEntity<APIResponse<PagedResources>> getCommentsBySonId(
-            @PageableDefault Pageable p, 
-            PagedResourcesAssembler pagedAssembler,
+    public ResponseEntity<APIResponse<PagedResources<Resource<CommentDTO>>>> getCommentsBySonId(
+            @PageableDefault Pageable pageable, 
+            PagedResourcesAssembler<CommentDTO> pagedAssembler,
+            @Valid @ValidObjectId(message = "{son.id.notvalid}")
             @ApiParam(value = "id", required = true) @PathVariable String id) throws Throwable {
         logger.debug("Get Comments by user with id: " + id);
-        return Optional.ofNullable(commentService.getCommentBySonId(p, id))
+        return Optional.ofNullable(commentService.getCommentBySonId(pageable, id))
                 .map(commentsPage -> addLinksToComments(commentsPage))
                 .map(commentsPage -> pagedAssembler.toResource(commentsPage))
-                .map(commentsPageResource -> ApiHelper.<PagedResources>createAndSendResponse(CommentResponseCode.ALL_COMMENTS_BY_USER, 
+                .map(commentsPageResource -> ApiHelper.<PagedResources<Resource<CommentDTO>>>createAndSendResponse(CommentResponseCode.ALL_COMMENTS_BY_CHILD, 
                 		HttpStatus.OK, commentsPageResource))
-                .orElseThrow(() -> { throw new CommentsByUserNotFoundException(); });
+                .orElseThrow(() -> { throw new CommentsBySonNotFoundException(); });
     }
     
     @GetMapping(path = "/{id}/social")
@@ -107,11 +116,12 @@ public class ChildrenController implements ISonHAL, ICommentHAL, ISocialMediaHAL
             response = ResponseEntity.class)
     @PreAuthorize("@authorizationService.hasParentRole() && @authorizationService.isYourSon(#id)")
     public ResponseEntity<APIResponse<Iterable<SocialMediaDTO>>> getSocialMediaBySonId(
+    		@Valid @ValidObjectId(message = "{son.id.notvalid}")
             @ApiParam(value = "id", required = true) @PathVariable String id) throws Throwable {
         logger.debug("Get Social Media by User Id " + id);
         return Optional.ofNullable(socialMediaService.getSocialMediaByUser(id))
                 .map(socialMediaResource -> addLinksToSocialMedia(socialMediaResource))
-                .map(socialMediaResource -> ApiHelper.<Iterable<SocialMediaDTO>>createAndSendResponse(SocialMediaResponseCode.SOCIAL_MEDIA_BY_USER, 
+                .map(socialMediaResource -> ApiHelper.<Iterable<SocialMediaDTO>>createAndSendResponse(SocialMediaResponseCode.SOCIAL_MEDIA_BY_CHILD, 
                 		HttpStatus.OK, socialMediaResource))
                 .orElseThrow(() -> { throw new SocialMediaNotFoundException(); });
     }
@@ -121,6 +131,7 @@ public class ChildrenController implements ISonHAL, ICommentHAL, ISocialMediaHAL
             response = ResponseEntity.class)
     @PreAuthorize("@authorizationService.hasParentRole() && @authorizationService.isYourSon(#id)")
     public ResponseEntity<APIResponse<SocialMediaDTO>> addSocialMediaToSon(
+    		@Valid @ValidObjectId(message = "{son.id.notvalid}")
             @ApiParam(value = "id", required = true) @PathVariable String id,
             @ApiParam(value = "socialMedia", required = true) 
 				@Valid @RequestBody AddSocialMediaDTO addSocialMediaDTO) throws Throwable {
@@ -137,11 +148,12 @@ public class ChildrenController implements ISonHAL, ICommentHAL, ISocialMediaHAL
             response = ResponseEntity.class)
     @PreAuthorize("@authorizationService.hasParentRole() && @authorizationService.isYourSon(#id)")
     public ResponseEntity<APIResponse<Iterable<SocialMediaDTO>>> getInvalidSocialMediaBySonId(
+    		@Valid @ValidObjectId(message = "{son.id.notvalid}")
             @ApiParam(value = "id", required = true) @PathVariable String id) throws Throwable {
         logger.debug("Get Invalid Social  Media by User Id " + id);
         return Optional.ofNullable(socialMediaService.getInvalidSocialMediaById(id))
                 .map(socialMediaResource -> addLinksToSocialMedia(socialMediaResource))
-                .map(socialMediaResource -> ApiHelper.<Iterable<SocialMediaDTO>>createAndSendResponse(SocialMediaResponseCode.INVALID_SOCIAL_MEDIA_BY_USER, 
+                .map(socialMediaResource -> ApiHelper.<Iterable<SocialMediaDTO>>createAndSendResponse(SocialMediaResponseCode.INVALID_SOCIAL_MEDIA_BY_CHILD, 
                 		HttpStatus.OK, socialMediaResource))
                 .orElseThrow(() -> { throw new SocialMediaNotFoundException(); });
     }

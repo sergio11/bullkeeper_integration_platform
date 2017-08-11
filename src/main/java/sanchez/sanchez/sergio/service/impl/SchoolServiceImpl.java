@@ -52,7 +52,7 @@ public class SchoolServiceImpl implements ISchoolService {
 
 	@Override
 	public Page<SchoolDTO> findByNamePaginated(String name, Pageable pageable) {
-		Page<SchoolEntity> schoolPage = schoolRepository.findAllByName(name, pageable);
+		Page<SchoolEntity> schoolPage = schoolRepository.findAllByNameLike(name, pageable);
 		return schoolPage.map(new Converter<SchoolEntity, SchoolDTO>(){
             @Override
             public SchoolDTO convert(SchoolEntity school) {

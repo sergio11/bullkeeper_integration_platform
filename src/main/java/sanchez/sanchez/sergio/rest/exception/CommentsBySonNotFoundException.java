@@ -1,6 +1,6 @@
 package sanchez.sanchez.sergio.rest.exception;
 
-public class CommentsByUserNotFoundException extends RuntimeException {
+public class CommentsBySonNotFoundException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 

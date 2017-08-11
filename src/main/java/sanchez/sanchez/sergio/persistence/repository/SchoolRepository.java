@@ -14,5 +14,5 @@ import sanchez.sanchez.sergio.persistence.entity.SchoolEntity;
  */
 @Repository
 public interface SchoolRepository extends MongoRepository<SchoolEntity, ObjectId> {
-	Page<SchoolEntity> findAllByName(String name, Pageable pageable);
+	Page<SchoolEntity> findAllByNameLike(String name, Pageable pageable);
 }

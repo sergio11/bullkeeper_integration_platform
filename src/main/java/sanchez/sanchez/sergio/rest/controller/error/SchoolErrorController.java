@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.LocaleResolver;
 
 import sanchez.sanchez.sergio.rest.ApiHelper;
+import sanchez.sanchez.sergio.rest.exception.NoSchoolsFoundException;
 import sanchez.sanchez.sergio.rest.exception.SchoolNotFoundException;
 import sanchez.sanchez.sergio.rest.response.APIResponse;
 import sanchez.sanchez.sergio.rest.response.SchoolResponseCode;
@@ -35,10 +36,11 @@ public class SchoolErrorController {
                 messageSource.getMessage("school.not.found", new Object[]{}, localeResolver.resolveLocale(request)));
     }
 	
-	
-    
-	
-	
-    
+	@ExceptionHandler(NoSchoolsFoundException.class)
+	@ResponseBody
+    protected ResponseEntity<APIResponse<String>> handleNoSchoolsFoundException(NoSchoolsFoundException noSchoolsFoundException, HttpServletRequest request) {
+        return ApiHelper.<String>createAndSendErrorResponse(SchoolResponseCode.NO_SCHOOLS_FOUND, HttpStatus.NOT_FOUND,
+                messageSource.getMessage("schools.not.found", new Object[]{}, localeResolver.resolveLocale(request)));
+    }
 
 }

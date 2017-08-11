@@ -1,6 +1,12 @@
 package sanchez.sanchez.sergio.rest.controller.error;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -35,6 +41,16 @@ public class CommonErrorRestController{
             validationErrorResource.addFieldError(fieldError.getField(), fieldError.getDefaultMessage());
         }
         return ApiHelper.<ValidationErrorDTO>createAndSendErrorResponse(CommonErrorResponseCode.VALIDATION_ERROR, HttpStatus.BAD_REQUEST, validationErrorResource);
+    }
+    
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseBody
+    public ResponseEntity<APIResponse<List<String>>> handleConstraintViolationException(ConstraintViolationException ex) {
+    	List<String> messages = ex.getConstraintViolations().stream()
+    			.map(constraintViolation -> constraintViolation.getMessage())
+    			.collect(Collectors.toList());
+    	return ApiHelper.<List<String>>createAndSendErrorResponse(CommonErrorResponseCode.VALIDATION_ERROR, HttpStatus.BAD_REQUEST, messages);
+
     }
     
     @ExceptionHandler(LockedException.class)

@@ -1,16 +1,21 @@
 package sanchez.sanchez.sergio.rest.controller;
 
 import java.util.Optional;
-
 import javax.validation.Valid;
+
+import org.hibernate.validator.constraints.NotBlank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedResources;
+import org.springframework.hateoas.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,11 +31,11 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import sanchez.sanchez.sergio.dto.request.AddSchoolDTO;
 import sanchez.sanchez.sergio.dto.response.SchoolDTO;
-import sanchez.sanchez.sergio.dto.response.SonDTO;
 import sanchez.sanchez.sergio.dto.response.ValidationErrorDTO;
+import sanchez.sanchez.sergio.persistence.constraints.ValidObjectId;
 import sanchez.sanchez.sergio.rest.ApiHelper;
+import sanchez.sanchez.sergio.rest.exception.NoSchoolsFoundException;
 import sanchez.sanchez.sergio.rest.exception.SchoolNotFoundException;
-import sanchez.sanchez.sergio.rest.exception.SocialMediaNotFoundException;
 import sanchez.sanchez.sergio.rest.hal.ISchoolHAL;
 import sanchez.sanchez.sergio.rest.response.APIResponse;
 import sanchez.sanchez.sergio.rest.response.SchoolResponseCode;
@@ -39,6 +44,7 @@ import springfox.documentation.annotations.ApiIgnore;
 
 @Api
 @RestController("RestSchoolController")
+@Validated
 @RequestMapping("/api/v1/schools/")
 public class SchoolController implements ISchoolHAL {
 
@@ -50,36 +56,40 @@ public class SchoolController implements ISchoolHAL {
         this.schoolService = schoolService;
     }
     
-    @GetMapping(path = {"/" , "/all"})
+    @GetMapping(path = {"/all"})
     @ApiOperation(value = "GET_ALL_SCHOOLS", nickname = "GET_ALL_SCHOOLS", notes = "Get all Schools",
-            response = ResponseEntity.class)
-    public ResponseEntity<APIResponse<PagedResources>> getAllSchools(
-    		@ApiIgnore @PageableDefault Pageable p, 
-    		@ApiIgnore PagedResourcesAssembler pagedAssembler) throws Throwable {
+            response = PagedResources.class)
+    public ResponseEntity<APIResponse<PagedResources<Resource<SchoolDTO>>>> getAllSchools(
+    		@ApiIgnore @PageableDefault Pageable pageable, 
+    		@ApiIgnore PagedResourcesAssembler<SchoolDTO> pagedAssembler) throws Throwable {
     	
-        return Optional.ofNullable(schoolService.findPaginated(p))
-                .map(schoolPage -> addLinksToSchool(schoolPage))
-                .map(schoolPage -> pagedAssembler.toResource(schoolPage))
-                .map(schoolPage -> ApiHelper.<PagedResources>createAndSendResponse(SchoolResponseCode.ALL_SCHOOLS, 
-                		HttpStatus.OK, schoolPage))
-                .orElseThrow(() -> { throw new SocialMediaNotFoundException(); });
+    	Page<SchoolDTO> schoolPage = schoolService.findPaginated(pageable);
+
+    	if(schoolPage.getTotalElements() == 0)
+    		throw new NoSchoolsFoundException();
+    	
+    	return ApiHelper.<PagedResources<Resource<SchoolDTO>>>createAndSendResponse(SchoolResponseCode.ALL_SCHOOLS, 
+        		HttpStatus.OK, pagedAssembler.toResource(addLinksToSchool((schoolPage))));
+    	
     }
     
     
     @GetMapping(path = "/")
-    @ApiOperation(value = "GET_SCHOOLS_BY_NAME", nickname = "GET_SCHOOLS_BY_NAME", notes = "Get Schools by name",
-            response = ResponseEntity.class)
-    public ResponseEntity<APIResponse<PagedResources>> getSchoolsByName(
+    @ApiOperation(value = "FIND_SCHOOLS_BY_NAME", nickname = "FIND_SCHOOLS_BY_NAME", notes = "Find Schools by name",
+            response = PagedResources.class)
+    public ResponseEntity<APIResponse<PagedResources<Resource<SchoolDTO>>>> getSchoolsByName(
+    		@Valid @NotBlank(message = "{school.name.notblank}") 
     		@RequestParam(value = "name", required = false) String name,
     		@ApiIgnore @PageableDefault Pageable pageable, 
-    		@ApiIgnore PagedResourcesAssembler pagedAssembler) throws Throwable {
+    		@ApiIgnore PagedResourcesAssembler<SchoolDTO> pagedAssembler) throws Throwable {
     	
-        return Optional.ofNullable(schoolService.findByNamePaginated(name, pageable))
-                .map(schoolPage -> addLinksToSchool(schoolPage))
-                .map(schoolPage -> pagedAssembler.toResource(schoolPage))
-                .map(schoolPage -> ApiHelper.<PagedResources>createAndSendResponse(SchoolResponseCode.SCHOOLS_BY_NAME, 
-                		HttpStatus.OK, schoolPage))
-                .orElseThrow(() -> { throw new SocialMediaNotFoundException(); });
+    	Page<SchoolDTO> schoolPage = schoolService.findByNamePaginated(name, pageable);
+    	
+    	if(schoolPage.getTotalElements() == 0)
+    		throw new NoSchoolsFoundException();
+    	
+    	return ApiHelper.<PagedResources<Resource<SchoolDTO>>>createAndSendResponse(SchoolResponseCode.SCHOOLS_BY_NAME, 
+        		HttpStatus.OK, pagedAssembler.toResource(addLinksToSchool((schoolPage))));
     }
     
     
@@ -89,6 +99,7 @@ public class SchoolController implements ISchoolHAL {
     		@ApiResponse(code = 200, message= "School By Id", response = SchoolDTO.class)
     })
     public ResponseEntity<APIResponse<SchoolDTO>> getSchoolById(
+    		@Valid @ValidObjectId(message = "{school.id.notvalid}")
     		@ApiParam(value = "id", required = true) @PathVariable String id) throws Throwable {
         logger.debug("Get User with id: " + id);
         
@@ -105,6 +116,7 @@ public class SchoolController implements ISchoolHAL {
     		@ApiResponse(code = 200, message= "School Saved", response = SchoolDTO.class),
     		@ApiResponse(code = 403, message = "Validation Errors", response = ValidationErrorDTO.class)
     })
+    @PreAuthorize("@authorizationService.hasAdminRole()")
     public ResponseEntity<APIResponse<SchoolDTO>> saveSchool(
     		@ApiParam(value = "school", required = true) 
 				@Valid @RequestBody AddSchoolDTO addSchoolDTO) throws Throwable {        
@@ -122,7 +134,9 @@ public class SchoolController implements ISchoolHAL {
     @ApiResponses(value = { 
     		@ApiResponse(code = 200, message= "School Deleted", response = SchoolDTO.class)
     })
+    @PreAuthorize("@authorizationService.hasAdminRole()")
     public ResponseEntity<APIResponse<SchoolDTO>> deleteSchool(
+    		@Valid @ValidObjectId(message = "{school.id.notvalid}")
     		@ApiParam(value = "id", required = true) @PathVariable String id) throws Throwable {        
     	
         return Optional.ofNullable(schoolService.delete(id))

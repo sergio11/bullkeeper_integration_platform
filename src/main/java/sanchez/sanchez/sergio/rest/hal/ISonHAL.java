@@ -3,8 +3,10 @@ package sanchez.sanchez.sergio.rest.hal;
 import org.springframework.data.domain.Page;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedResources;
+import org.springframework.hateoas.Resource;
 import org.springframework.http.ResponseEntity;
 
+import sanchez.sanchez.sergio.dto.response.CommentDTO;
 import sanchez.sanchez.sergio.dto.response.SocialMediaDTO;
 import sanchez.sanchez.sergio.dto.response.SonDTO;
 import sanchez.sanchez.sergio.rest.controller.ChildrenController;
@@ -22,7 +24,8 @@ public interface ISonHAL {
         Link selfLink = linkTo(ChildrenController.class).slash(sonResource.getIdentity()).withSelfRel();
         sonResource.add(selfLink);
             try {
-                ResponseEntity<APIResponse<PagedResources>> methodLinkBuilder = methodOn(ChildrenController.class)
+    
+                ResponseEntity<APIResponse<PagedResources<Resource<CommentDTO>>>> methodLinkBuilder = methodOn(ChildrenController.class)
                         .getCommentsBySonId(null, null, sonResource.getIdentity());
                 Link commentsLink = linkTo(methodLinkBuilder).withRel("comments");
                 sonResource.add(commentsLink);

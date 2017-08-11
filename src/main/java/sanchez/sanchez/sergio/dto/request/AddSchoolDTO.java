@@ -6,13 +6,13 @@ import org.hibernate.validator.constraints.NotBlank;
 
 public class AddSchoolDTO {
 	
-	@NotBlank(message = "{school.name.notnull}")
+	@NotBlank(message = "{school.name.notblank}")
     @Size(min = 5, max = 15, message = "{school.name.size}")
 	private String name;
-	@NotBlank(message = "{school.residence.notnull}")
+	@NotBlank(message = "{school.residence.notblank}")
     @Size(min = 5, max = 15, message = "{school.residence.size}")
 	private String residence;
-	@NotBlank(message = "{school.location.notnull}")
+	@NotBlank(message = "{school.location.notblank}")
     @Size(min = 5, max = 15, message = "{school.location.size}")
 	private String location;
 	private String province;
