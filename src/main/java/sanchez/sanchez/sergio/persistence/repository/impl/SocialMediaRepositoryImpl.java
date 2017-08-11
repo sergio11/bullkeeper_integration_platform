@@ -28,6 +28,5 @@ public class SocialMediaRepositoryImpl implements SocialMediaRepositoryCustom {
         		new Query(Criteria.where("access_token").is(accessToken)
                     .and("social_media_type").is(type.name())),
         		Update.update("invalid_token", "true"), SocialMediaEntity.class);
-        
     }   
 }

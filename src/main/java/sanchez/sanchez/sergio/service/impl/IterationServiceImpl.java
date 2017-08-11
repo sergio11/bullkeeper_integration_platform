@@ -2,7 +2,6 @@ package sanchez.sanchez.sergio.service.impl;
 
 import java.util.Date;
 import java.util.List;
-
 import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +12,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-
 import sanchez.sanchez.sergio.dto.response.IterationDTO;
 import sanchez.sanchez.sergio.mapper.IIterationEntityMapper;
 import sanchez.sanchez.sergio.persistence.entity.IterationEntity;
@@ -67,6 +65,17 @@ public class IterationServiceImpl implements IIterationService {
     	PageRequest request = new PageRequest(0, 1, new Sort(Sort.Direction.DESC, "finishDate"));
     	List<IterationEntity> iterations = iterationRepository.findAll(request).getContent();
     	return iterations.size() > 0 ? iterations.get(0).getFinishDate() : null;
+	}
+    
+    @Override
+	public Page<IterationDTO> findPaginated(Pageable pageable) {
+    	Page<IterationEntity> iterationsPage = iterationRepository.findAll(pageable);
+        return iterationsPage.map(new Converter<IterationEntity, IterationDTO>(){
+            @Override
+            public IterationDTO convert(IterationEntity ite) {
+               return iterationEntityMapper.iterationEntityToIterationDTO(ite);
+            }
+        });
 	}
     
     @PostConstruct

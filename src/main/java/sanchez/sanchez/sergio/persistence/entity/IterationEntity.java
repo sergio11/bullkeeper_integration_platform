@@ -43,27 +43,31 @@ public class IterationEntity {
     @CascadeSave
     private Set<TaskEntity> tasks = new HashSet<>();
     
+    public IterationEntity(){}
     
     public IterationEntity(Date startDate, Date finishDate){
         this.startDate = startDate;
         this.finishDate = finishDate;
     }
 
+   
     @PersistenceConstructor
-    public IterationEntity(Date startDate, Date finishDate, Integer totalTasks, Integer taskFailed, Integer totalComments, Set<TaskEntity> tasks) {
-        this.startDate = startDate;
-        this.finishDate = finishDate;
-        this.totalTasks = totalTasks;
-        this.totalFailedTasks = taskFailed;
-        this.totalComments = totalComments;
-        this.tasks = tasks;
-    }
+    public IterationEntity(Date startDate, Date finishDate, Integer totalTasks, Integer totalFailedTasks,
+			Integer totalComments, Set<TaskEntity> tasks) {
+		super();
+		this.startDate = startDate;
+		this.finishDate = finishDate;
+		this.totalTasks = totalTasks;
+		this.totalFailedTasks = totalFailedTasks;
+		this.totalComments = totalComments;
+		this.tasks = tasks;
+	}
     
     public ObjectId getId() {
         return id;
     }
 
-    public void setId(ObjectId id) {
+	public void setId(ObjectId id) {
         this.id = id;
     }
 

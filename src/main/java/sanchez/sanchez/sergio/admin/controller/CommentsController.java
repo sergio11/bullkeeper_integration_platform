@@ -2,6 +2,8 @@ package sanchez.sanchez.sergio.admin.controller;
 
 import javax.annotation.PostConstruct;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.Assert;
@@ -20,6 +22,8 @@ import sanchez.sanchez.sergio.service.ICommentsService;
 @RequestMapping("/admin/comments")
 public class CommentsController {
     
+	private final static String VIEW_NAME = "comments";
+	
     private final ICommentsService commentsService;
 
     public CommentsController(ICommentsService commentsService) {
@@ -27,13 +31,10 @@ public class CommentsController {
     }
     
     @GetMapping(value = { "", "/" })
-    public String findPaginated(Model model, 
-            @RequestParam( value = "page", required = false, defaultValue = "1" ) int page, 
-            @RequestParam( value= "size", required = false, defaultValue = "10") int size) {
-        
-        Page<CommentDTO> resultPage = commentsService.findPaginated( page - 1, size );
+    public String findPaginated(Model model, @PageableDefault Pageable pageable) {
+        Page<CommentDTO> resultPage = commentsService.findPaginated(pageable);
         model.addAttribute("page", resultPage);
-        return "comments";
+        return VIEW_NAME;
     
     }
     
@@ -41,5 +42,4 @@ public class CommentsController {
     protected void init(){
         Assert.notNull(commentsService, "Comments Service cannot be null");
     }
-    
 }

@@ -34,7 +34,17 @@ public class AuthorizationServiceImpl implements IAuthorizationService {
 		return (SecurityContextHolder.getContext().getAuthentication().getAuthorities()
 				.contains(new SimpleGrantedAuthority(AuthoritiesConstants.PARENT)));
 	}
-
+	
+	@Override
+	public CommonUserDetailsAware<ObjectId> getUserDetails() {
+		CommonUserDetailsAware<ObjectId> userDetails = null;
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if (!(auth instanceof AnonymousAuthenticationToken)) {
+			userDetails = (CommonUserDetailsAware<ObjectId>)auth.getPrincipal();
+		}
+		return userDetails;
+	}
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public Boolean isYourSon(String id) {

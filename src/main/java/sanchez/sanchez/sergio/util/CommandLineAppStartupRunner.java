@@ -17,11 +17,13 @@ import sanchez.sanchez.sergio.persistence.entity.SchoolEntity;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaEntity;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaTypeEnum;
 import sanchez.sanchez.sergio.persistence.entity.SonEntity;
+import sanchez.sanchez.sergio.persistence.entity.UserSystemEntity;
 import sanchez.sanchez.sergio.persistence.repository.AuthorityRepository;
 import sanchez.sanchez.sergio.persistence.repository.ParentRepository;
 import sanchez.sanchez.sergio.persistence.repository.SchoolRepository;
 import sanchez.sanchez.sergio.persistence.repository.SocialMediaRepository;
 import sanchez.sanchez.sergio.persistence.repository.SonRepository;
+import sanchez.sanchez.sergio.persistence.repository.UserSystemRepository;
 
 /**
  *
@@ -40,6 +42,7 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
     private final SonRepository sonRepository;
     private final SocialMediaRepository socialMediaRepository;
     private final AuthorityRepository authorityRepository;
+    private final UserSystemRepository userSystemRepository;
     
     
     private static List<AuthorityEntity> authoritiesList = new ArrayList<>();
@@ -47,11 +50,11 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
     private static List<ParentEntity> parentList = new ArrayList<>();
     private static List<SonEntity> childrenList = new ArrayList<>();
     private static List<SocialMediaEntity> socialMedias = new ArrayList<>();
+    private static List<UserSystemEntity> admins = new ArrayList<>();
    
     static {
     	
     	// Authorities
-    	
     	AuthorityEntity adminRole = new AuthorityEntity(AuthorityEnum.ROLE_ADMIN, "Role for Administrators");
     	
     	authoritiesList.add(adminRole);
@@ -88,6 +91,12 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
     	ParentEntity jaime = new ParentEntity("Jaime", "Gómez", 29, "jaime@gmail.com", "$2a$10$0eCQpFRdw8i6jJzjj/IuNuKpJYnLaO5Yp9xSJ3itcfPmQNXVhmNyu", parentRole);
     	
     	parentList.add(jaime);
+    	
+    	// ADMIN
+    	
+    	UserSystemEntity admin = new UserSystemEntity("Admin", "Admin", 30, "admin@gmail.com", "$2a$10$0eCQpFRdw8i6jJzjj/IuNuKpJYnLaO5Yp9xSJ3itcfPmQNXVhmNyu", adminRole);
+    	
+    	admins.add(admin);
     	
     	// CHILDREN
     	
@@ -146,14 +155,36 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
 
     
     public CommandLineAppStartupRunner(SchoolRepository schoolRepository, ParentRepository parentRepository,
-			SonRepository sonRepository, SocialMediaRepository socialMediaRepository, AuthorityRepository authorityRepository) {
+			SonRepository sonRepository, SocialMediaRepository socialMediaRepository, AuthorityRepository authorityRepository, 
+			UserSystemRepository userSystemRepository) {
 		super();
 		this.schoolRepository = schoolRepository;
 		this.parentRepository = parentRepository;
 		this.sonRepository = sonRepository;
 		this.socialMediaRepository = socialMediaRepository;
 		this.authorityRepository = authorityRepository;
+		this.userSystemRepository = userSystemRepository;
 	}
+    
+    
+    @Override
+    public void run(String...args) throws Exception {
+        logger.debug("Delete all data");
+        sonRepository.deleteAll();
+        parentRepository.deleteAll();
+        schoolRepository.deleteAll();
+        socialMediaRepository.deleteAll();
+        authorityRepository.deleteAll();
+        userSystemRepository.deleteAll();
+        logger.debug("Load Initial Data ...");
+        authorityRepository.save(authoritiesList);
+        schoolRepository.save(schoolList);
+        parentRepository.save(parentList);
+        sonRepository.save(childrenList);
+        socialMediaRepository.save(socialMedias);
+        userSystemRepository.save(admins);
+        logger.info("Data Loaded ...");
+    }
     
     
     @PostConstruct
@@ -163,22 +194,8 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
     	Assert.notNull(sonRepository, "SonRepository Can not be null");
     	Assert.notNull(socialMediaRepository, "SocialMediaRepository Can not be null");
     	Assert.notNull(authorityRepository, "AuthorityRepository Can not be null");
+    	Assert.notNull(userSystemRepository, "UserSystemRepository Can not be null");
     }
 
-	@Override
-    public void run(String...args) throws Exception {
-        logger.debug("Delete all data");
-        sonRepository.deleteAll();
-        parentRepository.deleteAll();
-        schoolRepository.deleteAll();
-        socialMediaRepository.deleteAll();
-        authorityRepository.deleteAll();
-        logger.debug("Load Initial Data ...");
-        authorityRepository.save(authoritiesList);
-        schoolRepository.save(schoolList);
-        parentRepository.save(parentList);
-        sonRepository.save(childrenList);
-        socialMediaRepository.save(socialMedias);
-        logger.info("Data Loaded ...");
-    }
+	
 }

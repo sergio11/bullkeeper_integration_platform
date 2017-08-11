@@ -43,6 +43,7 @@ public class UserDetailsImpl<T> implements CommonUserDetailsAware<T> {
 		this.id = id;
 	}
 
+	@Override
 	public String getEmail() {
 		return email;
 	}
@@ -51,6 +52,7 @@ public class UserDetailsImpl<T> implements CommonUserDetailsAware<T> {
 		this.email = email;
 	}
 
+	@Override
 	public String getPassword() {
 		return password;
 	}
@@ -59,6 +61,7 @@ public class UserDetailsImpl<T> implements CommonUserDetailsAware<T> {
 		this.password = password;
 	}
 
+	@Override
 	public String getFirstName() {
 		return firstName;
 	}
@@ -67,6 +70,7 @@ public class UserDetailsImpl<T> implements CommonUserDetailsAware<T> {
 		this.firstName = firstName;
 	}
 
+	@Override
 	public String getLastName() {
 		return lastName;
 	}
@@ -75,7 +79,11 @@ public class UserDetailsImpl<T> implements CommonUserDetailsAware<T> {
 		this.lastName = lastName;
 	}
 	
-
+	@Override
+	public String getFullName() {
+		return firstName  + " " + lastName;
+	}
+	
 	public Set<SimpleGrantedAuthority> getGrantedAuthorities() {
 		return grantedAuthorities;
 	}

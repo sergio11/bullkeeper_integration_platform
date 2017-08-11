@@ -27,6 +27,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.Assert;
 import sanchez.sanchez.sergio.persistence.entity.AuthorityEnum;
 import sanchez.sanchez.sergio.rest.ApiHelper;
+import sanchez.sanchez.sergio.security.handlers.CustomLoginSuccessHandler;
 import sanchez.sanchez.sergio.security.jwt.JwtAuthenticationTokenFilter;
 
 @Configuration
@@ -39,6 +40,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	
     @Autowired
     private AuthenticationProvider authenticationProvider;
+    
+    @Autowired
+    private CustomLoginSuccessHandler customLoginSuccessHandler;
     
     @Override
     @Bean
@@ -73,8 +77,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .antMatchers("/admin/**")
                 .and()
                 .authorizeRequests()
-                .antMatchers("/admin/users/self/**")
-                    .fullyAuthenticated()
                 .antMatchers("/admin/**")
                     .hasAuthority(AuthorityEnum.ROLE_ADMIN.name())
                 .and()
@@ -82,6 +84,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .loginPage("/admin/login")
                     .usernameParameter("email")
                     .passwordParameter("password")
+                    .successHandler(customLoginSuccessHandler)
                     .permitAll()
                 .and()
                 .logout()

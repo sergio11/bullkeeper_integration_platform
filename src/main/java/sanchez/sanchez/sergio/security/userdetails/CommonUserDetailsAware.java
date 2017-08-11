@@ -19,6 +19,7 @@ public interface CommonUserDetailsAware<T> extends UserDetails {
     String getPassword();
     String getFirstName();
     String getLastName();
+    String getFullName();
     Date getLastPasswordResetDate();
     
 }

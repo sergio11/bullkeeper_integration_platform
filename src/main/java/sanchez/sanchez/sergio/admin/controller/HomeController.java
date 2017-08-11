@@ -16,7 +16,7 @@ import sanchez.sanchez.sergio.service.ISonService;
  * @author sergio
  */
 @Controller("AdminHomeController")
-@RequestMapping("/admin/home")
+@RequestMapping("/admin")
 public class HomeController {
     
     private final ICommentsService commentsService;
@@ -29,7 +29,7 @@ public class HomeController {
         this.sonService = sonService;
     }
     
-    @GetMapping(value = { "", "/" })
+    @GetMapping(value = { "", "/", "/home" })
     public String show(Model model) {
         // total comments
         model.addAttribute("totalComments", commentsService.getTotalComments());

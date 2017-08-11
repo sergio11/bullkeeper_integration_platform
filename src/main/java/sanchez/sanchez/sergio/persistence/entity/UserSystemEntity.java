@@ -3,6 +3,8 @@
 package sanchez.sanchez.sergio.persistence.entity;
 
 
+import java.util.Date;
+
 import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -22,6 +24,9 @@ public class UserSystemEntity extends PersonEntity {
 	
 	@Field("is_locked")
 	private Boolean locked = Boolean.FALSE;
+	
+	@Field("last_login_access")
+	private Date lastLoginAccess;
     
     @DBRef
     private AuthorityEntity authority;
@@ -58,6 +63,14 @@ public class UserSystemEntity extends PersonEntity {
 
 	public void setLocked(Boolean locked) {
 		this.locked = locked;
+	}
+
+	public Date getLastLoginAccess() {
+		return lastLoginAccess;
+	}
+
+	public void setLastLoginAccess(Date lastLoginAccess) {
+		this.lastLoginAccess = lastLoginAccess;
 	}
 
 	public AuthorityEntity getAuthority() {

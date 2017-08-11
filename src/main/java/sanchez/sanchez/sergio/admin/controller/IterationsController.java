@@ -1,6 +1,8 @@
 package sanchez.sanchez.sergio.admin.controller;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +20,8 @@ import sanchez.sanchez.sergio.service.IIterationService;
 @RequestMapping("/admin/iterations")
 public class IterationsController {
     
+	private final static String VIEW_NAME = "iterations";
+	
     private final IIterationService iterationService;
 
     public IterationsController(IIterationService iterationService) {
@@ -25,13 +29,10 @@ public class IterationsController {
     }
     
     @GetMapping(value = { "", "/" })
-    public String findPaginated(Model model, 
-            @RequestParam( value = "page", required = false, defaultValue = "1" ) int page, 
-            @RequestParam( value= "size", required = false, defaultValue = "10") int size) {
-        
-        Page<IterationDTO> resultPage = iterationService.findPaginated( page - 1, size );
+    public String findPaginated(Model model, @PageableDefault Pageable pageable) {
+        Page<IterationDTO> resultPage = iterationService.findPaginated( pageable );
         model.addAttribute("page", resultPage);
-        return "iterations";
+        return VIEW_NAME;
     
     }
     
