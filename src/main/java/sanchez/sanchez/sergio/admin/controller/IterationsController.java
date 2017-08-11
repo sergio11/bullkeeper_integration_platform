@@ -14,7 +14,7 @@ import sanchez.sanchez.sergio.service.IIterationService;
  *
  * @author sergio
  */
-@Controller
+@Controller("AdminIterationsController")
 @RequestMapping("/admin/iterations")
 public class IterationsController {
     

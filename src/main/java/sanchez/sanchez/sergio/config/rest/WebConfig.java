@@ -40,6 +40,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         registry.addRedirectViewController("/documentation/swagger-resources", "/swagger-resources");
         registry.addRedirectViewController("/documentation/configuration/ui", "/configuration/ui");
         registry.addRedirectViewController("/documentation/configuration/security", "/configuration/security");
+        registry.addViewController("/admin/login").setViewName("login");
     }
 
     @Override
@@ -47,7 +48,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         registry.addResourceHandler("/documentation/swagger-ui.html**").addResourceLocations("classpath:/META-INF/resources/swagger-ui.html");
         registry.addResourceHandler("/documentation/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
     }
-
+    
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(localeChangeInterceptor);

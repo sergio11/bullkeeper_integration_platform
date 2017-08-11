@@ -8,4 +8,5 @@ public interface ISonService {
 	Page<SonDTO> findPaginated(Integer page, Integer size);
     Page<SonDTO> findPaginated(Pageable pageable);
     SonDTO getSonById(String id);
+    Long getTotalChildren();
 }

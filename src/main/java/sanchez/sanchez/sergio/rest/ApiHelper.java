@@ -14,7 +14,9 @@ import sanchez.sanchez.sergio.rest.response.ResponseStatus;
 @Component
 public class ApiHelper {
 	
+	public static String BASE_API_ANY_REQUEST;
 	public static String AUTHENTICATION_ANY_REQUEST;
+	
 	
 	private static HttpHeaders getCommonHeaders() {
         HttpHeaders headers = new HttpHeaders();
@@ -47,5 +49,10 @@ public class ApiHelper {
     @Value("#{'${api.base.path}' + '${api.version}' + '${jwt.route.authentication.path}' + '/**'}")
     public void setAuthenticationAnyRequest(String authenticationAnyRequest) {
     	ApiHelper.AUTHENTICATION_ANY_REQUEST = authenticationAnyRequest;
+    }
+    
+    @Value("#{'${api.base.path}' + '${api.version}' + '/**'}")
+    public void setBaseApi(String baseApiAnyRequest) {
+    	ApiHelper.BASE_API_ANY_REQUEST = baseApiAnyRequest;
     }
 }

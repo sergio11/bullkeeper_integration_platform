@@ -9,8 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -23,7 +23,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.Assert;
+import sanchez.sanchez.sergio.persistence.entity.AuthorityEnum;
 import sanchez.sanchez.sergio.rest.ApiHelper;
 import sanchez.sanchez.sergio.security.jwt.JwtAuthenticationTokenFilter;
 
@@ -34,7 +36,7 @@ import sanchez.sanchez.sergio.security.jwt.JwtAuthenticationTokenFilter;
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	private static Logger logger = LoggerFactory.getLogger(WebSecurityConfig.class);
-
+	
     @Autowired
     private AuthenticationProvider authenticationProvider;
     
@@ -56,23 +58,75 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         auth.authenticationProvider(authenticationProvider);
     }
     
-	@Override
-	protected void configure(HttpSecurity httpSecurity) throws Exception {
-		httpSecurity.csrf().disable()
-				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
-					.antMatchers(HttpMethod.OPTIONS, "/**")
-						.permitAll()
-					.antMatchers(ApiHelper.AUTHENTICATION_ANY_REQUEST)
-						.permitAll()
-					.anyRequest()
-						.authenticated()
-				.and()
-				.exceptionHandling()
-                	.authenticationEntryPoint((request, response, authException) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED));
+    /**
+     * Security Configuration for Admin Dashboard
+     */
+    @Configuration
+    @Order(1)
+    public class AdminConfiguration extends WebSecurityConfigurerAdapter {
 
-		// Custom JWT based security filter
-		httpSecurity.addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class);
-	}
+        
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http
+                .requestMatchers()
+                    .antMatchers("/admin/**")
+                .and()
+                .authorizeRequests()
+                .antMatchers("/admin/users/self/**")
+                    .fullyAuthenticated()
+                .antMatchers("/admin/**")
+                    .hasAuthority(AuthorityEnum.ROLE_ADMIN.name())
+                .and()
+                .formLogin()
+                    .loginPage("/admin/login")
+                    .usernameParameter("email")
+                    .passwordParameter("password")
+                    .permitAll()
+                .and()
+                .logout()
+                    .logoutRequestMatcher(new AntPathRequestMatcher("/admin/logout"))
+                    .logoutSuccessUrl("/admin/login?logout")
+                    .deleteCookies("JSESSIONID")
+                    .invalidateHttpSession(true)
+                .and()
+                .exceptionHandling().accessDeniedPage("/admin/403")
+                .and()
+                .csrf()
+                .disable();
+        }
+    }
+    
+    @Configuration
+    @Order(2)
+    public static class ApiWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
+    	
+    	@Autowired
+    	private JwtAuthenticationTokenFilter authenticationTokenFilter;
+    
+ 
+        protected void configure(HttpSecurity http) throws Exception {
+        	http
+        		.requestMatchers()
+		            .antMatchers(ApiHelper.BASE_API_ANY_REQUEST)
+		        .and()
+        	.csrf().disable()
+			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
+				.antMatchers(HttpMethod.OPTIONS, "/**")
+					.permitAll()
+				.antMatchers(ApiHelper.AUTHENTICATION_ANY_REQUEST)
+					.permitAll()
+				.anyRequest()
+					.authenticated()
+			.and()
+			.exceptionHandling()
+            	.authenticationEntryPoint((request, response, authException) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED));
+
+			// Custom JWT based security filter
+        	http.addFilterBefore(authenticationTokenFilter, UsernamePasswordAuthenticationFilter.class);
+        }
+    }
+    
 	
 	@Override
     public void configure(WebSecurity web) throws Exception {
