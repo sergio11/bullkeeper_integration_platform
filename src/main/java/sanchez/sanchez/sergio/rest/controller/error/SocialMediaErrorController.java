@@ -3,6 +3,8 @@ package sanchez.sanchez.sergio.rest.controller.error;
 
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.context.MessageSource;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -20,6 +22,7 @@ import sanchez.sanchez.sergio.rest.response.SocialMediaResponseCode;
  */
 
 @ControllerAdvice
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class SocialMediaErrorController {
 
     private final MessageSource messageSource;

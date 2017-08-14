@@ -2,6 +2,9 @@ package sanchez.sanchez.sergio.rest.controller.error;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +12,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -21,6 +26,7 @@ import sanchez.sanchez.sergio.rest.response.APIResponse;
 import sanchez.sanchez.sergio.rest.response.CommonErrorResponseCode;
 
 @ControllerAdvice
+@Order(Ordered.LOWEST_PRECEDENCE)
 public class CommonErrorRestController{
 	
 	private static Logger logger = LoggerFactory.getLogger(CommonErrorRestController.class);
@@ -61,11 +67,11 @@ public class CommonErrorRestController{
     	return ApiHelper.<String>createAndSendErrorResponse(CommonErrorResponseCode.ACCESS_DENIED, HttpStatus.FORBIDDEN, ex.getMessage());
     }
     
-    /*@ExceptionHandler(Exception.class)
+    @ExceptionHandler(Throwable.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleException(
-    		Exception exception, HttpServletRequest request, HttpServletResponse response) {
+    		Throwable exception, HttpServletRequest request, HttpServletResponse response) {
 		logger.debug("Excepción genérica -> " + exception.getClass().getName());
 		return ApiHelper.<String>createAndSendErrorResponse(CommonErrorResponseCode.GENERIC_ERROR, HttpStatus.BAD_REQUEST, exception.getMessage());
-    }*/
+    }
 }
