@@ -2,6 +2,7 @@ package sanchez.sanchez.sergio.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
@@ -10,6 +11,9 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
+
+import sanchez.sanchez.sergio.persistence.entity.AlertEntity;
+import sanchez.sanchez.sergio.persistence.entity.AlertLevelEnum;
 import sanchez.sanchez.sergio.persistence.entity.AuthorityEntity;
 import sanchez.sanchez.sergio.persistence.entity.AuthorityEnum;
 import sanchez.sanchez.sergio.persistence.entity.ParentEntity;
@@ -18,6 +22,7 @@ import sanchez.sanchez.sergio.persistence.entity.SocialMediaEntity;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaTypeEnum;
 import sanchez.sanchez.sergio.persistence.entity.SonEntity;
 import sanchez.sanchez.sergio.persistence.entity.UserSystemEntity;
+import sanchez.sanchez.sergio.persistence.repository.AlertRepository;
 import sanchez.sanchez.sergio.persistence.repository.AuthorityRepository;
 import sanchez.sanchez.sergio.persistence.repository.ParentRepository;
 import sanchez.sanchez.sergio.persistence.repository.SchoolRepository;
@@ -43,6 +48,7 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
     private final SocialMediaRepository socialMediaRepository;
     private final AuthorityRepository authorityRepository;
     private final UserSystemRepository userSystemRepository;
+    private final AlertRepository alertRepository;
     
     
     private static List<AuthorityEntity> authoritiesList = new ArrayList<>();
@@ -51,6 +57,7 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
     private static List<SonEntity> childrenList = new ArrayList<>();
     private static List<SocialMediaEntity> socialMedias = new ArrayList<>();
     private static List<UserSystemEntity> admins = new ArrayList<>();
+    private static List<AlertEntity> alertList = new ArrayList<>();
    
     static {
     	
@@ -149,6 +156,12 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
             new SocialMediaEntity("elena_access_token_instagram", SocialMediaTypeEnum.INSTAGRAM, elena),
             new SocialMediaEntity("elena_access_token_youtube", SocialMediaTypeEnum.YOUTUBE, elena)
         }));
+        
+        // Alerts
+        
+        AlertEntity alertInfo = new AlertEntity("Alerta de Prueba", sergio);
+        
+        alertList.add(alertInfo);
     
     }
 
@@ -156,7 +169,7 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
     
     public CommandLineAppStartupRunner(SchoolRepository schoolRepository, ParentRepository parentRepository,
 			SonRepository sonRepository, SocialMediaRepository socialMediaRepository, AuthorityRepository authorityRepository, 
-			UserSystemRepository userSystemRepository) {
+			UserSystemRepository userSystemRepository, AlertRepository alertRepository) {
 		super();
 		this.schoolRepository = schoolRepository;
 		this.parentRepository = parentRepository;
@@ -164,6 +177,7 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
 		this.socialMediaRepository = socialMediaRepository;
 		this.authorityRepository = authorityRepository;
 		this.userSystemRepository = userSystemRepository;
+		this.alertRepository = alertRepository;
 	}
     
     
@@ -176,6 +190,7 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
         socialMediaRepository.deleteAll();
         authorityRepository.deleteAll();
         userSystemRepository.deleteAll();
+        alertRepository.deleteAll();
         logger.debug("Load Initial Data ...");
         authorityRepository.save(authoritiesList);
         schoolRepository.save(schoolList);
@@ -183,6 +198,7 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
         sonRepository.save(childrenList);
         socialMediaRepository.save(socialMedias);
         userSystemRepository.save(admins);
+        alertRepository.save(alertList);
         logger.info("Data Loaded ...");
     }
     
@@ -195,6 +211,7 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
     	Assert.notNull(socialMediaRepository, "SocialMediaRepository Can not be null");
     	Assert.notNull(authorityRepository, "AuthorityRepository Can not be null");
     	Assert.notNull(userSystemRepository, "UserSystemRepository Can not be null");
+    	Assert.notNull(alertRepository, "alertRepository Can not be null");
     }
 
 	

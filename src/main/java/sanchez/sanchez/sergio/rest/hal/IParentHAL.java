@@ -3,9 +3,14 @@ package sanchez.sanchez.sergio.rest.hal;
 
 import org.springframework.data.domain.Page;
 import org.springframework.hateoas.Link;
+import org.springframework.hateoas.PagedResources;
+import org.springframework.hateoas.Resource;
 import org.springframework.http.ResponseEntity;
+
+import sanchez.sanchez.sergio.dto.response.AlertDTO;
 import sanchez.sanchez.sergio.dto.response.ParentDTO;
 import sanchez.sanchez.sergio.dto.response.SonDTO;
+import sanchez.sanchez.sergio.rest.controller.AlertController;
 import sanchez.sanchez.sergio.rest.controller.ParentsController;
 import sanchez.sanchez.sergio.rest.response.APIResponse;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
@@ -51,6 +56,11 @@ public interface IParentHAL {
 				parentResource.add(childrenLink);
 
 			}
+			
+			ResponseEntity<APIResponse<PagedResources<Resource<AlertDTO>>>> allAlertsLinkBuilder = methodOn(AlertController.class)
+                    .getAlerts(null, null, null);
+            Link allAlertsLink = linkTo(allAlertsLinkBuilder).withRel("all_alerts");
+            parentResource.add(allAlertsLink);
 			
 			ResponseEntity<APIResponse<SonDTO>> methodLinkBuilder = methodOn(ParentsController.class)
 					.addSonToSelfParent(null, null);

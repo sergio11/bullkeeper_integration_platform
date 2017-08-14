@@ -8,7 +8,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-
 import sanchez.sanchez.sergio.dto.response.CommentDTO;
 import sanchez.sanchez.sergio.mapper.ICommentEntityMapper;
 import sanchez.sanchez.sergio.persistence.entity.CommentEntity;
@@ -16,7 +15,6 @@ import sanchez.sanchez.sergio.persistence.repository.CommentRepository;
 import sanchez.sanchez.sergio.service.ICommentsService;
 
 /**
- *
  * @author sergio
  */
 @Service("commentsService")

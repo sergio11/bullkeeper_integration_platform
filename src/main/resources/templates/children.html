@@ -13,7 +13,7 @@
             
             <div class="content-box-large">
                 <div class="panel-heading">
-                    <div class="panel-title" th:text="#{dashboard.children.all.title}">Children</div>
+                    <div class="panel-title" th:text="#{dashboard.children.all.title(${page.getNumberOfElements()}, ${page.getTotalElements()})}">Children</div>
                 </div>
                 <div class="panel-body">
                     <table id="posts" cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered ">

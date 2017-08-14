@@ -43,9 +43,13 @@ private static Logger logger = LoggerFactory.getLogger(CustomPersistentTokenRepo
 
     @Override
     public PersistentRememberMeToken getTokenForSeries(String seriesId) {
+    	PersistentRememberMeToken persistenceRememberToken = null;
     	RememberMeTokenEntity token = rememberMeTokenRepository.findBySeries(seriesId);
-        logger.info("getTokenForSeries ..." + token.toString());
-        return new PersistentRememberMeToken(token.getUsername(), token.getSeries(), token.getTokenValue(), token.getDate());
+    	if(token != null) {
+    		logger.debug("getTokenForSeries ..." + token.toString());
+    		persistenceRememberToken = new PersistentRememberMeToken(token.getUsername(), token.getSeries(), token.getTokenValue(), token.getDate());
+    	}
+        return persistenceRememberToken;
     }
 
     @Override
