@@ -23,6 +23,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.Assert;
 import sanchez.sanchez.sergio.persistence.entity.AuthorityEnum;
@@ -56,6 +57,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public JwtAuthenticationTokenFilter authenticationTokenFilterBean() throws Exception {
         return new JwtAuthenticationTokenFilter();
     }
+   
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -74,6 +76,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Configuration
     @Order(1)
     public class AdminConfiguration extends WebSecurityConfigurerAdapter {
+    	
+    	@Autowired
+    	private PersistentTokenRepository persistentTokenRepository;
 
         
         @Override
@@ -83,6 +88,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .antMatchers("/admin/**")
                 .and()
                 .authorizeRequests()
+                .antMatchers("/admin/users/self/**")
+                	.fullyAuthenticated()
                 .antMatchers("/admin/**")
                     .hasAuthority(AuthorityEnum.ROLE_ADMIN.name())
                 .and()
@@ -102,7 +109,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .exceptionHandling().accessDeniedPage("/admin/403")
                 .and()
                 .csrf()
-                .disable();
+                	.disable()
+                .sessionManagement()
+                	.maximumSessions(1)
+                	.expiredUrl("/admin/login?expired")
+                	.and()
+                .and()
+                    .rememberMe()
+                    .rememberMeParameter("remember-me")
+                    .tokenRepository(persistentTokenRepository)
+                    .tokenValiditySeconds(1209600);
         }
     }
     

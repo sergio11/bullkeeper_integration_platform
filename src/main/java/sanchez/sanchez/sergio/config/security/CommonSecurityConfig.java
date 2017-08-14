@@ -11,6 +11,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
+
+import sanchez.sanchez.sergio.persistence.repository.RememberMeTokenRepository;
+import sanchez.sanchez.sergio.security.CustomPersistentTokenRepositoryImpl;
 
 @Configuration
 public class CommonSecurityConfig implements Serializable {
@@ -23,6 +27,11 @@ public class CommonSecurityConfig implements Serializable {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+    
+	@Bean
+	public PersistentTokenRepository persistentTokenRepository(RememberMeTokenRepository rememberMeTokenRepository) {
+		return new CustomPersistentTokenRepositoryImpl(rememberMeTokenRepository);
+	}
     
     @PostConstruct
     protected void init() {
