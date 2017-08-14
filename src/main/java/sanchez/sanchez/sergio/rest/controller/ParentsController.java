@@ -25,6 +25,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.ApiResponse;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -38,13 +39,16 @@ import sanchez.sanchez.sergio.dto.response.SonDTO;
 import sanchez.sanchez.sergio.dto.response.ValidationErrorDTO;
 import sanchez.sanchez.sergio.persistence.constraints.ValidObjectId;
 import sanchez.sanchez.sergio.rest.ApiHelper;
+import sanchez.sanchez.sergio.rest.exception.NoChildrenFoundForParentException;
 import sanchez.sanchez.sergio.rest.exception.NoChildrenFoundForSelfParentException;
+import sanchez.sanchez.sergio.rest.exception.NoParentsFoundException;
 import sanchez.sanchez.sergio.rest.exception.ParentNotFoundException;
 import sanchez.sanchez.sergio.rest.exception.ResourceNotFoundException;
 import sanchez.sanchez.sergio.rest.exception.SonNotFoundException;
 import sanchez.sanchez.sergio.rest.hal.IParentHAL;
 import sanchez.sanchez.sergio.rest.hal.ISonHAL;
 import sanchez.sanchez.sergio.rest.response.APIResponse;
+import sanchez.sanchez.sergio.rest.response.ChildrenResponseCode;
 import sanchez.sanchez.sergio.rest.response.ParentResponseCode;
 import sanchez.sanchez.sergio.security.userdetails.CommonUserDetailsAware;
 import sanchez.sanchez.sergio.security.utils.CurrentUser;
@@ -74,12 +78,14 @@ public class ParentsController implements IParentHAL, ISonHAL {
     public ResponseEntity<APIResponse<PagedResources<Resource<ParentDTO>>>> getAllParents(@PageableDefault Pageable pageable, 
     		PagedResourcesAssembler<ParentDTO> pagedAssembler) throws Throwable {
         logger.debug("Get all Parents");
-        return Optional.ofNullable(parentsService.findPaginated(pageable))
-                .map(parentsPage -> addLinksToParents(parentsPage))
-                .map(parentsPage -> pagedAssembler.toResource(parentsPage))
-                .map(parentsPageResource -> ApiHelper.<PagedResources<Resource<ParentDTO>>>createAndSendResponse(ParentResponseCode.ALL_PARENTS, 
-                		HttpStatus.OK, parentsPageResource))
-                .orElseThrow(() -> { throw new ResourceNotFoundException(); });
+        
+        Page<ParentDTO> parentPage = parentsService.findPaginated(pageable);
+        
+        if(parentPage.getTotalElements() == 0)
+        	throw new NoParentsFoundException();
+        
+        return ApiHelper.<PagedResources<Resource<ParentDTO>>>createAndSendResponse(ParentResponseCode.ALL_PARENTS, 
+        		HttpStatus.OK, pagedAssembler.toResource(addLinksToParents((parentPage))));
     }
     
     
@@ -99,7 +105,7 @@ public class ParentsController implements IParentHAL, ISonHAL {
                 .map(parentResource -> addLinksToParent(parentResource))
                 .map(parentResource -> ApiHelper.<ParentDTO>createAndSendResponse(ParentResponseCode.SINGLE_PARENT, 
                 		HttpStatus.OK, parentResource))
-                .orElseThrow(() -> { throw new SonNotFoundException(); });
+                .orElseThrow(() -> { throw new ParentNotFoundException(); });
     }
     
     @GetMapping(path = "/self")
@@ -149,11 +155,13 @@ public class ParentsController implements IParentHAL, ISonHAL {
     		@Valid @ValidObjectId(message = "{parent.id.notvalid}")
     		@ApiParam(value = "id", required = true) @PathVariable String id) throws Throwable {
         logger.debug("Get Children of Parent with id: " + id);
-        return Optional.ofNullable(parentsService.getChildrenOfParent(id))
-                .map(sonsResources -> addLinksToChildren(sonsResources))
-                .map(sonsResources -> ApiHelper.<Iterable<SonDTO>>createAndSendResponse(ParentResponseCode.CHILDREN_OF_PARENT, 
-                		HttpStatus.OK, sonsResources))
-                .orElseThrow(() -> { throw new SonNotFoundException(); });
+        
+        Iterable<SonDTO> childrenOfParent = parentsService.getChildrenOfParent(id);
+        if(Iterables.size(childrenOfParent) == 0)
+        	throw new NoChildrenFoundForParentException();
+        return ApiHelper.<Iterable<SonDTO>>createAndSendResponse(ParentResponseCode.CHILDREN_OF_PARENT, 
+        		HttpStatus.OK, addLinksToChildren((childrenOfParent)));
+        
     }
     
     @GetMapping(path = {"/self/children"})
@@ -166,17 +174,15 @@ public class ParentsController implements IParentHAL, ISonHAL {
     public ResponseEntity<APIResponse<Iterable<SonDTO>>> getChildrenOfSelfParent(
     		@CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
         logger.debug("Get Children of Self Parent");
-        return Optional.ofNullable(parentsService.getChildrenOfParent(selfParent.getUserId().toString()))
-        		.map(sonnsResources -> {
-        			if(Iterables.size(sonnsResources) == 0){
-        				throw new NoChildrenFoundForSelfParentException();
-        			}
-        			return sonnsResources;
-        		})
-                .map(sonsResources -> addLinksToChildren(sonsResources))
-                .map(sonsResources -> ApiHelper.<Iterable<SonDTO>>createAndSendResponse(ParentResponseCode.CHILDREN_OF_PARENT, 
-                		HttpStatus.OK, sonsResources))
-                .orElseThrow(() -> { throw new NoChildrenFoundForSelfParentException(); });
+        
+        Iterable<SonDTO> childrenOfParent = parentsService.getChildrenOfParent(selfParent.getUserId().toString());
+        
+        if(Iterables.size(childrenOfParent) == 0)
+        	throw new NoChildrenFoundForSelfParentException();
+        
+        return ApiHelper.<Iterable<SonDTO>>createAndSendResponse(ParentResponseCode.CHILDREN_OF_SELF_PARENT, 
+        		HttpStatus.OK, addLinksToChildren((childrenOfParent)));
+   
     }
     
  

@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.LocaleResolver;
-
 import sanchez.sanchez.sergio.rest.ApiHelper;
 import sanchez.sanchez.sergio.rest.exception.NoSchoolsFoundException;
 import sanchez.sanchez.sergio.rest.exception.SchoolNotFoundException;

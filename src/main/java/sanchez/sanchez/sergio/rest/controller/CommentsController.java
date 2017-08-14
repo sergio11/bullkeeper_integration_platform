@@ -4,7 +4,6 @@ package sanchez.sanchez.sergio.rest.controller;
 import java.util.Optional;
 
 import javax.validation.Valid;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -17,21 +16,22 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.hateoas.Resource;
-
 import sanchez.sanchez.sergio.dto.response.CommentDTO;
 import sanchez.sanchez.sergio.persistence.constraints.ValidObjectId;
 import sanchez.sanchez.sergio.rest.ApiHelper;
 import sanchez.sanchez.sergio.rest.exception.CommentNotFoundException;
-import sanchez.sanchez.sergio.rest.exception.ResourceNotFoundException;
+import sanchez.sanchez.sergio.rest.exception.NoCommentsFoundException;
 import sanchez.sanchez.sergio.rest.hal.ICommentHAL;
 import sanchez.sanchez.sergio.rest.response.APIResponse;
 import sanchez.sanchez.sergio.rest.response.CommentResponseCode;
 import sanchez.sanchez.sergio.service.ICommentsService;
+import springfox.documentation.annotations.ApiIgnore;
 
 @Api
 @RestController("RestCommentsController")
@@ -50,15 +50,19 @@ public class CommentsController implements ICommentHAL {
     @GetMapping(path = {"/", "/all"})
     @ApiOperation(value = "GET_ALL_COMMENTS", nickname = "GET_ALL_COMMENTS", 
             notes = "Get all Comments", response = ResponseEntity.class)
-    public ResponseEntity<APIResponse<PagedResources<Resource<CommentDTO>>>> getAllComments(@PageableDefault Pageable p, 
-            PagedResourcesAssembler<CommentDTO> pagedAssembler) throws Throwable {
+    public ResponseEntity<APIResponse<PagedResources<Resource<CommentDTO>>>> getAllComments(
+    		@ApiIgnore @PageableDefault Pageable pageable, 
+    		@ApiIgnore PagedResourcesAssembler<CommentDTO> pagedAssembler) throws Throwable {
         logger.debug("Get all Comments");
-        return Optional.ofNullable(commentsService.findPaginated(p))
-                .map(commentsPage -> addLinksToComments(commentsPage))
-                .map(commentsPage -> pagedAssembler.toResource(commentsPage))
-                .map(commentsPageResource -> ApiHelper.<PagedResources<Resource<CommentDTO>>>createAndSendResponse(CommentResponseCode.ALL_COMMENTS, 
-                		HttpStatus.OK, commentsPageResource))
-                .orElseThrow(() -> { throw new ResourceNotFoundException(); });
+        
+        Page<CommentDTO> commentsPage = commentsService.findPaginated(pageable);
+        
+        if(commentsPage.getTotalElements() == 0)
+        	throw new NoCommentsFoundException();
+        
+        return ApiHelper.<PagedResources<Resource<CommentDTO>>>createAndSendResponse(CommentResponseCode.ALL_COMMENTS, 
+        		HttpStatus.OK, pagedAssembler.toResource(addLinksToComments((commentsPage))));
+       
     }
 
     @GetMapping(path = "/{id}")

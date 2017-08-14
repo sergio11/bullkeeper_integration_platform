@@ -11,11 +11,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.LocaleResolver;
 import sanchez.sanchez.sergio.rest.ApiHelper;
 import sanchez.sanchez.sergio.rest.exception.CommentsBySonNotFoundException;
-import sanchez.sanchez.sergio.rest.exception.SocialMediaNotFoundException;
+import sanchez.sanchez.sergio.rest.exception.NoChildrenFoundException;
 import sanchez.sanchez.sergio.rest.exception.SonNotFoundException;
 import sanchez.sanchez.sergio.rest.response.APIResponse;
 import sanchez.sanchez.sergio.rest.response.CommentResponseCode;
-import sanchez.sanchez.sergio.rest.response.SocialMediaResponseCode;
 import sanchez.sanchez.sergio.rest.response.ChildrenResponseCode;
 
 /**
@@ -47,12 +46,13 @@ public class ChildrenErrorController {
         return ApiHelper.<String>createAndSendErrorResponse(CommentResponseCode.COMMENTS_BY_CHILD_NOT_FOUND, HttpStatus.NOT_FOUND,
                 messageSource.getMessage("comments.by.son.not.found", new Object[]{}, localeResolver.resolveLocale(request)));
     }
+   
     
-    @ExceptionHandler(SocialMediaNotFoundException.class)
+    @ExceptionHandler(NoChildrenFoundException.class)
     @ResponseBody
-    protected ResponseEntity<APIResponse<String>> handleSocialMediaNotFoundException(SocialMediaNotFoundException socialMediaNotFoundException, HttpServletRequest request){
-        return ApiHelper.<String>createAndSendResponse(SocialMediaResponseCode.SOCIAL_MEDIA_BY_CHILD_NOT_FOUND, HttpStatus.NOT_FOUND,
-                messageSource.getMessage("social.media.by.son.not.found", new Object[]{}, localeResolver.resolveLocale(request)));
+    protected ResponseEntity<APIResponse<String>> handleNoChildrenFoundException(NoChildrenFoundException noChildrenFoundException, HttpServletRequest request){
+        return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.NO_CHILDREN_FOUND, HttpStatus.NOT_FOUND,
+                messageSource.getMessage("children.not.found", new Object[]{}, localeResolver.resolveLocale(request)));
     }
-    
+  
 }
