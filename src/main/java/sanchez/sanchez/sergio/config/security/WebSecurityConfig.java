@@ -62,6 +62,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         auth.authenticationProvider(authenticationProvider);
     }
     
+    protected void configure(HttpSecurity http) throws Exception {
+    	http
+    		.authorizeRequests().anyRequest().permitAll();
+    }
+    
+    
     /**
      * Security Configuration for Admin Dashboard
      */
@@ -150,7 +156,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         			"/configuration/ui",
         			"/configuration/security",
         			"/swagger-ui.html**",
-        			"/webjars/**");
+        			"/webjars/**"
+        	);
     }
     
     @PostConstruct
