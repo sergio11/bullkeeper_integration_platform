@@ -9,7 +9,12 @@ import sanchez.sanchez.sergio.persistence.entity.DeviceGroupEntity;
 
 @Repository
 public interface DeviceRepository extends MongoRepository<DeviceEntity, ObjectId> {
-	Iterable<DeviceEntity> findByDeviceGroup(DeviceGroupEntity deviceGroup);
-	DeviceEntity findByRegistrationToken(String registrationToken);
-	DeviceEntity deleteByRegistrationToken(String registrationToken);
+
+    Iterable<DeviceEntity> findByDeviceGroup(DeviceGroupEntity deviceGroup);
+
+    DeviceEntity findByRegistrationToken(String registrationToken);
+
+    DeviceEntity deleteByRegistrationToken(String registrationToken);
+    
+    Long countByRegistrationToken(String registrationToken);
 }

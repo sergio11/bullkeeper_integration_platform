@@ -44,11 +44,9 @@ import sanchez.sanchez.sergio.rest.exception.NoChildrenFoundForSelfParentExcepti
 import sanchez.sanchez.sergio.rest.exception.NoParentsFoundException;
 import sanchez.sanchez.sergio.rest.exception.ParentNotFoundException;
 import sanchez.sanchez.sergio.rest.exception.ResourceNotFoundException;
-import sanchez.sanchez.sergio.rest.exception.SonNotFoundException;
 import sanchez.sanchez.sergio.rest.hal.IParentHAL;
 import sanchez.sanchez.sergio.rest.hal.ISonHAL;
 import sanchez.sanchez.sergio.rest.response.APIResponse;
-import sanchez.sanchez.sergio.rest.response.ChildrenResponseCode;
 import sanchez.sanchez.sergio.rest.response.ParentResponseCode;
 import sanchez.sanchez.sergio.security.userdetails.CommonUserDetailsAware;
 import sanchez.sanchez.sergio.security.utils.CurrentUser;

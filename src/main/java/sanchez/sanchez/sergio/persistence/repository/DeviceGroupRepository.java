@@ -11,4 +11,5 @@ public interface DeviceGroupRepository extends MongoRepository<DeviceGroupEntity
 	@Query(value="{ 'notification_key_name' : ?0 }",fields="{ 'notification_key' : 1 }")
     String getNotificationKey(String notificationKeyName);
     DeviceGroupEntity findByNotificationKeyName(String notificationKeyName);
+    Long countByNotificationKeyName(String notificationKeyName);
 }
