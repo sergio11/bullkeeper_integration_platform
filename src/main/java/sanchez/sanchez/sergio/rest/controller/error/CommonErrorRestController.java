@@ -24,6 +24,7 @@ import sanchez.sanchez.sergio.dto.response.ValidationErrorDTO;
 import sanchez.sanchez.sergio.rest.ApiHelper;
 import sanchez.sanchez.sergio.rest.response.APIResponse;
 import sanchez.sanchez.sergio.rest.response.CommonErrorResponseCode;
+import sanchez.sanchez.sergio.service.IMessageSourceResolver;
 
 @ControllerAdvice
 @Order(Ordered.LOWEST_PRECEDENCE)
@@ -31,8 +32,13 @@ public class CommonErrorRestController{
 	
 	private static Logger logger = LoggerFactory.getLogger(CommonErrorRestController.class);
 	
- 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
+	private final IMessageSourceResolver messageSourceResolver;
+	
+    public CommonErrorRestController(IMessageSourceResolver messageSourceResolver) {
+		this.messageSourceResolver = messageSourceResolver;
+	}
+
+	@ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseBody
     public ResponseEntity<APIResponse<ValidationErrorDTO>> handleValidationException(MethodArgumentNotValidException ex) {
     	logger.debug("Validation Error");
@@ -71,7 +77,8 @@ public class CommonErrorRestController{
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleException(
     		Throwable exception, HttpServletRequest request, HttpServletResponse response) {
-		logger.debug("Excepción genérica -> " + exception.getClass().getName());
-		return ApiHelper.<String>createAndSendErrorResponse(CommonErrorResponseCode.GENERIC_ERROR, HttpStatus.BAD_REQUEST, exception.getMessage());
+    	logger.error(exception.getMessage());
+		return ApiHelper.<String>createAndSendErrorResponse(CommonErrorResponseCode.GENERIC_ERROR, HttpStatus.INTERNAL_SERVER_ERROR, 
+				messageSourceResolver.resolver("unexpected.error.occurred"));
     }
 }

@@ -1,7 +1,7 @@
 package sanchez.sanchez.sergio.fcm;
 
 import java.io.Serializable;
-
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -9,9 +9,14 @@ public class FCMCustomProperties implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
+	@Value("${fcm.app.server.key}")
 	private String appServerKey;
+	@Value("${fcm.notification.groups.url}")
     private String notificationGroupsUrl;
+	@Value("${fcm.notification.send.url}")
     private String notificationSendUrl;
+	@Value("${fcm.sender.id}")
+	private String senderId;
 
     public String getAppServerKey() {
         return appServerKey;
@@ -37,4 +42,11 @@ public class FCMCustomProperties implements Serializable {
         this.notificationSendUrl = notificationSendUrl;
     }
 
+	public String getSenderId() {
+		return senderId;
+	}
+
+	public void setSenderId(String senderId) {
+		this.senderId = senderId;
+	}
 }

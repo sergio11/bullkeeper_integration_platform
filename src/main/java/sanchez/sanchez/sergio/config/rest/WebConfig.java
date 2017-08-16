@@ -1,33 +1,35 @@
 package sanchez.sanchez.sergio.config.rest;
 
+
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import javax.annotation.PostConstruct;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.annotation.Order;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
-import org.springframework.core.Ordered;
 import org.springframework.data.web.HateoasPageableHandlerMethodArgumentResolver;
 import org.springframework.data.web.HateoasSortHandlerMethodArgumentResolver;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.data.web.PagedResourcesAssemblerArgumentResolver;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.client.DefaultResponseErrorHandler;
+import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import sanchez.sanchez.sergio.fcm.FCMCustomProperties;
+import sanchez.sanchez.sergio.rest.interceptor.HeaderRequestInterceptor;
 
 @Configuration
 public class WebConfig extends WebMvcConfigurerAdapter {
@@ -36,6 +38,9 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 
     @Autowired
     private LocaleChangeInterceptor localeChangeInterceptor;
+    
+    @Autowired
+    private FCMCustomProperties fcmProperties;
 
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
@@ -67,6 +72,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         argumentResolvers.add(pagedResourcesAssemblerArgumentResolver());
     }
     
+    
     @Bean
     public HateoasSortHandlerMethodArgumentResolver sortResolver() {
         return new HateoasSortHandlerMethodArgumentResolver();
@@ -86,12 +92,27 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     public PagedResourcesAssemblerArgumentResolver pagedResourcesAssemblerArgumentResolver() {
         return new PagedResourcesAssemblerArgumentResolver(pageableResolver(), null);
     }
-
     
     @Bean
-    public RestTemplate restTemplate(ObjectMapper objectMapper, 
-    		MappingJackson2HttpMessageConverter converter) {
+    @Order(1)
+    public ClientHttpRequestInterceptor provideAuthorizationInterceptor(){
+    	return new HeaderRequestInterceptor("Authorization", String.format("key=%s", fcmProperties.getAppServerKey()));
+    }
+    
+    @Bean
+    @Order(2)
+    public ClientHttpRequestInterceptor provideProjectId(){
+    	return new HeaderRequestInterceptor("project_id", fcmProperties.getSenderId());
+    }
+
+
+    @Bean
+    public RestTemplate restTemplate(ObjectMapper objectMapper, List<ClientHttpRequestInterceptor> interceptors,
+    		MappingJackson2HttpMessageConverter converter, DefaultResponseErrorHandler responseErrorHandler) {
+    	logger.debug("Total interceptors: " + interceptors.size());
         RestTemplate restTemplate = new RestTemplate(Collections.singletonList(converter));
+        restTemplate.setInterceptors(interceptors);
+        restTemplate.setErrorHandler(responseErrorHandler);
         return restTemplate;
     }
     

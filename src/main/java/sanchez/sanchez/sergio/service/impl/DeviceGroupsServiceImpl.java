@@ -77,7 +77,8 @@ public class DeviceGroupsServiceImpl implements IDeviceGroupsService {
 
 	@Override
 	public Iterable<DeviceDTO> getDevicesFromGroup(String groupName) {
-		return deviceEntityMapper.deviceEntitiesToDeviceDTO(deviceRepository.findByDeviceGroupNotificationKeyName(groupName));
+		DeviceGroupEntity deviceGroup = deviceGroupRepository.findByNotificationKeyName(groupName);
+		return deviceEntityMapper.deviceEntitiesToDeviceDTO(deviceRepository.findByDeviceGroup(deviceGroup));
 	}
 
 	@Override

@@ -145,6 +145,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-mobile</artifactId>
         </dependency>
+        <!--  Jasypt integration for Spring boot  -->
+        <dependency>
+			<groupId>com.github.ulisesbocchio</groupId>
+			<artifactId>jasypt-spring-boot-starter</artifactId>
+			<version>1.14</version>
+		</dependency>
     </dependencies>
     <build>
         <plugins>

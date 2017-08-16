@@ -86,11 +86,13 @@ public class DeviceGroupsController {
             @CurrentUser CommonUserDetailsAware<ObjectId> selfParent
     ) throws InterruptedException, ExecutionException, Throwable { 	
        return pushNotificationsService.createNotificationGroup(name)
-                .handle((groupKey, ex) -> 
-	                Optional.ofNullable(deviceGroupsService.createDeviceGroup(name, groupKey, selfParent.getUserId()))
+                .handle((groupKey, ex) -> {
+                	if(ex != null) 
+                		throw new DeviceGroupCreateFailedException();
+	                return Optional.ofNullable(deviceGroupsService.createDeviceGroup(name, groupKey, selfParent.getUserId()))
 	                	.map(deviceGroup -> ApiHelper.<DeviceGroupDTO>createAndSendResponse(DeviceGroupResponseCode.DEVICES_GROUP_CREATED, HttpStatus.OK, deviceGroup))
-	                	.<DeviceGroupCreateFailedException>orElseThrow(() -> { throw new DeviceGroupCreateFailedException(); })
-                ).get();
+	                	.<DeviceGroupCreateFailedException>orElseThrow(() -> { throw new DeviceGroupCreateFailedException(); });
+                }).get();
     }
     
     
