@@ -1,5 +1,6 @@
 package sanchez.sanchez.sergio.config.rest;
 
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -19,9 +20,14 @@ import org.springframework.data.web.HateoasPageableHandlerMethodArgumentResolver
 import org.springframework.data.web.HateoasSortHandlerMethodArgumentResolver;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.data.web.PagedResourcesAssemblerArgumentResolver;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Configuration
 public class WebConfig extends WebMvcConfigurerAdapter {
@@ -79,6 +85,14 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     @Bean
     public PagedResourcesAssemblerArgumentResolver pagedResourcesAssemblerArgumentResolver() {
         return new PagedResourcesAssemblerArgumentResolver(pageableResolver(), null);
+    }
+
+    
+    @Bean
+    public RestTemplate restTemplate(ObjectMapper objectMapper, 
+    		MappingJackson2HttpMessageConverter converter) {
+        RestTemplate restTemplate = new RestTemplate(Collections.singletonList(converter));
+        return restTemplate;
     }
     
     @PostConstruct
