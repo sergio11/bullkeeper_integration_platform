@@ -11,88 +11,105 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 @Document(collection = AlertEntity.COLLECTION_NAME)
 public class AlertEntity {
-	
-	public final static String COLLECTION_NAME = "alerts";
-	
-	@Id
-	private ObjectId id;
-	
-	@Field
-	private AlertLevelEnum level = AlertLevelEnum.INFO;
-	
-	@Field
-    private String payload;
-	
-	@Field("create_at")
-	private Date createAt = new Date();
 
-	
-	@Field("son")
+    public final static String COLLECTION_NAME = "alerts";
+
+    @Id
+    private ObjectId id;
+
+    @Field
+    private AlertLevelEnum level = AlertLevelEnum.INFO;
+
+    @Field
+    private String payload;
+
+    @Field("create_at")
+    private Date createAt = new Date();
+
+    @Field("son")
     @DBRef
     private SonEntity son;
-	
-	public AlertEntity(){}
-	
-	public AlertEntity(String payload, SonEntity sonEntity) {
-		super();
-		this.payload = payload;
-		this.son = sonEntity;
-	}
+    
+    private Boolean delivered = Boolean.FALSE;
 
-	
-	public AlertEntity(AlertLevelEnum level, String payload, SonEntity son) {
-		super();
-		this.level = level;
-		this.payload = payload;
-		this.son = son;
-	}
+    public AlertEntity() {
+    }
 
-	@PersistenceConstructor
-	public AlertEntity(AlertLevelEnum level, String payload, Date createAt, SonEntity sonEntity) {
-		super();
-		this.level = level;
-		this.payload = payload;
-		this.createAt = createAt;
-		this.son = sonEntity;
-	}
+    public AlertEntity(String payload, SonEntity sonEntity) {
+        super();
+        this.payload = payload;
+        this.son = sonEntity;
+    }
 
-	public ObjectId getId() {
-		return id;
-	}
+    public AlertEntity(AlertLevelEnum level, String payload, SonEntity son) {
+        super();
+        this.level = level;
+        this.payload = payload;
+        this.son = son;
+    }
 
-	public void setId(ObjectId id) {
-		this.id = id;
-	}
+    @PersistenceConstructor
+    public AlertEntity(AlertLevelEnum level, String payload, Date createAt, SonEntity sonEntity) {
+        super();
+        this.level = level;
+        this.payload = payload;
+        this.createAt = createAt;
+        this.son = sonEntity;
+    }
 
-	public AlertLevelEnum getLevel() {
-		return level;
-	}
+    public ObjectId getId() {
+        return id;
+    }
 
-	public void setLevel(AlertLevelEnum level) {
-		this.level = level;
-	}
+    public void setId(ObjectId id) {
+        this.id = id;
+    }
 
-	public String getPayload() {
-		return payload;
-	}
+    public AlertLevelEnum getLevel() {
+        return level;
+    }
 
-	public void setPayload(String payload) {
-		this.payload = payload;
-	}
+    public void setLevel(AlertLevelEnum level) {
+        this.level = level;
+    }
 
-	public Date getCreateAt() {
-		return createAt;
-	}
+    public String getPayload() {
+        return payload;
+    }
 
-	public void setCreateAt(Date createAt) {
-		this.createAt = createAt;
-	}
+    public void setPayload(String payload) {
+        this.payload = payload;
+    }
 
-	public SonEntity getSonEntity() {
-		return son;
-	}
+    public Date getCreateAt() {
+        return createAt;
+    }
 
-	public void setSonEntity(SonEntity sonEntity) {
-		this.son = sonEntity;
-	}
+    public void setCreateAt(Date createAt) {
+        this.createAt = createAt;
+    }
+
+    public SonEntity getSonEntity() {
+        return son;
+    }
+
+    public void setSonEntity(SonEntity sonEntity) {
+        this.son = sonEntity;
+    }
+
+    public SonEntity getSon() {
+        return son;
+    }
+
+    public void setSon(SonEntity son) {
+        this.son = son;
+    }
+
+    public Boolean getDelivered() {
+        return delivered;
+    }
+
+    public void setDelivered(Boolean delivered) {
+        this.delivered = delivered;
+    }
 }
