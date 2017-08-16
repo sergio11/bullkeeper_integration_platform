@@ -16,6 +16,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import sanchez.sanchez.sergio.persistence.entity.CommentEntity;
+import sanchez.sanchez.sergio.service.IMessageSourceResolver;
 import sanchez.sanchez.sergio.service.IYoutubeService;
 import sanchez.sanchez.sergio.util.StreamUtils;
 
@@ -47,10 +48,12 @@ public class YoutubeServiceImpl implements IYoutubeService {
     
     private final ApplicationContext appCtx;
     private final IYoutubeCommentMapper youtubeCommentMapper;
+    private final IMessageSourceResolver messageSourceResolver;
 
-    public YoutubeServiceImpl(ApplicationContext appCtx, IYoutubeCommentMapper youtubeCommentMapper) {
+    public YoutubeServiceImpl(ApplicationContext appCtx, IYoutubeCommentMapper youtubeCommentMapper, IMessageSourceResolver messageSourceResolver) {
         this.appCtx = appCtx;
         this.youtubeCommentMapper = youtubeCommentMapper;
+        this.messageSourceResolver = messageSourceResolver;
     }
     
     
@@ -138,7 +141,9 @@ public class YoutubeServiceImpl implements IYoutubeService {
         } catch (Throwable e) {
         	if(e.getCause() instanceof GoogleJsonResponseException && ((GoogleJsonResponseException)e.getCause()).getDetails().getCode() == 401) {
         		logger.debug("InvalidAccessTokenException FOR YOUTUBE");
-        		throw new InvalidAccessTokenException(SocialMediaTypeEnum.YOUTUBE, accessToken);
+        		throw new InvalidAccessTokenException(
+                		messageSourceResolver.resolver("invalid.access.token", new Object[]{ SocialMediaTypeEnum.YOUTUBE.name() }),
+                		SocialMediaTypeEnum.YOUTUBE, accessToken);
         	}
             throw new GetCommentsProcessException(e);
         }
@@ -149,6 +154,7 @@ public class YoutubeServiceImpl implements IYoutubeService {
     protected void init(){
         Assert.notNull(youtubeCommentMapper, "Youtube Comment Mapper cannot be null");
         Assert.notNull(appCtx, "ApplicationContext cannot be null");
+        Assert.notNull(messageSourceResolver, "The Message Source Resolver can not be null");
     }
 
 }

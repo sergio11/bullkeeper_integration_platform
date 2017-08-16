@@ -37,6 +37,7 @@ import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.MessagingException;
 import org.springframework.util.Assert;
 import sanchez.sanchez.sergio.persistence.entity.IterationEntity;
+import sanchez.sanchez.sergio.exception.IntegrationFlowException;
 import sanchez.sanchez.sergio.persistence.entity.CommentEntity;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaEntity;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaTypeEnum;
@@ -118,6 +119,11 @@ public class InfrastructureConfiguration {
     @Bean
     public IntegrationFlow socialMediaErrorFlow() {
         return IntegrationFlows.from("socialMediaErrorChannel")
+        		.<MessagingException, MessagingException>transform(p -> {
+        			IntegrationFlowException integrationException = (IntegrationFlowException)p.getCause();
+        			integrationException.setTarget((SonEntity)p.getFailedMessage().getHeaders().get(USER_HEADER));
+        			return p;
+        		})
                 .wireTap(sf -> sf.handle("errorService", "handleException"))
                 .<MessagingException>handle((p, h)
                         -> MessageBuilder.withPayload(Collections.<CommentEntity>emptyList())

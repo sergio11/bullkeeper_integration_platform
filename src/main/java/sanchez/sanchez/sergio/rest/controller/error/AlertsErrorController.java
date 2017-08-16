@@ -1,6 +1,7 @@
 package sanchez.sanchez.sergio.rest.controller.error;
 
 
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
@@ -14,10 +15,13 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.LocaleResolver;
+
+import io.jsonwebtoken.lang.Assert;
 import sanchez.sanchez.sergio.rest.ApiHelper;
 import sanchez.sanchez.sergio.rest.exception.NoAlertsFoundException;
 import sanchez.sanchez.sergio.rest.response.APIResponse;
 import sanchez.sanchez.sergio.rest.response.AlertResponseCode;
+import sanchez.sanchez.sergio.service.IMessageSourceResolver;
 
 /**
  *
@@ -29,19 +33,22 @@ import sanchez.sanchez.sergio.rest.response.AlertResponseCode;
 public class AlertsErrorController {
 	
 	private static Logger logger = LoggerFactory.getLogger(AlertsErrorController.class);
+	
+	private final IMessageSourceResolver messageSourceResolver;
 
-    private final MessageSource messageSource;
-    private final LocaleResolver localeResolver;
-
-    public AlertsErrorController(MessageSource messageSource, LocaleResolver localeResolver) {
-        this.messageSource = messageSource;
-        this.localeResolver = localeResolver;
+    public AlertsErrorController(IMessageSourceResolver messageSourceResolver) {
+    	this.messageSourceResolver = messageSourceResolver;
     }
 
     @ExceptionHandler(NoAlertsFoundException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleNoAlertsFoundException(NoAlertsFoundException noAlertsFoundException, HttpServletRequest request) {
-        return ApiHelper.<String>createAndSendErrorResponse(AlertResponseCode.NO_ALERTS_FOUND, HttpStatus.NOT_FOUND,
-                messageSource.getMessage("alerts.not.found", new Object[]{}, localeResolver.resolveLocale(request)));
+        return ApiHelper.<String>createAndSendErrorResponse(AlertResponseCode.NO_ALERTS_FOUND, HttpStatus.NOT_FOUND, 
+        		messageSourceResolver.resolver("alerts.not.found"));
+    }
+    
+    @PostConstruct
+    protected void init(){
+    	Assert.notNull(messageSourceResolver, "Message Source can not be null");
     }
 }

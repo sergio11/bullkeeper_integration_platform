@@ -15,5 +15,5 @@ import sanchez.sanchez.sergio.persistence.entity.AlertLevelEnum;
 @Repository
 public interface AlertRepository extends MongoRepository<AlertEntity, ObjectId> {
 	Page<AlertEntity> findBySonParentId(ObjectId id, Pageable pageable);
-	Page<AlertEntity> findBySonParentIdAndLevel(ObjectId id, AlertLevelEnum level, Pageable pageable);
+	Page<AlertEntity> findByLevelAndSonParentId(AlertLevelEnum level, ObjectId id, Pageable pageable);
 }

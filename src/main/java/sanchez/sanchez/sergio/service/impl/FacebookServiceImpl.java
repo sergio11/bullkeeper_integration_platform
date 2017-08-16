@@ -27,7 +27,9 @@ import sanchez.sanchez.sergio.exception.InvalidAccessTokenException;
 import sanchez.sanchez.sergio.mapper.IFacebookCommentMapper;
 import sanchez.sanchez.sergio.persistence.entity.CommentEntity;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaTypeEnum;
+import sanchez.sanchez.sergio.persistence.entity.SonEntity;
 import sanchez.sanchez.sergio.service.IFacebookService;
+import sanchez.sanchez.sergio.service.IMessageSourceResolver;
 import sanchez.sanchez.sergio.util.StreamUtils;
 
 /**
@@ -45,9 +47,11 @@ public class FacebookServiceImpl implements IFacebookService {
     private String appSecret;
     
     private final IFacebookCommentMapper facebookCommentMapper;
+    private final IMessageSourceResolver messageSourceResolver;
 
-    public FacebookServiceImpl(IFacebookCommentMapper facebookCommentMapper) {
+    public FacebookServiceImpl(IFacebookCommentMapper facebookCommentMapper, IMessageSourceResolver messageSourceResolver) {
         this.facebookCommentMapper = facebookCommentMapper;
+        this.messageSourceResolver = messageSourceResolver;
     }
     
     private Stream<Comment> getCommentsByObjectAfterThan(final FacebookClient facebookClient, final String objectId, final Date startDate, User user) {
@@ -106,7 +110,9 @@ public class FacebookServiceImpl implements IFacebookService {
             logger.debug("Total Facebook comments : " + comments.size());
         } catch (FacebookOAuthException e) {
             logger.error(e.getErrorMessage());
-            throw new InvalidAccessTokenException(SocialMediaTypeEnum.FACEBOOK, accessToken);
+            throw new InvalidAccessTokenException(
+            		messageSourceResolver.resolver("invalid.access.token", new Object[]{ SocialMediaTypeEnum.FACEBOOK.name() }),
+            		SocialMediaTypeEnum.FACEBOOK, accessToken);
         } catch (Exception e) {
             throw new GetCommentsProcessException(e);
         }
@@ -118,5 +124,6 @@ public class FacebookServiceImpl implements IFacebookService {
         Assert.notNull(appKey, "The app key can not be null");
         Assert.notNull(appSecret, "The app secret can not be null");
         Assert.notNull(facebookCommentMapper, "The Facebook Comment Mapper can not be null");
+        Assert.notNull(messageSourceResolver, "The Message Source Resolver can not be null");
     }
 }

@@ -1,27 +1,14 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package sanchez.sanchez.sergio.service.impl;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import javax.annotation.PostConstruct;
 import org.jinstagram.Instagram;
-import org.jinstagram.entity.comments.CommentData;
-import org.jinstagram.entity.common.Comments;
-import org.jinstagram.entity.users.feed.MediaFeed;
-import org.jinstagram.entity.users.feed.MediaFeedData;
 import org.jinstagram.exceptions.InstagramBadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
@@ -32,6 +19,7 @@ import sanchez.sanchez.sergio.mapper.IInstagramCommentMapper;
 import sanchez.sanchez.sergio.persistence.entity.CommentEntity;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaTypeEnum;
 import sanchez.sanchez.sergio.service.IInstagramService;
+import sanchez.sanchez.sergio.service.IMessageSourceResolver;
 
 /**
  *
@@ -45,11 +33,18 @@ public class InstagramServiceImpl implements IInstagramService {
     
     @Value("${instagram.app.secret}")
     private String appSecret;
+   
+    private final IInstagramCommentMapper instagramMapper;
+    private final IMessageSourceResolver messageSourceResolver;
     
-    @Autowired
-    private IInstagramCommentMapper instagramMapper;
 
-    @Override
+    public InstagramServiceImpl(IInstagramCommentMapper instagramMapper, IMessageSourceResolver messageSourceResolver) {
+		super();
+		this.instagramMapper = instagramMapper;
+		this.messageSourceResolver = messageSourceResolver;
+	}
+
+	@Override
     public List<CommentEntity> getCommentsLaterThan(Date startDate, String accessToken) {
         
         logger.debug("Call Instagram API for accessToken : " + accessToken + " on thread: " + Thread.currentThread().getName());
@@ -74,7 +69,9 @@ public class InstagramServiceImpl implements IInstagramService {
             
             logger.debug("Total Instagram Comments: " + userComments.size());
         } catch (InstagramBadRequestException  e) {
-            throw new InvalidAccessTokenException(SocialMediaTypeEnum.INSTAGRAM, accessToken);
+        	throw new InvalidAccessTokenException(
+            		messageSourceResolver.resolver("invalid.access.token", new Object[]{ SocialMediaTypeEnum.INSTAGRAM.name() }),
+            		SocialMediaTypeEnum.INSTAGRAM, accessToken);
         } catch (Exception e) {
             throw new GetCommentsProcessException(e);
         }
@@ -86,6 +83,8 @@ public class InstagramServiceImpl implements IInstagramService {
     @PostConstruct
     protected void init(){
         Assert.notNull(appSecret, "App Secret cannot be null");
+        Assert.notNull(instagramMapper, "Instagram Comment Mapper cannot be null");
+        Assert.notNull(messageSourceResolver, "The Message Source Resolver can not be null");
     }
     
 }

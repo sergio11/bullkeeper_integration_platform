@@ -17,19 +17,19 @@ public class UserSystemEntity extends PersonEntity {
     
     
 	@Field("email")
-	private String email;
+	protected String email;
 	
 	@Field("password")
-	private String password;
+	protected String password;
 	
 	@Field("is_locked")
-	private Boolean locked = Boolean.FALSE;
+	protected Boolean locked = Boolean.FALSE;
 	
 	@Field("last_login_access")
-	private Date lastLoginAccess;
+	protected Date lastLoginAccess;
     
     @DBRef
-    private AuthorityEntity authority;
+    protected AuthorityEntity authority;
     
     public UserSystemEntity(){}
 

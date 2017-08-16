@@ -3,7 +3,7 @@ package sanchez.sanchez.sergio.persistence.entity;
 import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 
-public class SonEntity extends PersonEntity {
+public final class SonEntity extends PersonEntity {
 	
 	@DBRef
 	private SchoolEntity school;

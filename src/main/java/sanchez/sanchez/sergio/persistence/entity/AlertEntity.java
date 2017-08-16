@@ -38,7 +38,15 @@ public class AlertEntity {
 		this.payload = payload;
 		this.son = sonEntity;
 	}
+
 	
+	public AlertEntity(AlertLevelEnum level, String payload, SonEntity son) {
+		super();
+		this.level = level;
+		this.payload = payload;
+		this.son = son;
+	}
+
 	@PersistenceConstructor
 	public AlertEntity(AlertLevelEnum level, String payload, Date createAt, SonEntity sonEntity) {
 		super();

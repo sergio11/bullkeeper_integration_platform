@@ -19,15 +19,15 @@ public abstract class PersonEntity {
     public final static String COLLECTION_NAME = "persons";
     
     @Id
-    private ObjectId id;
+    protected ObjectId id;
     
     @Field("first_name")
-    private String firstName;
+    protected String firstName;
 
     @Field("last_name")
-    private String lastName;
+    protected String lastName;
     
-    private Integer age;
+    protected Integer age;
 
     
     public PersonEntity(){}

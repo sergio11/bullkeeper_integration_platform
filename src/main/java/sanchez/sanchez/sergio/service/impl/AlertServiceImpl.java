@@ -39,7 +39,7 @@ public class AlertServiceImpl implements IAlertService {
 	
 	@Override
 	public Page<AlertDTO> findByParentPaginated(ObjectId id, AlertLevelEnum level, Pageable pageable) {
-		Page<AlertEntity> alertsPage = alertRepository.findBySonParentIdAndLevel(id, level, pageable);
+		Page<AlertEntity> alertsPage = alertRepository.findByLevelAndSonParentId(level, id, pageable);
         return alertsPage.map(new Converter<AlertEntity, AlertDTO>(){
             @Override
             public AlertDTO convert(AlertEntity alertEntity) {

@@ -2,7 +2,7 @@ package sanchez.sanchez.sergio.persistence.entity;
 
 import org.springframework.data.annotation.PersistenceConstructor;
 
-public class ParentEntity  extends UserSystemEntity {
+public final class ParentEntity  extends UserSystemEntity {
 	
 	public ParentEntity(){}
 
