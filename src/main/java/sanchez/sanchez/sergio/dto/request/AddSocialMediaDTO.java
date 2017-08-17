@@ -2,21 +2,27 @@ package sanchez.sanchez.sergio.dto.request;
 
 import org.hibernate.validator.constraints.NotBlank;
 
+import sanchez.sanchez.sergio.persistence.constraints.SonShouldExists;
+import sanchez.sanchez.sergio.persistence.constraints.ValidObjectId;
+import sanchez.sanchez.sergio.persistence.constraints.ValidSocialMediaType;
+import sanchez.sanchez.sergio.persistence.constraints.group.Extended;
+
 public class AddSocialMediaDTO {
 	
 	@NotBlank(message = "{social.token.notnull}")
 	private String accessToken;
-	@NotBlank(message = "{social.type.notnull}")
+	@ValidSocialMediaType(message = "{social.type.invalid}")
 	private String type;
-	@NotBlank(message = "{social.user.notnull}")
-	private String user;
+	@ValidObjectId(message = "{son.id.notvalid}")
+	@SonShouldExists(message = "{social.son.not.exists}", groups = Extended.class)
+	private String son;
 	
 	
-	public AddSocialMediaDTO(String accessToken, String type, String user) {
+	public AddSocialMediaDTO(String accessToken, String type, String son) {
 		super();
 		this.accessToken = accessToken;
 		this.type = type;
-		this.user = user;
+		this.son = son;
 	}
 
 
@@ -40,12 +46,12 @@ public class AddSocialMediaDTO {
 	}
 
 
-	public String getUser() {
-		return user;
+	public String getSon() {
+		return son;
 	}
 
 
-	public void setUser(String user) {
-		this.user = user;
+	public void setSon(String son) {
+		this.son = son;
 	}
 }

@@ -2,7 +2,6 @@ package sanchez.sanchez.sergio.rest.controller;
 
 import java.util.Optional;
 import javax.validation.Valid;
-
 import org.hibernate.validator.constraints.NotBlank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,7 +72,6 @@ public class SchoolController implements ISchoolHAL {
     	
     }
     
-    
     @GetMapping(path = "/")
     @ApiOperation(value = "FIND_SCHOOLS_BY_NAME", nickname = "FIND_SCHOOLS_BY_NAME", notes = "Find Schools by name",
             response = PagedResources.class)
@@ -119,9 +117,8 @@ public class SchoolController implements ISchoolHAL {
     @PreAuthorize("@authorizationService.hasAdminRole()")
     public ResponseEntity<APIResponse<SchoolDTO>> saveSchool(
     		@ApiParam(value = "school", required = true) 
-				@Valid @RequestBody AddSchoolDTO addSchoolDTO) throws Throwable {        
-    	
-        return Optional.ofNullable(schoolService.save(addSchoolDTO))
+				@Valid @RequestBody AddSchoolDTO school) throws Throwable {        
+        return Optional.ofNullable(schoolService.save(school))
                 .map(schoolResource -> addLinksToSchool(schoolResource))
                 .map(schoolResource -> ApiHelper.<SchoolDTO>createAndSendResponse(SchoolResponseCode.SCHOOL_SAVED, 
                 		HttpStatus.OK, schoolResource))
@@ -144,5 +141,4 @@ public class SchoolController implements ISchoolHAL {
                 		HttpStatus.OK, schoolResource))
                 .orElseThrow(() -> { throw new SchoolNotFoundException(); });
     }
-   
 }

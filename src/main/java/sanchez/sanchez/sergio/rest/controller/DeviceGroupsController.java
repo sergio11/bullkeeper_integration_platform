@@ -28,13 +28,11 @@ import io.swagger.annotations.ApiParam;
 import javax.validation.Valid;
 import sanchez.sanchez.sergio.dto.response.DeviceDTO;
 import sanchez.sanchez.sergio.dto.response.DeviceGroupDTO;
-import sanchez.sanchez.sergio.persistence.constraints.ValidObjectId;
 import sanchez.sanchez.sergio.rest.ApiHelper;
 import sanchez.sanchez.sergio.rest.exception.DeviceAddToGroupFailedException;
 import sanchez.sanchez.sergio.rest.exception.DeviceGroupCreateFailedException;
 import sanchez.sanchez.sergio.rest.exception.NoDevicesIntoTheGroupException;
 import sanchez.sanchez.sergio.rest.exception.RemoveDeviceFromGroupFailedException;
-import sanchez.sanchez.sergio.rest.exception.DeviceGroupNotFoundException;
 import sanchez.sanchez.sergio.rest.response.APIResponse;
 import sanchez.sanchez.sergio.rest.response.DeviceGroupResponseCode;
 import sanchez.sanchez.sergio.security.userdetails.CommonUserDetailsAware;
@@ -64,15 +62,13 @@ public class DeviceGroupsController {
         this.pushNotificationsService = pushNotificationsService;
     }
 
-    @GetMapping(path = "/{name}/all")
+    @GetMapping(path = "/all")
     @ApiOperation(value = "GET_DEVICES_INTO_GROUP", nickname = "GET_DEVICES_INTO_GROUP", notes = "Get all devices registered in the group",
             response = List.class)
     @PreAuthorize("@authorizationService.hasParentRole()")
     public ResponseEntity<APIResponse<Iterable<DeviceDTO>>> getDevicesIntoGroup(
-            @Valid @DeviceGroupShouldExists(message = "{device.group.should.exists}")
-            @ApiParam(value = "name", required = true) @PathVariable String name) throws Throwable {
-
-        Iterable<DeviceDTO> devices = deviceGroupsService.getDevicesFromGroup(name);
+    		@CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
+        Iterable<DeviceDTO> devices = deviceGroupsService.getDevicesFromGroup(selfParent.getUserId().toString());
         if (Iterables.size(devices) == 0) {
             throw new NoDevicesIntoTheGroupException();
         }
@@ -80,61 +76,48 @@ public class DeviceGroupsController {
 
     }
 
-    @PutMapping(path = "/{name}/create")
-    @ApiOperation(value = "CREATE_DEVICES_GROUP", nickname = "CREATE_DEVICES_GROUP", notes = "Create Devices Group",
-            response = DeviceGroupDTO.class)
-    @PreAuthorize("@authorizationService.hasParentRole()")
-    public ResponseEntity<APIResponse<DeviceGroupDTO>> createDevicesGroup(
-            @ApiParam(value = "name", required = true) @PathVariable String name,
-            @CurrentUser CommonUserDetailsAware<ObjectId> selfParent
-    ) throws InterruptedException, ExecutionException, Throwable {
-        return pushNotificationsService.createNotificationGroup(name)
-                .handle((groupKey, ex) -> {
-                    if (ex != null) {
-                        throw new DeviceGroupCreateFailedException();
-                    }
-                    return Optional.ofNullable(deviceGroupsService.createDeviceGroup(name, groupKey, selfParent.getUserId()))
-                            .map(deviceGroup -> ApiHelper.<DeviceGroupDTO>createAndSendResponse(DeviceGroupResponseCode.DEVICES_GROUP_CREATED, HttpStatus.OK, deviceGroup))
-                            .<DeviceGroupCreateFailedException>orElseThrow(() -> {
-                                throw new DeviceGroupCreateFailedException();
-                            });
-                }).get();
-    }
-
-    @PutMapping(path = "/{group}/devices/{token}/add")
+    @PutMapping(path = "/devices/{token}/add")
     @ApiOperation(value = "ADD_DEVICE_TO_GROUP", nickname = "ADD_DEVICE_TO_GROUP", notes = "Add Device To Group",
             response = DeviceDTO.class)
     @PreAuthorize("@authorizationService.hasParentRole()")
     public ResponseEntity<APIResponse<DeviceDTO>> addDeviceToGroup(
-            @ApiParam(value = "group", required = true) @PathVariable String group,
             @Valid @DeviceShouldNotExists(message = "{device.should.not.exists}")
-            @ApiParam(value = "token", required = true) @PathVariable String token
-    ) {
-        return Optional.ofNullable(deviceGroupsService.getDeviceGroupByName(group))
-                .map(deviceGroup -> pushNotificationsService.addDeviceToGroup(deviceGroup.getNotificationKeyName(), deviceGroup.getNotificationKey(), token)
-                .handle((groupKey, ex)
-                        -> Optional.ofNullable(deviceGroupsService.addDeviceToGroup(token, deviceGroup.getIdentity()))
-                        .map(device -> ApiHelper.<DeviceDTO>createAndSendResponse(DeviceGroupResponseCode.DEVICE_ADDED_TO_GROUP, HttpStatus.OK, device))
-                        .<DeviceAddToGroupFailedException>orElseThrow(() -> {
-                            throw new DeviceAddToGroupFailedException();
-                        })))
-                .map(completableFuture -> Unthrow.wrap(() -> completableFuture.get()))
-                .<DeviceGroupNotFoundException>orElseThrow(() -> {
-                    throw new DeviceGroupNotFoundException();
-                });
+            @ApiParam(value = "token", required = true) @PathVariable String token,
+            @CurrentUser CommonUserDetailsAware<ObjectId> selfParent
+    ) throws InterruptedException, ExecutionException {
+    	
+    	String userid = selfParent.getUserId().toString();
+    	
+    	DeviceGroupDTO deviceGroup = Optional.ofNullable(deviceGroupsService.getDeviceGroupByName(userid))
+        		.orElseGet(() -> Unthrow.wrap(() -> pushNotificationsService.createNotificationGroup(userid).handle((groupKey, ex) -> {
+        			if (ex != null) {
+                        throw new DeviceGroupCreateFailedException();
+                    }
+        			return deviceGroupsService.createDeviceGroup(groupKey, selfParent.getUserId());
+        		}).get()));
+    	
+    	
+    	return pushNotificationsService.addDeviceToGroup(deviceGroup.getNotificationKeyName(), deviceGroup.getNotificationKey(), token)
+    		.handle((groupKey, ex)
+                -> Optional.ofNullable(deviceGroupsService.addDeviceToGroup(token, deviceGroup.getIdentity()))
+                .map(device -> ApiHelper.<DeviceDTO>createAndSendResponse(DeviceGroupResponseCode.DEVICE_ADDED_TO_GROUP, HttpStatus.OK, device))
+                .<DeviceAddToGroupFailedException>orElseThrow(() -> {
+                    throw new DeviceAddToGroupFailedException();
+                })).get();
+    	
+    
     }
 
-    @DeleteMapping(path = "/{group}/devices/{token}/delete")
+    @DeleteMapping(path = "/devices/{token}/delete")
     @ApiOperation(value = "DELETE_DEVICE_FROM_GROUP", nickname = "DELETE_DEVICE_FROM_GROUP", notes = "Delete Device From Group",
             response = DeviceDTO.class)
     @PreAuthorize("@authorizationService.hasParentRole()")
     public ResponseEntity<APIResponse<DeviceDTO>> deleteDeviceFromGroup(
-            @Valid @DeviceGroupShouldExists(message = "{device.group.should.exists}")
-            @ApiParam(value = "group", required = true) @PathVariable String group,
             @Valid @DeviceShouldExists(message = "{device.should.exists}")
-            @ApiParam(value = "token", required = true) @PathVariable String token
+            @ApiParam(value = "token", required = true) @PathVariable String token,
+            @CurrentUser CommonUserDetailsAware<ObjectId> selfParent
     ) {
-        return Optional.ofNullable(deviceGroupsService.getDeviceGroupByName(group))
+        return Optional.ofNullable(deviceGroupsService.getDeviceGroupByName(selfParent.getUserId().toString()))
                 .map(deviceGroup -> pushNotificationsService.removeDeviceFromGroup(
                 deviceGroup.getNotificationKeyName(), deviceGroup.getNotificationKey(), token)
                 .handle((groupKey, ex)

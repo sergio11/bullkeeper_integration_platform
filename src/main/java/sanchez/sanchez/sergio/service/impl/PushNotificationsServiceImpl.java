@@ -11,7 +11,6 @@ import org.springframework.web.client.RestTemplate;
 import com.google.common.collect.Lists;
 import io.jsonwebtoken.lang.Assert;
 import sanchez.sanchez.sergio.fcm.FCMCustomProperties;
-import sanchez.sanchez.sergio.fcm.exception.FCMOperationException;
 import sanchez.sanchez.sergio.fcm.operations.DevicesGroupOperation;
 import sanchez.sanchez.sergio.fcm.operations.DevicesGroupOperationType;
 import sanchez.sanchez.sergio.service.IPushNotificationsService;
@@ -33,46 +32,90 @@ public class PushNotificationsServiceImpl implements IPushNotificationsService {
 
 	@Async
     @Override
-    public CompletableFuture<String> createNotificationGroup(String notificationGroupName, List<String> deviceTokens) {
+    public CompletableFuture<String> createNotificationGroup(String userid, List<String> deviceTokens) {
+		Assert.notNull(userid, "User id can not be null");
+		Assert.notEmpty(deviceTokens, "Device Tokens can not be null");
+		Assert.notNull(firebaseCustomProperties.getGroupPrefix(), "Group Prefix can not be null");
+    	Assert.notNull(firebaseCustomProperties.getNotificationGroupsUrl(), "Notification Group Url can not be null");
+    	Assert.hasLength(firebaseCustomProperties.getNotificationGroupsUrl(), "Notification Group Url can not be empty");
+		
+		String notificationGroupName = String.format("%s_%d", firebaseCustomProperties.getGroupPrefix(), userid);
         return CompletableFuture.supplyAsync(() -> restTemplate.postForObject(firebaseCustomProperties.getNotificationGroupsUrl(), 
 				new DevicesGroupOperation(notificationGroupName, deviceTokens), String.class));
     }
 
     @Async
     @Override
-    public CompletableFuture<String> createNotificationGroup(String notificationGroupName) {
+    public CompletableFuture<String> createNotificationGroup(String userid) {
+    	Assert.notNull(userid, "User id can not be null");
+    	Assert.notNull(firebaseCustomProperties.getGroupPrefix(), "Group Prefix can not be null");
     	Assert.notNull(firebaseCustomProperties.getNotificationGroupsUrl(), "Notification Group Url can not be null");
     	Assert.hasLength(firebaseCustomProperties.getNotificationGroupsUrl(), "Notification Group Url can not be empty");
+    	
+    	String notificationGroupName = String.format("%s_%d", firebaseCustomProperties.getGroupPrefix(), userid);
         return CompletableFuture.supplyAsync(() -> restTemplate.postForObject(firebaseCustomProperties.getNotificationGroupsUrl(), 
 				new DevicesGroupOperation(notificationGroupName), String.class));
     }
 
     @Async
     @Override
-    public CompletableFuture<String> addDevicesToGroup(String notificationGroupName, String notificationGroupKey, List<String> deviceTokens) {
-        return CompletableFuture.completedFuture(restTemplate.postForObject(firebaseCustomProperties.getNotificationGroupsUrl(),
+    public CompletableFuture<String> addDevicesToGroup(String userid, String notificationGroupKey, List<String> deviceTokens) {
+    	Assert.notNull(userid, "User id can not be null");
+    	Assert.notNull(notificationGroupKey, "Notification Group Key can not be null");
+    	Assert.notEmpty(deviceTokens, "Device Tokens can not be empty");
+    	Assert.notNull(firebaseCustomProperties.getGroupPrefix(), "Group Prefix can not be null");
+    	Assert.notNull(firebaseCustomProperties.getNotificationGroupsUrl(), "Notification Group Url can not be null");
+    	Assert.hasLength(firebaseCustomProperties.getNotificationGroupsUrl(), "Notification Group Url can not be empty");
+    	
+  	
+    	String notificationGroupName = String.format("%s_%d", firebaseCustomProperties.getGroupPrefix(), userid);
+        return CompletableFuture.supplyAsync(() -> restTemplate.postForObject(firebaseCustomProperties.getNotificationGroupsUrl(),
                 new DevicesGroupOperation(DevicesGroupOperationType.ADD, notificationGroupName, notificationGroupKey, deviceTokens), String.class));
     }
 
     @Async
     @Override
-    public CompletableFuture<String> removeDevicesFromGroup(String notificationGroupName, String notificationGroupKey, List<String> deviceTokens) {
-        return CompletableFuture.completedFuture(restTemplate.postForObject(firebaseCustomProperties.getNotificationGroupsUrl(),
+    public CompletableFuture<String> removeDevicesFromGroup(String userid, String notificationGroupKey, List<String> deviceTokens) {
+    	Assert.notNull(userid, "User id can not be null");
+    	Assert.notNull(notificationGroupKey, "Notification Group Key can not be null");
+    	Assert.notEmpty(deviceTokens, "Device Tokens can not be empty");
+    	Assert.notNull(firebaseCustomProperties.getGroupPrefix(), "Group Prefix can not be null");
+    	Assert.notNull(firebaseCustomProperties.getNotificationGroupsUrl(), "Notification Group Url can not be null");
+    	Assert.hasLength(firebaseCustomProperties.getNotificationGroupsUrl(), "Notification Group Url can not be empty");
+    	
+    	String notificationGroupName = String.format("%s_%d", firebaseCustomProperties.getGroupPrefix(), userid);
+        return CompletableFuture.supplyAsync(() ->restTemplate.postForObject(firebaseCustomProperties.getNotificationGroupsUrl(),
                 new DevicesGroupOperation(DevicesGroupOperationType.REMOVE, notificationGroupName, notificationGroupKey, deviceTokens), String.class));
     }
 
     @Async
     @Override
-    public CompletableFuture<String> addDeviceToGroup(String notificationGroupName, String notificationGroupKey, String deviceToken ) {
-        return CompletableFuture.completedFuture(restTemplate.postForObject(firebaseCustomProperties.getNotificationGroupsUrl(),
+    public CompletableFuture<String> addDeviceToGroup(String userid, String notificationGroupKey, String deviceToken ) {
+    	Assert.notNull(userid, "User id can not be null");
+    	Assert.notNull(notificationGroupKey, "Notification Group Key can not be null");
+    	Assert.notNull(deviceToken, "Device Token can not be empty");
+    	Assert.notNull(firebaseCustomProperties.getGroupPrefix(), "Group Prefix can not be null");
+    	Assert.notNull(firebaseCustomProperties.getNotificationGroupsUrl(), "Notification Group Url can not be null");
+    	Assert.hasLength(firebaseCustomProperties.getNotificationGroupsUrl(), "Notification Group Url can not be empty");
+    	
+    	String notificationGroupName = String.format("%s_%d", firebaseCustomProperties.getGroupPrefix(), userid);
+        return CompletableFuture.supplyAsync(() ->restTemplate.postForObject(firebaseCustomProperties.getNotificationGroupsUrl(),
                 new DevicesGroupOperation(DevicesGroupOperationType.ADD, notificationGroupName, notificationGroupKey, 
                 		Lists.newArrayList(deviceToken)), String.class));
     }
 
     @Async
     @Override
-    public CompletableFuture<String> removeDeviceFromGroup(String notificationGroupName, String notificationGroupKey, String deviceToken) {
-        return CompletableFuture.completedFuture(restTemplate.postForObject(firebaseCustomProperties.getNotificationGroupsUrl(),
+    public CompletableFuture<String> removeDeviceFromGroup(String userid, String notificationGroupKey, String deviceToken) {
+    	Assert.notNull(userid, "User id can not be null");
+    	Assert.notNull(notificationGroupKey, "Notification Group Key can not be null");
+    	Assert.notNull(deviceToken, "Device Token can not be empty");
+    	Assert.notNull(firebaseCustomProperties.getGroupPrefix(), "Group Prefix can not be null");
+    	Assert.notNull(firebaseCustomProperties.getNotificationGroupsUrl(), "Notification Group Url can not be null");
+    	Assert.hasLength(firebaseCustomProperties.getNotificationGroupsUrl(), "Notification Group Url can not be empty");
+    	
+    	String notificationGroupName = String.format("%s_%d", firebaseCustomProperties.getGroupPrefix(), userid);
+        return CompletableFuture.supplyAsync(() -> restTemplate.postForObject(firebaseCustomProperties.getNotificationGroupsUrl(),
                 new DevicesGroupOperation(DevicesGroupOperationType.REMOVE, notificationGroupName, notificationGroupKey, 
                 		Lists.newArrayList(deviceToken)), String.class));
     }

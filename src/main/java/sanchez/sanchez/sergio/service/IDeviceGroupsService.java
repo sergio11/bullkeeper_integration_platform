@@ -11,8 +11,8 @@ import sanchez.sanchez.sergio.persistence.entity.DeviceEntity;
 
 public interface IDeviceGroupsService {
 	DeviceGroupDTO getDeviceGroupByName(String name);
-	DeviceGroupDTO createDeviceGroup(String name, String key, ObjectId owner);
-	DeviceGroupDTO createDeviceGroup(String name, String key, ObjectId owner, Set<DeviceEntity> devices);
+	DeviceGroupDTO createDeviceGroup(String key, ObjectId owner);
+	DeviceGroupDTO createDeviceGroup(String key, ObjectId owner, Set<DeviceEntity> devices);
     DeviceDTO addDeviceToGroup(String registrationToken, String deviceGroupId);
     DeviceDTO removeDevice(String registrationToken);
     Iterable<DeviceDTO> getDevicesFromGroup(String groupName);

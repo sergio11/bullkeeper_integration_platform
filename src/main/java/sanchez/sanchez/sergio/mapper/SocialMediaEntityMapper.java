@@ -36,7 +36,7 @@ public abstract class SocialMediaEntityMapper {
     
     @Mappings({
     	@Mapping(expression="java(sanchez.sanchez.sergio.persistence.entity.SocialMediaTypeEnum.valueOf(addSocialMediaDTO.getType()))", target = "type" ),
-    	@Mapping(expression="java(sonRepository.findOne(new org.bson.types.ObjectId(addSocialMediaDTO.getUser())))", target = "sonEntity" )
+    	@Mapping(expression="java(sonRepository.findOne(new org.bson.types.ObjectId(addSocialMediaDTO.getSon())))", target = "sonEntity" )
     })
     public abstract SocialMediaEntity addSocialMediaDTOToSocialMediaEntity(AddSocialMediaDTO addSocialMediaDTO);
     

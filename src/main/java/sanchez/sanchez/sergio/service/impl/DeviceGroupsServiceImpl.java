@@ -2,12 +2,12 @@ package sanchez.sanchez.sergio.service.impl;
 
 import java.util.Set;
 import javax.annotation.PostConstruct;
-
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 import io.jsonwebtoken.lang.Assert;
 import sanchez.sanchez.sergio.dto.response.DeviceDTO;
 import sanchez.sanchez.sergio.dto.response.DeviceGroupDTO;
+import sanchez.sanchez.sergio.fcm.FCMCustomProperties;
 import sanchez.sanchez.sergio.mapper.DeviceEntityMapper;
 import sanchez.sanchez.sergio.mapper.DeviceGroupEntityMapper;
 import sanchez.sanchez.sergio.persistence.entity.DeviceEntity;
@@ -26,35 +26,39 @@ public class DeviceGroupsServiceImpl implements IDeviceGroupsService {
 	private final DeviceEntityMapper deviceEntityMapper;
 	private final DeviceGroupEntityMapper deviceGroupEntityMapper;
 	private final ParentRepository parentRepository;
+	private final FCMCustomProperties fcmCustomProperties;
 
 	public DeviceGroupsServiceImpl(DeviceGroupRepository deviceGroupRepository, 
 			DeviceRepository deviceRepository, DeviceEntityMapper deviceEntityMapper, 
-			DeviceGroupEntityMapper deviceGroupEntityMapper, ParentRepository parentRepository) {
+			DeviceGroupEntityMapper deviceGroupEntityMapper, ParentRepository parentRepository,
+			FCMCustomProperties fcmCustomProperties) {
 		super();
 		this.deviceGroupRepository = deviceGroupRepository;
 		this.deviceRepository = deviceRepository;
 		this.deviceEntityMapper = deviceEntityMapper;
 		this.deviceGroupEntityMapper = deviceGroupEntityMapper;
 		this.parentRepository = parentRepository;
+		this.fcmCustomProperties = fcmCustomProperties;
 	}
 
 	@Override
 	public DeviceGroupDTO getDeviceGroupByName(String name) {
-		DeviceGroupEntity deviceGroup = deviceGroupRepository.findByNotificationKeyName(name);
+		String notificationKeyName = String.format("%s_%d", fcmCustomProperties.getGroupPrefix(), name);
+		DeviceGroupEntity deviceGroup = deviceGroupRepository.findByNotificationKeyName(notificationKeyName);
 		return deviceGroupEntityMapper.deviceGroupEntityToDeviceGroupDTO(deviceGroup);
 	}
 
 	@Override
-	public DeviceGroupDTO createDeviceGroup(String name, String key, ObjectId owner) {
+	public DeviceGroupDTO createDeviceGroup(String key, ObjectId owner) {
 		ParentEntity parentEntity = parentRepository.findOne(owner);
-		DeviceGroupEntity deviceGroupSaved = deviceGroupRepository.save(new DeviceGroupEntity(name, key, parentEntity));
+		DeviceGroupEntity deviceGroupSaved = deviceGroupRepository.save(new DeviceGroupEntity(owner.toString(), key, parentEntity));
 		return deviceGroupEntityMapper.deviceGroupEntityToDeviceGroupDTO(deviceGroupSaved);
 	}
 
 	@Override
-	public DeviceGroupDTO createDeviceGroup(String name, String key, ObjectId owner, Set<DeviceEntity> devices) {
+	public DeviceGroupDTO createDeviceGroup(String key, ObjectId owner, Set<DeviceEntity> devices) {
 		ParentEntity parentEntity = parentRepository.findOne(owner);
-		DeviceGroupEntity deviceGroupSaved = deviceGroupRepository.save(new DeviceGroupEntity(name, key, parentEntity));
+		DeviceGroupEntity deviceGroupSaved = deviceGroupRepository.save(new DeviceGroupEntity(owner.toString(), key, parentEntity));
 		for(DeviceEntity device: devices){
 			device.setDeviceGroup(deviceGroupSaved);
 		}

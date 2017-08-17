@@ -17,6 +17,8 @@ public class FCMCustomProperties implements Serializable {
     private String notificationSendUrl;
 	@Value("${fcm.sender.id}")
 	private String senderId;
+	@Value("${fcm.app.group.prefix}")
+	private String groupPrefix;
 
     public String getAppServerKey() {
         return appServerKey;
@@ -48,5 +50,13 @@ public class FCMCustomProperties implements Serializable {
 
 	public void setSenderId(String senderId) {
 		this.senderId = senderId;
+	}
+
+	public String getGroupPrefix() {
+		return groupPrefix;
+	}
+
+	public void setGroupPrefix(String groupPrefix) {
+		this.groupPrefix = groupPrefix;
 	}
 }

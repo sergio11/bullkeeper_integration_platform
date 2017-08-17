@@ -1,6 +1,5 @@
 package sanchez.sanchez.sergio.rest.controller;
 
-
 import java.util.Optional;
 import javax.validation.Valid;
 import org.slf4j.Logger;
@@ -29,6 +28,7 @@ import sanchez.sanchez.sergio.dto.response.CommentDTO;
 import sanchez.sanchez.sergio.dto.response.SocialMediaDTO;
 import sanchez.sanchez.sergio.dto.response.SonDTO;
 import sanchez.sanchez.sergio.persistence.constraints.ValidObjectId;
+import sanchez.sanchez.sergio.persistence.constraints.group.ICommonSequence;
 import sanchez.sanchez.sergio.rest.ApiHelper;
 import sanchez.sanchez.sergio.rest.exception.SocialMediaNotFoundException;
 import sanchez.sanchez.sergio.rest.exception.CommentsBySonNotFoundException;
@@ -137,17 +137,14 @@ public class ChildrenController implements ISonHAL, ICommentHAL, ISocialMediaHAL
         		HttpStatus.OK, addLinksToSocialMedia(socialMedia));
     }
     
-    @PutMapping(path = "/{id}/social/add")
+    @PutMapping(path = "/social/add")
     @ApiOperation(value = "ADD_SOCIAL_MEDIA_TO_SON", nickname = "ADD_SOCIAL_MEDIA_TO_SON", notes = "Add Social Media To Son",
             response = SocialMediaDTO.class)
     @PreAuthorize("@authorizationService.hasParentRole() && @authorizationService.isYourSon(#id)")
     public ResponseEntity<APIResponse<SocialMediaDTO>> addSocialMediaToSon(
-    		@Valid @ValidObjectId(message = "{son.id.notvalid}")
-            @ApiParam(value = "id", required = true) @PathVariable String id,
             @ApiParam(value = "socialMedia", required = true) 
-				@Valid @RequestBody AddSocialMediaDTO addSocialMediaDTO) throws Throwable {
-        logger.debug("Add Social Media To Son with id -> " + id);
-        return Optional.ofNullable(socialMediaService.save(addSocialMediaDTO))
+				@Validated(ICommonSequence.class) @RequestBody AddSocialMediaDTO socialMedia) throws Throwable {
+        return Optional.ofNullable(socialMediaService.save(socialMedia))
         		.map(socialMediaResource -> addLinksToSocialMedia(socialMediaResource))
         		.map(socialMediaResource -> ApiHelper.<SocialMediaDTO>createAndSendResponse(SocialMediaResponseCode.SOCIAL_MEDIA_ADDED, 
         				HttpStatus.OK, socialMediaResource))
@@ -164,10 +161,8 @@ public class ChildrenController implements ISonHAL, ICommentHAL, ISocialMediaHAL
         logger.debug("Get Invalid Social  Media by User Id " + id);
         
         Iterable<SocialMediaDTO> socialMedia = socialMediaService.getInvalidSocialMediaById(id);
-        
         if(Iterables.size(socialMedia) == 0)
         	throw new SocialMediaNotFoundException();
-        
         return ApiHelper.<Iterable<SocialMediaDTO>>createAndSendResponse(SocialMediaResponseCode.INVALID_SOCIAL_MEDIA_BY_CHILD, 
         		HttpStatus.OK, addLinksToSocialMedia(socialMedia));
     }
