@@ -13,5 +13,6 @@ import sanchez.sanchez.sergio.persistence.entity.SonEntity;
 public interface SonRepository extends MongoRepository<SonEntity, ObjectId> {
 	Iterable<SonEntity> findByParentId(ObjectId id);
 	Long countByParentId(ObjectId id);
+	Long countById(ObjectId id);
 	Long countByParentIdAndId(ObjectId parentId, ObjectId id);
 }

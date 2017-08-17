@@ -16,6 +16,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.validation.BindingResult;
@@ -73,11 +74,18 @@ public class CommonErrorRestController{
     	return ApiHelper.<String>createAndSendErrorResponse(CommonErrorResponseCode.ACCESS_DENIED, HttpStatus.FORBIDDEN, ex.getMessage());
     }
     
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<APIResponse<String>> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
+    	return ApiHelper.<String>createAndSendErrorResponse(CommonErrorResponseCode.MESSAGE_NOT_READABLE, HttpStatus.BAD_REQUEST, 
+    			messageSourceResolver.resolver("message.not.readable"));
+    }
+    
     @ExceptionHandler(Throwable.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleException(
     		Throwable exception, HttpServletRequest request, HttpServletResponse response) {
     	logger.error(exception.getMessage());
+    	exception.printStackTrace();
 		return ApiHelper.<String>createAndSendErrorResponse(CommonErrorResponseCode.GENERIC_ERROR, HttpStatus.INTERNAL_SERVER_ERROR, 
 				messageSourceResolver.resolver("unexpected.error.occurred"));
     }

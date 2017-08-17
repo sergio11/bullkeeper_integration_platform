@@ -12,18 +12,24 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import java.util.Optional;
 import javax.annotation.PostConstruct;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import sanchez.sanchez.sergio.dto.request.AddAlertDTO;
 import sanchez.sanchez.sergio.dto.response.AlertDTO;
+import sanchez.sanchez.sergio.persistence.constraints.group.ICommonSequence;
 import sanchez.sanchez.sergio.persistence.entity.AlertLevelEnum;
 import sanchez.sanchez.sergio.rest.ApiHelper;
 import sanchez.sanchez.sergio.rest.exception.NoAlertsFoundException;
+import sanchez.sanchez.sergio.rest.exception.SocialMediaNotFoundException;
 import sanchez.sanchez.sergio.rest.response.APIResponse;
 import sanchez.sanchez.sergio.rest.response.AlertResponseCode;
 import sanchez.sanchez.sergio.security.userdetails.CommonUserDetailsAware;
@@ -64,6 +70,16 @@ public class AlertController {
 		return ApiHelper.<PagedResources<Resource<AlertDTO>>>createAndSendResponse(AlertResponseCode.ALL_ALERTS, 
         		HttpStatus.OK, pagedAssembler.toResource(alertsPage));
     }
+	
+	@PostMapping(path = "/")
+	@ApiOperation(value = "CREATE_ALERT", nickname = "CREATE_ALERT", notes="Create Alert", 
+		response = AlertDTO.class)
+	public ResponseEntity<APIResponse<AlertDTO>> addAlert(
+			@Validated(ICommonSequence.class) @RequestBody AddAlertDTO alert) throws Throwable {
+		return Optional.ofNullable(alertService.save(alert))
+        		.map(alertResource -> ApiHelper.<AlertDTO>createAndSendResponse(AlertResponseCode.ALERT_CREATED, HttpStatus.OK, alertResource))
+        		.orElseThrow(() -> { throw new SocialMediaNotFoundException(); }); 
+	}
 	
 	@GetMapping(path = "/info" )
     @ApiOperation(value = "GET_INFO_ALERTS", nickname = "GET_INFO_ALERTS", notes="Get all info alerts for the currently authenticated user", 
@@ -122,7 +138,7 @@ public class AlertController {
         		HttpStatus.OK, pagedAssembler.toResource(alertsPage));
     }
 	
-	@GetMapping(path = "/success" )
+	@GetMapping(path = "/success")
     @ApiOperation(value = "GET_SUCCESS_ALERTS", nickname = "GET_SUCCESS_ALERTS", notes="Get success alerts for the currently authenticated user", 
     	response = PagedResources.class)
 	@PreAuthorize("@authorizationService.hasParentRole()")
@@ -140,6 +156,9 @@ public class AlertController {
 		return ApiHelper.<PagedResources<Resource<AlertDTO>>>createAndSendResponse(AlertResponseCode.ALL_DANGER_ALERTS, 
         		HttpStatus.OK, pagedAssembler.toResource(alertsPage));
     }
+	
+	
+	
 	
 	@PostConstruct
 	protected void init(){

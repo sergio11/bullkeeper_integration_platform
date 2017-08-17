@@ -7,10 +7,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+
+import sanchez.sanchez.sergio.dto.request.AddAlertDTO;
 import sanchez.sanchez.sergio.dto.response.AlertDTO;
 import sanchez.sanchez.sergio.mapper.AlertEntityMapper;
 import sanchez.sanchez.sergio.persistence.entity.AlertEntity;
 import sanchez.sanchez.sergio.persistence.entity.AlertLevelEnum;
+import sanchez.sanchez.sergio.persistence.entity.ParentEntity;
 import sanchez.sanchez.sergio.persistence.repository.AlertRepository;
 import sanchez.sanchez.sergio.service.IAlertService;
 
@@ -46,6 +49,13 @@ public class AlertServiceImpl implements IAlertService {
                return alertMapper.alertEntityToAlertDTO(alertEntity);
             }
         });
+	}
+	
+	@Override
+	public AlertDTO save(AddAlertDTO alert) {
+		final AlertEntity alertToSave = alertMapper.addAlertDTOToAlertEntity(alert);
+		final AlertEntity alertSaved = alertRepository.save(alertToSave);
+		return alertMapper.alertEntityToAlertDTO(alertSaved);
 	}
 	
 	@PostConstruct
