@@ -10,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,7 +24,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.hateoas.Resource;
-import sanchez.sanchez.sergio.dto.request.AddSocialMediaDTO;
+import sanchez.sanchez.sergio.dto.request.SaveSocialMediaDTO;
 import sanchez.sanchez.sergio.dto.response.CommentDTO;
 import sanchez.sanchez.sergio.dto.response.SocialMediaDTO;
 import sanchez.sanchez.sergio.dto.response.SonDTO;
@@ -138,18 +139,52 @@ public class ChildrenController implements ISonHAL, ICommentHAL, ISocialMediaHAL
     }
     
     @PutMapping(path = "/social/add")
-    @ApiOperation(value = "ADD_SOCIAL_MEDIA_TO_SON", nickname = "ADD_SOCIAL_MEDIA_TO_SON", notes = "Add Social Media To Son",
+    @ApiOperation(value = "ADD_SOCIAL_MEDIA", nickname = "ADD_SOCIAL_MEDIA", notes = "Add Social Media",
             response = SocialMediaDTO.class)
-    @PreAuthorize("@authorizationService.hasParentRole() && @authorizationService.isYourSon(#id)")
-    public ResponseEntity<APIResponse<SocialMediaDTO>> addSocialMediaToSon(
+    @PreAuthorize("@authorizationService.hasParentRole() && @authorizationService.isYourSon(#socialMedia.son)")
+    public ResponseEntity<APIResponse<SocialMediaDTO>> createSocialMediaToSon(
             @ApiParam(value = "socialMedia", required = true) 
-				@Validated(ICommonSequence.class) @RequestBody AddSocialMediaDTO socialMedia) throws Throwable {
-        return Optional.ofNullable(socialMediaService.save(socialMedia))
+				@Validated(ICommonSequence.class) @RequestBody SaveSocialMediaDTO socialMedia) throws Throwable {
+    		
+        return Optional.ofNullable(socialMediaService.create(socialMedia))
         		.map(socialMediaResource -> addLinksToSocialMedia(socialMediaResource))
         		.map(socialMediaResource -> ApiHelper.<SocialMediaDTO>createAndSendResponse(SocialMediaResponseCode.SOCIAL_MEDIA_ADDED, 
         				HttpStatus.OK, socialMediaResource))
         		.orElseThrow(() -> { throw new SocialMediaNotFoundException(); });        
     }
+    
+    
+    @PostMapping(path = "/social/update")
+    @ApiOperation(value = "UPDATE_SOCIAL_MEDIA", nickname = "UPDATE_SOCIAL_MEDIA", notes = "Update Social Media",
+            response = SocialMediaDTO.class)
+    @PreAuthorize("@authorizationService.hasParentRole() && @authorizationService.isYourSon(#socialMedia.son)")
+    public ResponseEntity<APIResponse<SocialMediaDTO>> updateSocialMediaToSon(
+            @ApiParam(value = "socialMedia", required = true) 
+				@Validated(ICommonSequence.class) @RequestBody SaveSocialMediaDTO socialMedia) throws Throwable {
+    		
+        return Optional.ofNullable(socialMediaService.update(socialMedia))
+        		.map(socialMediaResource -> addLinksToSocialMedia(socialMediaResource))
+        		.map(socialMediaResource -> ApiHelper.<SocialMediaDTO>createAndSendResponse(SocialMediaResponseCode.SOCIAL_MEDIA_UPDATED, 
+        				HttpStatus.OK, socialMediaResource))
+        		.orElseThrow(() -> { throw new SocialMediaNotFoundException(); });        
+    }
+    
+    @PostMapping(path = "/social/save")
+    @ApiOperation(value = "SAVE_SOCIAL_MEDIA", nickname = "SAVE_SOCIAL_MEDIA", notes = "Save Social Media",
+            response = SocialMediaDTO.class)
+    @PreAuthorize("@authorizationService.hasParentRole() && @authorizationService.isYourSon(#socialMedia.son)")
+    public ResponseEntity<APIResponse<SocialMediaDTO>> saveSocialMediaToSon(
+            @ApiParam(value = "socialMedia", required = true) 
+				@Validated(ICommonSequence.class) @RequestBody SaveSocialMediaDTO socialMedia) throws Throwable {
+    		
+        return Optional.ofNullable(socialMediaService.save(socialMedia))
+        		.map(socialMediaResource -> addLinksToSocialMedia(socialMediaResource))
+        		.map(socialMediaResource -> ApiHelper.<SocialMediaDTO>createAndSendResponse(SocialMediaResponseCode.SOCIAL_MEDIA_SAVED, 
+        				HttpStatus.OK, socialMediaResource))
+        		.orElseThrow(() -> { throw new SocialMediaNotFoundException(); });        
+    }
+    
+    
     
     @GetMapping(path = "/{id}/social/invalid")
     @ApiOperation(value = "GET_INVALID_SOCIAL_MEDIA_BY_SON", nickname = "GET_INVALID_SOCIAL_MEDIA_BY_SON", notes = "Get Social Madia By Son with invalid token",

@@ -8,7 +8,7 @@ import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import sanchez.sanchez.sergio.dto.request.AddSocialMediaDTO;
+import sanchez.sanchez.sergio.dto.request.SaveSocialMediaDTO;
 import sanchez.sanchez.sergio.dto.response.SocialMediaDTO;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaEntity;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaTypeEnum;
@@ -35,10 +35,10 @@ public abstract class SocialMediaEntityMapper {
     public abstract List<SocialMediaDTO> socialMediaEntitiesToSocialMediaDTO(List<SocialMediaEntity> socialMediaEntities);
     
     @Mappings({
-    	@Mapping(expression="java(sanchez.sanchez.sergio.persistence.entity.SocialMediaTypeEnum.valueOf(addSocialMediaDTO.getType()))", target = "type" ),
-    	@Mapping(expression="java(sonRepository.findOne(new org.bson.types.ObjectId(addSocialMediaDTO.getSon())))", target = "sonEntity" )
+    	@Mapping(expression="java(sanchez.sanchez.sergio.persistence.entity.SocialMediaTypeEnum.valueOf(saveSocialMediaDTO.getType()))", target = "type" ),
+    	@Mapping(expression="java(sonRepository.findOne(new org.bson.types.ObjectId(saveSocialMediaDTO.getSon())))", target = "sonEntity" )
     })
-    public abstract SocialMediaEntity addSocialMediaDTOToSocialMediaEntity(AddSocialMediaDTO addSocialMediaDTO);
+    public abstract SocialMediaEntity addSocialMediaDTOToSocialMediaEntity(SaveSocialMediaDTO saveSocialMediaDTO);
     
     
     

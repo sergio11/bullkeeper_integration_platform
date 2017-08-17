@@ -50,7 +50,7 @@ public class AuthorizationServiceImpl implements IAuthorizationService {
 	public Boolean isYourSon(String id) {
 		Boolean isYourSon = Boolean.FALSE;
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if (!(auth instanceof AnonymousAuthenticationToken)) {
+		if (ObjectId.isValid(id) && !(auth instanceof AnonymousAuthenticationToken)) {
 			CommonUserDetailsAware<ObjectId> userDetails = (CommonUserDetailsAware<ObjectId>)auth.getPrincipal();
 			isYourSon = sonRepository.countByParentIdAndId(userDetails.getUserId(), new ObjectId(id)) > 0 ? Boolean.TRUE : Boolean.FALSE;
 		}

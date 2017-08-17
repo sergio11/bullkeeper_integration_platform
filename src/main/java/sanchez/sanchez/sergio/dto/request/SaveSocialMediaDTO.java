@@ -7,7 +7,7 @@ import sanchez.sanchez.sergio.persistence.constraints.ValidObjectId;
 import sanchez.sanchez.sergio.persistence.constraints.ValidSocialMediaType;
 import sanchez.sanchez.sergio.persistence.constraints.group.Extended;
 
-public class AddSocialMediaDTO {
+public class SaveSocialMediaDTO {
 	
 	@NotBlank(message = "{social.token.notnull}")
 	private String accessToken;
@@ -18,7 +18,7 @@ public class AddSocialMediaDTO {
 	private String son;
 	
 	
-	public AddSocialMediaDTO(String accessToken, String type, String son) {
+	public SaveSocialMediaDTO(String accessToken, String type, String son) {
 		super();
 		this.accessToken = accessToken;
 		this.type = type;

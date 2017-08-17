@@ -28,7 +28,7 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
 	public JwtAuthenticationResponseDTO createAuthenticationToken(String username, String password, Device device) {
 		// Perform the security
         final Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(username,password)
+                new UsernamePasswordAuthenticationToken(username, password)
         );
         
         SecurityContextHolder.getContext().setAuthentication(authentication);

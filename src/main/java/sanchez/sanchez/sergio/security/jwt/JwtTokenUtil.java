@@ -5,6 +5,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import sanchez.sanchez.sergio.security.userdetails.CommonUserDetailsAware;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mobile.device.Device;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,6 +18,8 @@ import java.util.Map;
 
 @Component
 public class JwtTokenUtil implements Serializable {
+	
+	private static Logger logger = LoggerFactory.getLogger(JwtTokenUtil.class);
 
     private static final long serialVersionUID = -3301605591108950415L;
 
@@ -42,6 +46,7 @@ public class JwtTokenUtil implements Serializable {
             final Claims claims = getClaimsFromToken(token);
             username = claims.getSubject();
         } catch (Exception e) {
+        	logger.error(e.getMessage());
             username = null;
         }
         return username;
@@ -53,6 +58,7 @@ public class JwtTokenUtil implements Serializable {
             final Claims claims = getClaimsFromToken(token);
             created = new Date((Long) claims.get(CLAIM_KEY_CREATED));
         } catch (Exception e) {
+        	logger.error(e.getMessage());
             created = null;
         }
         return created;
@@ -75,6 +81,7 @@ public class JwtTokenUtil implements Serializable {
             final Claims claims = getClaimsFromToken(token);
             audience = (String) claims.get(CLAIM_KEY_AUDIENCE);
         } catch (Exception e) {
+        	logger.error(e.getMessage());
             audience = null;
         }
         return audience;
@@ -88,6 +95,7 @@ public class JwtTokenUtil implements Serializable {
                     .parseClaimsJws(token)
                     .getBody();
         } catch (Exception e) {
+        	logger.error(e.getMessage());
             claims = null;
         }
         return claims;
@@ -127,6 +135,8 @@ public class JwtTokenUtil implements Serializable {
 
         final Date createdDate = new Date();
         claims.put(CLAIM_KEY_CREATED, createdDate);
+        
+        logger.debug(claims.toString());
 
         return doGenerateToken(claims);
     }
@@ -165,7 +175,7 @@ public class JwtTokenUtil implements Serializable {
     public Boolean validateToken(String token, CommonUserDetailsAware<Long> userDetails) {
         final String username = getUsernameFromToken(token);
         final Date created = getCreatedDateFromToken(token);
-        //final Date expiration = getExpirationDateFromToken(token);
+        final Date expiration = getExpirationDateFromToken(token);
         return (
                 username.equals(userDetails.getUsername())
                         && !isTokenExpired(token)
