@@ -94,7 +94,11 @@ public class MongoDBItemReader extends AbstractItemCountingItemStreamItemReader<
     @Override
     public Object doRead() throws Exception {
         try {
-            return converter != null ? converter.convert(cursor.next()) : cursor.next();
+        	if(cursor.hasNext()) {
+        		return converter != null ? converter.convert(cursor.next()) : cursor.next();
+        	}
+        	return null;
+            
         } catch (RuntimeException e) {
             if (NO_MORE.equals(e.getMessage())) {
                 return null;
