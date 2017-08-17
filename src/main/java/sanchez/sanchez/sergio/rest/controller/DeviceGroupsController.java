@@ -40,7 +40,6 @@ import sanchez.sanchez.sergio.security.utils.CurrentUser;
 import sanchez.sanchez.sergio.service.IDeviceGroupsService;
 import sanchez.sanchez.sergio.service.IPushNotificationsService;
 import sanchez.sanchez.sergio.util.Unthrow;
-import sanchez.sanchez.sergio.persistence.constraints.DeviceGroupShouldExists;
 import sanchez.sanchez.sergio.persistence.constraints.DeviceShouldExists;
 import sanchez.sanchez.sergio.persistence.constraints.DeviceShouldNotExists;
 

@@ -21,4 +21,6 @@ public interface ISocialMediaService {
     SocialMediaDTO save(SaveSocialMediaDTO socialMedia);
     List<SocialMediaDTO> getInvalidSocialMediaById(String id);
     Page<SocialMediaDTO> findPaginated(Pageable pageable);
+    List<SocialMediaDTO> deleteSocialMediaByUser(String id);
+    SocialMediaDTO deleteSocialMediaById(String id);
 }

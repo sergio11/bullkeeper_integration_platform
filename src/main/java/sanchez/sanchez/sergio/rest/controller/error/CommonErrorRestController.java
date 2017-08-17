@@ -76,6 +76,7 @@ public class CommonErrorRestController{
     
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<APIResponse<String>> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
+        ex.printStackTrace();
     	return ApiHelper.<String>createAndSendErrorResponse(CommonErrorResponseCode.MESSAGE_NOT_READABLE, HttpStatus.BAD_REQUEST, 
     			messageSourceResolver.resolver("message.not.readable"));
     }

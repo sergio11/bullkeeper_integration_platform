@@ -17,5 +17,8 @@ public interface SocialMediaRepository extends MongoRepository<SocialMediaEntity
     SocialMediaEntity findByAccessTokenAndType(String accessToken, SocialMediaTypeEnum type);
     SocialMediaEntity findByTypeAndSonEntityId(SocialMediaTypeEnum type, ObjectId id);
     List<SocialMediaEntity> findBySonEntityId(ObjectId id);
-    List<SocialMediaEntity> findByIdAndInvalidTokenTrue(ObjectId id); 
+    List<SocialMediaEntity> findByIdAndInvalidTokenTrue(ObjectId id);
+    List<SocialMediaEntity> deleteBySonEntityId(ObjectId id);
+    SocialMediaEntity deleteById(ObjectId id);
+    Long countById(ObjectId id);
 }

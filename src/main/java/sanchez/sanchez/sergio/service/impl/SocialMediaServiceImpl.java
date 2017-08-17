@@ -8,12 +8,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-
 import sanchez.sanchez.sergio.dto.request.SaveSocialMediaDTO;
-import sanchez.sanchez.sergio.dto.response.CommentDTO;
 import sanchez.sanchez.sergio.dto.response.SocialMediaDTO;
 import sanchez.sanchez.sergio.mapper.SocialMediaEntityMapper;
-import sanchez.sanchez.sergio.persistence.entity.CommentEntity;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaEntity;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaTypeEnum;
 import sanchez.sanchez.sergio.persistence.repository.SocialMediaRepository;
@@ -104,10 +101,29 @@ public class SocialMediaServiceImpl implements ISocialMediaService {
 		SocialMediaEntity socialMediaEntitySaved = socialMediaRepository.save(socialMediaEntityToSave);
 		return socialMediaMapper.socialMediaEntityToSocialMediaDTO(socialMediaEntitySaved);
 	}
+        
+        @Override
+    public List<SocialMediaDTO> deleteSocialMediaByUser(String id) {
+        Assert.notNull(id, "Id can not be null");
+        Assert.hasLength(id, "Id can not be empty");
+        List<SocialMediaEntity> socialMediaEntities = socialMediaRepository.deleteBySonEntityId(new ObjectId(id));
+        return socialMediaMapper.socialMediaEntitiesToSocialMediaDTO(socialMediaEntities);
+    }
+    
+    
+    @Override
+    public SocialMediaDTO deleteSocialMediaById(String id) {
+        Assert.notNull(id, "Id can not be null");
+        Assert.hasLength(id, "Id can not be empty");
+        SocialMediaEntity socialMediaEntityDeleted = socialMediaRepository.deleteById(new ObjectId(id));
+        return socialMediaMapper.socialMediaEntityToSocialMediaDTO(socialMediaEntityDeleted);
+    }
 	
 	@PostConstruct
     protected void init(){
         Assert.notNull(socialMediaRepository, "Social Media Repository cannot be null");
         Assert.notNull(socialMediaMapper, "Social Media Mapper cannot be null");
 	}
+
+    
 }

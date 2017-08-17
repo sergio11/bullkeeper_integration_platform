@@ -19,6 +19,7 @@ import com.google.common.collect.Iterables;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -47,6 +48,8 @@ import sanchez.sanchez.sergio.service.ISocialMediaService;
 import sanchez.sanchez.sergio.service.ISonService;
 import springfox.documentation.annotations.ApiIgnore;
 import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import sanchez.sanchez.sergio.persistence.constraints.SocialMediaShouldExists;
 
 @Api
 @RestController("RestUserController")
@@ -138,11 +141,11 @@ public class ChildrenController implements ISonHAL, ICommentHAL, ISocialMediaHAL
         		HttpStatus.OK, addLinksToSocialMedia(socialMedia));
     }
     
-    @PutMapping(path = "/social/add")
+    @PostMapping(path = "/social/add")
     @ApiOperation(value = "ADD_SOCIAL_MEDIA", nickname = "ADD_SOCIAL_MEDIA", notes = "Add Social Media",
             response = SocialMediaDTO.class)
     @PreAuthorize("@authorizationService.hasParentRole() && @authorizationService.isYourSon(#socialMedia.son)")
-    public ResponseEntity<APIResponse<SocialMediaDTO>> createSocialMediaToSon(
+    public ResponseEntity<APIResponse<SocialMediaDTO>> deleteAllSocialMedia(
             @ApiParam(value = "socialMedia", required = true) 
 				@Validated(ICommonSequence.class) @RequestBody SaveSocialMediaDTO socialMedia) throws Throwable {
     		
@@ -184,6 +187,36 @@ public class ChildrenController implements ISonHAL, ICommentHAL, ISocialMediaHAL
         		.orElseThrow(() -> { throw new SocialMediaNotFoundException(); });        
     }
     
+    @DeleteMapping(path = "/{id}/social/delete/all")
+    @ApiOperation(value = "DELETE_ALL_SOCIAL_MEDIA", nickname = "DELETE_ALL_SOCIAL_MEDIA", notes = "Delete all social media of user",
+            response = List.class)
+    @PreAuthorize("@authorizationService.hasParentRole() && @authorizationService.isYourSon(#id)")
+    public ResponseEntity<APIResponse<List<SocialMediaDTO>>> deleteAllSocialMedia(
+            @Valid @ValidObjectId(message = "{son.id.notvalid}")
+            @ApiParam(value = "id", required = true) @PathVariable String id) throws Throwable {
+        
+        List<SocialMediaDTO> socialMediaEntities = socialMediaService.deleteSocialMediaByUser(id);
+        
+        return ApiHelper.<List<SocialMediaDTO>>createAndSendResponse(
+                SocialMediaResponseCode.ALL_USER_SOCIAL_MEDIA_DELETED, HttpStatus.OK, socialMediaEntities);
+    }
+    
+    
+    @DeleteMapping(path = "/{idson}/social/delete/{idsocial}")
+    @ApiOperation(value = "DELETE_SOCIAL_MEDIA", nickname = "DELETE_SOCIAL_MEDIA", notes = "Delete a single social media",
+            response = SocialMediaDTO.class)
+    @PreAuthorize("@authorizationService.hasParentRole() && @authorizationService.isYourSon(#id)")
+    public ResponseEntity<APIResponse<SocialMediaDTO>> deleteSocialMedia(
+            @Valid @ValidObjectId(message = "{son.id.notvalid}")
+            @ApiParam(value = "idson", required = true) @PathVariable String idson,
+            @Validated(ICommonSequence.class) @ValidObjectId(message = "{social.id.notvalid}")
+            @SocialMediaShouldExists(message = "{social.not.exists}")
+            @ApiParam(value = "idson", required = true) @PathVariable String idsocial) throws Throwable {
+        
+        SocialMediaDTO socialMediaEntities = socialMediaService.deleteSocialMediaById(idsocial);
+        return ApiHelper.<SocialMediaDTO>createAndSendResponse(
+                SocialMediaResponseCode.USER_SOCIAL_MEDIA_DELETED, HttpStatus.OK, socialMediaEntities);
+    }
     
     
     @GetMapping(path = "/{id}/social/invalid")
