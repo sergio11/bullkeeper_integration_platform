@@ -56,4 +56,15 @@ public class AuthorizationServiceImpl implements IAuthorizationService {
 		}
 		return isYourSon;
 	}
+
+	@Override
+	public Boolean isTheAuthenticatedUser(String id) {
+		Boolean isTheAuthenticatedUser = Boolean.FALSE;
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if (ObjectId.isValid(id) && !(auth instanceof AnonymousAuthenticationToken)) {
+			CommonUserDetailsAware<ObjectId> userDetails = (CommonUserDetailsAware<ObjectId>)auth.getPrincipal();
+			isTheAuthenticatedUser = userDetails.getUserId().equals(new ObjectId(id));
+		}
+		return isTheAuthenticatedUser;
+	}
 }

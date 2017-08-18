@@ -4,15 +4,12 @@ package sanchez.sanchez.sergio.rest.controller;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-
 import javax.annotation.PostConstruct;
-
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,9 +34,11 @@ import sanchez.sanchez.sergio.rest.response.APIResponse;
 import sanchez.sanchez.sergio.rest.response.DeviceGroupResponseCode;
 import sanchez.sanchez.sergio.security.userdetails.CommonUserDetailsAware;
 import sanchez.sanchez.sergio.security.utils.CurrentUser;
+import sanchez.sanchez.sergio.security.utils.OnlyAccessForParent;
 import sanchez.sanchez.sergio.service.IDeviceGroupsService;
 import sanchez.sanchez.sergio.service.IPushNotificationsService;
 import sanchez.sanchez.sergio.util.Unthrow;
+import springfox.documentation.annotations.ApiIgnore;
 import sanchez.sanchez.sergio.persistence.constraints.DeviceShouldExists;
 import sanchez.sanchez.sergio.persistence.constraints.DeviceShouldNotExists;
 
@@ -64,9 +63,9 @@ public class DeviceGroupsController {
     @GetMapping(path = "/all")
     @ApiOperation(value = "GET_DEVICES_INTO_GROUP", nickname = "GET_DEVICES_INTO_GROUP", notes = "Get all devices registered in the group",
             response = List.class)
-    @PreAuthorize("@authorizationService.hasParentRole()")
+    @OnlyAccessForParent
     public ResponseEntity<APIResponse<Iterable<DeviceDTO>>> getDevicesIntoGroup(
-    		@CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
+    		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
         Iterable<DeviceDTO> devices = deviceGroupsService.getDevicesFromGroup(selfParent.getUserId().toString());
         if (Iterables.size(devices) == 0) {
             throw new NoDevicesIntoTheGroupException();
@@ -78,11 +77,12 @@ public class DeviceGroupsController {
     @PutMapping(path = "/devices/{token}/add")
     @ApiOperation(value = "ADD_DEVICE_TO_GROUP", nickname = "ADD_DEVICE_TO_GROUP", notes = "Add Device To Group",
             response = DeviceDTO.class)
-    @PreAuthorize("@authorizationService.hasParentRole()")
+    @OnlyAccessForParent
     public ResponseEntity<APIResponse<DeviceDTO>> addDeviceToGroup(
-            @Valid @DeviceShouldNotExists(message = "{device.should.not.exists}")
-            @ApiParam(value = "token", required = true) @PathVariable String token,
-            @CurrentUser CommonUserDetailsAware<ObjectId> selfParent
+            @ApiParam(value = "token", required = true) 
+            	@Valid @DeviceShouldNotExists(message = "{device.should.not.exists}")
+            		@PathVariable String token,
+            @ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent
     ) throws InterruptedException, ExecutionException {
     	
     	String userid = selfParent.getUserId().toString();
@@ -110,11 +110,12 @@ public class DeviceGroupsController {
     @DeleteMapping(path = "/devices/{token}/delete")
     @ApiOperation(value = "DELETE_DEVICE_FROM_GROUP", nickname = "DELETE_DEVICE_FROM_GROUP", notes = "Delete Device From Group",
             response = DeviceDTO.class)
-    @PreAuthorize("@authorizationService.hasParentRole()")
+    @OnlyAccessForParent
     public ResponseEntity<APIResponse<DeviceDTO>> deleteDeviceFromGroup(
-            @Valid @DeviceShouldExists(message = "{device.should.exists}")
-            @ApiParam(value = "token", required = true) @PathVariable String token,
-            @CurrentUser CommonUserDetailsAware<ObjectId> selfParent
+    		@ApiParam(value = "token", required = true)
+            	@Valid @DeviceShouldExists(message = "{device.should.exists}")
+             		@PathVariable String token,
+            @ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent
     ) {
         return Optional.ofNullable(deviceGroupsService.getDeviceGroupByName(selfParent.getUserId().toString()))
                 .map(deviceGroup -> pushNotificationsService.removeDeviceFromGroup(

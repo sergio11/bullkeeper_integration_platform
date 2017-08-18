@@ -50,7 +50,10 @@ import sanchez.sanchez.sergio.rest.response.APIResponse;
 import sanchez.sanchez.sergio.rest.response.ParentResponseCode;
 import sanchez.sanchez.sergio.security.userdetails.CommonUserDetailsAware;
 import sanchez.sanchez.sergio.security.utils.CurrentUser;
+import sanchez.sanchez.sergio.security.utils.OnlyAccessForAdmin;
+import sanchez.sanchez.sergio.security.utils.OnlyAccessForParent;
 import sanchez.sanchez.sergio.service.IParentsService;
+import springfox.documentation.annotations.ApiIgnore;
 
 @Api
 @RestController("RestParentsController")
@@ -72,9 +75,10 @@ public class ParentsController implements IParentHAL, ISonHAL {
     @ApiResponses(value = { 
     		@ApiResponse(code = 200, message= "", response = PagedResources.class)
     })
-    @PreAuthorize("@authorizationService.hasAdminRole()")
-    public ResponseEntity<APIResponse<PagedResources<Resource<ParentDTO>>>> getAllParents(@PageableDefault Pageable pageable, 
-    		PagedResourcesAssembler<ParentDTO> pagedAssembler) throws Throwable {
+    @OnlyAccessForAdmin
+    public ResponseEntity<APIResponse<PagedResources<Resource<ParentDTO>>>> getAllParents(
+    		@ApiIgnore @PageableDefault Pageable pageable, 
+    		@ApiIgnore PagedResourcesAssembler<ParentDTO> pagedAssembler) throws Throwable {
         logger.debug("Get all Parents");
         
         Page<ParentDTO> parentPage = parentsService.findPaginated(pageable);
@@ -94,10 +98,11 @@ public class ParentsController implements IParentHAL, ISonHAL {
     		@ApiResponse(code = 200, message= "Parent By Id", response = ParentDTO.class),
     		@ApiResponse(code = 404, message= "Parent Not Found")
     })
-    @PreAuthorize("@authorizationService.hasAdminRole()")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isTheAuthenticatedUser(#id) )")
     public ResponseEntity<APIResponse<ParentDTO>> getParentById(
-    		@Valid @ValidObjectId(message = "{parent.id.notvalid}")
-    		@ApiParam(value = "id", required = true) @PathVariable String id) throws Throwable {
+    		@ApiParam(value = "id", required = true) 
+    			@Valid @ValidObjectId(message = "{parent.id.notvalid}")
+    				@PathVariable String id) throws Throwable {
         logger.debug("Get Parent with id: " + id);
         return Optional.ofNullable(parentsService.getParentById(id))
                 .map(parentResource -> addLinksToParent(parentResource))
@@ -112,9 +117,9 @@ public class ParentsController implements IParentHAL, ISonHAL {
     		@ApiResponse(code = 200, message= "Self Parent", response = ParentDTO.class),
     		@ApiResponse(code = 404, message= "Parent Not Found")
     })
-    @PreAuthorize("@authorizationService.hasParentRole()")
+    @OnlyAccessForParent
     public ResponseEntity<APIResponse<ParentDTO>> getSelfInformation(
-    		@CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
+    		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
         logger.debug("Get Information for Parent with id: " + selfParent.getUserId());
         return Optional.ofNullable(parentsService.getParentById(selfParent.getUserId()))
                 .map(parentResource -> addLinksToSelfParent(parentResource))
@@ -148,10 +153,10 @@ public class ParentsController implements IParentHAL, ISonHAL {
     @GetMapping(path = {"/{id}/children"})
     @ApiOperation(value = "GET_CHILDREN_OF_PARENT", nickname = "GET_CHILDREN_OF_PARENT", 
             notes = "Get Children of Parent", response = ResponseEntity.class)
-    @PreAuthorize("@authorizationService.hasAdminRole()")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isTheAuthenticatedUser(#id) )")
     public ResponseEntity<APIResponse<Iterable<SonDTO>>> getChildrenOfParent(
-    		@Valid @ValidObjectId(message = "{parent.id.notvalid}")
-    		@ApiParam(value = "id", required = true) @PathVariable String id) throws Throwable {
+    		@ApiParam(value = "id", required = true)
+    			@Valid @ValidObjectId(message = "{parent.id.notvalid}") @PathVariable String id) throws Throwable {
         logger.debug("Get Children of Parent with id: " + id);
         
         Iterable<SonDTO> childrenOfParent = parentsService.getChildrenOfParent(id);
@@ -168,9 +173,9 @@ public class ParentsController implements IParentHAL, ISonHAL {
     @ApiResponses(value = { 
     		@ApiResponse(code = 200, message= "Children of Parent", response = SonDTO.class)
     })
-    @PreAuthorize("@authorizationService.hasParentRole()")
+    @OnlyAccessForParent
     public ResponseEntity<APIResponse<Iterable<SonDTO>>> getChildrenOfSelfParent(
-    		@CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
+    		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
         logger.debug("Get Children of Self Parent");
         
         Iterable<SonDTO> childrenOfParent = parentsService.getChildrenOfParent(selfParent.getUserId().toString());
@@ -190,10 +195,10 @@ public class ParentsController implements IParentHAL, ISonHAL {
     		@ApiResponse(code = 200, message= "Son Registered", response = SonDTO.class),
     		@ApiResponse(code = 403, message = "Validation Errors", response = ValidationErrorDTO.class)
     })
-    @PreAuthorize("@authorizationService.hasAdminRole()")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isTheAuthenticatedUser(#id) )")
     public ResponseEntity<APIResponse<SonDTO>> addSonToParent(
-    		@Valid @ValidObjectId(message = "{parent.id.notvalid}")
-    		@ApiParam(value = "id", required = true) @PathVariable String id,
+    		@ApiParam(value = "id", required = true) 
+    			@Valid @ValidObjectId(message = "{parent.id.notvalid}") @PathVariable String id,
     		@ApiParam(value = "son", required = true) 
     			@Valid @RequestBody RegisterSonDTO son) throws Throwable {
     	logger.debug("Add Son To Parent");
@@ -212,9 +217,10 @@ public class ParentsController implements IParentHAL, ISonHAL {
     		@ApiResponse(code = 200, message= "Son Registered to self parent", response = SonDTO.class),
     		@ApiResponse(code = 403, message = "Validation Errors", response = ValidationErrorDTO.class)
     })
-    @PreAuthorize("@authorizationService.hasParentRole()")
+    @OnlyAccessForParent
     public ResponseEntity<APIResponse<SonDTO>> addSonToSelfParent(
-    		@ApiParam(hidden = true) @CurrentUser CommonUserDetailsAware<ObjectId> selfParent,
+    		@ApiParam(hidden = true) 
+    			@CurrentUser CommonUserDetailsAware<ObjectId> selfParent,
     		@ApiParam(value = "son", required = true) 
     			@Valid @RequestBody RegisterSonDTO son) throws Throwable {
     	logger.debug("Add Son To Self Parent");

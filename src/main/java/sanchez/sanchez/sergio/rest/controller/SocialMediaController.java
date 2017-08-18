@@ -13,7 +13,6 @@ import org.springframework.hateoas.PagedResources;
 import org.springframework.hateoas.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,7 +29,9 @@ import sanchez.sanchez.sergio.rest.exception.SocialMediaNotFoundException;
 import sanchez.sanchez.sergio.rest.hal.ISocialMediaHAL;
 import sanchez.sanchez.sergio.rest.response.APIResponse;
 import sanchez.sanchez.sergio.rest.response.SocialMediaResponseCode;
+import sanchez.sanchez.sergio.security.utils.OnlyAccessForAdmin;
 import sanchez.sanchez.sergio.service.ISocialMediaService;
+import springfox.documentation.annotations.ApiIgnore;
 
 @Api
 @RestController("RestSocialMediaController")
@@ -50,9 +51,10 @@ public class SocialMediaController implements ISocialMediaHAL {
     @GetMapping(path = {"/", "/all"})
     @ApiOperation(value = "GET_ALL_SOCIAL_MEDIA", nickname = "GET_ALL_SOCIAL_MEDIA", 
             notes = "Get all Social Media", response = PagedResources.class)
-    @PreAuthorize("@authorizationService.hasAdminRole()")
-    public ResponseEntity<APIResponse<PagedResources<Resource<SocialMediaDTO>>>> getAllSocialMedia(@PageableDefault Pageable pageable, 
-            PagedResourcesAssembler<SocialMediaDTO> pagedAssembler) throws Throwable {
+    @OnlyAccessForAdmin
+    public ResponseEntity<APIResponse<PagedResources<Resource<SocialMediaDTO>>>> getAllSocialMedia(
+    		@ApiIgnore @PageableDefault Pageable pageable, 
+    		@ApiIgnore PagedResourcesAssembler<SocialMediaDTO> pagedAssembler) throws Throwable {
         logger.debug("Get all Social Media");
         return Optional.ofNullable(socialMediaService.findPaginated(pageable))
                 .map(socialMediaPage -> addLinksToSocialMedia(socialMediaPage))
@@ -65,10 +67,11 @@ public class SocialMediaController implements ISocialMediaHAL {
     @GetMapping(path = "/{id}")
     @ApiOperation(value = "GET_SOCIAL_MEDIA_BY_ID", nickname = "GET_SOCIAL_MEDIA_BY_USER_ID", notes = "Get Social Madia By User Id",
             response = SocialMediaDTO.class)
-    @PreAuthorize("@authorizationService.hasAdminRole()")
+    @OnlyAccessForAdmin
     public ResponseEntity<APIResponse<SocialMediaDTO>> getSocialMediaById(
-    		@Valid @ValidObjectId(message = "{socialmedia.id.notvalid}")
-            @ApiParam(value = "id", required = true) @PathVariable String id) throws Throwable {
+    		@ApiParam(value = "id", required = true)
+    			@Valid @ValidObjectId(message = "{socialmedia.id.notvalid}")
+             		@PathVariable String id) throws Throwable {
         logger.debug("Get Social Media by Id " + id);
         return Optional.ofNullable(socialMediaService.getSocialMediaById(id))
                 .map(socialMediaResource -> addLinksToSocialMedia(socialMediaResource))

@@ -30,6 +30,7 @@ import sanchez.sanchez.sergio.rest.exception.NoCommentsFoundException;
 import sanchez.sanchez.sergio.rest.hal.ICommentHAL;
 import sanchez.sanchez.sergio.rest.response.APIResponse;
 import sanchez.sanchez.sergio.rest.response.CommentResponseCode;
+import sanchez.sanchez.sergio.security.utils.OnlyAccessForAdmin;
 import sanchez.sanchez.sergio.service.ICommentsService;
 import springfox.documentation.annotations.ApiIgnore;
 
@@ -49,7 +50,8 @@ public class CommentsController implements ICommentHAL {
     
     @GetMapping(path = {"/", "/all"})
     @ApiOperation(value = "GET_ALL_COMMENTS", nickname = "GET_ALL_COMMENTS", 
-            notes = "Get all Comments", response = ResponseEntity.class)
+            notes = "Get all Comments", response = PagedResources.class)
+    @OnlyAccessForAdmin
     public ResponseEntity<APIResponse<PagedResources<Resource<CommentDTO>>>> getAllComments(
     		@ApiIgnore @PageableDefault Pageable pageable, 
     		@ApiIgnore PagedResourcesAssembler<CommentDTO> pagedAssembler) throws Throwable {
@@ -67,10 +69,12 @@ public class CommentsController implements ICommentHAL {
 
     @GetMapping(path = "/{id}")
     @ApiOperation(value = "GET_COMMENT_BY_ID", nickname = "GET_COMMENT_BY_ID", notes = "Get Comment By Id",
-            response = ResponseEntity.class)
+            response = CommentDTO.class)
+    @OnlyAccessForAdmin
     public ResponseEntity<APIResponse<CommentDTO>> getCommentById(
-    		@Valid @ValidObjectId(message = "{comment.id.notvalid}")
-    		@ApiParam(value = "id", required = true) @PathVariable String id) throws Throwable {
+    		@ApiParam(value = "id", required = true)
+    			@Valid @ValidObjectId(message = "{comment.id.notvalid}")
+    		 		@PathVariable String id) throws Throwable {
         logger.debug("Get Comment with id: " + id);
         return Optional.ofNullable(commentsService.getCommentById(id))
                 .map(commentResource -> addLinksToComment(commentResource))

@@ -9,4 +9,5 @@ public interface IAuthorizationService {
 	Boolean hasParentRole();
 	Boolean isYourSon(String id);
 	CommonUserDetailsAware<ObjectId> getUserDetails();
+	Boolean isTheAuthenticatedUser(String id);
 }

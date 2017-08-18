@@ -13,7 +13,6 @@ import org.springframework.hateoas.PagedResources;
 import org.springframework.hateoas.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,6 +37,7 @@ import sanchez.sanchez.sergio.rest.exception.SchoolNotFoundException;
 import sanchez.sanchez.sergio.rest.hal.ISchoolHAL;
 import sanchez.sanchez.sergio.rest.response.APIResponse;
 import sanchez.sanchez.sergio.rest.response.SchoolResponseCode;
+import sanchez.sanchez.sergio.security.utils.OnlyAccessForAdmin;
 import sanchez.sanchez.sergio.service.ISchoolService;
 import springfox.documentation.annotations.ApiIgnore;
 
@@ -76,8 +76,9 @@ public class SchoolController implements ISchoolHAL {
     @ApiOperation(value = "FIND_SCHOOLS_BY_NAME", nickname = "FIND_SCHOOLS_BY_NAME", notes = "Find Schools by name",
             response = PagedResources.class)
     public ResponseEntity<APIResponse<PagedResources<Resource<SchoolDTO>>>> getSchoolsByName(
-    		@Valid @NotBlank(message = "{school.name.notblank}") 
-    		@RequestParam(value = "name", required = false) String name,
+    		@ApiParam(value = "name", required = true) 
+    			@Valid @NotBlank(message = "{school.name.notblank}") 
+    				@RequestParam(value = "name", required = false) String name,
     		@ApiIgnore @PageableDefault Pageable pageable, 
     		@ApiIgnore PagedResourcesAssembler<SchoolDTO> pagedAssembler) throws Throwable {
     	
@@ -97,8 +98,9 @@ public class SchoolController implements ISchoolHAL {
     		@ApiResponse(code = 200, message= "School By Id", response = SchoolDTO.class)
     })
     public ResponseEntity<APIResponse<SchoolDTO>> getSchoolById(
-    		@Valid @ValidObjectId(message = "{school.id.notvalid}")
-    		@ApiParam(value = "id", required = true) @PathVariable String id) throws Throwable {
+    		@ApiParam(value = "id", required = true)
+    			@Valid @ValidObjectId(message = "{school.id.notvalid}")
+    		 		@PathVariable String id) throws Throwable {
         logger.debug("Get User with id: " + id);
         
         return Optional.ofNullable(schoolService.getSchoolById(id))
@@ -114,7 +116,7 @@ public class SchoolController implements ISchoolHAL {
     		@ApiResponse(code = 200, message= "School Saved", response = SchoolDTO.class),
     		@ApiResponse(code = 403, message = "Validation Errors", response = ValidationErrorDTO.class)
     })
-    @PreAuthorize("@authorizationService.hasAdminRole()")
+    @OnlyAccessForAdmin
     public ResponseEntity<APIResponse<SchoolDTO>> saveSchool(
     		@ApiParam(value = "school", required = true) 
 				@Valid @RequestBody AddSchoolDTO school) throws Throwable {        
@@ -131,10 +133,11 @@ public class SchoolController implements ISchoolHAL {
     @ApiResponses(value = { 
     		@ApiResponse(code = 200, message= "School Deleted", response = SchoolDTO.class)
     })
-    @PreAuthorize("@authorizationService.hasAdminRole()")
+    @OnlyAccessForAdmin
     public ResponseEntity<APIResponse<SchoolDTO>> deleteSchool(
-    		@Valid @ValidObjectId(message = "{school.id.notvalid}")
-    		@ApiParam(value = "id", required = true) @PathVariable String id) throws Throwable {        
+    		@ApiParam(value = "id", required = true)
+    			@Valid @ValidObjectId(message = "{school.id.notvalid}")
+    		 		@PathVariable String id) throws Throwable {        
     	
         return Optional.ofNullable(schoolService.delete(id))
                 .map(schoolResource -> ApiHelper.<SchoolDTO>createAndSendResponse(SchoolResponseCode.SCHOOL_DELETED, 
