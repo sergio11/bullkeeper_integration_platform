@@ -74,6 +74,7 @@ public class CommonErrorRestController{
     	return ApiHelper.<String>createAndSendErrorResponse(CommonErrorResponseCode.ACCESS_DENIED, HttpStatus.FORBIDDEN, ex.getMessage());
     }
     
+    
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<APIResponse<String>> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
         ex.printStackTrace();
