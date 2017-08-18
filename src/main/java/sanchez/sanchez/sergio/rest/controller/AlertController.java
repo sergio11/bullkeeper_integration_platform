@@ -35,6 +35,7 @@ import sanchez.sanchez.sergio.rest.response.APIResponse;
 import sanchez.sanchez.sergio.rest.response.AlertResponseCode;
 import sanchez.sanchez.sergio.security.userdetails.CommonUserDetailsAware;
 import sanchez.sanchez.sergio.security.utils.CurrentUser;
+import sanchez.sanchez.sergio.security.utils.OnlyAccessForAdmin;
 import sanchez.sanchez.sergio.security.utils.OnlyAccessForParent;
 import sanchez.sanchez.sergio.service.IAlertService;
 import springfox.documentation.annotations.ApiIgnore;
@@ -53,12 +54,30 @@ public class AlertController {
 		super();
 		this.alertService = alertService;
 	}
-
+	
 	@GetMapping(path = { "/", "/all" } )
-    @ApiOperation(value = "GET_ALERTS", nickname = "GET_ALERTS", notes="Get all alerts for the currently authenticated user", 
+    @ApiOperation(value = "GET_ALL_ALERT", nickname = "GET_ALL_ALERT", notes="Get all alerts in the system", 
+    	response = PagedResources.class)
+	@OnlyAccessForAdmin
+	public ResponseEntity<APIResponse<PagedResources<Resource<AlertDTO>>>> getAllAlerts(
+    		@ApiIgnore @PageableDefault Pageable pageable,
+    		@ApiIgnore PagedResourcesAssembler<AlertDTO> pagedAssembler) throws Throwable {
+		
+		final Page<AlertDTO> alertsPage = alertService.findPaginated(pageable);
+		
+		if(alertsPage.getNumberOfElements() == 0) {
+			throw new NoAlertsFoundException();
+		}
+		
+		return ApiHelper.<PagedResources<Resource<AlertDTO>>>createAndSendResponse(AlertResponseCode.ALL_ALERTS, 
+        		HttpStatus.OK, pagedAssembler.toResource(alertsPage));
+    }
+
+	@GetMapping(path = { "/self", "/self/all" } )
+    @ApiOperation(value = "GET_ALL_SELF_ALERT", nickname = "GET_ALL_SELF_ALERT", notes="Get all alerts for the currently authenticated user", 
     	response = PagedResources.class)
 	@OnlyAccessForParent
-	public ResponseEntity<APIResponse<PagedResources<Resource<AlertDTO>>>> getAlerts(
+	public ResponseEntity<APIResponse<PagedResources<Resource<AlertDTO>>>> getAllSelfAlerts(
     		@ApiIgnore @PageableDefault Pageable pageable,
     		@ApiIgnore PagedResourcesAssembler<AlertDTO> pagedAssembler,
     		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
@@ -69,7 +88,7 @@ public class AlertController {
 			throw new NoAlertsFoundException();
 		}
 		
-		return ApiHelper.<PagedResources<Resource<AlertDTO>>>createAndSendResponse(AlertResponseCode.ALL_ALERTS, 
+		return ApiHelper.<PagedResources<Resource<AlertDTO>>>createAndSendResponse(AlertResponseCode.ALL_SELF_ALERTS, 
         		HttpStatus.OK, pagedAssembler.toResource(alertsPage));
     }
 	

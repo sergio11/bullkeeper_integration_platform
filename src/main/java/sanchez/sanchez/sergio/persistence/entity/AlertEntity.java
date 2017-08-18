@@ -35,10 +35,10 @@ public class AlertEntity {
     public AlertEntity() {
     }
 
-    public AlertEntity(String payload, SonEntity sonEntity) {
+    public AlertEntity(String payload, SonEntity son) {
         super();
         this.payload = payload;
-        this.son = sonEntity;
+        this.son = son;
     }
 
     public AlertEntity(AlertLevelEnum level, String payload, SonEntity son) {
@@ -49,12 +49,12 @@ public class AlertEntity {
     }
 
     @PersistenceConstructor
-    public AlertEntity(AlertLevelEnum level, String payload, Date createAt, SonEntity sonEntity) {
+    public AlertEntity(AlertLevelEnum level, String payload, Date createAt, SonEntity son) {
         super();
         this.level = level;
         this.payload = payload;
         this.createAt = createAt;
-        this.son = sonEntity;
+        this.son = son;
     }
 
     public ObjectId getId() {
@@ -87,14 +87,6 @@ public class AlertEntity {
 
     public void setCreateAt(Date createAt) {
         this.createAt = createAt;
-    }
-
-    public SonEntity getSonEntity() {
-        return son;
-    }
-
-    public void setSonEntity(SonEntity sonEntity) {
-        this.son = sonEntity;
     }
 
     public SonEntity getSon() {

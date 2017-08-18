@@ -28,7 +28,7 @@ public abstract class AlertEntityMapper {
     
     @Mappings({
         @Mapping(expression="java(alertEntity.getId().toString())", target = "identity" ),
-        @Mapping(expression="java(sonEntityMapper.sonEntityToSonDTO(alertEntity.getSonEntity()))", target = "son" )
+        @Mapping(expression="java(sonEntityMapper.sonEntityToSonDTO(alertEntity.getSon()))", target = "son" )
     })
     @Named("alertEntityToSonDTO")
     public abstract AlertDTO alertEntityToAlertDTO(AlertEntity alertEntity); 

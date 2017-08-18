@@ -10,9 +10,11 @@ import org.springframework.util.Assert;
 
 import sanchez.sanchez.sergio.dto.request.AddAlertDTO;
 import sanchez.sanchez.sergio.dto.response.AlertDTO;
+import sanchez.sanchez.sergio.dto.response.CommentDTO;
 import sanchez.sanchez.sergio.mapper.AlertEntityMapper;
 import sanchez.sanchez.sergio.persistence.entity.AlertEntity;
 import sanchez.sanchez.sergio.persistence.entity.AlertLevelEnum;
+import sanchez.sanchez.sergio.persistence.entity.CommentEntity;
 import sanchez.sanchez.sergio.persistence.entity.ParentEntity;
 import sanchez.sanchez.sergio.persistence.repository.AlertRepository;
 import sanchez.sanchez.sergio.service.IAlertService;
@@ -58,8 +60,21 @@ public class AlertServiceImpl implements IAlertService {
 		return alertMapper.alertEntityToAlertDTO(alertSaved);
 	}
 	
+	@Override
+	public Page<AlertDTO> findPaginated(Pageable pageable) {
+		Page<AlertEntity> alertsPage = alertRepository.findAll(pageable);
+        return alertsPage.map(new Converter<AlertEntity, AlertDTO>(){
+            @Override
+            public AlertDTO convert(AlertEntity a) {
+               return alertMapper.alertEntityToAlertDTO(a);
+            }
+        });
+	}
+	
 	@PostConstruct
 	protected void init(){
 		Assert.notNull(alertRepository, "Alert Repository cannot be null");
 	}
+
+	
 }

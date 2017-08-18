@@ -42,8 +42,8 @@ public class AuthenticationController {
     		@ApiResponse(code = 403, message = "Validation Errors", response = ValidationErrorDTO.class)
     })
 	public ResponseEntity<APIResponse<JwtAuthenticationResponseDTO>> getAuthorizationToken(
-			@Valid @RequestBody JwtAuthenticationRequestDTO authenticationRequest, Device device) throws Throwable {
-		return Optional.ofNullable(authenticationService.createAuthenticationToken(authenticationRequest.getEmail(), authenticationRequest.getPassword(), device))
+			@Valid @RequestBody JwtAuthenticationRequestDTO credentials, Device device) throws Throwable {
+		return Optional.ofNullable(authenticationService.createAuthenticationToken(credentials.getEmail(), credentials.getPassword(), device))
 				.map(jwtResponse -> ApiHelper.<JwtAuthenticationResponseDTO>createAndSendResponse(AuthenticationResponseCode.AUTHENTICATION_SUCCESS, HttpStatus.OK, jwtResponse))
 				.orElseThrow(() -> {
                     throw new ResourceNotFoundException();

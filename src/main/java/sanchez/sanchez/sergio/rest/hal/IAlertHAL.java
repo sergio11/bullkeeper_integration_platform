@@ -22,7 +22,7 @@ public interface IAlertHAL {
     
             	// All Alerts
             	ResponseEntity<APIResponse<PagedResources<Resource<AlertDTO>>>> allAlertsLinkBuilder = methodOn(AlertController.class)
-                        .getAlerts(null, null, null);
+                        .getAllSelfAlerts(null, null, null);
                 Link allAlertsLink = linkTo(allAlertsLinkBuilder).withRel("all_alerts");
                 alertResource.add(allAlertsLink);
                 // Info Alerts
