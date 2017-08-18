@@ -2,18 +2,20 @@
 
 package sanchez.sanchez.sergio.persistence.entity;
 
-
 import java.util.Date;
-
 import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 /**
  *
  * @author sergio
  */
+@Document(collection = UserSystemEntity.COLLECTION_NAME)
 public class UserSystemEntity extends PersonEntity {
+	
+	public final static String COLLECTION_NAME = "users";
 
     @Field("email")
     protected String email;

@@ -5,18 +5,15 @@ package sanchez.sanchez.sergio.persistence.entity;
 import org.springframework.data.annotation.Id;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.PersistenceConstructor;
-import org.springframework.data.mongodb.core.mapping.DBRef;
-import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 /**
  *
  * @author sergio
  */
-@Document(collection = PersonEntity.COLLECTION_NAME)
+
 public abstract class PersonEntity {
     
-    public final static String COLLECTION_NAME = "persons";
     
     @Id
     protected ObjectId id;

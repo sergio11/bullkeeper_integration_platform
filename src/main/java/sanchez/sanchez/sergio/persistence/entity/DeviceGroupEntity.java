@@ -5,6 +5,7 @@ import java.util.Date;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceConstructor;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -26,6 +27,7 @@ public class DeviceGroupEntity {
 	private Date createAt = new Date();
 	
 	@Field("owner")
+	@DBRef
 	private ParentEntity owner;
 	
 	public DeviceGroupEntity(){}

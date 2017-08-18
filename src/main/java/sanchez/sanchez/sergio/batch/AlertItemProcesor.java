@@ -15,7 +15,7 @@ public class AlertItemProcesor  implements ItemProcessor<Object, FCMNotification
 	
 	private static Logger logger = LoggerFactory.getLogger(AlertItemProcesor.class);
 	
-	
+
 	// Son Id -> Notification Key
 	private Map<String, String> sonNotificationKey = new HashMap<String, String>();
 	
@@ -24,10 +24,14 @@ public class AlertItemProcesor  implements ItemProcessor<Object, FCMNotification
 	public FCMNotificationOperation process(Object item) throws Exception {
 		FCMNotificationOperation fcmNotificationOperation = new FCMNotificationOperation();
 		Map<String, String> alertData = (Map<String, String>)item;
-		logger.debug("Level -> " + alertData.get("level"));
+		
+		
+		
+		
+		/*logger.debug("Level -> " + alertData.get("level"));
 		logger.debug("payload -> " + alertData.get("payload"));
 		logger.debug("create_at -> " + alertData.get("create_at"));
-		logger.debug("son -> " + alertData.get("son"));
+		logger.debug("son -> " + alertData.get("son"));*/
 		
 		fcmNotificationOperation.setDeviceGroup("prueba");
 		fcmNotificationOperation.setData(alertData);

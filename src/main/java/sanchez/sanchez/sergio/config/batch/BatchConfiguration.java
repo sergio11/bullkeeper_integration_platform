@@ -10,13 +10,11 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.launch.support.SimpleJobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
@@ -26,11 +24,7 @@ import org.springframework.batch.support.transaction.ResourcelessTransactionMana
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.util.Assert;
 
 import sanchez.sanchez.sergio.batch.AlertItemProcesor;
@@ -44,17 +38,15 @@ import sanchez.sanchez.sergio.persistence.entity.AlertEntity;
  */
 @Configuration
 @EnableBatchProcessing
-@EnableScheduling
 public class BatchConfiguration {
+	
+	public final static String NOTIFICATION_JOB = "notification_job";
 	
 	private Logger logger = LoggerFactory.getLogger(BatchConfiguration.class);
     
     private final String DB_NAME = "test";
     private final String JOB_NAME = "SEND_NOTIFICATION_JOB";
     
-    @Autowired
-    private SimpleJobLauncher jobLauncher;
-
     @Autowired
     public JobBuilderFactory jobBuilderFactory;
 
@@ -102,14 +94,18 @@ public class BatchConfiguration {
         reader.setMongo(mongod);
         reader.setDb(DB_NAME);
         reader.setCollection(AlertEntity.COLLECTION_NAME);
-        reader.setQuery("{ delivered: {$ne: true}}");
+        reader.setQuery("{ delivered: {$ne: true} }");
         reader.setConverter(new Converter<DBObject, Map<String, String>>() {
 			@Override
 			public Map<String, String> convert(DBObject source) {
 				Map<String, String> result = new HashMap<String, String>();
+				
 				result.put("level", (String)source.get("level"));
 				result.put("payload", (String)source.get("payload"));
-				result.put("create_at", (String)source.get("payload"));
+				
+				Date createAt = (Date)source.get("create_at");
+				if(createAt != null)
+					result.put("create_at", createAt.toString());
 				result.put("son", ((DBRef)source.get("son")).getId().toString());
 				return result;
 			}
@@ -118,6 +114,7 @@ public class BatchConfiguration {
     }
     
     @Bean
+    @StepScope
     public AlertItemProcesor provideProcessor(){
     	return new AlertItemProcesor();
     }
@@ -139,30 +136,13 @@ public class BatchConfiguration {
                 .build();
     }
     
-    @Bean
+    @Bean(name = NOTIFICATION_JOB)
     public Job provideNotificationJob() {
         return jobBuilderFactory.get(JOB_NAME)
                 .incrementer(new RunIdIncrementer())
                 .flow(provideJobStep1())
                 .end()
                 .build();
-    }
-    
-    
-    @Scheduled(cron = "* */5 * * * ?")
-    public void launchJob() throws Exception {
-    	
-    	try {
-    		logger.debug("Notification Job Start -> " + new Date());
-            JobParameters param = new JobParametersBuilder().addString("JobID",
-                    String.valueOf(System.currentTimeMillis())).toJobParameters();
-
-            JobExecution execution = jobLauncher.run(provideNotificationJob(), param);
-            logger.debug("Notification Job Finish with Status -> " + execution.getStatus());	
-    	} catch (Exception e) {
-    		logger.error(e.toString());
-    	}
-    	
     }
 
 }
