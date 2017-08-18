@@ -5,8 +5,9 @@ import com.mongodb.DBRef;
 import com.mongodb.Mongo;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+
+import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
@@ -14,21 +15,20 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.launch.support.SimpleJobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean;
-import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.support.transaction.ResourcelessTransactionManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.util.Assert;
-
-import sanchez.sanchez.sergio.batch.AlertItemProcesor;
+import sanchez.sanchez.sergio.batch.AlertItemProcessor;
 import sanchez.sanchez.sergio.batch.MongoDBItemReader;
+import sanchez.sanchez.sergio.batch.SendNotificationsWriter;
+import sanchez.sanchez.sergio.exception.NoDeviceGroupForUserException;
 import sanchez.sanchez.sergio.fcm.operations.FCMNotificationOperation;
 import sanchez.sanchez.sergio.persistence.entity.AlertEntity;
 
@@ -55,6 +55,12 @@ public class BatchConfiguration {
     
     @Autowired
     public Mongo mongod;
+    
+    @Autowired
+    private AlertItemProcessor itemProcessor;
+    
+    @Autowired
+    private SendNotificationsWriter sendNotificationsWriter;
     
     @Bean
     public ResourcelessTransactionManager transactionManager() {
@@ -99,40 +105,31 @@ public class BatchConfiguration {
 			@Override
 			public Map<String, String> convert(DBObject source) {
 				Map<String, String> result = new HashMap<String, String>();
-				
+				result.put("id", ((ObjectId)source.get("_id")).toString());
 				result.put("level", (String)source.get("level"));
 				result.put("payload", (String)source.get("payload"));
-				
 				Date createAt = (Date)source.get("create_at");
 				if(createAt != null)
 					result.put("create_at", createAt.toString());
-				result.put("son", ((DBRef)source.get("son")).getId().toString());
+				result.put("parent", ((DBRef)source.get("parent")).getId().toString());
 				return result;
 			}
         });
         return reader;
     }
     
-    @Bean
-    @StepScope
-    public AlertItemProcesor provideProcessor(){
-    	return new AlertItemProcesor();
-    }
-    
+
     @SuppressWarnings("unchecked")
 	@Bean
     public Step provideJobStep1() {
         return stepBuilderFactory.get("jobStep")
-                .<Object, FCMNotificationOperation>chunk(1)
+                .<Object, FCMNotificationOperation>chunk(10)
                 .reader(provideItemReader())
-                .processor(provideProcessor())
-                .writer(new ItemWriter<FCMNotificationOperation> () {
-					@Override
-					public void write(List<? extends FCMNotificationOperation> operations) throws Exception {
-						logger.debug("Total Operations -> " + operations.size());
-					}
-                	
-                })
+                .processor(itemProcessor)
+                .writer(sendNotificationsWriter)
+                .faultTolerant()
+                .skip(NoDeviceGroupForUserException.class)
+                .skipLimit(100000)
                 .build();
     }
     

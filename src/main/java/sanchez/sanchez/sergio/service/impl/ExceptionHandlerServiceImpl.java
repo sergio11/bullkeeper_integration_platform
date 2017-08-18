@@ -53,7 +53,7 @@ public class ExceptionHandlerServiceImpl implements IExceptionHandlerService, IE
     	Assert.notNull(exception.getTarget(), "Target can not be null");
     	logger.debug("Save exception as Alert for: " + exception.getTarget().getFullName());
         socialMediaRepository.setAccessTokenAsInvalid(exception.getAccessToken(), exception.getSocialMediaType());
-        alertRepository.save(new AlertEntity(AlertLevelEnum.WARNING, exception.getMessage(), exception.getTarget()));
+        alertRepository.save(new AlertEntity(AlertLevelEnum.WARNING, exception.getMessage(), exception.getTarget().getParent(), exception.getTarget()));
     }
     
     @Override

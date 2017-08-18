@@ -13,6 +13,8 @@ import io.jsonwebtoken.lang.Assert;
 import sanchez.sanchez.sergio.fcm.FCMCustomProperties;
 import sanchez.sanchez.sergio.fcm.operations.DevicesGroupOperation;
 import sanchez.sanchez.sergio.fcm.operations.DevicesGroupOperationType;
+import sanchez.sanchez.sergio.fcm.operations.FCMNotificationOperation;
+import sanchez.sanchez.sergio.fcm.response.FirebaseResponse;
 import sanchez.sanchez.sergio.service.IPushNotificationsService;
 
 @Service
@@ -119,6 +121,16 @@ public class PushNotificationsServiceImpl implements IPushNotificationsService {
                 new DevicesGroupOperation(DevicesGroupOperationType.REMOVE, notificationGroupName, notificationGroupKey, 
                 		Lists.newArrayList(deviceToken)), String.class));
     }
+    
+    @Override
+	public CompletableFuture<FirebaseResponse> send(FCMNotificationOperation fcmNotificationOperation) {
+    	Assert.notNull(fcmNotificationOperation, "FCM Notification operation can not be null");
+    	Assert.notNull(firebaseCustomProperties.getGroupPrefix(), "Group Prefix can not be null");
+    	Assert.notNull(firebaseCustomProperties.getNotificationGroupsUrl(), "Notification Group Url can not be null");
+    	Assert.hasLength(firebaseCustomProperties.getNotificationGroupsUrl(), "Notification Group Url can not be empty");
+    	return CompletableFuture.supplyAsync(() -> restTemplate.postForObject(firebaseCustomProperties.getNotificationSendUrl(), 
+    			fcmNotificationOperation, FirebaseResponse.class));
+	}
 	
 	@PostConstruct
 	protected void init(){
@@ -127,5 +139,4 @@ public class PushNotificationsServiceImpl implements IPushNotificationsService {
 		Assert.hasLength(firebaseCustomProperties.getAppServerKey(), "App Server Key can not be empty");
 		logger.debug("App Server Key -> " + firebaseCustomProperties.getAppServerKey());
 	}
-
 }

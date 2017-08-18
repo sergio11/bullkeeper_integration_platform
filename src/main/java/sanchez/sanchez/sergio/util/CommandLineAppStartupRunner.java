@@ -14,6 +14,7 @@ import org.springframework.util.Assert;
 import sanchez.sanchez.sergio.persistence.entity.AlertEntity;
 import sanchez.sanchez.sergio.persistence.entity.AuthorityEntity;
 import sanchez.sanchez.sergio.persistence.entity.AuthorityEnum;
+import sanchez.sanchez.sergio.persistence.entity.DeviceGroupEntity;
 import sanchez.sanchez.sergio.persistence.entity.ParentEntity;
 import sanchez.sanchez.sergio.persistence.entity.SchoolEntity;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaEntity;
@@ -22,6 +23,7 @@ import sanchez.sanchez.sergio.persistence.entity.SonEntity;
 import sanchez.sanchez.sergio.persistence.entity.UserSystemEntity;
 import sanchez.sanchez.sergio.persistence.repository.AlertRepository;
 import sanchez.sanchez.sergio.persistence.repository.AuthorityRepository;
+import sanchez.sanchez.sergio.persistence.repository.DeviceGroupRepository;
 import sanchez.sanchez.sergio.persistence.repository.ParentRepository;
 import sanchez.sanchez.sergio.persistence.repository.SchoolRepository;
 import sanchez.sanchez.sergio.persistence.repository.SocialMediaRepository;
@@ -47,6 +49,7 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
     private final AuthorityRepository authorityRepository;
     private final UserSystemRepository userSystemRepository;
     private final AlertRepository alertRepository;
+    private final DeviceGroupRepository deviceGroupRepository;
     
     
     private static List<AuthorityEntity> authoritiesList = new ArrayList<>();
@@ -56,6 +59,7 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
     private static List<SocialMediaEntity> socialMedias = new ArrayList<>();
     private static List<UserSystemEntity> admins = new ArrayList<>();
     private static List<AlertEntity> alertList = new ArrayList<>();
+    private static List<DeviceGroupEntity> deviceGroupsList = new ArrayList<>();
    
     static {
     	
@@ -157,9 +161,14 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
         
         // Alerts
         
-        AlertEntity alertInfo = new AlertEntity("Alerta de Prueba", sergio);
+        AlertEntity alertInfo = new AlertEntity("Alerta de Prueba", federico, sergio);
         
         alertList.add(alertInfo);
+        
+        // Device Groups
+        DeviceGroupEntity deviceGroup = new DeviceGroupEntity("notification-group-name", "notification-key", federico);
+        
+        deviceGroupsList.add(deviceGroup);
     
     }
 
@@ -167,7 +176,7 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
     
     public CommandLineAppStartupRunner(SchoolRepository schoolRepository, ParentRepository parentRepository,
 			SonRepository sonRepository, SocialMediaRepository socialMediaRepository, AuthorityRepository authorityRepository, 
-			UserSystemRepository userSystemRepository, AlertRepository alertRepository) {
+			UserSystemRepository userSystemRepository, AlertRepository alertRepository, DeviceGroupRepository deviceGroupRepository) {
 		super();
 		this.schoolRepository = schoolRepository;
 		this.parentRepository = parentRepository;
@@ -176,6 +185,7 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
 		this.authorityRepository = authorityRepository;
 		this.userSystemRepository = userSystemRepository;
 		this.alertRepository = alertRepository;
+		this.deviceGroupRepository = deviceGroupRepository;
 	}
     
     
@@ -189,6 +199,7 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
         authorityRepository.deleteAll();
         userSystemRepository.deleteAll();
         alertRepository.deleteAll();
+        deviceGroupRepository.deleteAll();
         logger.debug("Load Initial Data ...");
         authorityRepository.save(authoritiesList);
         schoolRepository.save(schoolList);
@@ -197,6 +208,7 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
         socialMediaRepository.save(socialMedias);
         userSystemRepository.save(admins);
         alertRepository.save(alertList);
+        deviceGroupRepository.save(deviceGroupsList);
         logger.info("Data Loaded ...");
     }
     
@@ -210,6 +222,7 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
     	Assert.notNull(authorityRepository, "AuthorityRepository Can not be null");
     	Assert.notNull(userSystemRepository, "UserSystemRepository Can not be null");
     	Assert.notNull(alertRepository, "alertRepository Can not be null");
+    	Assert.notNull(deviceGroupRepository, "deviceGroupRepository Can not be null");
     }
 
 	

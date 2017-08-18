@@ -1,7 +1,6 @@
 package sanchez.sanchez.sergio.persistence.entity;
 
 import java.util.Date;
-
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceConstructor;
@@ -25,6 +24,13 @@ public class AlertEntity {
 
     @Field("create_at")
     private Date createAt = new Date();
+    
+    @Field("delivered_at")
+    private Date deliveredAt;
+    
+    @Field("parent")
+    @DBRef
+    private ParentEntity parent;
 
     @Field("son")
     @DBRef
@@ -32,36 +38,40 @@ public class AlertEntity {
     
     private Boolean delivered = Boolean.FALSE;
 
-    public AlertEntity() {
-    }
+    public AlertEntity() {}
 
-    public AlertEntity(String payload, SonEntity son) {
-        super();
-        this.payload = payload;
-        this.son = son;
-    }
+    public AlertEntity(String payload, ParentEntity parent, SonEntity son) {
+		super();
+		this.payload = payload;
+		this.parent = parent;
+		this.son = son;
+	}
 
-    public AlertEntity(AlertLevelEnum level, String payload, SonEntity son) {
+	public AlertEntity(AlertLevelEnum level, String payload, ParentEntity parent, SonEntity son) {
         super();
         this.level = level;
         this.payload = payload;
+        this.parent = parent;
         this.son = son;
     }
 
     @PersistenceConstructor
-    public AlertEntity(AlertLevelEnum level, String payload, Date createAt, SonEntity son) {
-        super();
-        this.level = level;
-        this.payload = payload;
-        this.createAt = createAt;
-        this.son = son;
-    }
+    public AlertEntity(AlertLevelEnum level, String payload, Date createAt, ParentEntity parent, SonEntity son,
+			Boolean delivered) {
+		super();
+		this.level = level;
+		this.payload = payload;
+		this.createAt = createAt;
+		this.parent = parent;
+		this.son = son;
+		this.delivered = delivered;
+	}
 
     public ObjectId getId() {
         return id;
-    }
+    } 
 
-    public void setId(ObjectId id) {
+	public void setId(ObjectId id) {
         this.id = id;
     }
 
@@ -88,8 +98,16 @@ public class AlertEntity {
     public void setCreateAt(Date createAt) {
         this.createAt = createAt;
     }
+    
+    public ParentEntity getParent() {
+		return parent;
+	}
 
-    public SonEntity getSon() {
+	public void setParent(ParentEntity parent) {
+		this.parent = parent;
+	}
+
+	public SonEntity getSon() {
         return son;
     }
 
@@ -104,4 +122,12 @@ public class AlertEntity {
     public void setDelivered(Boolean delivered) {
         this.delivered = delivered;
     }
+
+	public Date getDeliveredAt() {
+		return deliveredAt;
+	}
+
+	public void setDeliveredAt(Date deliveredAt) {
+		this.deliveredAt = deliveredAt;
+	}
 }
