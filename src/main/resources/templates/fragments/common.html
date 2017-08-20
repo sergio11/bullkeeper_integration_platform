@@ -54,7 +54,7 @@
         <th:block th:fragment="breadcrumb(path)">
             <ol class="breadcrumb">
                 <li th:each="item, iterStat:${path}">
-                    <i class="fa fa-home"></i>
+                    <i class="fa fa-circle"></i>
                     <a href="#" th:href="@{${item.url}}" th:text="#{${item.text}}">item</a>
                     <i th:if="${!iterStat.last}" class="fa fa-angle-right"></i>
                 </li>
@@ -222,6 +222,13 @@
 							<a href="/" th:href="@{/admin/comments}">
 								<span class="fa fa-fw fa-comments"></span>
 								<span th:text="#{dashboard.menu.comments}">Comments</span>
+							</a>
+						</li>
+                                                <!-- Alerts -->
+						<li>
+							<a href="/" th:href="@{/admin/alerts}">
+								<span class="fa fa-fw fa-exclamation-triangle"></span>
+								<span th:text="#{dashboard.menu.alerts}">Alerts</span>
 							</a>
 						</li>
 					</ul>

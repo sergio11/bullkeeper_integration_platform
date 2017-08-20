@@ -9,35 +9,35 @@ import org.springframework.ui.Model;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import sanchez.sanchez.sergio.dto.response.SonDTO;
-import sanchez.sanchez.sergio.service.ISonService;
+import sanchez.sanchez.sergio.dto.response.AlertDTO;
+import sanchez.sanchez.sergio.service.IAlertService;
 
 /**
  *
  * @author sergio
  */
-@Controller("AdminChildrenController")
-@RequestMapping("/admin/children")
-public class ChildrenController {
-	
-	private final static String VIEW_NAME = "children";
-    
-    private final ISonService sonService;
+@Controller("AdminAlertController")
+@RequestMapping("/admin/alerts")
+public class AlertsController {
 
-    public ChildrenController(ISonService sonService) {
-        this.sonService = sonService;
+    private final static String VIEW_NAME = "alerts";
+
+    private final IAlertService alertService;
+
+    public AlertsController(IAlertService alertService) {
+        this.alertService = alertService;
     }
-    
-    @GetMapping(value = { "", "/" })
+
+    @GetMapping(value = {"", "/"})
     public String findPaginated(Model model, @PageableDefault Pageable pageable) {
-        Page<SonDTO> resultPage = sonService.findPaginated(pageable);
+        Page<AlertDTO> resultPage = alertService.findPaginated(pageable);
         model.addAttribute("page", resultPage);
         return VIEW_NAME;
     }
-    
+
     @PostConstruct
-    protected void init(){
-        Assert.notNull(sonService, "Son Service cannot be null");
+    protected void init() {
+        Assert.notNull(alertService, "Alert Service cannot be null");
     }
-    
+
 }

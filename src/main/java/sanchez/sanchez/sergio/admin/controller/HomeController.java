@@ -6,6 +6,7 @@ import org.springframework.ui.Model;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import sanchez.sanchez.sergio.service.IAlertService;
 
 import sanchez.sanchez.sergio.service.ICommentsService;
 import sanchez.sanchez.sergio.service.IIterationService;
@@ -22,11 +23,14 @@ public class HomeController {
     private final ICommentsService commentsService;
     private final IIterationService iterationsService;
     private final ISonService sonService;
+    private final IAlertService alertService;
 
-    public HomeController(ICommentsService commentsService, IIterationService iterationsService, ISonService sonService) {
+    public HomeController(ICommentsService commentsService, 
+            IIterationService iterationsService, ISonService sonService, IAlertService alertService) {
         this.commentsService = commentsService;
         this.iterationsService = iterationsService;
         this.sonService = sonService;
+        this.alertService = alertService;
     }
     
     @GetMapping(value = { "", "/", "/home" })
@@ -37,6 +41,8 @@ public class HomeController {
         model.addAttribute("totalIterations", iterationsService.getTotalIterations());
         // total children
         model.addAttribute("totalChildren", sonService.getTotalChildren());
+        // Total Alert
+        model.addAttribute("totalAlerts", alertService.getTotalAlerts());
         return "index";
     }
     
@@ -46,6 +52,7 @@ public class HomeController {
         Assert.notNull(commentsService, "Comments Service cannot be null");
         Assert.notNull(iterationsService, "Iterations Service cannot be null");
         Assert.notNull(sonService, "Son Service cannot be null");
+        Assert.notNull(alertService, "Alert Service cannot be null");
     }
 
 }
