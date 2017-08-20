@@ -26,6 +26,8 @@
         <jquery.version>1.11.1</jquery.version>
         <font.awesome.version>4.2.0</font.awesome.version>
         <jjwt.version>0.7.0</jjwt.version>
+        <sockjs.client.version>1.0.2</sockjs.client.version>
+        <stomp.websocket.version>2.3.3</stomp.websocket.version>
     </properties>
     <dependencies>
     	<dependency>
@@ -128,6 +130,16 @@
             <artifactId>font-awesome</artifactId>
             <version>${font.awesome.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>sockjs-client</artifactId>
+            <version>${sockjs.client.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>stomp-websocket</artifactId>
+            <version>${stomp.websocket.version}</version>
+        </dependency>
         <!-- Security -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -152,6 +164,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-batch</artifactId>
+        </dependency>
+        <!-- Spring Web Socket -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
         </dependency>
     </dependencies>
     <build>

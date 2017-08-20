@@ -4,7 +4,7 @@
     xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
     layout:decorator="layout">
     <head>
-        <title>TODO supply a title</title>
+        <title th:text="#{dashboard.title}">BullyTect DashBoard Admin</title>
     </head>
     <body>
         <th:block layout:fragment="content">
@@ -28,8 +28,8 @@
                                     <i class="fa fa-comments fa-5x"></i>
                                 </div>
                                 <div class="col-xs-9 text-right">
-                                    <div class="huge" th:text="${totalComments}">0</div>
-                                    <div th:text="#{dashboard.index.heading.comments}">Total Comments Received</div>
+                                    <div id="totalComments" class="huge" th:text="${totalComments}">0</div>
+                                    <div th:text="#{dashboard.index.heading.comments}">Total Comments</div>
                                 </div>
                             </div>
                         </div>
@@ -50,7 +50,7 @@
                                     <i class="fa fa-tasks fa-5x"></i>
                                 </div>
                                 <div class="col-xs-9 text-right">
-                                    <div class="huge" th:text="${totalIterations}">0</div>
+                                    <div id="totalIterations" class="huge" th:text="${totalIterations}">0</div>
                                     <div th:text="#{dashboard.index.heading.iterations}">Total Iterations</div>
                                 </div>
                             </div>
@@ -88,6 +88,40 @@
                 </div>
             </div>
             <!-- /.row -->
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">
+                                <i class="fa fa-bar-chart-o fa-fw"></i>
+                                <span th:text="#{dashboard.iterations.chart}">Iteration Chart</span>
+                                <strong class="pull-right" id="lastIteration"></strong>
+                            </h3>
+                        </div>
+                        <div class="panel-body">
+                            <div id="morris-area-chart"></div>
+                            <div id="no-iterations-found" class="alert alert-warning" th:text="#{dashboard.iterations.not.found}">
+                                No Iterations Found.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </th:block>
+                    
+                   
+        <th:block layout:fragment="page-scripts"> 
+            <th:block th:replace="fragments/common::stomp-scripts" />
+            <script src="../static/js/page/index.js" th:src="@{/js/page/index.js}"></script>
+
+            <script>
+                
+                $(function() {
+                    IndexPage.init();
+                });
+                
+            </script>
+            
         </th:block>
     </body>
 </html>

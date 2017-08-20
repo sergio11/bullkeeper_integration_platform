@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import sanchez.sanchez.sergio.dto.response.IterationDTO;
@@ -28,10 +29,13 @@ public class IterationServiceImpl implements IIterationService {
     
     private final IterationRepository iterationRepository;
     private final IIterationEntityMapper iterationEntityMapper;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
-    public IterationServiceImpl(IterationRepository iterationRepository, IIterationEntityMapper iterationEntityMapper) {
+    public IterationServiceImpl(IterationRepository iterationRepository, 
+            IIterationEntityMapper iterationEntityMapper, SimpMessagingTemplate simpMessagingTemplate) {
         this.iterationRepository = iterationRepository;
         this.iterationEntityMapper = iterationEntityMapper;
+        this.simpMessagingTemplate = simpMessagingTemplate;
     }
     
   
@@ -39,7 +43,9 @@ public class IterationServiceImpl implements IIterationService {
     public void save(IterationEntity iterationEntity) {
         logger.debug("Total Task ..." + iterationEntity.getTotalTasks());
         logger.debug("Total Task Failed ..." + iterationEntity.getTotalFailedTasks());
-        iterationRepository.save(iterationEntity);
+        IterationEntity iterationToSend = iterationRepository.save(iterationEntity);
+        simpMessagingTemplate.convertAndSend("/topic/iterations/new", 
+                iterationEntityMapper.iterationEntityToIterationDTO(iterationToSend));
     }
     
    
@@ -77,10 +83,16 @@ public class IterationServiceImpl implements IIterationService {
             }
         });
 	}
+        
+    @Override
+    public List<IterationDTO> allIterations() {
+        return iterationEntityMapper.iterationEntitiesToIterationDTOs(iterationRepository.findAll());
+    }
     
     @PostConstruct
     protected void init() {
         Assert.notNull(iterationRepository, "IterationRepository cannot be null");
         Assert.notNull(iterationEntityMapper, "IIterationEntityMapper cannot be null");
+        Assert.notNull(simpMessagingTemplate, "SimpMessagingTemplate cannot be null");
     }
 }

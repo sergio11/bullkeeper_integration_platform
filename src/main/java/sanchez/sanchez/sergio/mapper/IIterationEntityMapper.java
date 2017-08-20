@@ -17,8 +17,8 @@ import sanchez.sanchez.sergio.persistence.entity.IterationEntity;
 public interface IIterationEntityMapper {
     
     @Mappings({
-        @Mapping(source = "iterationEntity.startDate", target = "startDate", dateFormat = "dd/MM/yyyy"),
-        @Mapping(source = "iterationEntity.finishDate", target = "finishDate", dateFormat = "dd/MM/yyyy")
+        @Mapping(source = "iterationEntity.startDate", target = "startDate", dateFormat = "dd/MM/yyyy HH:mm:ss"),
+        @Mapping(source = "iterationEntity.finishDate", target = "finishDate", dateFormat = "dd/MM/yyyy HH:mm:ss")
     })
     @Named("iterationEntityToIterationDTO")
     IterationDTO iterationEntityToIterationDTO(IterationEntity iterationEntity); 

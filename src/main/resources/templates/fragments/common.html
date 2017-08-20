@@ -18,6 +18,12 @@
 	        <script src="../static/js/plugins/morris/morris.min.js"
 	            th:src="@{/js/plugins/morris/morris.min.js}"></script>
     	</th:block>
+        
+        <!-- stomp js scripts -->
+        <th:block th:fragment="stomp-scripts">
+            <script th:src="@{/webjars/sockjs-client/1.0.2/sockjs.min.js}"></script>
+            <script th:src="@{/webjars/stomp-websocket/2.3.3/stomp.min.js}"></script> 
+    	</th:block>
     	
     	<!-- Base Styles -->
     	<th:block th:fragment="common-styles">

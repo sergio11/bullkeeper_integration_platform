@@ -10,4 +10,5 @@ import sanchez.sanchez.sergio.persistence.entity.IterationEntity;
  * @author sergio
  */
 @Repository
-public interface IterationRepository extends MongoRepository<IterationEntity, ObjectId> {}
+public interface IterationRepository extends MongoRepository<IterationEntity, ObjectId> {
+}
