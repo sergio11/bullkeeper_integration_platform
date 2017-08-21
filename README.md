@@ -140,6 +140,26 @@ You will want to add a user who can access the manager-gui and admin-gui (web ap
      <user username="admin" password="password" roles="manager-gui,admin-gui"/>
  </tomcat-users>
 ```
+
+By default, newer versions of Tomcat restrict access to the Manager and Host Manager apps to connections coming from the server itself. Since we are installing on a remote machine, you will probably want to remove or alter this restriction. To change the IP address restrictions on these, open the appropriate context.xml files.
+
+For the Manager app, type:
+
+```
+ 
+ sudo vi /opt/tomcat/webapps/manager/META-INF/context.xml
+
+```
+
+For the Host Manager app, type:
+
+```
+ sudo vi /opt/tomcat/webapps/host-manager/META-INF/context.xml
+
+```
+
+Inside, comment out the IP address restriction to allow connections from anywhere. Alternatively, if you would like to allow access only to connections coming from your own IP address, you can add your public IP address to the list:
+
 To put our changes into effect, restart the Tomcat service:
 
 ```
