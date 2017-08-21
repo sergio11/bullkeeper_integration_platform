@@ -1,7 +1,11 @@
 package sanchez.sanchez.sergio.service;
 
+import java.util.Map;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
+import sanchez.sanchez.sergio.dto.response.CommentsBySon;
 import sanchez.sanchez.sergio.dto.response.SonDTO;
 
 public interface ISonService {
@@ -9,4 +13,7 @@ public interface ISonService {
     Page<SonDTO> findPaginated(Pageable pageable);
     SonDTO getSonById(String id);
     Long getTotalChildren();
+    Iterable<CommentsBySon> findCommentsBySons();
+    Map<String, Long> findCommentsBySonOnLastIteration();
+    
 }

@@ -4,7 +4,7 @@
     <groupId>sanchez.sanchez.sergio</groupId>
     <artifactId>spring-integration-sample</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>${packaging.type}</packaging>
     <name>Spring Integration Sample</name>
     <description>Project to practiceEIPs with Spring Integration.</description>
     <parent>
@@ -29,6 +29,42 @@
         <sockjs.client.version>1.0.2</sockjs.client.version>
         <stomp.websocket.version>2.3.3</stomp.websocket.version>
     </properties>
+    
+    <!--  Profiles -->
+    <profiles>
+		<profile>
+			<id>production</id>
+			<properties>
+				<packaging.type>war</packaging.type>
+        		<activatedProperties>prod</activatedProperties>
+			</properties>
+			<dependencies>
+				<dependency>
+		            <groupId>org.springframework.boot</groupId>
+		            <artifactId>spring-boot-starter-tomcat</artifactId>
+		            <scope>provided</scope>
+		        </dependency>
+			</dependencies>
+		</profile>
+		<profile>
+			<id>development</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<packaging.type>jar</packaging.type>
+				<activatedProperties>dev</activatedProperties>
+			</properties>
+			<dependencies>
+				<dependency>
+		            <groupId>de.flapdoodle.embed</groupId>
+		            <artifactId>de.flapdoodle.embed.mongo</artifactId>
+		        </dependency>
+			</dependencies>
+		</profile>
+	</profiles>
+    
+    
     <dependencies>
     	<dependency>
             <groupId>commons-beanutils</groupId>
@@ -42,10 +78,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-mongodb</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.flapdoodle.embed</groupId>
-            <artifactId>de.flapdoodle.embed.mongo</artifactId>
         </dependency>
         <!--  Integration -->
         <dependency>
@@ -172,6 +204,15 @@
         </dependency>
     </dependencies>
     <build>
+    
+    	<!-- That will allow you to insert properties defined in the previous step into any file in the resources directory, which is the subsequent step. -->
+    	<resources>
+	        <resource>
+	            <directory>src/main/resources</directory>
+	            <filtering>true</filtering>
+	        </resource>
+	    </resources>
+    
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

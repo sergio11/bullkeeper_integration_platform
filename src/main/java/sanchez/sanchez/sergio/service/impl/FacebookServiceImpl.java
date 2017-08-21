@@ -63,9 +63,14 @@ public class FacebookServiceImpl implements IFacebookService {
         return StreamUtils.asStream(commentConnection.iterator())
                 .flatMap(List::stream)
                 .flatMap(comment 
-                        ->  comment.getCommentCount() > 0 ? StreamUtils.concat(
+                        ->  {
+                        	
+                        	logger.debug("Comment -> " + comment.getMessage() + " Created Time : " + comment.getCreatedTime());
+                        	
+                        	return comment.getCommentCount() > 0 ? StreamUtils.concat(
                                     getCommentsByObjectAfterThan(facebookClient, comment.getId(), startDate, user), comment) : 
-                                    	Stream.of(comment)
+                                    	Stream.of(comment);
+                        }
                 ).filter(comment -> !comment.getFrom().getId().equals(user.getId()) &&
                 		(startDate != null ? comment.getCreatedTime().after(startDate) : true));
     }
@@ -86,7 +91,9 @@ public class FacebookServiceImpl implements IFacebookService {
         // Iterate over the albums to access the particular pages
         return StreamUtils.asStream(userAlbums.iterator())
         		.flatMap(List::stream)
-        		.flatMap(album -> getCommentsByObjectAfterThan(facebookClient, album.getId(), startDate, user));
+        		.flatMap(album -> { 
+        			logger.debug("Album -> " + album.getName() + "Description " + album.getDescription());
+        			return getCommentsByObjectAfterThan(facebookClient, album.getId(), startDate, user); });
     }
    
    

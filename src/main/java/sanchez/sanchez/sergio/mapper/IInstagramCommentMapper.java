@@ -19,7 +19,8 @@ public interface IInstagramCommentMapper {
     @Mappings({ 
         @Mapping(target = "id", ignore=true),
         @Mapping(source = "instagramComment.text", target = "message"),
-        @Mapping(expression="java(new java.util.Date(Long.parseLong(instagramComment.getCreatedTime())))", target = "createdTime")
+        @Mapping(expression="java(new java.util.Date(Long.parseLong(instagramComment.getCreatedTime())))", target = "createdTime"),
+        @Mapping(expression="java(sanchez.sanchez.sergio.persistence.entity.SocialMediaTypeEnum.INSTAGRAM)", target = "socialMedia")
     })
     @Named("instagramCommentToCommentEntity")
     CommentEntity instagramCommentToCommentEntity(CommentData instagramComment); 

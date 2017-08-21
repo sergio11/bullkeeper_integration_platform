@@ -11,4 +11,5 @@ import sanchez.sanchez.sergio.persistence.entity.IterationEntity;
  */
 @Repository
 public interface IterationRepository extends MongoRepository<IterationEntity, ObjectId> {
+	//IterationEntity findFirstByFinishDateDesc();
 }

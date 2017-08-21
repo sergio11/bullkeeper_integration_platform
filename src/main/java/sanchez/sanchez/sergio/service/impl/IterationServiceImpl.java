@@ -44,6 +44,7 @@ public class IterationServiceImpl implements IIterationService {
         logger.debug("Total Task ..." + iterationEntity.getTotalTasks());
         logger.debug("Total Task Failed ..." + iterationEntity.getTotalFailedTasks());
         IterationEntity iterationToSend = iterationRepository.save(iterationEntity);
+        
         simpMessagingTemplate.convertAndSend("/topic/iterations/new", 
                 iterationEntityMapper.iterationEntityToIterationDTO(iterationToSend));
     }

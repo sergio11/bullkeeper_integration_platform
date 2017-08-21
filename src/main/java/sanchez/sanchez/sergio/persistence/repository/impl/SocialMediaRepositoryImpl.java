@@ -23,7 +23,7 @@ public class SocialMediaRepositoryImpl implements SocialMediaRepositoryCustom {
 
     @Override
     public void setAccessTokenAsInvalid(String accessToken, SocialMediaTypeEnum type) {
-        
+    	
        mongoTemplate.updateFirst(
         		new Query(Criteria.where("access_token").is(accessToken)
                     .and("social_media_type").is(type.name())),

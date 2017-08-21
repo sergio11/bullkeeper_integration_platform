@@ -54,7 +54,6 @@
         <th:block th:fragment="breadcrumb(path)">
             <ol class="breadcrumb">
                 <li th:each="item, iterStat:${path}">
-                    <i class="fa fa-circle"></i>
                     <a href="#" th:href="@{${item.url}}" th:text="#{${item.text}}">item</a>
                     <i th:if="${!iterStat.last}" class="fa fa-angle-right"></i>
                 </li>

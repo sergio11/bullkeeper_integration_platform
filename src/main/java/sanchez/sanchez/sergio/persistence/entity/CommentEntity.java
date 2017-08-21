@@ -29,6 +29,10 @@ public class CommentEntity {
     @Field("created_time")
     private Date createdTime;
     
+    @Field("social_media")
+    private SocialMediaTypeEnum socialMedia;
+    
+    
     @Field("target")
     @DBRef
     private SonEntity sonEntity;
@@ -36,17 +40,22 @@ public class CommentEntity {
     public CommentEntity(){}
 
     @PersistenceConstructor
-    public CommentEntity(String message, Date createdTime, SonEntity sonEntity) {
-        this.message = message;
-        this.createdTime = createdTime;
-        this.sonEntity = sonEntity;
-    }
+    public CommentEntity(String message, Long likes, Date createdTime, SocialMediaTypeEnum socialMedia, SonEntity sonEntity) {
+		super();
+		this.message = message;
+		this.likes = likes;
+		this.createdTime = createdTime;
+		this.socialMedia = socialMedia;
+		this.sonEntity = sonEntity;
+	}
+    
     
     public ObjectId getId() {
         return id;
     }
 
-    public void setId(ObjectId id) {
+   
+	public void setId(ObjectId id) {
         this.id = id;
     }
 
@@ -81,9 +90,19 @@ public class CommentEntity {
     public void setCreatedTime(Date createdTime) {
         this.createdTime = createdTime;
     }
+    
+    public SocialMediaTypeEnum getSocialMedia() {
+		return socialMedia;
+	}
 
-    @Override
-    public String toString() {
-        return "CommentEntity{" + "id=" + id + ", message=" + message + ", likes=" + likes + ", createdTime=" + createdTime + '}';
-    }
+	public void setSocialMedia(SocialMediaTypeEnum socialMedia) {
+		this.socialMedia = socialMedia;
+	}
+
+
+	@Override
+	public String toString() {
+		return "CommentEntity [id=" + id + ", message=" + message + ", likes=" + likes + ", createdTime=" + createdTime
+				+ ", socialMedia=" + socialMedia + "]";
+	}
 }
