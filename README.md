@@ -3,6 +3,8 @@ A Spring Integration Sample Applying EIPs
 
 ## Deployment Guide
 
+### Installing Apache Tomcat Server 8
+
 Check the **JDK** used by default.
 
 ```
@@ -166,3 +168,39 @@ To put our changes into effect, restart the Tomcat service:
  sudo systemctl restart tomcat
  
 ```
+
+### Installing MongoDB
+
+MongoDB **is already included in Ubuntu package repositories**, but the official MongoDB repository provides the most up-to-date version and is the recommended way of installing the software. In this step, **we will add this official repository to our server.**
+
+Ubuntu ensures the authenticity of software packages by verifying that they are signed with GPG keys, so we first have to import the key for the official MongoDB repository.
+
+```
+ sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 0C49F3730359A14518585931BC711F9BA15703C6
+
+```
+Next, we'll add MongoDB repository details so apt will know where to download the packages. Issue the following command to create a list file for MongoDB.
+
+```echo "deb [ arch=amd64,arm64 ] http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.4 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.4.list```
+
+Finally, we'll update the packages list.
+
+```sudo apt-get update```
+```echo "deb [ arch=amd64,arm64 ] http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.4 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.4.list```
+
+We'll install **the mongodb-org meta-package**, which includes the daemon, configuration and init scripts, shell, and management tools on the server.
+
+``` sudo apt-get install mongodb-org -Y ```
+
+Once the installation is complete, we'll start the **Mongo daemon**:
+
+```sudo systemctl start mongod```
+
+Since systemctl doesn't provide output, we'll check the status to verify that the service has started properly.
+
+```sudo systemctl status mongod```
+
+Press q to exit. Now that we've manually started the daemon and verified that it’s running, we'll ensure that it restarts automatically at boot:
+
+```sudo systemctl enable mongod```
+
