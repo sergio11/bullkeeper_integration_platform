@@ -125,4 +125,24 @@ If you were able to successfully accessed Tomcat, now is a good time to enable t
   sudo systemctl enable tomcat
   
 ```
-  
+
+In order to use the manager web app that comes with Tomcat, we must add a login to our Tomcat server. We will do this by editing the tomcat-users.xml file:
+
+```
+ sudo vi /opt/tomcat/conf/tomcat-users.xml
+ 
+```
+
+You will want to add a user who can access the manager-gui and admin-gui (web apps that come with Tomcat). You can do so by defining a user:
+
+```
+ <tomcat-users>
+     <user username="admin" password="password" roles="manager-gui,admin-gui"/>
+ </tomcat-users>
+```
+To put our changes into effect, restart the Tomcat service:
+
+```
+ sudo systemctl restart tomcat
+ 
+```
