@@ -1,4 +1,4 @@
-package sanchez.sanchez.sergio.util;
+package sanchez.sanchez.sergio.persistence.loader;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,9 +37,9 @@ import sanchez.sanchez.sergio.persistence.repository.UserSystemRepository;
 
 @Component
 @Profile("dev")
-public class CommandLineAppStartupRunner implements CommandLineRunner {
+public class LoadInitialDataForDevelopmentEnvironment implements CommandLineRunner {
     
-    private static final Logger logger = LoggerFactory.getLogger(CommandLineAppStartupRunner.class);
+    private static final Logger logger = LoggerFactory.getLogger(LoadInitialDataForDevelopmentEnvironment.class);
     
     
     private final SchoolRepository schoolRepository;
@@ -174,7 +174,7 @@ public class CommandLineAppStartupRunner implements CommandLineRunner {
 
 
     
-    public CommandLineAppStartupRunner(SchoolRepository schoolRepository, ParentRepository parentRepository,
+    public LoadInitialDataForDevelopmentEnvironment(SchoolRepository schoolRepository, ParentRepository parentRepository,
 			SonRepository sonRepository, SocialMediaRepository socialMediaRepository, AuthorityRepository authorityRepository, 
 			UserSystemRepository userSystemRepository, AlertRepository alertRepository, DeviceGroupRepository deviceGroupRepository) {
 		super();

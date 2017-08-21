@@ -1,7 +1,6 @@
 package sanchez.sanchez.sergio.config.rest;
 
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.PostConstruct;
@@ -28,6 +27,7 @@ import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import sanchez.sanchez.sergio.fcm.FCMCustomProperties;
+import sanchez.sanchez.sergio.fcm.utils.FCMErrorHandler;
 import sanchez.sanchez.sergio.rest.interceptor.HeaderRequestInterceptor;
 
 @Configuration
@@ -50,7 +50,9 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         registry.addRedirectViewController("/documentation/swagger-resources", "/swagger-resources");
         registry.addRedirectViewController("/documentation/configuration/ui", "/configuration/ui");
         registry.addRedirectViewController("/documentation/configuration/security", "/configuration/security");
+        registry.addRedirectViewController("/", "/documentation/swagger-ui.html");
         registry.addViewController("/admin/login").setViewName("login");
+        
     }
 
     @Override
@@ -103,7 +105,12 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     public ClientHttpRequestInterceptor provideProjectId(){
     	return new HeaderRequestInterceptor("project_id", fcmProperties.getSenderId());
     }
-
+    
+    
+    @Bean
+	public DefaultResponseErrorHandler provideResponseErrorHandler(){
+		return new FCMErrorHandler();
+	}
 
     @Bean
     public RestTemplate restTemplate(ObjectMapper objectMapper, List<ClientHttpRequestInterceptor> interceptors,

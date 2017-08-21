@@ -49,7 +49,8 @@ var IndexPage = (function($){
     return {
         
         init: function () {
-            var wsocket = new SockJS('/web-socket');
+        	var websocketurl = _ctx+'/web-socket';
+            var wsocket = new SockJS(websocketurl);
             var client = Stomp.over(wsocket);
             client.connect({}, function (frame) {
                 // Subscribe for all iterations.

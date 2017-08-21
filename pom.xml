@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>sanchez.sanchez.sergio</groupId>
-    <artifactId>spring-integration-sample</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <artifactId>bullytect-integration-platform</artifactId>
+    <version>0.0.6-SNAPSHOT</version>
     <packaging>${packaging.type}</packaging>
-    <name>Spring Integration Sample</name>
-    <description>Project to practiceEIPs with Spring Integration.</description>
+    <name>BullyTect Integration Platform</name>
+    <description>BullyTect Integration Platform. EIPs patterns with Spring Integration.</description>
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
@@ -37,6 +39,7 @@
 			<properties>
 				<packaging.type>war</packaging.type>
         		<activatedProperties>prod</activatedProperties>
+        		<start-class>sanchez.sanchez.sergio.BullyTectIntegrationPlatformProductionApplication</start-class>
 			</properties>
 			<dependencies>
 				<dependency>
@@ -54,11 +57,22 @@
 			<properties>
 				<packaging.type>jar</packaging.type>
 				<activatedProperties>dev</activatedProperties>
+				<start-class>sanchez.sanchez.sergio.BullyTectIntegrationPlatformDevelopmentApplication</start-class>
 			</properties>
 			<dependencies>
 				<dependency>
 		            <groupId>de.flapdoodle.embed</groupId>
 		            <artifactId>de.flapdoodle.embed.mongo</artifactId>
+		        </dependency>
+		        <dependency>
+		            <groupId>org.springframework.boot</groupId>
+		            <artifactId>spring-boot-starter-tomcat</artifactId>
+		            <exclusions>
+			            <exclusion>
+			                <groupId>commons-io</groupId>
+			                <artifactId>commons-io</artifactId>
+			            </exclusion>
+			        </exclusions>
 		        </dependency>
 			</dependencies>
 		</profile>
@@ -66,6 +80,11 @@
     
     
     <dependencies>
+    	<dependency>
+		    <groupId>commons-io</groupId>
+		    <artifactId>commons-io</artifactId>
+		    <version>2.4</version>
+		</dependency>
     	<dependency>
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>

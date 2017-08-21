@@ -13,7 +13,7 @@
         <meta content="Admin Dashboard" name="description"/>
         <meta content="Spring MVC Spring Integration Thymeleaf" name="keywords"/>
         <meta content="sergio" name="author"/>
-       
+       	<meta name="ctx" th:content="${#httpServletRequest.getContextPath()}" />
         <th:block th:replace="fragments/common::common-styles" />
         <style layout:fragment="custom-css-inline"></style>
         
@@ -30,6 +30,12 @@
         </div>
         
         <th:block th:replace="fragments/common::common-scripts" />
+        <script type="text/javascript">
+            jQuery(document).ready(function() {
+                _ctx = $("meta[name='ctx']").attr("content");
+                console.log("Este es el contexto", _ctx);
+            });
+        </script>
         <th:block layout:fragment="page-scripts"></th:block>
     </body>
 </html>
