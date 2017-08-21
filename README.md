@@ -5,126 +5,124 @@ A Spring Integration Sample Applying EIPs
 
 Check the **JDK** used by default.
 
-``
-  sudo update-alternatives --config java
-  
+```
+  sudo update-alternatives --config java
   error: no hay alternativas para java
-
-``
+```
 Install JDK package with apt-get
 
-``
-  sudo apt-get install default-jdk -Y
 
-``
+```
+  sudo apt-get install default-jdk -Y
+
+```
 Check the version of the installed JDK:
 
-``
-  java -version
+```
+  java -version
   
   openjdk version "1.8.0_131"
 
-``
+```
 For security purposes, Tomcat should be run as an unprivileged user (i.e. not root). We will create a new user and group that will run the Tomcat service.
 
 First, create a new tomcat group:
 
-`` 
-  sudo groupadd tomcat
+```
+ sudo groupadd tomcat
   
-``
+```
 
 Next, create a new tomcat user. We'll make this user a member of the tomcat group, with a home directory of **/opt/tomcat** (where we will install Tomcat), and with a shell of **/bin/false** (so nobody can log into the account):
 
-``
-  sudo useradd -s /bin/false -g tomcat -d /opt/tomcat tomcat
+```
+  sudo useradd -s /bin/false -g tomcat -d /opt/tomcat tomcat
 
-``
+```
 
 Next, change to the **/tmp** directory on your server. This is a good directory to download ephemeral items, like the Tomcat tarball, which we won't need after extracting the Tomcat contents:
 
-``
-  cd /tmp
+```
+  cd /tmp
   
-``
+```
 
 Use curl to download the link that you copied from the Tomcat website:
 
-`` 
+``` 
   curl -O "http://apache.rediris.es/tomcat/tomcat-8/v8.5.20/bin/apache-tomcat-8.5.20.tar.gz"
   
-``
+```
 
 We will install Tomcat to the **/opt/tomcat** directory. Create the directory, then extract the archive to it with these commands:
 
-``
-  sudo mkdir /opt/tomcat
+```
+  sudo mkdir /opt/tomcat
   sudo tar xzvf apache-tomcat-8*tar.gz -C /opt/tomcat --strip-components=1
   
-``
+```
 
 The tomcat user that we set up needs to have access to the Tomcat installation. We'll set that up now.
 
 Change to the directory where we unpacked the Tomcat installation:
 
-``
-  cd /opt/tomcat
+```
+  cd /opt/tomcat
 
-``
+```
 
 Give the tomcat group ownership over the entire installation directory:
 
-``
-  sudo chgrp -R tomcat /opt/tomcat
+```
+  sudo chgrp -R tomcat /opt/tomcat
   
-``
+```
 
 Next, give the tomcat group read access to the conf directory and all of its contents, and execute access to the directory itself:
 
-``
-  sudo chmod -R g+r conf
+```
+  sudo chmod -R g+r conf
   sudo chmod g+x conf
 
-``
+```
 
 Make the tomcat user the owner of the webapps, work, temp, and logs directories:
 
-``
-  sudo chown -R tomcat webapps/ work/ temp/ logs/
-
-``
+```
+  sudo chown -R tomcat webapps/ work/ temp/ logs/
+```
 
 Open a file called tomcat.service in the /etc/systemd/system directory by typing:
 
-``
-  sudo nano /etc/systemd/system/tomcat.service
+```
+  sudo nano /etc/systemd/system/tomcat.service
 
-``
+```
 Next, reload the systemd daemon so that it knows about our service file:
 
-``
-  sudo systemctl daemon-reload
+```
+  sudo systemctl daemon-reload
   
-``
+```
 
 Start the Tomcat service by typing:
 
-``
-  sudo systemctl start tomcat
+```
+  sudo systemctl start tomcat
   
-``
+```
 
 Double check that it started without errors by typing:
 
-``
-  sudo systemctl status tomcat
+```
+  sudo systemctl status tomcat
   
-``
+```
 
 If you were able to successfully accessed Tomcat, now is a good time to enable the service file so that Tomcat automatically starts at boot:
 
-``
-  sudo systemctl enable tomcat
+```
+  sudo systemctl enable tomcat
   
-``
-  
+```
+  
