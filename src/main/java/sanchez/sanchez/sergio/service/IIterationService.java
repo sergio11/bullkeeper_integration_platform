@@ -4,6 +4,8 @@ import java.util.Date;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
+import sanchez.sanchez.sergio.dto.response.CommentsBySonDTO;
 import sanchez.sanchez.sergio.dto.response.IterationDTO;
 import sanchez.sanchez.sergio.persistence.entity.IterationEntity;
 import java.util.List;
@@ -19,4 +21,5 @@ public interface IIterationService {
     Page<IterationDTO> findPaginated(Pageable pageable);
     List<IterationDTO> allIterations();
     Date getLastProbing();
+    List<CommentsBySonDTO> getCommentsBySonForLastIteration();
 }

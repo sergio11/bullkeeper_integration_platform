@@ -67,27 +67,9 @@ public class SonServiceImpl implements ISonService {
 		return sonEntityMapper.sonEntityToSonDTO(sonEntity);
 	}
 	
-	@Override
-	public Iterable<CommentsBySon> findCommentsBySons() {
-		return null;
-	}
 
 	@Override
 	public Long getTotalChildren() {
 		return sonRepository.count();
-	}
-
-	@Override
-	public Map<String, Long> findCommentsBySonOnLastIteration() {
-		/*Map<String, Long> commentsBySon = new HashMap<String, Long>();
-		IterationEntity lastIteration = iterationRepository.findFirstByFinishDateDesc();
-		lastIteration.getTasks().stream().flatMap(task -> task.getComments().stream()).forEach(comment -> 
-			commentsBySon.compute(comment.getSonEntity().getFullName(), (k, v) -> (v == null) ? 1 : v++));
-		
-		logger.debug("Comments By Son -> " + commentsBySon);*/
-		return null;
-		
-		//return commentsBySon;
-		
 	}
 }

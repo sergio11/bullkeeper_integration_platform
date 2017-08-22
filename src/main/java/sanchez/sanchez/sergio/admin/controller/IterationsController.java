@@ -12,9 +12,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-
+import sanchez.sanchez.sergio.dto.response.CommentsBySonDTO;
 import sanchez.sanchez.sergio.dto.response.IterationDTO;
 import sanchez.sanchez.sergio.service.IIterationService;
+import sanchez.sanchez.sergio.websocket.constants.WebSocketConstants;
 
 /**
  *
@@ -42,9 +43,16 @@ public class IterationsController {
     }
     
     @MessageMapping("/web-socket/admin/iterations")
-    @SendTo("/topic/iterations/all")
+    @SendTo(WebSocketConstants.ALL_ITERATIONS_TOPIC)
     public List<IterationDTO> allIterations() throws Exception {
         logger.debug("Web Socket Entry Point called ...");
         return iterationService.allIterations();
     }
+    
+    @MessageMapping("/web-socket/admin/iterations/last/comments-by-son")
+    @SendTo(WebSocketConstants.LAST_ITERATION_COMMENTS_BY_SON_TOPIC)
+    public List<CommentsBySonDTO> commentsBySonForLastIteration() throws Exception {
+        return iterationService.getCommentsBySonForLastIteration();
+    }
+    
 }

@@ -5,11 +5,10 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 import sanchez.sanchez.sergio.persistence.entity.IterationEntity;
 
-
 /**
  * @author sergio
  */
 @Repository
-public interface IterationRepository extends MongoRepository<IterationEntity, ObjectId> {
+public interface IterationRepository extends MongoRepository<IterationEntity, ObjectId>, IterationRepositoryCustom {
 	//IterationEntity findFirstByFinishDateDesc();
 }

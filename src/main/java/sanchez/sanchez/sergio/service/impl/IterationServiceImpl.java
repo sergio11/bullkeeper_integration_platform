@@ -1,7 +1,12 @@
 package sanchez.sanchez.sergio.service.impl;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +23,8 @@ import sanchez.sanchez.sergio.mapper.IIterationEntityMapper;
 import sanchez.sanchez.sergio.persistence.entity.IterationEntity;
 import sanchez.sanchez.sergio.persistence.repository.IterationRepository;
 import sanchez.sanchez.sergio.service.IIterationService;
+import sanchez.sanchez.sergio.websocket.constants.WebSocketConstants;
+import sanchez.sanchez.sergio.dto.response.CommentsBySonDTO;
 
 /**
  * @author sergio
@@ -38,15 +45,35 @@ public class IterationServiceImpl implements IIterationService {
         this.simpMessagingTemplate = simpMessagingTemplate;
     }
     
+    
+    private List<CommentsBySonDTO> getCommentsBySonForIteration(IterationEntity iterationEntity) {
+    	Map<String, Long> commentsBySon = new HashMap<String, Long>();
+    	iterationEntity.getTasks().stream().flatMap(task -> task.getComments().stream()).forEach(comment -> 
+			commentsBySon.compute(comment.getSonEntity().getFullName(), (k, v) -> (v == null) ? 1 : ++v));
+        
+        return commentsBySon
+        	.entrySet()
+        		.stream()
+        			.map(entry -> new CommentsBySonDTO(entry.getKey(), entry.getValue()))
+        				.collect(Collectors.toList());
+    }
+    
   
     @Override
     public void save(IterationEntity iterationEntity) {
-        logger.debug("Total Task ..." + iterationEntity.getTotalTasks());
-        logger.debug("Total Task Failed ..." + iterationEntity.getTotalFailedTasks());
-        IterationEntity iterationToSend = iterationRepository.save(iterationEntity);
         
-        simpMessagingTemplate.convertAndSend("/topic/iterations/new", 
+        IterationEntity iterationToSend = iterationRepository.save(iterationEntity);
+        logger.debug("TOTAL TASK ->" + iterationEntity.getTotalTasks());
+        logger.debug("TOTAL TASK FAILED -> " + iterationEntity.getTotalFailedTasks());
+        //logger.debug("AVG DURATION -> " + iterationRepository.getAvgDuration());
+        
+        simpMessagingTemplate.convertAndSend(WebSocketConstants.NEW_ITERATION_TOPIC, 
                 iterationEntityMapper.iterationEntityToIterationDTO(iterationToSend));
+        
+  
+        simpMessagingTemplate.convertAndSend(WebSocketConstants.LAST_ITERATION_COMMENTS_BY_SON_TOPIC,
+        		getCommentsBySonForIteration(iterationToSend));
+        
     }
     
    
@@ -89,6 +116,15 @@ public class IterationServiceImpl implements IIterationService {
     public List<IterationDTO> allIterations() {
         return iterationEntityMapper.iterationEntitiesToIterationDTOs(iterationRepository.findAll());
     }
+    
+    @Override
+	public List<CommentsBySonDTO> getCommentsBySonForLastIteration() {
+    	List<CommentsBySonDTO> commentsBySon = new ArrayList<>();
+    	PageRequest request = new PageRequest(0, 1, new Sort(Sort.Direction.DESC, "finishDate"));
+    	List<IterationEntity> iterations = iterationRepository.findAll(request).getContent();
+    	IterationEntity lastIteration = iterations.size() > 0 ? iterations.get(0) : null;
+    	return lastIteration != null ? getCommentsBySonForIteration(lastIteration) : new ArrayList<>();
+	}
     
     @PostConstruct
     protected void init() {

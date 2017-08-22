@@ -27,6 +27,9 @@ public class TaskEntity {
     @Field("finish_date")
     private Date finishDate;
     
+    @Field("duration")
+    private Long duration;
+    
     @Field("is_success")
     private Boolean success = Boolean.TRUE;
     
@@ -42,9 +45,10 @@ public class TaskEntity {
     public TaskEntity(){}
     
     @PersistenceConstructor
-    public TaskEntity(Date startDate, Date finishDate, Boolean success, List<CommentEntity> comments, SonEntity sonEntity) {
+    public TaskEntity(Date startDate, Date finishDate, Long duration, Boolean success, List<CommentEntity> comments, SonEntity sonEntity) {
         this.startDate = startDate;
         this.finishDate = finishDate;
+        this.duration = duration;
         this.success = success;
         this.comments = comments;
         this.sonEntity = sonEntity;
@@ -69,8 +73,17 @@ public class TaskEntity {
     public void setFinishDate(Date finishDate) {
         this.finishDate = finishDate;
     }
+   
 
-    public Boolean isSuccess() {
+    public Long getDuration() {
+		return duration;
+	}
+
+	public void setDuration(Long duration) {
+		this.duration = duration;
+	}
+
+	public Boolean isSuccess() {
         return success;
     }
 

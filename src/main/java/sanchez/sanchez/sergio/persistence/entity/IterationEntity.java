@@ -29,6 +29,9 @@ public class IterationEntity {
     @Field("finish_date")
     private Date finishDate;
     
+    @Field("duration")
+    private Long duration;
+    
     @Field("total_tasks")
     private Integer totalTasks = 0;
     
@@ -45,11 +48,11 @@ public class IterationEntity {
     
     public IterationEntity(){}
     
-    public IterationEntity(Date startDate, Date finishDate){
+    public IterationEntity(Date startDate, Date finishDate, Long duration){
         this.startDate = startDate;
         this.finishDate = finishDate;
+        this.duration = duration;
     }
-
    
     @PersistenceConstructor
     public IterationEntity(Date startDate, Date finishDate, Integer totalTasks, Integer totalFailedTasks,
@@ -86,8 +89,17 @@ public class IterationEntity {
     public void setFinishDate(Date finishDate) {
         this.finishDate = finishDate;
     }
+   
     
-    public Integer getTotalTasks() {
+    public Long getDuration() {
+		return duration;
+	}
+
+	public void setDuration(Long duration) {
+		this.duration = duration;
+	}
+
+	public Integer getTotalTasks() {
         return totalTasks;
     }
 

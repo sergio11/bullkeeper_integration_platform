@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.mongodb.MongoDbFactory;
@@ -25,7 +24,6 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import java.util.List;
 import java.util.concurrent.*;
 import javax.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.integration.aggregator.MessageGroupProcessor;
 import org.springframework.integration.config.EnableIntegration;
 import org.springframework.integration.dsl.channel.MessageChannels;
@@ -38,6 +36,8 @@ import org.springframework.messaging.MessagingException;
 import org.springframework.util.Assert;
 import sanchez.sanchez.sergio.persistence.entity.IterationEntity;
 import sanchez.sanchez.sergio.exception.IntegrationFlowException;
+import sanchez.sanchez.sergio.integration.constants.IntegrationConstants;
+import sanchez.sanchez.sergio.integration.properties.IntegrationFlowProperties;
 import sanchez.sanchez.sergio.persistence.entity.CommentEntity;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaEntity;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaTypeEnum;
@@ -56,15 +56,11 @@ import sanchez.sanchez.sergio.service.IYoutubeService;
 @EnableIntegration
 @IntegrationComponentScan
 @Profile({"dev", "prod"})
-
 public class InfrastructureConfiguration {
     
     private static Logger logger = LoggerFactory.getLogger(InfrastructureConfiguration.class);
     
-    private static String USER_HEADER = "user";
-    private static String TASK_START_HEADER = "taskStart";
-    private static String ITERATION_START_HEADER = "iterationStart";
-    private static String TASK_ERROR_HEADER = "taskError";
+    
     
     @Autowired
     private IFacebookService facebookService;
@@ -78,8 +74,9 @@ public class InfrastructureConfiguration {
     @Autowired
     private IIterationService iterationService;
     
-    @Value("${poller.integration.flow.time}")
-    private Integer pollerTime;
+    @Autowired
+    private IntegrationFlowProperties integrationFlowProperties;
+    
    
     private Date lastProbing;
    
@@ -89,7 +86,7 @@ public class InfrastructureConfiguration {
      */
     @Bean(name = PollerMetadata.DEFAULT_POLLER)
     public PollerMetadata poller() {
-        return Pollers.fixedDelay(pollerTime, TimeUnit.SECONDS).get();
+        return Pollers.fixedDelay(integrationFlowProperties.getPollerTime(), TimeUnit.SECONDS).get();
     }
     
     @Bean
@@ -121,14 +118,14 @@ public class InfrastructureConfiguration {
         return IntegrationFlows.from("socialMediaErrorChannel")
         		.<MessagingException, MessagingException>transform(p -> {
         			IntegrationFlowException integrationException = (IntegrationFlowException)p.getCause();
-        			integrationException.setTarget((SonEntity)p.getFailedMessage().getHeaders().get(USER_HEADER));
+        			integrationException.setTarget((SonEntity)p.getFailedMessage().getHeaders().get(IntegrationConstants.USER_HEADER));
         			return p;
         		})
                 .wireTap(sf -> sf.handle("errorService", "handleException"))
                 .<MessagingException>handle((p, h)
                         -> MessageBuilder.withPayload(Collections.<CommentEntity>emptyList())
                         .copyHeaders(p.getFailedMessage().getHeaders())
-                        .setHeader(TASK_ERROR_HEADER, true)
+                        .setHeader(IntegrationConstants.TASK_ERROR_HEADER, true)
                         .build()
                 )
                 .channel("directChannel_1")
@@ -139,12 +136,12 @@ public class InfrastructureConfiguration {
     @Autowired
     public IntegrationFlow processUsers(MongoDbFactory mongo, PollerMetadata poller) {
         return IntegrationFlows.from(mongoMessageSource(mongo), c -> c.poller(poller))
-                .enrichHeaders(s -> s.header(ITERATION_START_HEADER, new Date()))
+                .enrichHeaders(s -> s.header(IntegrationConstants.ITERATION_START_HEADER, new Date()))
                 .split()
                 .enrichHeaders(s -> 
-                    s.headerExpressions(h -> h.put(USER_HEADER, "payload.sonEntity"))
+                    s.headerExpressions(h -> h.put(IntegrationConstants.USER_HEADER, "payload.sonEntity"))
                     .header(MessageHeaders.ERROR_CHANNEL, "socialMediaErrorChannel")
-                    .header(TASK_START_HEADER, new Date())
+                    .header(IntegrationConstants.TASK_START_HEADER, new Date())
                 )
                 .channel(MessageChannels.executor("executorChannel", this.taskExecutor()))
                 .<SocialMediaEntity, SocialMediaTypeEnum>route(p -> p.getType(),
@@ -160,21 +157,25 @@ public class InfrastructureConfiguration {
                 .transform(new GenericTransformer<Message<List<CommentEntity>>, TaskEntity>() {
                     @Override
                     public TaskEntity transform(Message<List<CommentEntity>> message) {
-                    	SonEntity sonEntity = (SonEntity)message.getHeaders().get(USER_HEADER);
-                        Date taskStart = (Date)message.getHeaders().get(TASK_START_HEADER);
-                        Boolean isSuccess = !message.getHeaders().containsKey(TASK_ERROR_HEADER);
+                    	SonEntity sonEntity = (SonEntity)message.getHeaders().get(IntegrationConstants.USER_HEADER);
+                        Date taskStart = (Date)message.getHeaders().get(IntegrationConstants.TASK_START_HEADER);
+                        Date taskFinish = new Date();
+                        Long duration = Math.abs((taskStart.getTime() - taskFinish.getTime()) / 1000);
+                        Boolean isSuccess = !message.getHeaders().containsKey(IntegrationConstants.TASK_ERROR_HEADER);
                         List<CommentEntity> comments = message.getPayload();
                         for(CommentEntity comment: comments) {
                             comment.setSonEntity(sonEntity);
                         }
-                        return new TaskEntity(taskStart, new Date(), isSuccess, comments, sonEntity);
+                        return new TaskEntity(taskStart, taskFinish, duration, isSuccess, comments, sonEntity);
                     }
                 })
                 .aggregate(a -> a.outputProcessor(new MessageGroupProcessor() {
                     @Override
                     public Object processMessageGroup(MessageGroup mg) {
-                        Date iterationStart = (Date)mg.getOne().getHeaders().get(ITERATION_START_HEADER);
-                        IterationEntity iterationEntity = new IterationEntity(iterationStart, new Date());
+                        Date iterationStart = (Date)mg.getOne().getHeaders().get(IntegrationConstants.ITERATION_START_HEADER);
+                        Date iterationFinish = new Date();
+                        Long duration = Math.abs((iterationStart.getTime() - iterationFinish.getTime()) / 1000);
+                        IterationEntity iterationEntity = new IterationEntity(iterationStart, iterationFinish, duration);
                         iterationEntity.setTotalTasks(mg.getMessages().size());
                         for(Message<?> message: mg.getMessages()){
                             TaskEntity task = (TaskEntity)message.getPayload();
