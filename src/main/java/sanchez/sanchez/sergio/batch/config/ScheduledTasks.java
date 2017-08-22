@@ -1,4 +1,4 @@
-package sanchez.sanchez.sergio.config.batch;
+package sanchez.sanchez.sergio.batch.config;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

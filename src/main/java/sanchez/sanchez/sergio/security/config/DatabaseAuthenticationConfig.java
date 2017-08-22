@@ -1,4 +1,4 @@
-package sanchez.sanchez.sergio.config.security;
+package sanchez.sanchez.sergio.security.config;
 
 import java.io.Serializable;
 import javax.annotation.PostConstruct;

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import io.jsonwebtoken.lang.Assert;
 import sanchez.sanchez.sergio.dto.response.DeviceDTO;
 import sanchez.sanchez.sergio.dto.response.DeviceGroupDTO;
-import sanchez.sanchez.sergio.fcm.FCMCustomProperties;
+import sanchez.sanchez.sergio.fcm.properties.FCMCustomProperties;
 import sanchez.sanchez.sergio.mapper.DeviceEntityMapper;
 import sanchez.sanchez.sergio.mapper.DeviceGroupEntityMapper;
 import sanchez.sanchez.sergio.persistence.entity.DeviceEntity;

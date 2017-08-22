@@ -10,10 +10,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import com.google.common.collect.Lists;
 import io.jsonwebtoken.lang.Assert;
-import sanchez.sanchez.sergio.fcm.FCMCustomProperties;
 import sanchez.sanchez.sergio.fcm.operations.DevicesGroupOperation;
 import sanchez.sanchez.sergio.fcm.operations.DevicesGroupOperationType;
 import sanchez.sanchez.sergio.fcm.operations.FCMNotificationOperation;
+import sanchez.sanchez.sergio.fcm.properties.FCMCustomProperties;
 import sanchez.sanchez.sergio.fcm.response.FirebaseResponse;
 import sanchez.sanchez.sergio.service.IPushNotificationsService;
 

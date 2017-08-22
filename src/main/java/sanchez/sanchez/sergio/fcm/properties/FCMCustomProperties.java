@@ -1,4 +1,4 @@
-package sanchez.sanchez.sergio.fcm;
+package sanchez.sanchez.sergio.fcm.properties;
 
 import java.io.Serializable;
 import org.springframework.beans.factory.annotation.Value;
