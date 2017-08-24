@@ -1,13 +1,14 @@
 package sanchez.sanchez.sergio.persistence.entity;
 
 import java.util.Date;
-
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.format.annotation.DateTimeFormat.ISO;
 
 /**
  *
@@ -31,9 +32,10 @@ public class SocialMediaEntity {
     private Boolean invalidToken = Boolean.FALSE;
     
     @Field("scheduled_for")
-    private Date scheduledFor;
+    private Long scheduledFor;
     
     @Field("last_probing")
+    @DateTimeFormat(iso=ISO.DATE_TIME)
     private Date lastProbing;
     
     @Field("target")
@@ -47,10 +49,11 @@ public class SocialMediaEntity {
 		this.accessToken = accessToken;
 		this.type = type;
 		this.sonEntity = sonEntity;
+		this.scheduledFor = new Date().getTime();
 	}
 
     @PersistenceConstructor
-    public SocialMediaEntity(String accessToken, SocialMediaTypeEnum type, Boolean invalidToken, Date scheduledFor,
+    public SocialMediaEntity(String accessToken, SocialMediaTypeEnum type, Boolean invalidToken, Long scheduledFor,
 			Date lastProbing, SonEntity sonEntity) {
 		super();
 		this.accessToken = accessToken;
@@ -89,13 +92,13 @@ public class SocialMediaEntity {
     public void setInvalidToken(Boolean invalidToken) {
         this.invalidToken = invalidToken;
     }
-    
+   
 
-	public Date getScheduledFor() {
+	public Long getScheduledFor() {
 		return scheduledFor;
 	}
 
-	public void setScheduledFor(Date scheduledFor) {
+	public void setScheduledFor(Long scheduledFor) {
 		this.scheduledFor = scheduledFor;
 	}
 
@@ -115,10 +118,10 @@ public class SocialMediaEntity {
 		this.sonEntity = sonEntity;
 	}
 
-
 	@Override
 	public String toString() {
 		return "SocialMediaEntity [id=" + id + ", accessToken=" + accessToken + ", type=" + type + ", invalidToken="
-				+ invalidToken + ", sonEntity=" + sonEntity + "]";
+				+ invalidToken + ", scheduledFor=" + scheduledFor + ", lastProbing=" + lastProbing + ", sonEntity="
+				+ sonEntity + "]";
 	}
 }

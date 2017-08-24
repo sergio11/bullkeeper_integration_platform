@@ -14,10 +14,10 @@ import sanchez.sanchez.sergio.mapper.SocialMediaEntityMapper;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaEntity;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaTypeEnum;
 import sanchez.sanchez.sergio.persistence.repository.SocialMediaRepository;
+import sanchez.sanchez.sergio.service.IItegrationFlowService;
 import sanchez.sanchez.sergio.service.ISocialMediaService;
 
 /**
- *
  * @author sergio
  */
 @Service
@@ -25,10 +25,13 @@ public class SocialMediaServiceImpl implements ISocialMediaService {
     
     private final SocialMediaRepository socialMediaRepository;
     private final SocialMediaEntityMapper socialMediaMapper;
+    private final IItegrationFlowService itegrationFlowService;
 
-    public SocialMediaServiceImpl(SocialMediaRepository socialMediaRepository, SocialMediaEntityMapper socialMediaMapper) {
+    public SocialMediaServiceImpl(SocialMediaRepository socialMediaRepository, 
+    		SocialMediaEntityMapper socialMediaMapper, IItegrationFlowService itegrationFlowService) {
         this.socialMediaRepository = socialMediaRepository;
         this.socialMediaMapper = socialMediaMapper;
+        this.itegrationFlowService = itegrationFlowService;
     }
     
     @Override
@@ -82,6 +85,7 @@ public class SocialMediaServiceImpl implements ISocialMediaService {
 				SocialMediaTypeEnum.valueOf(socialMedia.getType()), new ObjectId(socialMedia.getSon()));
 		if(socialMediaEntityToUpdate != null) {
 			socialMediaEntityToUpdate.setAccessToken(socialMedia.getAccessToken());
+			socialMediaEntityToUpdate.setScheduledFor(itegrationFlowService.getDateForNextPoll().getTime());
 			SocialMediaEntity socialMediaEntityUpdated = socialMediaRepository.save(socialMediaEntityToUpdate);
 			socialMediaUpdated = socialMediaMapper.socialMediaEntityToSocialMediaDTO(socialMediaEntityUpdated);
 		}
@@ -95,6 +99,7 @@ public class SocialMediaServiceImpl implements ISocialMediaService {
 				SocialMediaTypeEnum.valueOf(socialMedia.getType()), new ObjectId(socialMedia.getSon()));
 		if(socialMediaEntityToSave != null) {
 			socialMediaEntityToSave.setAccessToken(socialMedia.getAccessToken());
+			socialMediaEntityToSave.setScheduledFor(itegrationFlowService.getDateForNextPoll().getTime());
 		} else {
 			socialMediaEntityToSave= socialMediaMapper.addSocialMediaDTOToSocialMediaEntity(socialMedia);
 		}
@@ -102,7 +107,7 @@ public class SocialMediaServiceImpl implements ISocialMediaService {
 		return socialMediaMapper.socialMediaEntityToSocialMediaDTO(socialMediaEntitySaved);
 	}
         
-        @Override
+    @Override
     public List<SocialMediaDTO> deleteSocialMediaByUser(String id) {
         Assert.notNull(id, "Id can not be null");
         Assert.hasLength(id, "Id can not be empty");
@@ -123,6 +128,7 @@ public class SocialMediaServiceImpl implements ISocialMediaService {
     protected void init(){
         Assert.notNull(socialMediaRepository, "Social Media Repository cannot be null");
         Assert.notNull(socialMediaMapper, "Social Media Mapper cannot be null");
+        Assert.notNull(itegrationFlowService, "Integration Flow Service can not be null");
 	}
 
     

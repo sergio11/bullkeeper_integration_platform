@@ -11,8 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import sanchez.sanchez.sergio.dto.request.SaveSocialMediaDTO;
 import sanchez.sanchez.sergio.dto.response.SocialMediaDTO;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaEntity;
-import sanchez.sanchez.sergio.persistence.entity.SocialMediaTypeEnum;
 import sanchez.sanchez.sergio.persistence.repository.SonRepository;
+import sanchez.sanchez.sergio.service.IItegrationFlowService;
 
 /**
  * @author sergio
@@ -22,6 +22,9 @@ public abstract class SocialMediaEntityMapper {
 	
 	@Autowired
 	protected SonRepository sonRepository;
+	
+	@Autowired
+	protected IItegrationFlowService itegrationFlowService;
     
     @Mappings({
         @Mapping(expression="java(socialMediaEntity.getId().toString())", target = "identity" ),
@@ -36,7 +39,8 @@ public abstract class SocialMediaEntityMapper {
     
     @Mappings({
     	@Mapping(expression="java(sanchez.sanchez.sergio.persistence.entity.SocialMediaTypeEnum.valueOf(saveSocialMediaDTO.getType()))", target = "type" ),
-    	@Mapping(expression="java(sonRepository.findOne(new org.bson.types.ObjectId(saveSocialMediaDTO.getSon())))", target = "sonEntity" )
+    	@Mapping(expression="java(sonRepository.findOne(new org.bson.types.ObjectId(saveSocialMediaDTO.getSon())))", target = "sonEntity" ),
+    	@Mapping(expression="java(itegrationFlowService.getDateForNextPoll().getTime())", target = "scheduledFor" )
     })
     public abstract SocialMediaEntity addSocialMediaDTOToSocialMediaEntity(SaveSocialMediaDTO saveSocialMediaDTO);
     

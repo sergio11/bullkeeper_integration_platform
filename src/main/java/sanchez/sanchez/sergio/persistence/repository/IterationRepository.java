@@ -9,6 +9,4 @@ import sanchez.sanchez.sergio.persistence.entity.IterationEntity;
  * @author sergio
  */
 @Repository
-public interface IterationRepository extends MongoRepository<IterationEntity, ObjectId>, IterationRepositoryCustom {
-	//IterationEntity findFirstByFinishDateDesc();
-}
+public interface IterationRepository extends MongoRepository<IterationEntity, ObjectId>, IterationRepositoryCustom {}

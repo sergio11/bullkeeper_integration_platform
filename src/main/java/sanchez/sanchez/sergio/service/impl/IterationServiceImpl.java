@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
+
+import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.convert.converter.Converter;
@@ -18,9 +20,12 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import sanchez.sanchez.sergio.dto.response.IterationDTO;
+import sanchez.sanchez.sergio.integration.properties.IntegrationFlowProperties;
 import sanchez.sanchez.sergio.mapper.IIterationEntityMapper;
 import sanchez.sanchez.sergio.persistence.entity.IterationEntity;
 import sanchez.sanchez.sergio.persistence.repository.IterationRepository;
+import sanchez.sanchez.sergio.persistence.repository.SocialMediaRepository;
+import sanchez.sanchez.sergio.service.IItegrationFlowService;
 import sanchez.sanchez.sergio.service.IIterationService;
 import sanchez.sanchez.sergio.websocket.constants.WebSocketConstants;
 import sanchez.sanchez.sergio.dto.response.CommentsBySonDTO;
@@ -36,12 +41,17 @@ public class IterationServiceImpl implements IIterationService {
     private final IterationRepository iterationRepository;
     private final IIterationEntityMapper iterationEntityMapper;
     private final SimpMessagingTemplate simpMessagingTemplate;
+    private final SocialMediaRepository socialMediaRepository;
+    private final IItegrationFlowService itegrationFlowService;
 
     public IterationServiceImpl(IterationRepository iterationRepository, 
-            IIterationEntityMapper iterationEntityMapper, SimpMessagingTemplate simpMessagingTemplate) {
+            IIterationEntityMapper iterationEntityMapper, SimpMessagingTemplate simpMessagingTemplate,
+            SocialMediaRepository socialMediaRepository, IItegrationFlowService itegrationFlowService) {
         this.iterationRepository = iterationRepository;
         this.iterationEntityMapper = iterationEntityMapper;
         this.simpMessagingTemplate = simpMessagingTemplate;
+        this.socialMediaRepository = socialMediaRepository;
+        this.itegrationFlowService = itegrationFlowService;
     }
     
     
@@ -57,14 +67,18 @@ public class IterationServiceImpl implements IIterationService {
         				.collect(Collectors.toList());
     }
     
+ 
   
     @Override
     public void save(IterationEntity iterationEntity) {
         
         IterationEntity iterationToSend = iterationRepository.save(iterationEntity);
-        logger.debug("TOTAL TASK ->" + iterationEntity.getTotalTasks());
-        logger.debug("TOTAL TASK FAILED -> " + iterationEntity.getTotalFailedTasks());
-        logger.debug("AVG DURATION -> " + iterationRepository.getAvgDuration().getAvgDuration());
+        
+        List<ObjectId> socialMediaIds = iterationToSend.getTasks().stream().map(task -> task.getSocialMediaId()).collect(Collectors.toList());
+        
+        Date scheduledFor = itegrationFlowService.getDateForNextPoll();
+        
+        socialMediaRepository.setScheduledForAndLastProbing(socialMediaIds, scheduledFor, iterationToSend.getFinishDate());
         
         simpMessagingTemplate.convertAndSend(WebSocketConstants.NEW_ITERATION_TOPIC, 
                 iterationEntityMapper.iterationEntityToIterationDTO(iterationToSend));
@@ -72,6 +86,12 @@ public class IterationServiceImpl implements IIterationService {
   
         simpMessagingTemplate.convertAndSend(WebSocketConstants.LAST_ITERATION_COMMENTS_BY_SON_TOPIC,
         		getCommentsBySonForIteration(iterationToSend));
+        
+        logger.debug("TOTAL TASK ->" + iterationToSend.getTotalTasks());
+        logger.debug("TOTAL TASK FAILED -> " + iterationToSend.getTotalFailedTasks());
+        logger.debug("AVG DURATION -> " + iterationRepository.getAvgDuration().getAvgDuration());
+        logger.debug("ITERATION FINISH AT -> " + scheduledFor.toString());
+        logger.debug("SCHEDULED FOR -> " + scheduledFor.toString());
         
     }
     

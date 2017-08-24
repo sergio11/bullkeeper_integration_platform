@@ -42,16 +42,20 @@ public class TaskEntity {
     @DBRef
     private SonEntity sonEntity;
     
+    @Field("social_media_id")
+    private ObjectId socialMediaId;
+    
     public TaskEntity(){}
     
     @PersistenceConstructor
-    public TaskEntity(Date startDate, Date finishDate, Long duration, Boolean success, List<CommentEntity> comments, SonEntity sonEntity) {
+    public TaskEntity(Date startDate, Date finishDate, Long duration, Boolean success, List<CommentEntity> comments, SonEntity sonEntity, ObjectId socialMediaId) {
         this.startDate = startDate;
         this.finishDate = finishDate;
         this.duration = duration;
         this.success = success;
         this.comments = comments;
         this.sonEntity = sonEntity;
+        this.socialMediaId = socialMediaId;
     }
 
     public ObjectId getId() {
@@ -106,4 +110,13 @@ public class TaskEntity {
 	public void setSonEntity(SonEntity sonEntity) {
 		this.sonEntity = sonEntity;
 	}
+
+	public ObjectId getSocialMediaId() {
+		return socialMediaId;
+	}
+
+	public void setSocialMediaId(ObjectId socialMediaId) {
+		this.socialMediaId = socialMediaId;
+	}
+
 }
