@@ -1,7 +1,6 @@
 package sanchez.sanchez.sergio.persistence.repository;
 
 import java.util.List;
-
 import org.bson.types.ObjectId;
 
 /**

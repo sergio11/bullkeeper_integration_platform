@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +64,7 @@ public class IterationServiceImpl implements IIterationService {
         IterationEntity iterationToSend = iterationRepository.save(iterationEntity);
         logger.debug("TOTAL TASK ->" + iterationEntity.getTotalTasks());
         logger.debug("TOTAL TASK FAILED -> " + iterationEntity.getTotalFailedTasks());
-        //logger.debug("AVG DURATION -> " + iterationRepository.getAvgDuration());
+        logger.debug("AVG DURATION -> " + iterationRepository.getAvgDuration().getAvgDuration());
         
         simpMessagingTemplate.convertAndSend(WebSocketConstants.NEW_ITERATION_TOPIC, 
                 iterationEntityMapper.iterationEntityToIterationDTO(iterationToSend));

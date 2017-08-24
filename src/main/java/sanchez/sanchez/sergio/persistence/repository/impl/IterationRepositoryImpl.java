@@ -8,6 +8,9 @@ import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.GroupOperation;
 import sanchez.sanchez.sergio.persistence.entity.IterationEntity;
 import sanchez.sanchez.sergio.persistence.repository.IterationRepositoryCustom;
+import sanchez.sanchez.sergio.persistence.results.IterationAvgAndTotalDuration;
+import sanchez.sanchez.sergio.persistence.results.IterationAvgDuration;
+
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
 
 /**
@@ -20,19 +23,35 @@ public class IterationRepositoryImpl implements IterationRepositoryCustom {
     @Autowired
     private MongoTemplate mongoTemplate;
 
+
 	@Override
-	public Long getAvgDuration() {
+	public IterationAvgDuration getAvgDuration() {
 		
 		GroupOperation avgOperation = Aggregation.group()
-			.sum("duration")
-				.as("total_duration")
-			.avg("total_duration")
-				.as("avg_duration");
+	            .avg("duration")
+	                .as("avg_duration");
 		
 		Aggregation aggregation = newAggregation(IterationEntity.class, avgOperation);
 		
-		return mongoTemplate.aggregate(aggregation, IterationEntity.COLLECTION_NAME, Long.class).getUniqueMappedResult();
-			
+		return mongoTemplate
+				  .aggregate(aggregation, IterationEntity.COLLECTION_NAME, IterationAvgDuration.class)
+				  .getUniqueMappedResult();
+	}
+
+	@Override
+	public IterationAvgAndTotalDuration getAvgAndTotalDuration() {
+		
+		GroupOperation avgOperation = Aggregation.group()
+	            .sum("duration")
+	                .as("total_duration")
+	            .avg("total_duration")
+	                .as("avg_duration");
+		
+		Aggregation aggregation = newAggregation(IterationEntity.class, avgOperation);
+		
+		return mongoTemplate
+				  .aggregate(aggregation, IterationEntity.COLLECTION_NAME, IterationAvgAndTotalDuration.class)
+				  .getUniqueMappedResult();
 	}
 
 	 
