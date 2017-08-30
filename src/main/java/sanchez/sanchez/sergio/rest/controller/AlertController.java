@@ -8,13 +8,13 @@ import org.springframework.hateoas.PagedResources;
 import org.springframework.hateoas.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.Optional;
 import javax.annotation.PostConstruct;
@@ -40,10 +40,10 @@ import sanchez.sanchez.sergio.security.utils.OnlyAccessForParent;
 import sanchez.sanchez.sergio.service.IAlertService;
 import springfox.documentation.annotations.ApiIgnore;
 
-@Api
 @RestController("RestAlertsController")
 @Validated
 @RequestMapping("/api/v1/alerts/")
+@Api(tags= "alerts", value = "/alerts/", description = "Punto de entrada para el manejo de Alertas", produces = "application/json")
 public class AlertController {
 	
 	private static Logger logger = LoggerFactory.getLogger(AlertController.class);
@@ -55,10 +55,10 @@ public class AlertController {
 		this.alertService = alertService;
 	}
 	
-	@GetMapping(path = { "/", "/all" } )
+	@RequestMapping(value = { "/", "/all" }, method = RequestMethod.GET)
+	@OnlyAccessForAdmin
     @ApiOperation(value = "GET_ALL_ALERT", nickname = "GET_ALL_ALERT", notes="Get all alerts in the system", 
     	response = PagedResources.class)
-	@OnlyAccessForAdmin
 	public ResponseEntity<APIResponse<PagedResources<Resource<AlertDTO>>>> getAllAlerts(
     		@ApiIgnore @PageableDefault Pageable pageable,
     		@ApiIgnore PagedResourcesAssembler<AlertDTO> pagedAssembler) throws Throwable {
@@ -73,10 +73,10 @@ public class AlertController {
         		HttpStatus.OK, pagedAssembler.toResource(alertsPage));
     }
 
-	@GetMapping(path = { "/self", "/self/all" } )
+	@RequestMapping(value = { "/self", "/self/all" }, method = RequestMethod.GET)
+	@OnlyAccessForParent
     @ApiOperation(value = "GET_ALL_SELF_ALERT", nickname = "GET_ALL_SELF_ALERT", notes="Get all alerts for the currently authenticated user", 
     	response = PagedResources.class)
-	@OnlyAccessForParent
 	public ResponseEntity<APIResponse<PagedResources<Resource<AlertDTO>>>> getAllSelfAlerts(
     		@ApiIgnore @PageableDefault Pageable pageable,
     		@ApiIgnore PagedResourcesAssembler<AlertDTO> pagedAssembler,
@@ -92,7 +92,7 @@ public class AlertController {
         		HttpStatus.OK, pagedAssembler.toResource(alertsPage));
     }
 	
-	@PostMapping(path = "/")
+	@RequestMapping(value = "/", method = RequestMethod.POST)
 	@ApiOperation(value = "CREATE_ALERT", nickname = "CREATE_ALERT", notes="Create Alert", 
 		response = AlertDTO.class)
 	public ResponseEntity<APIResponse<AlertDTO>> addAlert(
@@ -103,10 +103,10 @@ public class AlertController {
         		.orElseThrow(() -> { throw new SocialMediaNotFoundException(); }); 
 	}
 	
-	@GetMapping(path = "/info" )
+	@RequestMapping(value = "/info", method = RequestMethod.GET)
+	@OnlyAccessForParent
     @ApiOperation(value = "GET_INFO_ALERTS", nickname = "GET_INFO_ALERTS", notes="Get all info alerts for the currently authenticated user", 
     	response = PagedResources.class)
-	@OnlyAccessForParent
 	public ResponseEntity<APIResponse<PagedResources<Resource<AlertDTO>>>> getInfoAlerts(
     		@ApiIgnore @PageableDefault Pageable pageable,
     		@ApiIgnore PagedResourcesAssembler<AlertDTO> pagedAssembler,
@@ -122,10 +122,10 @@ public class AlertController {
         		HttpStatus.OK, pagedAssembler.toResource(alertsPage));
     }
 	
-	@GetMapping(path = "/warning" )
+	@RequestMapping(value = "/warning", method = RequestMethod.GET)
+	@OnlyAccessForParent
     @ApiOperation(value = "GET_WARNING_ALERTS", nickname = "GET_WARNING_ALERTS", notes="Get warning alerts for the currently authenticated user", 
     	response = PagedResources.class)
-	@OnlyAccessForParent
 	public ResponseEntity<APIResponse<PagedResources<Resource<AlertDTO>>>> getWarningAlerts(
     		@ApiIgnore @PageableDefault Pageable pageable,
     		@ApiIgnore PagedResourcesAssembler<AlertDTO> pagedAssembler,
@@ -141,10 +141,10 @@ public class AlertController {
         		HttpStatus.OK, pagedAssembler.toResource(alertsPage));
     }
 	
-	@GetMapping(path = "/danger" )
+	@RequestMapping(value = "/danger", method = RequestMethod.GET)
+	@OnlyAccessForParent
     @ApiOperation(value = "GET_DANGER_ALERTS", nickname = "GET_DANGER_ALERTS", notes="Get danger alerts for the currently authenticated user",
     	response = PagedResources.class)
-	@OnlyAccessForParent
 	public ResponseEntity<APIResponse<PagedResources<Resource<AlertDTO>>>> getDangerAlerts(
     		@ApiIgnore @PageableDefault Pageable pageable,
     		@ApiIgnore PagedResourcesAssembler<AlertDTO> pagedAssembler,
@@ -160,10 +160,10 @@ public class AlertController {
         		HttpStatus.OK, pagedAssembler.toResource(alertsPage));
     }
 	
-	@GetMapping(path = "/success")
+	@RequestMapping(value = "/success", method = RequestMethod.GET)
+	@OnlyAccessForParent
     @ApiOperation(value = "GET_SUCCESS_ALERTS", nickname = "GET_SUCCESS_ALERTS", notes="Get success alerts for the currently authenticated user", 
     	response = PagedResources.class)
-	@OnlyAccessForParent
 	public ResponseEntity<APIResponse<PagedResources<Resource<AlertDTO>>>> getSuccessAlerts(
     		@ApiIgnore @PageableDefault Pageable pageable,
     		@ApiIgnore PagedResourcesAssembler<AlertDTO> pagedAssembler,

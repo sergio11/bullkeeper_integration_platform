@@ -14,9 +14,9 @@ import org.springframework.hateoas.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -33,10 +33,10 @@ import sanchez.sanchez.sergio.security.utils.OnlyAccessForAdmin;
 import sanchez.sanchez.sergio.service.ISocialMediaService;
 import springfox.documentation.annotations.ApiIgnore;
 
-@Api
 @RestController("RestSocialMediaController")
 @Validated
 @RequestMapping("/api/v1/social/")
+@Api(tags = "social", value = "/social/", description = "Manejo de la información de los medios sociales registrados", produces = "application/json")
 public class SocialMediaController implements ISocialMediaHAL {
 
     private static Logger logger = LoggerFactory.getLogger(SocialMediaController.class);
@@ -47,11 +47,10 @@ public class SocialMediaController implements ISocialMediaHAL {
         this.socialMediaService = socialMediaService;
     }
     
-    
-    @GetMapping(path = {"/", "/all"})
+    @RequestMapping(value = { "/", "/all" }, method = RequestMethod.GET)
+    @OnlyAccessForAdmin
     @ApiOperation(value = "GET_ALL_SOCIAL_MEDIA", nickname = "GET_ALL_SOCIAL_MEDIA", 
             notes = "Get all Social Media", response = PagedResources.class)
-    @OnlyAccessForAdmin
     public ResponseEntity<APIResponse<PagedResources<Resource<SocialMediaDTO>>>> getAllSocialMedia(
     		@ApiIgnore @PageableDefault Pageable pageable, 
     		@ApiIgnore PagedResourcesAssembler<SocialMediaDTO> pagedAssembler) throws Throwable {
@@ -64,12 +63,12 @@ public class SocialMediaController implements ISocialMediaHAL {
                 .orElseThrow(() -> { throw new ResourceNotFoundException(); });
     }
     
-    @GetMapping(path = "/{id}")
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    @OnlyAccessForAdmin
     @ApiOperation(value = "GET_SOCIAL_MEDIA_BY_ID", nickname = "GET_SOCIAL_MEDIA_BY_USER_ID", notes = "Get Social Madia By User Id",
             response = SocialMediaDTO.class)
-    @OnlyAccessForAdmin
     public ResponseEntity<APIResponse<SocialMediaDTO>> getSocialMediaById(
-    		@ApiParam(value = "id", required = true)
+    		@ApiParam(name = "id", value = "Identificador del Medio Social", required = true)
     			@Valid @ValidObjectId(message = "{socialmedia.id.notvalid}")
              		@PathVariable String id) throws Throwable {
         logger.debug("Get Social Media by Id " + id);

@@ -15,9 +15,11 @@ public final class RegisterParentDTO {
 	
 	@NotBlank(message = "{user.firstname.notnull}")
     @Size(min = 5, max = 15, message = "{user.firstname.size}")
+	@JsonProperty("first_name")
 	private String firstName;
 	@NotBlank(message = "{user.firstname.notnull}")
     @Size(min = 5, max = 15, message = "{user.firstname.size}")
+	@JsonProperty("last_name")
     private String lastName;
     private Integer age;
     @NotBlank(message="{user.email.notnull}")

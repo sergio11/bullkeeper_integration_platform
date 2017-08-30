@@ -9,6 +9,7 @@ import org.springframework.mobile.device.Device;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -24,9 +25,9 @@ import sanchez.sanchez.sergio.service.IAuthenticationService;
 import sanchez.sanchez.sergio.rest.response.AuthenticationResponseCode;
 
 
-@Api
 @RestController
 @RequestMapping("/api/v1/auth/")
+@Api(tags= "authentication", value = "/auth/", description = "Autenticación de usuarios del sistema", produces = "application/json")
 public class AuthenticationController {
 	
 	private final IAuthenticationService authenticationService;
@@ -35,7 +36,7 @@ public class AuthenticationController {
 		this.authenticationService = authenticationService;
 	}
 
-	@PostMapping("/")
+	@RequestMapping(value = "/", method = RequestMethod.POST)
     @ApiOperation(value = "GET_AUTHORIZATION_TOKEN", nickname = "GET_AUTHORIZATION_TOKEN", notes = "Get Authorization Token")
 	@ApiResponses(value = { 
     		@ApiResponse(code = 200, message = "Authentication Success", response = JwtAuthenticationResponseDTO.class),

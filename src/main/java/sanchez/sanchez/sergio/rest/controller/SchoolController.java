@@ -14,12 +14,10 @@ import org.springframework.hateoas.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import io.swagger.annotations.Api;
@@ -41,10 +39,10 @@ import sanchez.sanchez.sergio.security.utils.OnlyAccessForAdmin;
 import sanchez.sanchez.sergio.service.ISchoolService;
 import springfox.documentation.annotations.ApiIgnore;
 
-@Api
 @RestController("RestSchoolController")
 @Validated
 @RequestMapping("/api/v1/schools/")
+@Api(tags = "schools", value = "/schools/", description = "Manejo de la información del Colegio", produces = "application/json")
 public class SchoolController implements ISchoolHAL {
 
     private static Logger logger = LoggerFactory.getLogger(SchoolController.class);
@@ -55,7 +53,7 @@ public class SchoolController implements ISchoolHAL {
         this.schoolService = schoolService;
     }
     
-    @GetMapping(path = {"/all"})
+    @RequestMapping(value = "/all", method = RequestMethod.GET)
     @ApiOperation(value = "GET_ALL_SCHOOLS", nickname = "GET_ALL_SCHOOLS", notes = "Get all Schools",
             response = PagedResources.class)
     public ResponseEntity<APIResponse<PagedResources<Resource<SchoolDTO>>>> getAllSchools(
@@ -72,7 +70,7 @@ public class SchoolController implements ISchoolHAL {
     	
     }
     
-    @GetMapping(path = "/")
+    @RequestMapping(value = "/", method = RequestMethod.GET)
     @ApiOperation(value = "FIND_SCHOOLS_BY_NAME", nickname = "FIND_SCHOOLS_BY_NAME", notes = "Find Schools by name",
             response = PagedResources.class)
     public ResponseEntity<APIResponse<PagedResources<Resource<SchoolDTO>>>> getSchoolsByName(
@@ -91,14 +89,13 @@ public class SchoolController implements ISchoolHAL {
         		HttpStatus.OK, pagedAssembler.toResource(addLinksToSchool((schoolPage))));
     }
     
-    
-    @GetMapping(path = "/{id}")
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     @ApiOperation(value = "GET_SCHOOL_BY_ID", nickname = "GET_SCHOOL_BY_ID", notes = "Get School By Id")
     @ApiResponses(value = { 
     		@ApiResponse(code = 200, message= "School By Id", response = SchoolDTO.class)
     })
     public ResponseEntity<APIResponse<SchoolDTO>> getSchoolById(
-    		@ApiParam(value = "id", required = true)
+    		@ApiParam(name = "id", value = "Identificador del Centro escolar", required = true)
     			@Valid @ValidObjectId(message = "{school.id.notvalid}")
     		 		@PathVariable String id) throws Throwable {
         logger.debug("Get User with id: " + id);
@@ -109,14 +106,14 @@ public class SchoolController implements ISchoolHAL {
                 		HttpStatus.OK, schoolResource))
                 .orElseThrow(() -> { throw new SchoolNotFoundException(); });
     }
-    
-    @PutMapping(path = "/")
+   
+    @RequestMapping(value = "/", method = RequestMethod.PUT)
+    @OnlyAccessForAdmin
     @ApiOperation(value = "CREATE_SCHOOL", nickname = "CREATE_SCHOOL", notes = "Create School")
     @ApiResponses(value = { 
     		@ApiResponse(code = 200, message= "School Saved", response = SchoolDTO.class),
     		@ApiResponse(code = 403, message = "Validation Errors", response = ValidationErrorDTO.class)
     })
-    @OnlyAccessForAdmin
     public ResponseEntity<APIResponse<SchoolDTO>> saveSchool(
     		@ApiParam(value = "school", required = true) 
 				@Valid @RequestBody AddSchoolDTO school) throws Throwable {        
@@ -127,15 +124,14 @@ public class SchoolController implements ISchoolHAL {
                 .orElseThrow(() -> { throw new SchoolNotFoundException(); });
     }
     
-    
-    @DeleteMapping(path = "/{id}")
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    @OnlyAccessForAdmin
     @ApiOperation(value = "DELETE_SCHOOL", nickname = "DELETE_SCHOOL", notes = "Delete School")
     @ApiResponses(value = { 
     		@ApiResponse(code = 200, message= "School Deleted", response = SchoolDTO.class)
     })
-    @OnlyAccessForAdmin
     public ResponseEntity<APIResponse<SchoolDTO>> deleteSchool(
-    		@ApiParam(value = "id", required = true)
+    		@ApiParam(name = "id", value = "Identificador del Centro escolar", required = true)
     			@Valid @ValidObjectId(message = "{school.id.notvalid}")
     		 		@PathVariable String id) throws Throwable {        
     	

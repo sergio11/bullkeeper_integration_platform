@@ -11,11 +11,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import com.google.common.collect.Iterables;
 import io.jsonwebtoken.lang.Assert;
@@ -42,10 +40,11 @@ import springfox.documentation.annotations.ApiIgnore;
 import sanchez.sanchez.sergio.persistence.constraints.DeviceShouldExists;
 import sanchez.sanchez.sergio.persistence.constraints.DeviceShouldNotExists;
 
-@Api
+
 @RestController("RestDeviceGroupsController")
 @Validated
 @RequestMapping("/api/v1/device-groups")
+@Api(tags = "devices-groups", value = "/device-groups/", description = "Manejo de grupo de dispositivos del padre/tutor", produces = "application/json")
 public class DeviceGroupsController {
 
     private static Logger logger = LoggerFactory.getLogger(DeviceGroupsController.class);
@@ -60,10 +59,10 @@ public class DeviceGroupsController {
         this.pushNotificationsService = pushNotificationsService;
     }
 
-    @GetMapping(path = "/all")
+    @RequestMapping(value = "/all", method = RequestMethod.GET)
+    @OnlyAccessForParent
     @ApiOperation(value = "GET_DEVICES_INTO_GROUP", nickname = "GET_DEVICES_INTO_GROUP", notes = "Get all devices registered in the group",
             response = List.class)
-    @OnlyAccessForParent
     public ResponseEntity<APIResponse<Iterable<DeviceDTO>>> getDevicesIntoGroup(
     		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
         Iterable<DeviceDTO> devices = deviceGroupsService.getDevicesFromGroup(selfParent.getUserId().toString());
@@ -74,12 +73,12 @@ public class DeviceGroupsController {
 
     }
 
-    @PutMapping(path = "/devices/{token}/add")
+    @RequestMapping(value = "/devices/{token}/add", method = RequestMethod.PUT)
+    @OnlyAccessForParent
     @ApiOperation(value = "ADD_DEVICE_TO_GROUP", nickname = "ADD_DEVICE_TO_GROUP", notes = "Add Device To Group",
             response = DeviceDTO.class)
-    @OnlyAccessForParent
     public ResponseEntity<APIResponse<DeviceDTO>> addDeviceToGroup(
-            @ApiParam(value = "token", required = true) 
+            @ApiParam(name = "token", value = "Token del dispositivo", required = true) 
             	@Valid @DeviceShouldNotExists(message = "{device.should.not.exists}")
             		@PathVariable String token,
             @ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent
@@ -107,12 +106,12 @@ public class DeviceGroupsController {
     
     }
 
-    @DeleteMapping(path = "/devices/{token}/delete")
+    @RequestMapping(value = "/devices/{token}/delete", method = RequestMethod.DELETE)
+    @OnlyAccessForParent
     @ApiOperation(value = "DELETE_DEVICE_FROM_GROUP", nickname = "DELETE_DEVICE_FROM_GROUP", notes = "Delete Device From Group",
             response = DeviceDTO.class)
-    @OnlyAccessForParent
     public ResponseEntity<APIResponse<DeviceDTO>> deleteDeviceFromGroup(
-    		@ApiParam(value = "token", required = true)
+    		@ApiParam(name = "token", value = "Token del dispositivo", required = true)
             	@Valid @DeviceShouldExists(message = "{device.should.exists}")
              		@PathVariable String token,
             @ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent

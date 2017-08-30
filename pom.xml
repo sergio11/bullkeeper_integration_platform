@@ -23,13 +23,15 @@
         <org.mapstruct.version>1.1.0.Final</org.mapstruct.version>
         <jInstagram.version>1.2.1</jInstagram.version>
         <youtube.data.api.client.version>v3-rev183-1.22.0</youtube.data.api.client.version>
-        <springfox.version>2.6.1</springfox.version>
+        <springfox.version>2.4.0</springfox.version>
         <bootstrap.version>3.3.7</bootstrap.version>
         <jquery.version>1.11.1</jquery.version>
         <font.awesome.version>4.2.0</font.awesome.version>
         <jjwt.version>0.7.0</jjwt.version>
         <sockjs.client.version>1.0.2</sockjs.client.version>
         <stomp.websocket.version>2.3.3</stomp.websocket.version>
+        <swagger.directory>${project.build.directory}/generated-docs/swagger</swagger.directory>
+        <asciidoctor.directory>${project.build.directory}/generated-docs/asciidoc</asciidoctor.directory>
     </properties>
     
     <!--  Profiles -->
@@ -222,6 +224,25 @@
             <artifactId>spring-boot-starter-websocket</artifactId>
         </dependency>
     </dependencies>
+    
+    <!-- One of the dependencies (markdown_to_asciidoc) of swagger2markup-maven-plugin need below repository -->
+    <pluginRepositories>
+        <pluginRepository>
+            <id>jcenter-snapshots</id>
+            <name>jcenter</name>
+            <url>http://oss.jfrog.org/artifactory/oss-snapshot-local/</url>
+        </pluginRepository>
+        <pluginRepository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>jcenter-releases</id>
+            <name>jcenter</name>
+            <url>http://jcenter.bintray.com</url>
+        </pluginRepository>
+    </pluginRepositories>
+    
+    
     <build>
     
     	<!-- That will allow you to insert properties defined in the previous step into any file in the resources directory, which is the subsequent step. -->
@@ -233,6 +254,8 @@
 	    </resources>
     
         <plugins>
+        
+        	<!-- Spring Boot Maven Plugin -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -240,6 +263,8 @@
                     <fork>true</fork>
                 </configuration>
             </plugin>
+            
+            <!-- Maven Compilar Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -267,6 +292,120 @@
                     </compilerArgs>
                 </configuration>
             </plugin>
+            
+            <!--  Swagger Maven Plugin -->
+            <plugin>
+                <groupId>com.github.kongchen</groupId>
+                <artifactId>swagger-maven-plugin</artifactId>
+                <version>3.1.1</version>
+                <configuration>
+                    <apiSources>
+                        <apiSource>
+                            <springmvc>true</springmvc>
+                            <locations>sanchez.sanchez.sergio.rest.controller</locations>
+                            <schemes>http,https</schemes>
+                            <host>bullytect-integration-platform</host>
+                            <basePath>/api</basePath>
+                            <info>
+                                <title>REST API for Bully Tect</title>
+                                <version>v1</version>
+                                <description>
+                                	La plataforma ofrece iteroperabilidad con otros sistemas, permite que la información de los medios sociales, usuarios objeto del análisis, padres, colegios. 
+                                	Pueda ser actualizada, eliminada, consultada y guardada. Estos servicios no son de libre acceso, el padre/tutor deberá demostrar su identidad y obtener un token de acceso a la API. 
+                                	El sistema solo le permitirá consultar y manipular la información de los usuarios tutorizados.
+                                </description>
+                                <termsOfService>TOS</termsOfService>
+                                <contact>
+                                    <email>bisite@usal.es</email>
+                                    <name>BISITE Research Group - University of Salamanca</name>
+                                    <url>https://bisite.usal.es/es</url>
+                                </contact>
+                                <license>
+                                    <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+                                    <name>Apache 2.0</name>
+                                </license>
+                            </info>
+                            <outputPath>${swagger.directory}/document.html</outputPath>
+                            <swaggerDirectory>${swagger.directory}</swaggerDirectory>
+                            <outputFormats>yaml,json</outputFormats>
+                        </apiSource>
+                    </apiSources>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            
+           <!-- swagger2markup plugin to generate asciidoc -->
+           <plugin>
+                <groupId>io.github.swagger2markup</groupId>
+                <artifactId>swagger2markup-maven-plugin</artifactId>
+                <version>1.2.0</version>
+                <configuration>
+                    <swaggerInput>${swagger.directory}/swagger.yaml</swaggerInput>
+                    <outputFile>${asciidoctor.directory}/BullyTectInterationPlatformArquitectureREST</outputFile>
+                    <config>
+                        <swagger2markup.markupLanguage>ASCIIDOC</swagger2markup.markupLanguage>
+                        <swagger2markup.basePathPrefixEnabled>true</swagger2markup.basePathPrefixEnabled>
+                    </config>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>convertSwagger2markup</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <!-- Run the generated asciidoc through Asciidoctor to generate
+                 other documentation types, such as PDFs or HTML5 -->
+            <plugin>
+                <groupId>org.asciidoctor</groupId>
+                <artifactId>asciidoctor-maven-plugin</artifactId>
+                <version>1.5.3</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.asciidoctor</groupId>
+                        <artifactId>asciidoctorj-pdf</artifactId>
+                        <version>1.5.0-alpha.11</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <sourceDirectory>${asciidoctor.directory}</sourceDirectory>
+                    <attributes>
+                        <sourcedir>${project.build.sourceDirectory}</sourcedir>
+                    </attributes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>generate-pdf-doc</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>process-asciidoc</goal>
+                        </goals>
+                        <configuration>
+                            <backend>pdf</backend>
+                            <sourceHighlighter>rouge</sourceHighlighter>
+                            <attributes>
+                                <icons>font</icons>
+                                <pagenums/>
+                                <toc/>
+                                <idprefix/>
+                                <idseparator>-</idseparator>
+                                <sectnums>true</sectnums>
+                            </attributes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
         </plugins>
     </build>
 </project>

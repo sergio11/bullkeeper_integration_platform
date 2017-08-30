@@ -24,7 +24,6 @@ public class BullyTectIntegrationPlatformDevelopmentApplication {
 		return new LoggingRequestInterceptor();
 	}
 	
-
     public static void main(String[] args) {
         SpringApplication.run(BullyTectIntegrationPlatformDevelopmentApplication.class, args);
     }

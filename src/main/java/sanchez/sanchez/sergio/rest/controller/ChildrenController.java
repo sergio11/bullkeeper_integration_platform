@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import com.google.common.collect.Iterables;
 import io.swagger.annotations.Api;
@@ -52,10 +53,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import sanchez.sanchez.sergio.persistence.constraints.SocialMediaShouldExists;
 
-@Api
+
 @RestController("RestUserController")
 @Validated
 @RequestMapping("/api/v1/children/")
+@Api(tags = "children", value = "/children/", description = "Punto de Entrada para el manejo de usuarios analizados", produces = "application/json")
 public class ChildrenController implements ISonHAL, ICommentHAL, ISocialMediaHAL {
 
     private static Logger logger = LoggerFactory.getLogger(ChildrenController.class);
@@ -70,10 +72,9 @@ public class ChildrenController implements ISonHAL, ICommentHAL, ISocialMediaHAL
         this.socialMediaService = socialMediaService;
     }
     
-    @GetMapping(path = {"/", "/all"})
-    @ApiOperation(value = "GET_ALL_CHILDREN", nickname = "GET_ALL_CHILDREN", 
-            notes = "Get all Children", response = PagedResources.class)
+    @RequestMapping(value = {"/", "/all"}, method = RequestMethod.GET)
     @OnlyAccessForAdmin
+    @ApiOperation(value = "GET_ALL_CHILDREN", nickname = "GET_ALL_CHILDREN", notes = "Get all Children", response = PagedResources.class)
     public ResponseEntity<APIResponse<PagedResources<Resource<SonDTO>>>> getAllChildren(
     		@ApiIgnore @PageableDefault Pageable pageable, 
     		@ApiIgnore PagedResourcesAssembler<SonDTO> pagedAssembler) throws Throwable {
@@ -87,13 +88,13 @@ public class ChildrenController implements ISonHAL, ICommentHAL, ISocialMediaHAL
     }
     
 
-    @GetMapping(path = "/{id}")
-    @ApiOperation(value = "GET_SON_BY_ID", nickname = "GET_SON_BY_ID", notes = "Get Son By Id",
-            response = SonDTO.class)
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
+    @ApiOperation(value = "GET_SON_BY_ID", nickname = "GET_SON_BY_ID", notes = "Get Son By Id", response = SonDTO.class)
     public ResponseEntity<APIResponse<SonDTO>> getSonById(
-    		@Valid @ValidObjectId(message = "{son.id.notvalid}")
-    		@ApiParam(value = "id", required = true) @PathVariable String id) throws Throwable {
+    		@ApiParam(name= "id", value = "Identificador del hijo", required = true)
+    			@Valid @ValidObjectId(message = "{son.id.notvalid}")
+    		 		@PathVariable String id) throws Throwable {
         logger.debug("Get User with id: " + id);
         
         return Optional.ofNullable(sonService.getSonById(id))
@@ -102,16 +103,17 @@ public class ChildrenController implements ISonHAL, ICommentHAL, ISocialMediaHAL
                 .orElseThrow(() -> { throw new SonNotFoundException(); });
     }
     
-    
-    @GetMapping(path = "/{id}/comments")
+  
+    @RequestMapping(value = "/{id}/comments", method = RequestMethod.GET)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     @ApiOperation(value = "GET_COMMENTS_BY_SON", nickname = "GET_COMMENTS_BY_SON", notes = "Get Comments By Son Id",
             response = PagedResources.class)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     public ResponseEntity<APIResponse<PagedResources<Resource<CommentDTO>>>> getCommentsBySonId(
     		@ApiIgnore @PageableDefault Pageable pageable, 
-            PagedResourcesAssembler<CommentDTO> pagedAssembler,
-            @Valid @ValidObjectId(message = "{son.id.notvalid}")
-            @ApiParam(value = "id", required = true) @PathVariable String id) throws Throwable {
+    		@ApiIgnore PagedResourcesAssembler<CommentDTO> pagedAssembler,
+            @ApiParam(name = "id", value = "Identificador del hijo", required = true)
+            	@Valid @ValidObjectId(message = "{son.id.notvalid}")
+             		@PathVariable String id) throws Throwable {
         logger.debug("Get Comments by user with id: " + id);
         
         Page<CommentDTO> commentsPage = commentService.getCommentBySonId(pageable, id);
@@ -124,13 +126,14 @@ public class ChildrenController implements ISonHAL, ICommentHAL, ISocialMediaHAL
         
     }
     
-    @GetMapping(path = "/{id}/social")
+    @RequestMapping(value = "/{id}/social", method = RequestMethod.GET)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     @ApiOperation(value = "GET_SOCIAL_MEDIA_BY_SON", nickname = "GET_SOCIAL_MEDIA_BY_SON", notes = "Get Social Madia By Son",
             response = SocialMediaDTO.class)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     public ResponseEntity<APIResponse<Iterable<SocialMediaDTO>>> getSocialMediaBySonId(
-    		@Valid @ValidObjectId(message = "{son.id.notvalid}")
-            @ApiParam(value = "id", required = true) @PathVariable String id) throws Throwable {
+    		@ApiParam(name = "id", value = "Identificador del hijo", required = true)
+    			@Valid @ValidObjectId(message = "{son.id.notvalid}")
+    				@PathVariable String id) throws Throwable {
         logger.debug("Get Social Media by User Id " + id);
         
         Iterable<SocialMediaDTO> socialMedia = socialMediaService.getSocialMediaByUser(id);
@@ -142,10 +145,10 @@ public class ChildrenController implements ISonHAL, ICommentHAL, ISocialMediaHAL
         		HttpStatus.OK, addLinksToSocialMedia(socialMedia));
     }
     
-    @PostMapping(path = "/social/add")
+    @RequestMapping(value = "/social/add", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#socialMedia.son) )")
     @ApiOperation(value = "ADD_SOCIAL_MEDIA", nickname = "ADD_SOCIAL_MEDIA", notes = "Add Social Media",
             response = SocialMediaDTO.class)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#socialMedia.son) )")
     public ResponseEntity<APIResponse<SocialMediaDTO>> deleteAllSocialMedia(
             @ApiParam(value = "socialMedia", required = true) 
 				@Validated(ICommonSequence.class) @RequestBody SaveSocialMediaDTO socialMedia) throws Throwable {
@@ -158,10 +161,10 @@ public class ChildrenController implements ISonHAL, ICommentHAL, ISocialMediaHAL
     }
     
     
-    @PostMapping(path = "/social/update")
+    @RequestMapping(value = "/social/update", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     @ApiOperation(value = "UPDATE_SOCIAL_MEDIA", nickname = "UPDATE_SOCIAL_MEDIA", notes = "Update Social Media",
             response = SocialMediaDTO.class)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     public ResponseEntity<APIResponse<SocialMediaDTO>> updateSocialMediaToSon(
             @ApiParam(value = "socialMedia", required = true) 
 				@Validated(ICommonSequence.class) @RequestBody SaveSocialMediaDTO socialMedia) throws Throwable {
@@ -173,10 +176,10 @@ public class ChildrenController implements ISonHAL, ICommentHAL, ISocialMediaHAL
         		.orElseThrow(() -> { throw new SocialMediaNotFoundException(); });        
     }
     
-    @PostMapping(path = "/social/save")
+    @RequestMapping(value = "/social/save", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#socialMedia.son) )")
     @ApiOperation(value = "SAVE_SOCIAL_MEDIA", nickname = "SAVE_SOCIAL_MEDIA", notes = "Save Social Media",
             response = SocialMediaDTO.class)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#socialMedia.son) )")
     public ResponseEntity<APIResponse<SocialMediaDTO>> saveSocialMediaToSon(
             @ApiParam(value = "socialMedia", required = true) 
 				@Validated(ICommonSequence.class) @RequestBody SaveSocialMediaDTO socialMedia) throws Throwable {
@@ -188,14 +191,15 @@ public class ChildrenController implements ISonHAL, ICommentHAL, ISocialMediaHAL
         		.orElseThrow(() -> { throw new SocialMediaNotFoundException(); });        
     }
     
-    @DeleteMapping(path = "/{id}/social/delete/all")
+    @RequestMapping(value = "/{id}/social/delete/all", method = RequestMethod.DELETE)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     @ApiOperation(value = "DELETE_ALL_SOCIAL_MEDIA", nickname = "DELETE_ALL_SOCIAL_MEDIA", notes = "Delete all social media of user",
             response = List.class)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     //@OnlyAccessForAdminOrParentOfTheSon(son = "#id")
     public ResponseEntity<APIResponse<List<SocialMediaDTO>>> deleteAllSocialMedia(
-            @Valid @ValidObjectId(message = "{son.id.notvalid}")
-            @ApiParam(value = "id", required = true) @PathVariable String id) throws Throwable {
+    		@ApiParam(name = "id", value = "Identificador del hijo", required = true)
+            	@Valid @ValidObjectId(message = "{son.id.notvalid}")
+             		@PathVariable String id) throws Throwable {
         
         List<SocialMediaDTO> socialMediaEntities = socialMediaService.deleteSocialMediaByUser(id);
         
@@ -203,31 +207,33 @@ public class ChildrenController implements ISonHAL, ICommentHAL, ISocialMediaHAL
                 SocialMediaResponseCode.ALL_USER_SOCIAL_MEDIA_DELETED, HttpStatus.OK, socialMediaEntities);
     }
     
-    
-    @DeleteMapping(path = "/{idson}/social/delete/{idsocial}")
+    @RequestMapping(value = "/{idson}/social/delete/{idsocial}", method = RequestMethod.DELETE)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     @ApiOperation(value = "DELETE_SOCIAL_MEDIA", nickname = "DELETE_SOCIAL_MEDIA", notes = "Delete a single social media",
             response = SocialMediaDTO.class)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     public ResponseEntity<APIResponse<SocialMediaDTO>> deleteSocialMedia(
-            @Valid @ValidObjectId(message = "{son.id.notvalid}")
-            @ApiParam(value = "idson", required = true) @PathVariable String idson,
-            @Validated(ICommonSequence.class) @ValidObjectId(message = "{social.id.notvalid}")
-            @SocialMediaShouldExists(message = "{social.not.exists}")
-            @ApiParam(value = "idson", required = true) @PathVariable String idsocial) throws Throwable {
+    		@ApiParam(name = "idson", value = "Identificador del hijo", required = true)
+            	@Valid @ValidObjectId(message = "{son.id.notvalid}")
+             		@PathVariable String idson,
+            @ApiParam(name = "idsocial", value = "Identificador del Medio Social", required = true)
+            	@Validated(ICommonSequence.class) @ValidObjectId(message = "{social.id.notvalid}")
+            		@SocialMediaShouldExists(message = "{social.not.exists}")
+             			@PathVariable String idsocial) throws Throwable {
         
         SocialMediaDTO socialMediaEntities = socialMediaService.deleteSocialMediaById(idsocial);
         return ApiHelper.<SocialMediaDTO>createAndSendResponse(
                 SocialMediaResponseCode.USER_SOCIAL_MEDIA_DELETED, HttpStatus.OK, socialMediaEntities);
     }
     
-    
-    @GetMapping(path = "/{id}/social/invalid")
+   
+    @RequestMapping(value = "/{id}/social/invalid", method = RequestMethod.GET)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     @ApiOperation(value = "GET_INVALID_SOCIAL_MEDIA_BY_SON", nickname = "GET_INVALID_SOCIAL_MEDIA_BY_SON", notes = "Get Social Madia By Son with invalid token",
             response = SocialMediaDTO.class)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     public ResponseEntity<APIResponse<Iterable<SocialMediaDTO>>> getInvalidSocialMediaBySonId(
-    		@Valid @ValidObjectId(message = "{son.id.notvalid}")
-            @ApiParam(value = "id", required = true) @PathVariable String id) throws Throwable {
+    		@ApiParam(name = "id", value = "Identificador del hijo", required = true)
+    			@Valid @ValidObjectId(message = "{son.id.notvalid}")
+             		@PathVariable String id) throws Throwable {
         logger.debug("Get Invalid Social  Media by User Id " + id);
         
         Iterable<SocialMediaDTO> socialMedia = socialMediaService.getInvalidSocialMediaById(id);
