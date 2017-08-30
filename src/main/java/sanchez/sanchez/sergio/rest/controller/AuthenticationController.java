@@ -28,7 +28,7 @@ import sanchez.sanchez.sergio.rest.response.AuthenticationResponseCode;
 @RestController
 @RequestMapping("/api/v1/auth/")
 @Api(tags= "authentication", value = "/auth/", description = "Autenticación de usuarios del sistema", produces = "application/json")
-public class AuthenticationController {
+public class AuthenticationController extends BaseController {
 	
 	private final IAuthenticationService authenticationService;
 	

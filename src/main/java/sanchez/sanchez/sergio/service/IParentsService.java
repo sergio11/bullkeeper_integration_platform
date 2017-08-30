@@ -8,7 +8,6 @@ import sanchez.sanchez.sergio.dto.request.RegisterParentDTO;
 import sanchez.sanchez.sergio.dto.request.RegisterSonDTO;
 import sanchez.sanchez.sergio.dto.response.ParentDTO;
 import sanchez.sanchez.sergio.dto.response.SonDTO;
-import sanchez.sanchez.sergio.dto.response.UserDTO;
 
 /**
  *
@@ -22,4 +21,5 @@ public interface IParentsService {
     Iterable<SonDTO> getChildrenOfParent(String id);
     ParentDTO save(final RegisterParentDTO registerParent);
     SonDTO addSon(String parentId, RegisterSonDTO registerSonDTO);
+    void setAsNotActiveAndConfirmationToken(String id, String confirmationToken);
 }

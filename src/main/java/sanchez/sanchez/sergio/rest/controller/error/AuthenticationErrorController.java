@@ -14,12 +14,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import io.jsonwebtoken.lang.Assert;
 import sanchez.sanchez.sergio.rest.ApiHelper;
-import sanchez.sanchez.sergio.rest.exception.CreateAlertFailedException;
-import sanchez.sanchez.sergio.rest.exception.NoAlertsFoundException;
+import sanchez.sanchez.sergio.rest.controller.BaseController;
 import sanchez.sanchez.sergio.rest.response.APIResponse;
-import sanchez.sanchez.sergio.rest.response.AlertResponseCode;
 import sanchez.sanchez.sergio.rest.response.AuthenticationResponseCode;
-import sanchez.sanchez.sergio.service.IMessageSourceResolver;
 
 /**
  *
@@ -28,15 +25,10 @@ import sanchez.sanchez.sergio.service.IMessageSourceResolver;
 
 @ControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
-public class AuthenticationErrorController {
+public class AuthenticationErrorController extends BaseController {
 	
-	private static Logger logger = LoggerFactory.getLogger(AuthenticationErrorController.class);
-	
-	private final IMessageSourceResolver messageSourceResolver;
+    private static Logger logger = LoggerFactory.getLogger(AuthenticationErrorController.class);
 
-    public AuthenticationErrorController(IMessageSourceResolver messageSourceResolver) {
-    	this.messageSourceResolver = messageSourceResolver;
-    }
 
     @ExceptionHandler(BadCredentialsException.class)
     @ResponseBody

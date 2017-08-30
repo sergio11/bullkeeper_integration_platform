@@ -13,8 +13,8 @@ import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.LocaleResolver;
 import sanchez.sanchez.sergio.rest.ApiHelper;
+import sanchez.sanchez.sergio.rest.controller.BaseController;
 import sanchez.sanchez.sergio.rest.exception.NoChildrenFoundForParentException;
 import sanchez.sanchez.sergio.rest.exception.NoChildrenFoundForSelfParentException;
 import sanchez.sanchez.sergio.rest.exception.NoParentsFoundException;
@@ -30,15 +30,9 @@ import sanchez.sanchez.sergio.service.IMessageSourceResolver;
 
 @ControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
-public class ParentErrorController {
+public class ParentErrorController extends BaseController{
 	
-	private static Logger logger = LoggerFactory.getLogger(ParentErrorController.class);
-
-	private final IMessageSourceResolver messageSourceResolver;
-
-    public ParentErrorController(IMessageSourceResolver messageSourceResolver) {
-        this.messageSourceResolver = messageSourceResolver;
-    }
+    private static Logger logger = LoggerFactory.getLogger(ParentErrorController.class);
 
     @ExceptionHandler(ParentNotFoundException.class)
     @ResponseBody

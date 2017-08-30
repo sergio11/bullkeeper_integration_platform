@@ -13,12 +13,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import io.jsonwebtoken.lang.Assert;
 import sanchez.sanchez.sergio.rest.ApiHelper;
+import sanchez.sanchez.sergio.rest.controller.BaseController;
 import sanchez.sanchez.sergio.rest.exception.DeviceGroupCreateFailedException;
 import sanchez.sanchez.sergio.rest.exception.NoDevicesIntoTheGroupException;
 import sanchez.sanchez.sergio.rest.exception.RemoveDeviceFromGroupFailedException;
 import sanchez.sanchez.sergio.rest.response.APIResponse;
 import sanchez.sanchez.sergio.rest.response.DeviceGroupResponseCode;
-import sanchez.sanchez.sergio.service.IMessageSourceResolver;
 
 /**
  *
@@ -27,15 +27,10 @@ import sanchez.sanchez.sergio.service.IMessageSourceResolver;
 
 @ControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
-public class DeviceGroupErrorController {
+public class DeviceGroupErrorController extends BaseController {
 	
-	private static Logger logger = LoggerFactory.getLogger(DeviceGroupErrorController.class);
+    private static Logger logger = LoggerFactory.getLogger(DeviceGroupErrorController.class);
 	
-	private final IMessageSourceResolver messageSourceResolver;
-
-    public DeviceGroupErrorController(IMessageSourceResolver messageSourceResolver) {
-    	this.messageSourceResolver = messageSourceResolver;
-    }
 
     @ExceptionHandler(NoDevicesIntoTheGroupException.class)
     @ResponseBody

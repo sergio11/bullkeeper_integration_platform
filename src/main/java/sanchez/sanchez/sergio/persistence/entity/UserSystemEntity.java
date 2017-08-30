@@ -22,12 +22,22 @@ public class UserSystemEntity extends PersonEntity {
 
     @Field("password")
     protected String password;
+    
+    @Field("password_requested_at")
+    protected String passwordRequestedAt;
+    
+    @Field("is_active")
+    protected Boolean active = Boolean.TRUE;
 
     @Field("is_locked")
     protected Boolean locked = Boolean.FALSE;
 
     @Field("last_login_access")
     protected Date lastLoginAccess;
+    
+    /* Random string sent to the user email address in order to verify it */
+    @Field("confirmation_token")
+    protected String confirmationToken;
 
     @DBRef
     protected AuthorityEntity authority;
@@ -36,6 +46,16 @@ public class UserSystemEntity extends PersonEntity {
     }
 
     @PersistenceConstructor
+    public UserSystemEntity(String email, String password, String passwordRequestedAt, Date lastLoginAccess, String confirmationToken, AuthorityEntity authority, String firstName, String lastName, Integer age) {
+        super(firstName, lastName, age);
+        this.email = email;
+        this.password = password;
+        this.passwordRequestedAt = passwordRequestedAt;
+        this.lastLoginAccess = lastLoginAccess;
+        this.confirmationToken = confirmationToken;
+        this.authority = authority;
+    }
+    
     public UserSystemEntity(String firstName, String lastName, Integer age, String email, String password, AuthorityEntity authority) {
         super(firstName, lastName, age);
         this.email = email;
@@ -82,6 +102,31 @@ public class UserSystemEntity extends PersonEntity {
     public void setAuthority(AuthorityEntity authority) {
         this.authority = authority;
     }
+
+    public String getPasswordRequestedAt() {
+        return passwordRequestedAt;
+    }
+
+    public void setPasswordRequestedAt(String passwordRequestedAt) {
+        this.passwordRequestedAt = passwordRequestedAt;
+    }
+
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
+
+    public String getConfirmationToken() {
+        return confirmationToken;
+    }
+
+    public void setConfirmationToken(String confirmationToken) {
+        this.confirmationToken = confirmationToken;
+    }
+    
 
     @Override
     public String toString() {

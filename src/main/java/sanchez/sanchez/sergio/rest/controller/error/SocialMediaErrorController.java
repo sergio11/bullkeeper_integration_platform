@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import sanchez.sanchez.sergio.rest.ApiHelper;
+import sanchez.sanchez.sergio.rest.controller.BaseController;
 import sanchez.sanchez.sergio.rest.exception.SocialMediaNotFoundException;
 import sanchez.sanchez.sergio.rest.response.APIResponse;
 import sanchez.sanchez.sergio.rest.response.SocialMediaResponseCode;
-import sanchez.sanchez.sergio.service.IMessageSourceResolver;
 
 /**
  *
@@ -24,13 +24,8 @@ import sanchez.sanchez.sergio.service.IMessageSourceResolver;
 
 @ControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
-public class SocialMediaErrorController {
+public class SocialMediaErrorController extends BaseController {
 
-	private final IMessageSourceResolver messageSourceResolver;
-
-    public SocialMediaErrorController(IMessageSourceResolver messageSourceResolver) {
-    	this.messageSourceResolver = messageSourceResolver;
-    }
 
     @ExceptionHandler(SocialMediaNotFoundException.class)
     @ResponseBody

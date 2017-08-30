@@ -9,10 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -38,6 +35,7 @@ import sanchez.sanchez.sergio.dto.request.RegisterSonDTO;
 import sanchez.sanchez.sergio.dto.response.ParentDTO;
 import sanchez.sanchez.sergio.dto.response.SonDTO;
 import sanchez.sanchez.sergio.dto.response.ValidationErrorDTO;
+import sanchez.sanchez.sergio.events.ParentRegistrationSuccessEvent;
 import sanchez.sanchez.sergio.persistence.constraints.ValidObjectId;
 import sanchez.sanchez.sergio.rest.ApiHelper;
 import sanchez.sanchez.sergio.rest.exception.NoChildrenFoundForParentException;
@@ -60,7 +58,7 @@ import springfox.documentation.annotations.ApiIgnore;
 @Validated
 @RequestMapping("/api/v1/parents/")
 @Api(tags = "parents", value = "/parents/", description = "Manejo de la información del tutor", produces = "application/json")
-public class ParentsController implements IParentHAL, ISonHAL {
+public class ParentsController extends BaseController implements IParentHAL, ISonHAL {
 
     private static Logger logger = LoggerFactory.getLogger(ParentsController.class);
     
@@ -141,13 +139,10 @@ public class ParentsController implements IParentHAL, ISonHAL {
     		@ApiParam(value = "parent", required = true) 
     			@Valid @RequestBody RegisterParentDTO parent) throws Throwable {
     	logger.debug("Register Parent");
-        return Optional.ofNullable(parentsService.save(parent))
-        		.map(parentResource -> addLinksToParent(parentResource))
-        		.map(parentResource -> ApiHelper.<ParentDTO>createAndSendResponse(ParentResponseCode.PARENT_REGISTERED_SUCCESSFULLY, 
-        				HttpStatus.OK, parentResource))
-                .orElseThrow(() -> {
-                    throw new ResourceNotFoundException();
-                });
+        ParentDTO parentDTO = parentsService.save(parent);
+        applicationEventPublisher.publishEvent(new ParentRegistrationSuccessEvent(parentDTO.getIdentity(), this));
+        return ApiHelper.<ParentDTO>createAndSendResponse(ParentResponseCode.PARENT_REGISTERED_SUCCESSFULLY, 
+        				HttpStatus.OK, addLinksToParent(parentDTO));
     }
     
     @RequestMapping(value = "/{id}/children", method = RequestMethod.GET)

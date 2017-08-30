@@ -23,23 +23,18 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import sanchez.sanchez.sergio.dto.response.ValidationErrorDTO;
 import sanchez.sanchez.sergio.rest.ApiHelper;
+import sanchez.sanchez.sergio.rest.controller.BaseController;
 import sanchez.sanchez.sergio.rest.response.APIResponse;
 import sanchez.sanchez.sergio.rest.response.CommonErrorResponseCode;
-import sanchez.sanchez.sergio.service.IMessageSourceResolver;
 
 @ControllerAdvice
 @Order(Ordered.LOWEST_PRECEDENCE)
-public class CommonErrorRestController{
+public class CommonErrorRestController extends BaseController {
 	
-	private static Logger logger = LoggerFactory.getLogger(CommonErrorRestController.class);
+    private static Logger logger = LoggerFactory.getLogger(CommonErrorRestController.class);
 	
-	private final IMessageSourceResolver messageSourceResolver;
-	
-    public CommonErrorRestController(IMessageSourceResolver messageSourceResolver) {
-		this.messageSourceResolver = messageSourceResolver;
-	}
 
-	@ExceptionHandler(MethodArgumentNotValidException.class)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseBody
     public ResponseEntity<APIResponse<ValidationErrorDTO>> handleValidationException(MethodArgumentNotValidException ex) {
     	logger.debug("Validation Error");

@@ -6,7 +6,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.MessageSource;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -15,8 +14,8 @@ import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.LocaleResolver;
 import sanchez.sanchez.sergio.rest.ApiHelper;
+import sanchez.sanchez.sergio.rest.controller.BaseController;
 import sanchez.sanchez.sergio.rest.exception.CommentNotFoundException;
 import sanchez.sanchez.sergio.rest.exception.NoCommentsFoundException;
 import sanchez.sanchez.sergio.rest.response.APIResponse;
@@ -30,16 +29,10 @@ import sanchez.sanchez.sergio.service.IMessageSourceResolver;
 
 @ControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
-public class CommentsErrorController {
+public class CommentsErrorController extends BaseController {
 	
-	private static Logger logger = LoggerFactory.getLogger(CommentsErrorController.class);
+    private static Logger logger = LoggerFactory.getLogger(CommentsErrorController.class);
 	
-	private final IMessageSourceResolver messageSourceResolver;
-
-    public CommentsErrorController(IMessageSourceResolver messageSourceResolver) {
-        this.messageSourceResolver = messageSourceResolver;
-    }
-
     @ExceptionHandler(NoCommentsFoundException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleNoCommentsFoundException(NoCommentsFoundException noCommentsFoundException, HttpServletRequest request) {

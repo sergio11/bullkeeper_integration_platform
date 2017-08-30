@@ -12,6 +12,6 @@ import sanchez.sanchez.sergio.persistence.entity.UserSystemEntity;
  * @author sergio
  */
 @Repository
-public interface ParentRepository extends MongoRepository<ParentEntity, ObjectId> {
+public interface ParentRepository extends MongoRepository<ParentEntity, ObjectId>, ParentRepositoryCustom{
 	UserSystemEntity findOneByEmail(String email);
 }

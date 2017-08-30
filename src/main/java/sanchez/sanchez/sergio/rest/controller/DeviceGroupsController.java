@@ -45,7 +45,7 @@ import sanchez.sanchez.sergio.persistence.constraints.DeviceShouldNotExists;
 @Validated
 @RequestMapping("/api/v1/device-groups")
 @Api(tags = "devices-groups", value = "/device-groups/", description = "Manejo de grupo de dispositivos del padre/tutor", produces = "application/json")
-public class DeviceGroupsController {
+public class DeviceGroupsController extends BaseController {
 
     private static Logger logger = LoggerFactory.getLogger(DeviceGroupsController.class);
 

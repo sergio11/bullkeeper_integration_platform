@@ -134,6 +134,11 @@
             <artifactId>restfb</artifactId>
             <version>2.0.0-rc.3</version>
         </dependency>
+        <!-- Mail -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
         <!-- A Java library for the Instagram API.  -->
         <dependency>
             <groupId>com.sachinhandiekar</groupId>

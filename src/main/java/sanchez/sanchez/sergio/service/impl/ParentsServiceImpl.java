@@ -21,74 +21,79 @@ import sanchez.sanchez.sergio.service.IParentsService;
 @Service
 public class ParentsServiceImpl implements IParentsService {
 
-	private final ParentRepository parentRepository;
-	private final ParentEntityMapper parentEntityMapper;
-	private final SonEntityMapper  sonEntityMapper;
-	private final SonRepository sonRepository;
-	
-	public ParentsServiceImpl(ParentRepository parentRepository, ParentEntityMapper parentEntityMapper, SonEntityMapper sonEntityMapper, SonRepository sonRepository) {
-		super();
-		this.parentRepository = parentRepository;
-		this.parentEntityMapper = parentEntityMapper;
-		this.sonEntityMapper = sonEntityMapper;
-		this.sonRepository = sonRepository;
-	}
+    private final ParentRepository parentRepository;
+    private final ParentEntityMapper parentEntityMapper;
+    private final SonEntityMapper sonEntityMapper;
+    private final SonRepository sonRepository;
 
-	@Override
-	public Page<ParentDTO> findPaginated(Integer page, Integer size) {
-		Pageable pageable = new PageRequest(page, size);
+    public ParentsServiceImpl(ParentRepository parentRepository, ParentEntityMapper parentEntityMapper, SonEntityMapper sonEntityMapper, SonRepository sonRepository) {
+        super();
+        this.parentRepository = parentRepository;
+        this.parentEntityMapper = parentEntityMapper;
+        this.sonEntityMapper = sonEntityMapper;
+        this.sonRepository = sonRepository;
+    }
+
+    @Override
+    public Page<ParentDTO> findPaginated(Integer page, Integer size) {
+        Pageable pageable = new PageRequest(page, size);
         Page<ParentEntity> parentsPage = parentRepository.findAll(pageable);
-        return parentsPage.map(new Converter<ParentEntity, ParentDTO>(){
+        return parentsPage.map(new Converter<ParentEntity, ParentDTO>() {
             @Override
             public ParentDTO convert(ParentEntity parent) {
-               return parentEntityMapper.parentEntityToParentDTO(parent);
+                return parentEntityMapper.parentEntityToParentDTO(parent);
             }
         });
-	}
+    }
 
-	@Override
-	public Page<ParentDTO> findPaginated(Pageable pageable) {
-		Page<ParentEntity> parentsPage = parentRepository.findAll(pageable);
-        return parentsPage.map(new Converter<ParentEntity, ParentDTO>(){
+    @Override
+    public Page<ParentDTO> findPaginated(Pageable pageable) {
+        Page<ParentEntity> parentsPage = parentRepository.findAll(pageable);
+        return parentsPage.map(new Converter<ParentEntity, ParentDTO>() {
             @Override
             public ParentDTO convert(ParentEntity parent) {
-               return parentEntityMapper.parentEntityToParentDTO(parent);
+                return parentEntityMapper.parentEntityToParentDTO(parent);
             }
         });
-	}
+    }
 
-	@Override
-	public ParentDTO getParentById(String id) {
-		ParentEntity parentEntity = parentRepository.findOne(new ObjectId(id));
+    @Override
+    public ParentDTO getParentById(String id) {
+        ParentEntity parentEntity = parentRepository.findOne(new ObjectId(id));
         return parentEntityMapper.parentEntityToParentDTO(parentEntity);
-	}
+    }
 
-	@Override
-	public Iterable<SonDTO> getChildrenOfParent(String id) {
-		Iterable<SonEntity> children = sonRepository.findByParentId(new ObjectId(id));
-		return sonEntityMapper.sonEntitiesToSonDTOs(children);
-	}
+    @Override
+    public Iterable<SonDTO> getChildrenOfParent(String id) {
+        Iterable<SonEntity> children = sonRepository.findByParentId(new ObjectId(id));
+        return sonEntityMapper.sonEntitiesToSonDTOs(children);
+    }
 
-	@Override
-	public ParentDTO save(RegisterParentDTO registerParent) {
-		final ParentEntity parentToSave = parentEntityMapper.registerParentDTOToParentEntity(registerParent);
-		final ParentEntity parentSaved = parentRepository.save(parentToSave);
-		return parentEntityMapper.parentEntityToParentDTO(parentSaved);
-	}
+    @Override
+    public ParentDTO save(RegisterParentDTO registerParent) {
+        final ParentEntity parentToSave = parentEntityMapper.registerParentDTOToParentEntity(registerParent);
+        final ParentEntity parentSaved = parentRepository.save(parentToSave);
+        return parentEntityMapper.parentEntityToParentDTO(parentSaved);
+    }
 
-	@Override
-	public SonDTO addSon(String parentId, RegisterSonDTO registerSonDTO) {
-		SonEntity sonToAdd = sonEntityMapper.registerSonDTOToSonEntity(registerSonDTO);
-		ParentEntity parentEntity = parentRepository.findOne(new ObjectId(parentId));
-		sonToAdd.setParent(parentEntity);
-		parentRepository.save(parentEntity);
-		return sonEntityMapper.sonEntityToSonDTO(sonToAdd);
-	}
+    @Override
+    public SonDTO addSon(String parentId, RegisterSonDTO registerSonDTO) {
+        SonEntity sonToAdd = sonEntityMapper.registerSonDTOToSonEntity(registerSonDTO);
+        ParentEntity parentEntity = parentRepository.findOne(new ObjectId(parentId));
+        sonToAdd.setParent(parentEntity);
+        parentRepository.save(parentEntity);
+        return sonEntityMapper.sonEntityToSonDTO(sonToAdd);
+    }
 
-	@Override
-	public ParentDTO getParentById(ObjectId id) {
-		ParentEntity parentEntity = parentRepository.findOne(id);
+    @Override
+    public ParentDTO getParentById(ObjectId id) {
+        ParentEntity parentEntity = parentRepository.findOne(id);
         return parentEntityMapper.parentEntityToParentDTO(parentEntity);
-	}
+    }
+
+    @Override
+    public void setAsNotActiveAndConfirmationToken(String id, String confirmationToken) {
+        parentRepository.setAsNotActiveAndConfirmationToken(new ObjectId(id), confirmationToken);
+    }
 
 }

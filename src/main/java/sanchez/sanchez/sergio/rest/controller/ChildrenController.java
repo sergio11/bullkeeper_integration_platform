@@ -8,9 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -43,14 +41,12 @@ import sanchez.sanchez.sergio.rest.response.APIResponse;
 import sanchez.sanchez.sergio.rest.response.CommentResponseCode;
 import sanchez.sanchez.sergio.rest.response.SocialMediaResponseCode;
 import sanchez.sanchez.sergio.security.utils.OnlyAccessForAdmin;
-import sanchez.sanchez.sergio.security.utils.OnlyAccessForAdminOrParentOfTheSon;
 import sanchez.sanchez.sergio.rest.response.ChildrenResponseCode;
 import sanchez.sanchez.sergio.service.ICommentsService;
 import sanchez.sanchez.sergio.service.ISocialMediaService;
 import sanchez.sanchez.sergio.service.ISonService;
 import springfox.documentation.annotations.ApiIgnore;
 import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import sanchez.sanchez.sergio.persistence.constraints.SocialMediaShouldExists;
 
 
@@ -58,7 +54,7 @@ import sanchez.sanchez.sergio.persistence.constraints.SocialMediaShouldExists;
 @Validated
 @RequestMapping("/api/v1/children/")
 @Api(tags = "children", value = "/children/", description = "Punto de Entrada para el manejo de usuarios analizados", produces = "application/json")
-public class ChildrenController implements ISonHAL, ICommentHAL, ISocialMediaHAL {
+public class ChildrenController extends BaseController implements ISonHAL, ICommentHAL, ISocialMediaHAL {
 
     private static Logger logger = LoggerFactory.getLogger(ChildrenController.class);
     

@@ -37,7 +37,7 @@ import springfox.documentation.annotations.ApiIgnore;
 @Validated
 @RequestMapping("/api/v1/social/")
 @Api(tags = "social", value = "/social/", description = "Manejo de la información de los medios sociales registrados", produces = "application/json")
-public class SocialMediaController implements ISocialMediaHAL {
+public class SocialMediaController extends BaseController implements ISocialMediaHAL {
 
     private static Logger logger = LoggerFactory.getLogger(SocialMediaController.class);
     

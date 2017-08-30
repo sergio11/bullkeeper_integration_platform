@@ -13,6 +13,6 @@ import sanchez.sanchez.sergio.persistence.entity.CommentEntity;
  * @author sergio
  */
 @Repository
-public interface CommentRepository extends MongoRepository<CommentEntity, ObjectId> {
+public interface CommentRepository extends MongoRepository<CommentEntity, ObjectId>, CommentRepositoryCustom {
     Page<CommentEntity> findAllBySonEntityId(ObjectId userId, Pageable pageable);
 }

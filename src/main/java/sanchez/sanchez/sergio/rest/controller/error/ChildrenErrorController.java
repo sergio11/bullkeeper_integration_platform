@@ -15,6 +15,7 @@ import org.springframework.web.servlet.LocaleResolver;
 
 import io.jsonwebtoken.lang.Assert;
 import sanchez.sanchez.sergio.rest.ApiHelper;
+import sanchez.sanchez.sergio.rest.controller.BaseController;
 import sanchez.sanchez.sergio.rest.exception.CommentsBySonNotFoundException;
 import sanchez.sanchez.sergio.rest.exception.NoChildrenFoundException;
 import sanchez.sanchez.sergio.rest.exception.SonNotFoundException;
@@ -30,13 +31,8 @@ import sanchez.sanchez.sergio.rest.response.ChildrenResponseCode;
 
 @ControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
-public class ChildrenErrorController {
+public class ChildrenErrorController extends BaseController {
 	
-	private final IMessageSourceResolver messageSourceResolver;
-
-    public ChildrenErrorController(IMessageSourceResolver messageSourceResolver) {
-        this.messageSourceResolver = messageSourceResolver;
-    }
 
     @ExceptionHandler(SonNotFoundException.class)
     @ResponseBody
