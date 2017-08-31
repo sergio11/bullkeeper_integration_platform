@@ -123,6 +123,12 @@ public class SocialMediaServiceImpl implements ISocialMediaService {
         SocialMediaEntity socialMediaEntityDeleted = socialMediaRepository.deleteById(new ObjectId(id));
         return socialMediaMapper.socialMediaEntityToSocialMediaDTO(socialMediaEntityDeleted);
     }
+    
+    @Override
+	public List<SocialMediaDTO> getValidSocialMediaById(String id) {
+    	List<SocialMediaEntity> socialMediaEntities = socialMediaRepository.findByIdAndInvalidTokenFalse(new ObjectId(id));
+		return socialMediaMapper.socialMediaEntitiesToSocialMediaDTO(socialMediaEntities);
+	}
 	
 	@PostConstruct
     protected void init(){
@@ -130,6 +136,4 @@ public class SocialMediaServiceImpl implements ISocialMediaService {
         Assert.notNull(socialMediaMapper, "Social Media Mapper cannot be null");
         Assert.notNull(itegrationFlowService, "Integration Flow Service can not be null");
 	}
-
-    
 }

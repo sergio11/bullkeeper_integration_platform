@@ -122,7 +122,7 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
         
     }
     
-    @RequestMapping(value = "/{id}/social", method = RequestMethod.GET)
+    @RequestMapping(value = { "/{id}/social", "/{id}/social/all"  }, method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     @ApiOperation(value = "GET_SOCIAL_MEDIA_BY_SON", nickname = "GET_SOCIAL_MEDIA_BY_SON", notes = "Get Social Madia By Son",
             response = SocialMediaDTO.class)
@@ -236,6 +236,25 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
         if(Iterables.size(socialMedia) == 0)
         	throw new SocialMediaNotFoundException();
         return ApiHelper.<Iterable<SocialMediaDTO>>createAndSendResponse(SocialMediaResponseCode.INVALID_SOCIAL_MEDIA_BY_CHILD, 
+        		HttpStatus.OK, addLinksToSocialMedia(socialMedia));
+    }
+    
+    
+    @RequestMapping(value = "/{id}/social/valid", method = RequestMethod.GET)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
+    @ApiOperation(value = "GET_VALID_SOCIAL_MEDIA_BY_SON", nickname = "GET_VALID_SOCIAL_MEDIA_BY_SON", notes = "Get Social Madia By Son with valid token",
+            response = SocialMediaDTO.class)
+    public ResponseEntity<APIResponse<Iterable<SocialMediaDTO>>> getValidSocialMediaBySonId(
+    		@ApiParam(name = "id", value = "Identificador del hijo", required = true)
+    			@Valid @ValidObjectId(message = "{son.id.notvalid}")
+             		@PathVariable String id) throws Throwable {
+       
+    	logger.debug("Get Valid Social  Media by User Id " + id);
+        
+        Iterable<SocialMediaDTO> socialMedia = socialMediaService.getValidSocialMediaById(id);
+        if(Iterables.size(socialMedia) == 0)
+        	throw new SocialMediaNotFoundException();
+        return ApiHelper.<Iterable<SocialMediaDTO>>createAndSendResponse(SocialMediaResponseCode.VALID_SOCIAL_MEDIA_BY_CHILD, 
         		HttpStatus.OK, addLinksToSocialMedia(socialMedia));
     }
 }
