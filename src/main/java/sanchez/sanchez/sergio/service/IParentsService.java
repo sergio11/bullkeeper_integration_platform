@@ -17,6 +17,7 @@ public interface IParentsService {
     Page<ParentDTO> findPaginated(Integer page, Integer size);
     Page<ParentDTO> findPaginated(Pageable pageable);
     ParentDTO getParentById(String id);
+    ParentDTO getParentByEmail(String email);
     ParentDTO getParentById(ObjectId id);
     Iterable<SonDTO> getChildrenOfParent(String id);
     ParentDTO save(final RegisterParentDTO registerParent);

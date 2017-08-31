@@ -1,0 +1,14 @@
+package sanchez.sanchez.sergio.persistence.repository;
+
+import org.bson.types.ObjectId;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.stereotype.Repository;
+import sanchez.sanchez.sergio.persistence.entity.PasswordResetTokenEntity;
+
+/**
+ * @author sergio
+ */
+@Repository
+public interface PasswordResetTokenRepository extends MongoRepository<PasswordResetTokenEntity, ObjectId> {
+	PasswordResetTokenEntity findByToken(String token);
+}

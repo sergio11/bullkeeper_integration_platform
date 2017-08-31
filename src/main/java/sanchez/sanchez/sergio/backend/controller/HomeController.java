@@ -1,4 +1,4 @@
-package sanchez.sanchez.sergio.admin.controller;
+package sanchez.sanchez.sergio.backend.controller;
 
 import javax.annotation.PostConstruct;
 import org.springframework.stereotype.Controller;

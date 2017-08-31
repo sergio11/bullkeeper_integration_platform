@@ -1,6 +1,7 @@
 package sanchez.sanchez.sergio.service.impl;
 
 import org.bson.types.ObjectId;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,7 +27,9 @@ public class ParentsServiceImpl implements IParentsService {
     private final SonEntityMapper sonEntityMapper;
     private final SonRepository sonRepository;
 
-    public ParentsServiceImpl(ParentRepository parentRepository, ParentEntityMapper parentEntityMapper, SonEntityMapper sonEntityMapper, SonRepository sonRepository) {
+    @Autowired
+    public ParentsServiceImpl(ParentRepository parentRepository, ParentEntityMapper parentEntityMapper, SonEntityMapper sonEntityMapper, 
+    		SonRepository sonRepository) {
         super();
         this.parentRepository = parentRepository;
         this.parentEntityMapper = parentEntityMapper;
@@ -95,5 +98,11 @@ public class ParentsServiceImpl implements IParentsService {
     public void setAsNotActiveAndConfirmationToken(String id, String confirmationToken) {
         parentRepository.setAsNotActiveAndConfirmationToken(new ObjectId(id), confirmationToken);
     }
+
+	@Override
+	public ParentDTO getParentByEmail(String email) {
+		ParentEntity parentEntity = (ParentEntity)parentRepository.findOneByEmail(email);
+		return parentEntityMapper.parentEntityToParentDTO(parentEntity);
+	}
 
 }

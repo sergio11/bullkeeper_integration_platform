@@ -14,9 +14,9 @@ public class TokenGeneratorServiceImpl implements ITokenGeneratorService {
     protected static SecureRandom random = new SecureRandom();
 
     @Override
-    public synchronized String generateToken(String name) {
+    public synchronized String generateToken(String id) {
         long longToken = Math.abs(random.nextLong());
         String random = Long.toString(longToken, 16);
-        return (name + ":" + random);
+        return (id + ":" + random);
     }
 }

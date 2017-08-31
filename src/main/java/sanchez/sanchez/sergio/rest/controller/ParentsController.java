@@ -14,25 +14,22 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.google.common.collect.Iterables;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.ApiResponse;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.hateoas.Resource;
-
 import sanchez.sanchez.sergio.dto.request.RegisterParentDTO;
 import sanchez.sanchez.sergio.dto.request.RegisterSonDTO;
 import sanchez.sanchez.sergio.dto.response.ParentDTO;
+import sanchez.sanchez.sergio.dto.response.PasswordResetTokenDTO;
 import sanchez.sanchez.sergio.dto.response.SonDTO;
 import sanchez.sanchez.sergio.dto.response.ValidationErrorDTO;
 import sanchez.sanchez.sergio.events.ParentRegistrationSuccessEvent;
@@ -52,6 +49,7 @@ import sanchez.sanchez.sergio.security.utils.CurrentUser;
 import sanchez.sanchez.sergio.security.utils.OnlyAccessForAdmin;
 import sanchez.sanchez.sergio.security.utils.OnlyAccessForParent;
 import sanchez.sanchez.sergio.service.IParentsService;
+import sanchez.sanchez.sergio.service.IPasswordResetTokenService;
 import springfox.documentation.annotations.ApiIgnore;
 
 @RestController("RestParentsController")
@@ -63,9 +61,11 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     private static Logger logger = LoggerFactory.getLogger(ParentsController.class);
     
     private final IParentsService parentsService;
+    private final IPasswordResetTokenService passwordResetTokenService;
  
-    public ParentsController(IParentsService parentsService) {
+    public ParentsController(IParentsService parentsService, IPasswordResetTokenService passwordResetTokenService) {
         this.parentsService = parentsService;
+        this.passwordResetTokenService = passwordResetTokenService;
     }
     
     @RequestMapping(value = {"/", "/all"}, method = RequestMethod.GET)
@@ -144,6 +144,7 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
         return ApiHelper.<ParentDTO>createAndSendResponse(ParentResponseCode.PARENT_REGISTERED_SUCCESSFULLY, 
         				HttpStatus.OK, addLinksToParent(parentDTO));
     }
+   
     
     @RequestMapping(value = "/{id}/children", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isTheAuthenticatedUser(#id) )")
@@ -182,6 +183,22 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
         		HttpStatus.OK, addLinksToChildren((childrenOfParent)));
    
     }
+    
+    
+    @RequestMapping(value = "/self/reset-password",  method = RequestMethod.POST)
+    @ApiOperation(value = "RESET_PASSWORD", nickname = "RESET_PASSWORD", notes="Reset Password")
+    public ResponseEntity<APIResponse<String>> resetPassword(
+    		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent){
+    	
+    	logger.debug("Reset Password");
+    	
+    	PasswordResetTokenDTO resetPasswordToken = passwordResetTokenService.createPasswordResetTokenForUser(selfParent.getUserId().toString());
+    	
+    	return ApiHelper.<String>createAndSendResponse(ParentResponseCode.PARENT_RESET_PASSWORD_REQUEST, 
+        		HttpStatus.OK, messageSourceResolver.resolver("parent.password.reseted"));	
+    }
+    
+    
     
     @RequestMapping(value = "/{id}/children/add", method = RequestMethod.PUT)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isTheAuthenticatedUser(#id) )")

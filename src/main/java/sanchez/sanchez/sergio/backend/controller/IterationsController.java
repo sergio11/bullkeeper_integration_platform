@@ -1,4 +1,4 @@
-package sanchez.sanchez.sergio.admin.controller;
+package sanchez.sanchez.sergio.backend.controller;
 
 import java.util.List;
 import org.slf4j.Logger;
