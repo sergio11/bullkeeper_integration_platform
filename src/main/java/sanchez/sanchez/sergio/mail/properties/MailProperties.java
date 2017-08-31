@@ -14,7 +14,7 @@ public class MailProperties implements Serializable {
     @Value("${mail.from}")
     private String mailFrom;
     
-    @Value("${mail.content.registration.success.template.name}")
+    @Value("${mail.registration.success.template.name}")
     private String registrationSuccessTemplate;
 
     public String getMailFrom() {

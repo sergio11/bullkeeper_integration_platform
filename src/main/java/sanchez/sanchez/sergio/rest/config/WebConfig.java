@@ -50,7 +50,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         registry.addRedirectViewController("/documentation/swagger-resources", "/swagger-resources");
         registry.addRedirectViewController("/documentation/configuration/ui", "/configuration/ui");
         registry.addRedirectViewController("/documentation/configuration/security", "/configuration/security");
-        registry.addRedirectViewController("/", "/documentation/swagger-ui.html");
+        registry.addRedirectViewController("/", "/docs/index.html");
         registry.addViewController("/admin/login").setViewName("login");
         
     }
