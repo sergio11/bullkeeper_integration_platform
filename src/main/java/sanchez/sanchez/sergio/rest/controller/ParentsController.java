@@ -28,11 +28,14 @@ import org.springframework.hateoas.PagedResources;
 import org.springframework.hateoas.Resource;
 import sanchez.sanchez.sergio.dto.request.RegisterParentDTO;
 import sanchez.sanchez.sergio.dto.request.RegisterSonDTO;
+import sanchez.sanchez.sergio.dto.request.UpdateParentDTO;
 import sanchez.sanchez.sergio.dto.response.ParentDTO;
 import sanchez.sanchez.sergio.dto.response.PasswordResetTokenDTO;
 import sanchez.sanchez.sergio.dto.response.SonDTO;
 import sanchez.sanchez.sergio.dto.response.ValidationErrorDTO;
 import sanchez.sanchez.sergio.events.ParentRegistrationSuccessEvent;
+import sanchez.sanchez.sergio.events.PasswordResetEvent;
+import sanchez.sanchez.sergio.persistence.constraints.ParentShouldExists;
 import sanchez.sanchez.sergio.persistence.constraints.ValidObjectId;
 import sanchez.sanchez.sergio.rest.ApiHelper;
 import sanchez.sanchez.sergio.rest.exception.NoChildrenFoundForParentException;
@@ -109,6 +112,30 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
                 .orElseThrow(() -> { throw new ParentNotFoundException(); });
     }
     
+    
+    @RequestMapping(value = "/{id}/update",  method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isTheAuthenticatedUser(#id) )")
+    @ApiOperation(value = "UPDATE_PARENT", nickname = "UPDATE_PARENT", notes="Update information for parent")
+    @ApiResponses(value = { 
+    		@ApiResponse(code = 200, message= "Update any Parent", response = ParentDTO.class),
+    		@ApiResponse(code = 403, message = "Validation Errors", response = ValidationErrorDTO.class)
+    })
+    public ResponseEntity<APIResponse<ParentDTO>> updateParent(
+    		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent,
+    		@ApiParam(name = "id", value = "Identificador del Padre", required = true) 
+    			@Valid @ValidObjectId(message = "{parent.id.notvalid}") 
+    				@ParentShouldExists(message = "{parent.not.exists}")
+    					@PathVariable String id,
+    		@ApiParam(value = "parent", required = true) 
+				@Valid @RequestBody UpdateParentDTO parent) throws Throwable {
+    	
+    	logger.debug("Update Parent");
+        ParentDTO parentDTO = parentsService.update(new ObjectId(id), parent);
+        
+        return ApiHelper.<ParentDTO>createAndSendResponse(ParentResponseCode.PARENT_UPDATED_SUCCESSFULLY, 
+        				HttpStatus.OK, addLinksToParent(parentDTO));
+    }
+    
     @RequestMapping(value = "/self", method = RequestMethod.GET)
     @OnlyAccessForParent
     @ApiOperation(value = "GET_PARENT_SELF_INFORMATION", nickname = "GET_PARENT_SELF_INFORMATION", notes = "Get information from the currently authenticated parent")
@@ -152,7 +179,9 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
             notes = "Get Children of Parent", response = ResponseEntity.class)
     public ResponseEntity<APIResponse<Iterable<SonDTO>>> getChildrenOfParent(
     		@ApiParam(name = "id", value = "Identificador del Padre", required = true)
-    			@Valid @ValidObjectId(message = "{parent.id.notvalid}") @PathVariable String id) throws Throwable {
+    			@Valid @ValidObjectId(message = "{parent.id.notvalid}") 
+    				@ParentShouldExists(message = "{parent.not.exists}")
+    					@PathVariable String id) throws Throwable {
         logger.debug("Get Children of Parent with id: " + id);
         
         Iterable<SonDTO> childrenOfParent = parentsService.getChildrenOfParent(id);
@@ -192,12 +221,35 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     	
     	logger.debug("Reset Password");
     	
-    	PasswordResetTokenDTO resetPasswordToken = passwordResetTokenService.createPasswordResetTokenForUser(selfParent.getUserId().toString());
+    	final String userId = selfParent.getUserId().toString();
+    	
+    	PasswordResetTokenDTO resetPasswordToken  = Optional.ofNullable(passwordResetTokenService.getPasswordResetTokenForUser(userId))
+    		.orElseGet(() -> passwordResetTokenService.createPasswordResetTokenForUser(userId));
+    	
+    	applicationEventPublisher.publishEvent(new PasswordResetEvent(this, resetPasswordToken));
     	
     	return ApiHelper.<String>createAndSendResponse(ParentResponseCode.PARENT_RESET_PASSWORD_REQUEST, 
         		HttpStatus.OK, messageSourceResolver.resolver("parent.password.reseted"));	
     }
     
+    @RequestMapping(value = "/self/update",  method = RequestMethod.POST)
+    @OnlyAccessForParent
+    @ApiOperation(value = "UPDATE_SELF_PARENT", nickname = "UPDATE_SELF_PARENT", notes="Update information for self parent")
+    @ApiResponses(value = { 
+    		@ApiResponse(code = 200, message= "Update Parent", response = ParentDTO.class),
+    		@ApiResponse(code = 403, message = "Validation Errors", response = ValidationErrorDTO.class)
+    })
+    public ResponseEntity<APIResponse<ParentDTO>> updateSelfParent(
+    		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent,
+    		@ApiParam(value = "parent", required = true) 
+    			@Valid @RequestBody UpdateParentDTO parent) throws Throwable {
+    	
+    	logger.debug("Update Parent");
+        ParentDTO parentDTO = parentsService.update(selfParent.getUserId(), parent);
+        
+        return ApiHelper.<ParentDTO>createAndSendResponse(ParentResponseCode.SELF_PARENT_UPDATED_SUCCESSFULLY, 
+        				HttpStatus.OK, addLinksToParent(parentDTO));
+    }
     
     
     @RequestMapping(value = "/{id}/children/add", method = RequestMethod.PUT)
@@ -209,7 +261,9 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     })
     public ResponseEntity<APIResponse<SonDTO>> addSonToParent(
     		@ApiParam(name = "id", value = "Identificador del Padre", required = true) 
-    			@Valid @ValidObjectId(message = "{parent.id.notvalid}") @PathVariable String id,
+    			@Valid @ValidObjectId(message = "{parent.id.notvalid}") 
+    				@ParentShouldExists(message = "{parent.not.exists}")
+    					@PathVariable String id,
     		@ApiParam(value = "son", required = true) 
     			@Valid @RequestBody RegisterSonDTO son) throws Throwable {
     	logger.debug("Add Son To Parent");

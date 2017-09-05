@@ -1,6 +1,5 @@
 package sanchez.sanchez.sergio.rest.config;
 
-
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.PostConstruct;
@@ -25,7 +24,6 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import sanchez.sanchez.sergio.fcm.properties.FCMCustomProperties;
 import sanchez.sanchez.sergio.fcm.utils.FCMErrorHandler;
 import sanchez.sanchez.sergio.rest.interceptor.HeaderRequestInterceptor;
@@ -52,7 +50,8 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         registry.addRedirectViewController("/documentation/configuration/security", "/configuration/security");
         registry.addRedirectViewController("/", "/docs/index.html");
         registry.addViewController("/admin/login").setViewName("login");
-        
+        registry.addViewController("/accounts/resetting/invalid-token").setViewName("invalid_token");
+        registry.addViewController("/accounts/resetting/password-changed").setViewName("password_changed");
     }
 
     @Override

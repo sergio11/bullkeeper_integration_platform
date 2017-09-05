@@ -63,6 +63,10 @@ public final class PasswordResetTokenServiceImpl implements IPasswordResetTokenS
 		return isValid;
 	}
 	
+	@Override
+	public PasswordResetTokenDTO getPasswordResetTokenForUser(String id) {
+		return passwordResetTokenEntityMapper.passwordResetTokenEntityToPasswordResetTokenDTO(passwordResetTokenRepository.findByUser(new ObjectId(id)));
+	}
 	
 	@PostConstruct
 	protected void init(){
@@ -70,7 +74,4 @@ public final class PasswordResetTokenServiceImpl implements IPasswordResetTokenS
 		Assert.notNull(tokenGeneratorService, "Token Generator can not be null");
 		Assert.notNull(passwordResetTokenEntityMapper, "Password Reset Token Entity Mapper can not be null");
 	}
-
-
-	
 }

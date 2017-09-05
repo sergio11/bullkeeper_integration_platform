@@ -1,5 +1,9 @@
 package sanchez.sanchez.sergio.service.impl;
 
+import java.util.Arrays;
+
+import javax.annotation.PostConstruct;
+
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,7 +13,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
+import io.jsonwebtoken.lang.Assert;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import sanchez.sanchez.sergio.persistence.entity.ParentEntity;
+import sanchez.sanchez.sergio.persistence.repository.ParentRepository;
 import sanchez.sanchez.sergio.persistence.repository.SonRepository;
 import sanchez.sanchez.sergio.security.AuthoritiesConstants;
 import sanchez.sanchez.sergio.security.userdetails.CommonUserDetailsAware;
@@ -20,8 +27,16 @@ public class AuthorizationServiceImpl implements IAuthorizationService {
 	
 	private static Logger logger = LoggerFactory.getLogger(AuthorizationServiceImpl.class);
 	
+	
+	private final SonRepository sonRepository;
+	private final ParentRepository parentRepository;
+	
 	@Autowired
-	protected SonRepository sonRepository;
+	public AuthorizationServiceImpl(SonRepository sonRepository, ParentRepository parentRepository) {
+		super();
+		this.sonRepository = sonRepository;
+		this.parentRepository = parentRepository;
+	}
 
 	@Override
 	public Boolean hasAdminRole() {
@@ -29,10 +44,17 @@ public class AuthorizationServiceImpl implements IAuthorizationService {
 				.contains(new SimpleGrantedAuthority(AuthoritiesConstants.ADMIN)));
 	}
 
+
 	@Override
 	public Boolean hasParentRole() {
 		return (SecurityContextHolder.getContext().getAuthentication().getAuthorities()
 				.contains(new SimpleGrantedAuthority(AuthoritiesConstants.PARENT)));
+	}
+	
+	@Override
+	public Boolean hasChangePasswordPrivilege() {
+		return (SecurityContextHolder.getContext().getAuthentication().getAuthorities()
+				.contains(new SimpleGrantedAuthority("CHANGE_PASSWORD_PRIVILEGE")));
 	}
 	
 	@Override
@@ -67,4 +89,24 @@ public class AuthorizationServiceImpl implements IAuthorizationService {
 		}
 		return isTheAuthenticatedUser;
 	}
+
+	@Override
+	public void grantChangePasswordPrivilege(String id) {
+		
+		ParentEntity parentEntity = parentRepository.findOne(new ObjectId(id));
+	    Authentication auth = new UsernamePasswordAuthenticationToken (
+	    		parentEntity, null, Arrays.asList(
+	      new SimpleGrantedAuthority("CHANGE_PASSWORD_PRIVILEGE")));
+	    
+	    SecurityContextHolder.getContext().setAuthentication(auth);
+		
+	}
+	
+	@PostConstruct
+	protected void init(){
+		Assert.notNull(sonRepository, "Son Repository can not be null");
+		Assert.notNull(parentRepository, "Parent Repository can not be null");
+		
+	}
+
 }

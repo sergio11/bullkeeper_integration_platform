@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 
 import sanchez.sanchez.sergio.dto.request.RegisterParentDTO;
 import sanchez.sanchez.sergio.dto.request.RegisterSonDTO;
+import sanchez.sanchez.sergio.dto.request.UpdateParentDTO;
 import sanchez.sanchez.sergio.dto.response.ParentDTO;
 import sanchez.sanchez.sergio.dto.response.SonDTO;
 
@@ -23,4 +24,6 @@ public interface IParentsService {
     ParentDTO save(final RegisterParentDTO registerParent);
     SonDTO addSon(String parentId, RegisterSonDTO registerSonDTO);
     void setAsNotActiveAndConfirmationToken(String id, String confirmationToken);
+    ParentDTO update(final ObjectId id, final UpdateParentDTO updateParentDTO);
+    void changeUserPassword(ObjectId id, String newPassword);
 }

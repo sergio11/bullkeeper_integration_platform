@@ -1,7 +1,5 @@
 package sanchez.sanchez.sergio.service.impl;
 
-import java.util.Locale;
-
 import javax.annotation.PostConstruct;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;

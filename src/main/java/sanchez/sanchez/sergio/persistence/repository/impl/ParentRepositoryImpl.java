@@ -32,4 +32,15 @@ public class ParentRepositoryImpl implements ParentRepositoryCustom {
                 new Query(Criteria.where("_id").in(id)),
                 new Update().set("is_active", Boolean.FALSE).set("confirmation_token", confirmationToken), ParentEntity.class);
     }
+
+	@Override
+	public void setNewPassword(ObjectId id, String newPassword) {
+		Assert.notNull(id, "Parent Id can not be null");
+		Assert.notNull(newPassword, "New Password can not be null");
+        Assert.hasLength(newPassword, "New Password can not be empty");
+        
+        mongoTemplate.updateFirst(
+                new Query(Criteria.where("_id").in(id)),
+                new Update().set("password", newPassword), ParentEntity.class);
+	}
 }

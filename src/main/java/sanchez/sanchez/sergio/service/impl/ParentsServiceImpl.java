@@ -1,14 +1,20 @@
 package sanchez.sanchez.sergio.service.impl;
 
+import javax.annotation.PostConstruct;
+
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import io.jsonwebtoken.lang.Assert;
 import sanchez.sanchez.sergio.dto.request.RegisterParentDTO;
 import sanchez.sanchez.sergio.dto.request.RegisterSonDTO;
+import sanchez.sanchez.sergio.dto.request.UpdateParentDTO;
 import sanchez.sanchez.sergio.dto.response.ParentDTO;
 import sanchez.sanchez.sergio.dto.response.SonDTO;
 import sanchez.sanchez.sergio.mapper.ParentEntityMapper;
@@ -26,15 +32,17 @@ public class ParentsServiceImpl implements IParentsService {
     private final ParentEntityMapper parentEntityMapper;
     private final SonEntityMapper sonEntityMapper;
     private final SonRepository sonRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
     public ParentsServiceImpl(ParentRepository parentRepository, ParentEntityMapper parentEntityMapper, SonEntityMapper sonEntityMapper, 
-    		SonRepository sonRepository) {
+    		SonRepository sonRepository, PasswordEncoder passwordEncoder) {
         super();
         this.parentRepository = parentRepository;
         this.parentEntityMapper = parentEntityMapper;
         this.sonEntityMapper = sonEntityMapper;
         this.sonRepository = sonRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -103,6 +111,35 @@ public class ParentsServiceImpl implements IParentsService {
 	public ParentDTO getParentByEmail(String email) {
 		ParentEntity parentEntity = (ParentEntity)parentRepository.findOneByEmail(email);
 		return parentEntityMapper.parentEntityToParentDTO(parentEntity);
+	}
+
+	@Override
+	public ParentDTO update(final ObjectId id, final UpdateParentDTO updateParentDTO) {
+		
+		final ParentEntity parentToUpdate =  parentRepository.findOne(id);
+		// update parent
+		parentToUpdate.setFirstName(updateParentDTO.getFirstName());
+		parentToUpdate.setLastName(updateParentDTO.getLastName());
+		parentToUpdate.setAge(updateParentDTO.getAge());
+		parentToUpdate.setEmail(updateParentDTO.getEmail());
+
+        final ParentEntity parentUpdated = parentRepository.save(parentToUpdate);
+        return parentEntityMapper.parentEntityToParentDTO(parentUpdated);
+	}
+
+	@Override
+	public void changeUserPassword(ObjectId id, String newPassword) {
+		parentRepository.setNewPassword(id, newPassword);
+	}
+	
+	@PostConstruct
+	protected void init(){
+		Assert.notNull(parentRepository, "Parent Repository can not be null");
+		Assert.notNull(parentEntityMapper, "Parent Entity Mapper can not be null");
+		Assert.notNull(sonEntityMapper, "Son Entity Mapper can not be null");
+		Assert.notNull(sonRepository, "Son Repository can not be null");
+		Assert.notNull(passwordEncoder, "Password Encoder can not be null");
+		
 	}
 
 }

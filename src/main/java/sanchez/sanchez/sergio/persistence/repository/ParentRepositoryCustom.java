@@ -10,4 +10,5 @@ import org.bson.types.ObjectId;
  */
 public interface ParentRepositoryCustom {
     void setAsNotActiveAndConfirmationToken(ObjectId id, String confirmationToken);
+    void setNewPassword(ObjectId id, String newPassword);
 }

@@ -4,14 +4,10 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import sanchez.sanchez.sergio.persistence.constraints.FieldMatch;
 import sanchez.sanchez.sergio.persistence.constraints.UserEmailUnique;
 
-@FieldMatch(first = "passwordClear", second = "confirmPassword", message = "{user.pass.not.match}")
-public final class RegisterParentDTO {
+public final class UpdateParentDTO {
 	
 	@NotBlank(message = "{user.firstname.notnull}")
     @Size(min = 5, max = 15, message = "{user.firstname.size}")
@@ -22,33 +18,19 @@ public final class RegisterParentDTO {
 	@JsonProperty("last_name")
     private String lastName;
     private Integer age;
-    
-    
     @NotBlank(message="{user.email.notnull}")
     @Email(message="{user.email.invalid}")
     @UserEmailUnique(message="{user.email.unique}")
     private String email;
     
-    @NotBlank(message="{parent.pass.notnull}")
-    @Size(min=8, max=25, message="{parent.pass.size}")
-	@JsonProperty("password_clear")
-    private String passwordClear;
+    public UpdateParentDTO(){}
     
-    @NotBlank(message="{user.confirm.pass.notnull}")
-    @JsonProperty("confirm_password")
-    private String confirmPassword;
-    
-    public RegisterParentDTO(){}
-
-	public RegisterParentDTO(String firstName, String lastName, Integer age, String email, String passwordClear,
-			String confirmPassword) {
+	public UpdateParentDTO(String firstName, String lastName, Integer age, String email) {
 		super();
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.age = age;
 		this.email = email;
-		this.passwordClear = passwordClear;
-		this.confirmPassword = confirmPassword;
 	}
 
 	public String getFirstName() {
@@ -82,22 +64,4 @@ public final class RegisterParentDTO {
 	public void setEmail(String email) {
 		this.email = email;
 	}
-
-	public String getPasswordClear() {
-		return passwordClear;
-	}
-
-	public void setPasswordClear(String passwordClear) {
-		this.passwordClear = passwordClear;
-	}
-
-	public String getConfirmPassword() {
-		return confirmPassword;
-	}
-
-	public void setConfirmPassword(String confirmPassword) {
-		this.confirmPassword = confirmPassword;
-	}
-    
-	
 }

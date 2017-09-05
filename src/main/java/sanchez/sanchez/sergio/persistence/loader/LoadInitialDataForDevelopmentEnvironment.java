@@ -10,7 +10,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
-
 import sanchez.sanchez.sergio.persistence.entity.AlertEntity;
 import sanchez.sanchez.sergio.persistence.entity.AuthorityEntity;
 import sanchez.sanchez.sergio.persistence.entity.AuthorityEnum;
@@ -31,7 +30,6 @@ import sanchez.sanchez.sergio.persistence.repository.SonRepository;
 import sanchez.sanchez.sergio.persistence.repository.UserSystemRepository;
 
 /**
- *
  * @author sergio
  */
 

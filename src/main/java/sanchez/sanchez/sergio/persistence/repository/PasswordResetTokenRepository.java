@@ -11,4 +11,5 @@ import sanchez.sanchez.sergio.persistence.entity.PasswordResetTokenEntity;
 @Repository
 public interface PasswordResetTokenRepository extends MongoRepository<PasswordResetTokenEntity, ObjectId> {
 	PasswordResetTokenEntity findByToken(String token);
+	PasswordResetTokenEntity findByUser(ObjectId id);
 }
