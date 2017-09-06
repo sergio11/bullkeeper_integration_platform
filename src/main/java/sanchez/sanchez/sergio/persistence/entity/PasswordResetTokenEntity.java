@@ -1,5 +1,6 @@
 package sanchez.sanchez.sergio.persistence.entity;
 
+import java.util.Calendar;
 import java.util.Date;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -25,51 +26,117 @@ public class PasswordResetTokenEntity {
 	@Field("expiry_date")
 	private Date expiryDate;
 
-	@PersistenceConstructor
-	public PasswordResetTokenEntity(String token, ObjectId user, Date expiryDate) {
-		super();
-		this.token = token;
-		this.user = user;
-		this.expiryDate = expiryDate;
-	}
 	
-	public PasswordResetTokenEntity(String token, ObjectId user) {
-		super();
-		this.token = token;
-		this.user = user;
-	}
-	
-	public PasswordResetTokenEntity(){}
+    public PasswordResetTokenEntity() {
+        super();
+    }
 
-	public ObjectId getId() {
-		return id;
-	}
+    public PasswordResetTokenEntity(final String token) {
+        super();
+        this.token = token;
+        this.expiryDate = calculateExpiryDate(EXPIRATION);
+    }
 
-	public void setId(ObjectId id) {
-		this.id = id;
-	}
+    @PersistenceConstructor
+    public PasswordResetTokenEntity(final String token, final ObjectId user) {
+        super();
 
-	public String getToken() {
-		return token;
-	}
+        this.token = token;
+        this.user = user;
+        this.expiryDate = calculateExpiryDate(EXPIRATION);
+    }
 
-	public void setToken(String token) {
-		this.token = token;
-	}
+    public ObjectId getId() {
+        return id;
+    }
 
-	public ObjectId getUser() {
-		return user;
-	}
+    public String getToken() {
+        return token;
+    }
 
-	public void setUser(ObjectId user) {
-		this.user = user;
-	}
+    public void setToken(final String token) {
+        this.token = token;
+    }
 
-	public Date getExpiryDate() {
-		return expiryDate;
-	}
+    public ObjectId getUser() {
+        return user;
+    }
 
-	public void setExpiryDate(Date expiryDate) {
-		this.expiryDate = expiryDate;
-	}
+    public void setUser(final ObjectId user) {
+        this.user = user;
+    }
+
+    public Date getExpiryDate() {
+        return expiryDate;
+    }
+
+    public void setExpiryDate(final Date expiryDate) {
+        this.expiryDate = expiryDate;
+    }
+
+    private Date calculateExpiryDate(final int expiryTimeInMinutes) {
+        final Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(new Date().getTime());
+        cal.add(Calendar.MINUTE, expiryTimeInMinutes);
+        return new Date(cal.getTime().getTime());
+    }
+
+    public void updateToken(final String token) {
+        this.token = token;
+        this.expiryDate = calculateExpiryDate(EXPIRATION);
+    }
+
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((expiryDate == null) ? 0 : expiryDate.hashCode());
+        result = prime * result + ((token == null) ? 0 : token.hashCode());
+        result = prime * result + ((user == null) ? 0 : user.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final PasswordResetTokenEntity other = (PasswordResetTokenEntity) obj;
+        if (expiryDate == null) {
+            if (other.expiryDate != null) {
+                return false;
+            }
+        } else if (!expiryDate.equals(other.expiryDate)) {
+            return false;
+        }
+        if (token == null) {
+            if (other.token != null) {
+                return false;
+            }
+        } else if (!token.equals(other.token)) {
+            return false;
+        }
+        if (user == null) {
+            if (other.user != null) {
+                return false;
+            }
+        } else if (!user.equals(other.user)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder builder = new StringBuilder();
+        builder.append("Token [String=").append(token).append("]").append("[Expires").append(expiryDate).append("]");
+        return builder.toString();
+    }
 }

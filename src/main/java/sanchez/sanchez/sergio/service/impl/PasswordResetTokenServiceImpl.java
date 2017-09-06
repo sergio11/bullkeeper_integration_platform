@@ -1,6 +1,7 @@
 package sanchez.sanchez.sergio.service.impl;
 
 import java.util.Calendar;
+import java.util.Date;
 
 import javax.annotation.PostConstruct;
 
@@ -68,10 +69,16 @@ public final class PasswordResetTokenServiceImpl implements IPasswordResetTokenS
 		return passwordResetTokenEntityMapper.passwordResetTokenEntityToPasswordResetTokenDTO(passwordResetTokenRepository.findByUser(new ObjectId(id)));
 	}
 	
+	@Override
+	public void deleteExpiredTokens() {
+		passwordResetTokenRepository.deleteByExpiryDateBefore(new Date());
+	}
+	
 	@PostConstruct
 	protected void init(){
 		Assert.notNull(passwordResetTokenRepository, "Password Reset Token Repository can not be null");
 		Assert.notNull(tokenGeneratorService, "Token Generator can not be null");
 		Assert.notNull(passwordResetTokenEntityMapper, "Password Reset Token Entity Mapper can not be null");
 	}
+
 }

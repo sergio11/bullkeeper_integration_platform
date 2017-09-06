@@ -6,4 +6,5 @@ public interface IPasswordResetTokenService {
 	PasswordResetTokenDTO createPasswordResetTokenForUser(String id); 
 	Boolean isValid(String id, String token);
 	PasswordResetTokenDTO getPasswordResetTokenForUser(String id);
+	void deleteExpiredTokens();
 }

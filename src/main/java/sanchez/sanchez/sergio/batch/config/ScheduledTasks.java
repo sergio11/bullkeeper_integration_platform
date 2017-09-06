@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import io.jsonwebtoken.lang.Assert;
+import sanchez.sanchez.sergio.service.IPasswordResetTokenService;
 
 @Configuration
 @EnableScheduling
@@ -29,6 +30,9 @@ public class ScheduledTasks {
 	
 	@Autowired
 	private SimpleJobLauncher jobLauncher;
+	
+	@Autowired
+	private IPasswordResetTokenService passwordResetTokenService;
 	
 	
 	@Scheduled(
@@ -47,6 +51,11 @@ public class ScheduledTasks {
     			log.debug("Notification Job Finish with Status -> " + execution.getStatus());
     	}
     }
+	
+	@Scheduled(cron = "15 10 * * * ?")
+	public void deleteExpiredPasswordTokens(){
+		passwordResetTokenService.deleteExpiredTokens();
+	}
 	
 	@PostConstruct
 	protected void init(){
