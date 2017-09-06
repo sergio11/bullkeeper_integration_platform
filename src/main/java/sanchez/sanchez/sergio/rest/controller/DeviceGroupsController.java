@@ -24,6 +24,7 @@ import io.swagger.annotations.ApiParam;
 import javax.validation.Valid;
 
 import sanchez.sanchez.sergio.dto.request.AddDeviceDTO;
+import sanchez.sanchez.sergio.dto.request.SaveDeviceDTO;
 import sanchez.sanchez.sergio.dto.request.UpdateDeviceDTO;
 import sanchez.sanchez.sergio.dto.response.DeviceDTO;
 import sanchez.sanchez.sergio.dto.response.DeviceGroupDTO;
@@ -137,6 +138,42 @@ public class DeviceGroupsController extends BaseController {
         });
     	
     }
+    
+    
+    @RequestMapping(value = "/devices/save", method = RequestMethod.POST)
+    @OnlyAccessForParent
+    @ApiOperation(value = "SAVE_DEVICE", nickname = "SAVE_DEVICE", notes = "Save Device",
+            response = DeviceDTO.class)
+    public ResponseEntity<APIResponse<DeviceDTO>> saveDevice(
+    		@ApiParam(name = "device", value = "Save Device", required = true) 
+				@Valid @RequestBody final SaveDeviceDTO deviceToSave,
+			@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws InterruptedException, ExecutionException {
+
+     DeviceDTO device = Optional.ofNullable(deviceGroupsService.getDeviceByDeviceId(deviceToSave.getDeviceId()))
+        .map((deviceResource) -> Unthrow.wrap(() -> pushNotificationsService.updateDeviceToken(selfParent.getUserId().toString(), 
+        		deviceResource.getNotificationKey(), deviceResource.getRegistrationToken(), deviceToSave.getRegistrationToken())
+        		.handle((result, ex) -> {
+        			deviceGroupsService.updateDeviceToken(deviceResource.getDeviceId(), deviceToSave.getRegistrationToken());
+        			deviceResource.setRegistrationToken( deviceToSave.getRegistrationToken());
+        			return deviceResource;
+        		}).get()))
+        .orElseGet(() -> Unthrow.wrap(() -> {
+        	DeviceGroupDTO deviceGroup = getUserDeviceGroup(selfParent.getUserId().toString());
+        	return pushNotificationsService.addDeviceToGroup(deviceGroup.getNotificationKeyName(), 
+        			deviceGroup.getNotificationKey(), deviceToSave.getRegistrationToken())
+        		.handle((groupKey, ex)
+                    -> Optional.ofNullable(deviceGroupsService.addDeviceToGroup(deviceToSave.getDeviceId(), deviceToSave.getRegistrationToken(), deviceGroup.getIdentity()))
+                    .<DeviceAddToGroupFailedException>orElseThrow(() -> {
+                        throw new DeviceAddToGroupFailedException();
+                    })).get();
+        }));
+     
+     
+     return ApiHelper.<DeviceDTO>createAndSendResponse(DeviceGroupResponseCode.DEVICE_TOKEN_SAVED, HttpStatus.OK, device);
+    	
+    }
+    
+    
 
     @RequestMapping(value = "/devices/{device}/delete", method = RequestMethod.DELETE)
     @OnlyAccessForParent

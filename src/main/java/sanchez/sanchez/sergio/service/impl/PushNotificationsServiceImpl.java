@@ -1,8 +1,6 @@
 package sanchez.sanchez.sergio.service.impl;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
