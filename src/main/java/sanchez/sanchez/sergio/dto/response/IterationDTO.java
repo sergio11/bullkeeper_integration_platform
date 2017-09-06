@@ -2,16 +2,23 @@ package sanchez.sanchez.sergio.dto.response;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  *
  * @author sergio
  */
 public class IterationDTO implements Serializable {
     
+	@JsonProperty("start_date")
     private String startDate;
+	@JsonProperty("finish_date")
     private String finishDate;
+	@JsonProperty("total_tasks")
     private Integer totalTasks;
+	@JsonProperty("total_failed_tasks")
     private Integer totalFailedTasks;
+	@JsonProperty("total_comments")
     private Integer totalComments;
 
     public IterationDTO(){}

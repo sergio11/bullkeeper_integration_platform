@@ -2,9 +2,13 @@ package sanchez.sanchez.sergio.dto.response;
 
 import org.springframework.hateoas.ResourceSupport;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class FieldErrorDTO extends ResourceSupport {
 	
+	@JsonProperty("field")
 	private final String field;
+	@JsonProperty("message")
     private final String message;
     
     

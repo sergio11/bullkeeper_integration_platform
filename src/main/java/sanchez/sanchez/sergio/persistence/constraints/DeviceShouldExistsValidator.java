@@ -14,7 +14,7 @@ public class DeviceShouldExistsValidator implements ConstraintValidator<DeviceSh
     public void initialize(DeviceShouldExists constraintAnnotation) {}
 
     @Override
-    public boolean isValid(String token, ConstraintValidatorContext context) {
-    	return deviceRepository.countByRegistrationToken(token) > 0 ? Boolean.TRUE : Boolean.FALSE;
+    public boolean isValid(String deviceId, ConstraintValidatorContext context) {
+    	return deviceRepository.countByDeviceId(deviceId) > 0 ? Boolean.TRUE : Boolean.FALSE;
     }
 }

@@ -2,12 +2,19 @@ package sanchez.sanchez.sergio.dto.response;
 
 import org.springframework.hateoas.ResourceSupport;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class AlertDTO extends ResourceSupport {
 	
+	@JsonProperty("identity")
 	private String identity;
+	@JsonProperty("level")
 	private String level;
+	@JsonProperty("payload")
 	private String payload;
+	@JsonProperty("create_at")
 	private String createAt;
+	@JsonProperty("son")
 	private SonDTO son;
 	
 	public AlertDTO(){}

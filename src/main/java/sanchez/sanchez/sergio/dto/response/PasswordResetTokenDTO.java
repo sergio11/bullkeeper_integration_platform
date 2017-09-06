@@ -2,12 +2,17 @@ package sanchez.sanchez.sergio.dto.response;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public final class PasswordResetTokenDTO implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
+	@JsonProperty("token")
 	private String token;
+	@JsonProperty("user")
 	private String user;
+	@JsonProperty("expiry_date")
 	private String expiryDate;
 	
 	public PasswordResetTokenDTO(){}

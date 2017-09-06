@@ -3,15 +3,21 @@ package sanchez.sanchez.sergio.dto.response;
 import java.io.Serializable;
 import org.springframework.hateoas.ResourceSupport;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  *
  * @author sergio
  */
 public class UserDTO extends ResourceSupport implements Serializable {
     
+	@JsonProperty("identity")
     private String identity;
+	@JsonProperty("first_name")
     private String firstName;
+	@JsonProperty("last_name")
     private String lastName;
+	@JsonProperty("age")
     private Integer age;
     
     public UserDTO(){}

@@ -2,13 +2,21 @@ package sanchez.sanchez.sergio.dto.response;
 
 import org.springframework.hateoas.ResourceSupport;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class ParentDTO extends ResourceSupport {
 	
+	@JsonProperty("identity")
 	private String identity;
+	@JsonProperty("first_name")
     private String firstName;
+	@JsonProperty("last_name")
     private String lastName;
+	@JsonProperty("age")
     private Integer age;
+	@JsonProperty("email")
     private String email;
+	@JsonProperty("children")
     private Long children;
     
     public ParentDTO(){}

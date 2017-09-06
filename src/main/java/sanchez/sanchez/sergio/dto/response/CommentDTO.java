@@ -3,16 +3,23 @@ package sanchez.sanchez.sergio.dto.response;
 import java.io.Serializable;
 import org.springframework.hateoas.ResourceSupport;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  *
  * @author sergio
  */
 public class CommentDTO extends ResourceSupport implements Serializable {
     
+	@JsonProperty("identity")
     private String identity;
+	@JsonProperty("message")
     private String message;
+	@JsonProperty("likes")
     private Long likes;
+	@JsonProperty("created_time")
     private String createdTime;
+	@JsonProperty("user")
     private String user;
     
     public CommentDTO(){}

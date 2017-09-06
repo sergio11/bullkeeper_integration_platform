@@ -17,6 +17,9 @@ public class DeviceEntity {
 	@Id
 	private ObjectId id;
 	
+	@Field("device_id")
+	private String deviceId;
+	
 	@Field("registration_token")
 	private String registrationToken;
 	
@@ -33,14 +36,16 @@ public class DeviceEntity {
 	public DeviceEntity(){}
 	
 
-	public DeviceEntity(String registrationToken, DeviceGroupEntity deviceGroup) {
+	public DeviceEntity(String deviceId, String registrationToken, DeviceGroupEntity deviceGroup) {
 		super();
+		this.deviceId = deviceId;
 		this.registrationToken = registrationToken;
 		this.deviceGroup = deviceGroup;
 	}
 
-	public DeviceEntity(String registrationToken, DeviceTypeEnum deviceTypeEnum, DeviceGroupEntity deviceGroup) {
+	public DeviceEntity(String deviceId, String registrationToken, DeviceTypeEnum deviceTypeEnum, DeviceGroupEntity deviceGroup) {
 		super();
+		this.deviceId = deviceId;
 		this.registrationToken = registrationToken;
 		this.deviceTypeEnum = deviceTypeEnum;
 		this.deviceGroup = deviceGroup;
@@ -49,9 +54,10 @@ public class DeviceEntity {
 
 
 	@PersistenceConstructor
-	public DeviceEntity(String registrationToken, DeviceTypeEnum deviceTypeEnum, DeviceGroupEntity deviceGroup,
+	public DeviceEntity(String deviceId, String registrationToken, DeviceTypeEnum deviceTypeEnum, DeviceGroupEntity deviceGroup,
 			Date createAt) {
 		super();
+		this.deviceId = deviceId;
 		this.registrationToken = registrationToken;
 		this.deviceTypeEnum = deviceTypeEnum;
 		this.deviceGroup = deviceGroup;
@@ -65,6 +71,17 @@ public class DeviceEntity {
 	public void setId(ObjectId id) {
 		this.id = id;
 	}
+	
+
+	public String getDeviceId() {
+		return deviceId;
+	}
+
+
+	public void setDeviceId(String deviceId) {
+		this.deviceId = deviceId;
+	}
+
 
 	public String getRegistrationToken() {
 		return registrationToken;

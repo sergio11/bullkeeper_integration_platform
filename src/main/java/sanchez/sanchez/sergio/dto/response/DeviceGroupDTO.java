@@ -2,11 +2,17 @@ package sanchez.sanchez.sergio.dto.response;
 
 import org.springframework.hateoas.ResourceSupport;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class DeviceGroupDTO extends ResourceSupport {
 
+	@JsonProperty("identity")
 	private String identity;
+	@JsonProperty("notification_key_name")
 	private String notificationKeyName;
+	@JsonProperty("notification_key")
 	private String notificationKey;
+	@JsonProperty("create_at")
 	private String createAt;
 	
 	public DeviceGroupDTO(){}

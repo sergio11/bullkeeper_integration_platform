@@ -3,16 +3,23 @@ package sanchez.sanchez.sergio.dto.response;
 import java.io.Serializable;
 import org.springframework.hateoas.ResourceSupport;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  *
  * @author sergio
  */
 public class SocialMediaDTO extends ResourceSupport implements Serializable {
     
+	@JsonProperty("identity")
     private String identity;
+	@JsonProperty("access_token")
     private String accessToken;
+	@JsonProperty("type")
     private String type;
+    @JsonProperty("invalid_token")
     private Boolean invalidToken;
+    @JsonProperty("user")
     private String user;
     
     public SocialMediaDTO(){}

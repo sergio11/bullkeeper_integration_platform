@@ -18,7 +18,7 @@ import javax.validation.constraints.NotNull;
 
 @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE})
 @Retention(RUNTIME)
-@Constraint(validatedBy = ValidObjectIdValidator.class)
+@Constraint(validatedBy = DeviceShouldNotExistsValidator.class)
 @NotNull
 @Documented
 public @interface DeviceShouldNotExists {

@@ -17,6 +17,7 @@ import sanchez.sanchez.sergio.rest.controller.BaseController;
 import sanchez.sanchez.sergio.rest.exception.DeviceGroupCreateFailedException;
 import sanchez.sanchez.sergio.rest.exception.NoDevicesIntoTheGroupException;
 import sanchez.sanchez.sergio.rest.exception.RemoveDeviceFromGroupFailedException;
+import sanchez.sanchez.sergio.rest.exception.UpdateDeviceFailedException;
 import sanchez.sanchez.sergio.rest.response.APIResponse;
 import sanchez.sanchez.sergio.rest.response.DeviceGroupResponseCode;
 
@@ -52,6 +53,16 @@ public class DeviceGroupErrorController extends BaseController {
         return ApiHelper.<String>createAndSendErrorResponse(DeviceGroupResponseCode.REMOVE_DEVICE_FROM_GROUP_FAILED, 
         		HttpStatus.INTERNAL_SERVER_ERROR, messageSourceResolver.resolver("remove.device.from.group.failed"));
     }
+    
+    @ExceptionHandler(UpdateDeviceFailedException.class)
+    @ResponseBody
+    protected ResponseEntity<APIResponse<String>> handleUpdateDeviceFailedException(UpdateDeviceFailedException updateDeviceFailedException) {
+        return ApiHelper.<String>createAndSendErrorResponse(DeviceGroupResponseCode.UPDATE_DEVICE_FAILED, 
+        		HttpStatus.INTERNAL_SERVER_ERROR, messageSourceResolver.resolver("update.device.failed"));
+    }
+    
+    
+    
     
     @PostConstruct
     protected void init(){

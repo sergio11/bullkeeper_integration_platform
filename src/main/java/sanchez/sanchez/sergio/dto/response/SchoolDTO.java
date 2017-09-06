@@ -2,15 +2,23 @@ package sanchez.sanchez.sergio.dto.response;
 
 import org.springframework.hateoas.ResourceSupport;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class SchoolDTO extends ResourceSupport {
 	
-	
+	@JsonProperty("identity")
 	private String identity;
+	@JsonProperty("name")
 	private String name;
+	@JsonProperty("residence")
 	private String residence;
+	@JsonProperty("location")
 	private String location;
+	@JsonProperty("province")
 	private String province;
+	@JsonProperty("tfno")
 	private Integer tfno;
+	@JsonProperty("email")
 	private String email;
 	
 	public SchoolDTO(){}

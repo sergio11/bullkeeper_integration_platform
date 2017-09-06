@@ -5,6 +5,7 @@ import javax.annotation.PostConstruct;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 import io.jsonwebtoken.lang.Assert;
+import sanchez.sanchez.sergio.dto.request.AddDeviceDTO;
 import sanchez.sanchez.sergio.dto.response.DeviceDTO;
 import sanchez.sanchez.sergio.dto.response.DeviceGroupDTO;
 import sanchez.sanchez.sergio.fcm.properties.FCMCustomProperties;
@@ -67,15 +68,15 @@ public class DeviceGroupsServiceImpl implements IDeviceGroupsService {
 	}
 
 	@Override
-	public DeviceDTO addDeviceToGroup(String registrationToken, String deviceGroupId) {
+	public DeviceDTO addDeviceToGroup(String deviceId, String token, String deviceGroupId) {
 		DeviceGroupEntity deviceGroup = deviceGroupRepository.findOne(new ObjectId(deviceGroupId));
-		DeviceEntity deviceSaved = deviceRepository.save(new DeviceEntity(registrationToken, deviceGroup));
+		DeviceEntity deviceSaved = deviceRepository.save(new DeviceEntity(deviceId, token, deviceGroup));
 		return deviceEntityMapper.deviceEntityToDeviceDTO(deviceSaved);
 	}
 
 	@Override
-	public DeviceDTO removeDevice(String registrationToken) {
-		DeviceEntity deviceRemoved = deviceRepository.deleteByRegistrationToken(registrationToken);
+	public DeviceDTO removeDevice(String deviceId) {
+		DeviceEntity deviceRemoved = deviceRepository.deleteByDeviceId(deviceId);
 		return deviceEntityMapper.deviceEntityToDeviceDTO(deviceRemoved);
 	}
 
@@ -90,6 +91,17 @@ public class DeviceGroupsServiceImpl implements IDeviceGroupsService {
 		return deviceGroupRepository.getNotificationKey(groupName);
 	}
 	
+	@Override
+	public DeviceDTO getDeviceByDeviceId(String deviceId) {
+		final DeviceEntity deviceEntity = deviceRepository.findByDeviceId(deviceId);
+		return deviceEntityMapper.deviceEntityToDeviceDTO(deviceEntity);
+	}
+	
+	@Override
+	public void updateDeviceToken(String deviceId, String newToken) {
+		deviceRepository.updateDeviceToken(deviceId, newToken);
+	}
+	
 	@PostConstruct
 	protected void init(){
 		Assert.notNull(deviceGroupRepository, "Device Group Repository can not be null");
@@ -98,5 +110,4 @@ public class DeviceGroupsServiceImpl implements IDeviceGroupsService {
 		Assert.notNull(deviceGroupEntityMapper, "Device Group Entity Mapper can not be null");
 		Assert.notNull(parentRepository, "Parent Repository can not be null");
 	}
-
 }

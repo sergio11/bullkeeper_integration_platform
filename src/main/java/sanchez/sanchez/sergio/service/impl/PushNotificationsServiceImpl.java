@@ -1,6 +1,8 @@
 package sanchez.sanchez.sergio.service.impl;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
@@ -131,6 +133,30 @@ public class PushNotificationsServiceImpl implements IPushNotificationsService {
     	return CompletableFuture.supplyAsync(() -> restTemplate.postForObject(firebaseCustomProperties.getNotificationSendUrl(), 
     			fcmNotificationOperation, FirebaseResponse.class));
 	}
+    
+    @Override
+	public CompletableFuture<Void> updateDeviceToken(String userid, String notificationGroupKey,
+			String oldDeviceToken, String newDeviceToken) {
+    	Assert.notNull(userid, "User id can not be null");
+    	Assert.notNull(notificationGroupKey, "Notification Group Key can not be null");
+    	Assert.notNull(oldDeviceToken, "Old Device Token can not be empty");
+    	Assert.notNull(newDeviceToken, "New Device Token can not be empty");
+    	Assert.notNull(firebaseCustomProperties.getGroupPrefix(), "Group Prefix can not be null");
+    	Assert.notNull(firebaseCustomProperties.getNotificationGroupsUrl(), "Notification Group Url can not be null");
+    	Assert.hasLength(firebaseCustomProperties.getNotificationGroupsUrl(), "Notification Group Url can not be empty");
+    	
+    	String notificationGroupName = String.format("%s_%d", firebaseCustomProperties.getGroupPrefix(), userid);
+    	
+    	return CompletableFuture.allOf(
+    			CompletableFuture.supplyAsync(() -> restTemplate.postForObject(firebaseCustomProperties.getNotificationGroupsUrl(),
+    	                new DevicesGroupOperation(DevicesGroupOperationType.REMOVE, notificationGroupName, notificationGroupKey, 
+    	                		Lists.newArrayList(oldDeviceToken)), String.class)),
+    			CompletableFuture.supplyAsync(() ->restTemplate.postForObject(firebaseCustomProperties.getNotificationGroupsUrl(),
+    	                new DevicesGroupOperation(DevicesGroupOperationType.ADD, notificationGroupName, notificationGroupKey, 
+    	                		Lists.newArrayList(newDeviceToken)), String.class)));
+    
+  
+	}
 	
 	@PostConstruct
 	protected void init(){
@@ -139,4 +165,6 @@ public class PushNotificationsServiceImpl implements IPushNotificationsService {
 		Assert.hasLength(firebaseCustomProperties.getAppServerKey(), "App Server Key can not be empty");
 		logger.debug("App Server Key -> " + firebaseCustomProperties.getAppServerKey());
 	}
+
+	
 }

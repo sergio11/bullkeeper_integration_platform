@@ -4,12 +4,19 @@ import java.io.Serializable;
 
 import org.springframework.hateoas.ResourceSupport;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class SonDTO extends ResourceSupport implements Serializable{
 	
+	@JsonProperty("identity")
 	private String identity;
+	@JsonProperty("first_name")
     private String firstName;
+	@JsonProperty("last_name")
     private String lastName;
+	@JsonProperty("age")
     private Integer age;
+	@JsonProperty("school")
     private String school;
     
     public SonDTO(){}

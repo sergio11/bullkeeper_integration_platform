@@ -2,9 +2,13 @@ package sanchez.sanchez.sergio.dto.response;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public final class CommentsBySon implements Serializable {
 	
+	@JsonProperty("first_name")
 	private String  firstName;
+	@JsonProperty("comments")
 	private Long comments;
 	
 	
