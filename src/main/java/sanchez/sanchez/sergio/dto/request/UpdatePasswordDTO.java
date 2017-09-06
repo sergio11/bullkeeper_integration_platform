@@ -1,24 +1,26 @@
 package sanchez.sanchez.sergio.dto.request;
 
 import javax.validation.constraints.Size;
-
 import org.hibernate.validator.constraints.NotBlank;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
+import sanchez.sanchez.sergio.persistence.constraints.FieldMatch;
+import sanchez.sanchez.sergio.persistence.constraints.FieldNotMatch;
 
+@FieldMatch(first = "passwordClear", second = "confirmPassword", message = "{parent.pass.not.match}")
+@FieldNotMatch(first = "currentClearPassword", second = "passwordClear", message = "{parent.current.pass.not.match}" )
 public final class UpdatePasswordDTO {
 	
-	@NotBlank(message="{parent.current.notnull}")
-    @Size(min=8, max=25, message="{parent.current.size}")
+	@NotBlank(message="{parent.current.password.notnull}")
+    @Size(min=8, max=25, message="{parent.current.password.size}")
 	@JsonProperty("current_clear_password")
     private String currentClearPassword;
 	
-	@NotBlank(message="{parent.pass.notnull}")
-    @Size(min=8, max=25, message="{parent.pass.size}")
+	@NotBlank(message="{parent.new.pass.notnull}")
+    @Size(min=8, max=25, message="{parent.new.pass.size}")
 	@JsonProperty("password_clear")
     private String passwordClear;
     
-    @NotBlank(message="{user.confirm.pass.notnull}")
+    @NotBlank(message="{parent.new.pass.confirm.notnull}")
     @JsonProperty("confirm_password")
     private String confirmPassword;
     

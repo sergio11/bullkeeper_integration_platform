@@ -16,6 +16,6 @@ public class DeviceShouldNotExistsValidator implements ConstraintValidator<Devic
 
     @Override
     public boolean isValid(String deviceId, ConstraintValidatorContext context) {
-        return deviceRepository.countByDeviceId(deviceId) > 0 ? Boolean.TRUE : Boolean.FALSE;
+        return deviceRepository.countByDeviceId(deviceId) == 0 ? Boolean.TRUE : Boolean.FALSE;
     }
 }
