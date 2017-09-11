@@ -53,6 +53,7 @@ public class InstagramServiceImpl implements IInstagramService {
         
         try {
             Instagram instagram = new Instagram(accessToken, appSecret);
+ 
             String userId = instagram.getCurrentUserInfo().getData().getId();
 
             userComments = instagram

@@ -2,15 +2,16 @@ package sanchez.sanchez.sergio.dto.response;
 
 import java.io.Serializable;
 import org.springframework.hateoas.ResourceSupport;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  *
  * @author sergio
  */
-public class UserDTO extends ResourceSupport implements Serializable {
+public class AdminDTO extends ResourceSupport implements Serializable {
     
+	private static final long serialVersionUID = 1L;
+	
 	@JsonProperty("identity")
     private String identity;
 	@JsonProperty("first_name")
@@ -20,9 +21,9 @@ public class UserDTO extends ResourceSupport implements Serializable {
 	@JsonProperty("age")
     private Integer age;
     
-    public UserDTO(){}
+    public AdminDTO(){}
 
-    public UserDTO(String identity, String firstName, String lastName, Integer age) {
+    public AdminDTO(String identity, String firstName, String lastName, Integer age) {
         this.identity = identity;
         this.firstName = firstName;
         this.lastName = lastName;

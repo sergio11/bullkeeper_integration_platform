@@ -1,4 +1,4 @@
-package sanchez.sanchez.sergio.batch.config;
+package sanchez.sanchez.sergio.tasks.config;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import io.jsonwebtoken.lang.Assert;
+import sanchez.sanchez.sergio.batch.config.BatchConfiguration;
 import sanchez.sanchez.sergio.service.IPasswordResetTokenService;
 
 @Configuration
@@ -61,6 +62,7 @@ public class ScheduledTasks {
 	protected void init(){
 		Assert.notNull(notificationJob, "Notification Job can not be null");
 		Assert.notNull(jobLauncher, "Job Launcher can not be null");
+		Assert.notNull(passwordResetTokenService, "Password Reset Token Service can not be null");
 	}
 
 }

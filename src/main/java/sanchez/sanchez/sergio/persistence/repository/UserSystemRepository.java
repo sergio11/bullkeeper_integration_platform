@@ -1,6 +1,5 @@
 package sanchez.sanchez.sergio.persistence.repository;
 
-import java.util.Optional;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -13,6 +12,6 @@ import sanchez.sanchez.sergio.persistence.entity.UserSystemEntity;
  */
 @Repository
 public interface UserSystemRepository extends MongoRepository<UserSystemEntity, ObjectId>, UserSystemRepositoryCustom {
-	Optional<UserSystemEntity> findOneByEmail(String email);
+	UserSystemEntity findOneByEmail(String email);
 	Long countByEmail(String email);
 }

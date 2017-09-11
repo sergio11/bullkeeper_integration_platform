@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mobile.device.Device;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,9 +27,12 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.hateoas.Resource;
+
+import sanchez.sanchez.sergio.dto.request.JwtAuthenticationRequestDTO;
 import sanchez.sanchez.sergio.dto.request.RegisterParentDTO;
 import sanchez.sanchez.sergio.dto.request.RegisterSonDTO;
 import sanchez.sanchez.sergio.dto.request.UpdateParentDTO;
+import sanchez.sanchez.sergio.dto.response.JwtAuthenticationResponseDTO;
 import sanchez.sanchez.sergio.dto.response.ParentDTO;
 import sanchez.sanchez.sergio.dto.response.PasswordResetTokenDTO;
 import sanchez.sanchez.sergio.dto.response.SonDTO;
@@ -51,6 +55,7 @@ import sanchez.sanchez.sergio.security.userdetails.CommonUserDetailsAware;
 import sanchez.sanchez.sergio.security.utils.CurrentUser;
 import sanchez.sanchez.sergio.security.utils.OnlyAccessForAdmin;
 import sanchez.sanchez.sergio.security.utils.OnlyAccessForParent;
+import sanchez.sanchez.sergio.service.IAuthenticationService;
 import sanchez.sanchez.sergio.service.IParentsService;
 import sanchez.sanchez.sergio.service.IPasswordResetTokenService;
 import springfox.documentation.annotations.ApiIgnore;
@@ -65,10 +70,13 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     
     private final IParentsService parentsService;
     private final IPasswordResetTokenService passwordResetTokenService;
+    private final IAuthenticationService authenticationService;
  
-    public ParentsController(IParentsService parentsService, IPasswordResetTokenService passwordResetTokenService) {
+    public ParentsController(IParentsService parentsService, IPasswordResetTokenService passwordResetTokenService, 
+    		IAuthenticationService authenticationService) {
         this.parentsService = parentsService;
         this.passwordResetTokenService = passwordResetTokenService;
+        this.authenticationService = authenticationService;
     }
     
     @RequestMapping(value = {"/", "/all"}, method = RequestMethod.GET)
@@ -91,6 +99,24 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
         return ApiHelper.<PagedResources<Resource<ParentDTO>>>createAndSendResponse(ParentResponseCode.ALL_PARENTS, 
         		HttpStatus.OK, pagedAssembler.toResource(addLinksToParents((parentPage))));
     }
+    
+    @RequestMapping(value = "/auth", method = RequestMethod.POST)
+    @ApiOperation(value = "GET_AUTHORIZATION_TOKEN", nickname = "GET_AUTHORIZATION_TOKEN", notes = "Get Parent Authorization Token ")
+	@ApiResponses(value = { 
+    		@ApiResponse(code = 200, message = "Authentication Success", response = JwtAuthenticationResponseDTO.class),
+    		@ApiResponse(code = 403, message = "Validation Errors", response = ValidationErrorDTO.class)
+    })
+	public ResponseEntity<APIResponse<JwtAuthenticationResponseDTO>> getParentAuthorizationToken(
+			@Valid @RequestBody JwtAuthenticationRequestDTO credentials, Device device) throws Throwable {
+    	
+    
+		return Optional.ofNullable(authenticationService.createAuthenticationTokenForParent(credentials.getEmail(), credentials.getPassword(), device))
+				.map(jwtResponse -> ApiHelper.<JwtAuthenticationResponseDTO>createAndSendResponse(
+						ParentResponseCode.AUTHENTICATION_SUCCESS, HttpStatus.OK, jwtResponse))
+				.orElseThrow(() -> {
+                    throw new ResourceNotFoundException();
+                });
+	}
     
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isTheAuthenticatedUser(#id) )")

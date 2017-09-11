@@ -2,15 +2,12 @@ package sanchez.sanchez.sergio.service.impl;
 
 import java.util.Calendar;
 import java.util.Date;
-
 import javax.annotation.PostConstruct;
-
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import io.jsonwebtoken.lang.Assert;
 import sanchez.sanchez.sergio.dto.response.PasswordResetTokenDTO;
 import sanchez.sanchez.sergio.mapper.IPasswordResetTokenEntityMapper;

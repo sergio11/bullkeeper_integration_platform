@@ -1,4 +1,4 @@
-package sanchez.sanchez.sergio.service.impl;
+package sanchez.sanchez.sergio.security.service;
 
 
 import java.util.HashSet;
@@ -14,24 +14,21 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sanchez.sanchez.sergio.persistence.repository.ParentRepository;
-import sanchez.sanchez.sergio.persistence.repository.UserSystemRepository;
 import sanchez.sanchez.sergio.security.userdetails.impl.UserDetailsImpl;
 import org.bson.types.ObjectId;
 
 /**
  * Authenticate a user from the database.
  */
-@Service
-public class UserDetailsServiceImpl implements UserDetailsService {
+@Service("ParentsDetailsService")
+public class ParentsDetailsServiceImpl implements UserDetailsService {
 	
-	private static Logger logger = LoggerFactory.getLogger(UserDetailsServiceImpl.class);
+	private static Logger logger = LoggerFactory.getLogger(ParentsDetailsServiceImpl.class);
 	
-	private final UserSystemRepository userSystemRepository;
 	private final ParentRepository parentRepository;
 	
-	public UserDetailsServiceImpl(UserSystemRepository userSystemRepository, ParentRepository parentRepository) {
+	public ParentsDetailsServiceImpl(ParentRepository parentRepository) {
 		super();
-		this.userSystemRepository = userSystemRepository;
 		this.parentRepository = parentRepository;
 	}
 
@@ -39,16 +36,16 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	@Transactional
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 		
-		return userSystemRepository.findOneByEmail(email)
-			.map(Optional::of)
-        	.orElseGet(() -> Optional.ofNullable(parentRepository.findOneByEmail(email)))
-        	.map(userSystemEntity -> {
+		logger.debug("Autenticate User with email: " + email);
+		
+		return Optional.ofNullable(parentRepository.findOneByEmail(email))
+        	.map(parentEntity -> {
         		Set<SimpleGrantedAuthority> grantedAuthorities = new HashSet<SimpleGrantedAuthority>();
             	
-            	grantedAuthorities.add(new SimpleGrantedAuthority(userSystemEntity.getAuthority().getAuthority()));
+            	grantedAuthorities.add(new SimpleGrantedAuthority(parentEntity.getAuthority().getAuthority()));
             
-                return new UserDetailsImpl<ObjectId>(userSystemEntity.getId(), userSystemEntity.getEmail(),
-                		userSystemEntity.getPassword(), userSystemEntity.getFirstName(), userSystemEntity.getLastName(), userSystemEntity.isLocked(),
+                return new UserDetailsImpl<ObjectId>(parentEntity.getId(), parentEntity.getEmail(),
+                		parentEntity.getPassword(), parentEntity.getFirstName(), parentEntity.getLastName(), parentEntity.isLocked(),
                 		grantedAuthorities);
         	}).orElseThrow(() -> new UsernameNotFoundException("User " + email + " was not found in the " +
         "database"));
