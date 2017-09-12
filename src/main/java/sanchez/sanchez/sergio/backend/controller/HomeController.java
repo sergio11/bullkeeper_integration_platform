@@ -17,7 +17,7 @@ import sanchez.sanchez.sergio.service.ISonService;
  * @author sergio
  */
 @Controller("AdminHomeController")
-@RequestMapping("/admin")
+@RequestMapping("/backend/admin")
 public class HomeController {
     
     private final ICommentsService commentsService;

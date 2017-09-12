@@ -49,9 +49,9 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         registry.addRedirectViewController("/documentation/configuration/ui", "/configuration/ui");
         registry.addRedirectViewController("/documentation/configuration/security", "/configuration/security");
         registry.addRedirectViewController("/", "/docs/index.html");
-        registry.addViewController("/admin/login").setViewName("login");
-        registry.addViewController("/accounts/resetting/invalid-token").setViewName("invalid_token");
-        registry.addViewController("/accounts/resetting/password-changed").setViewName("password_changed");
+        registry.addViewController("/backend/admin/login").setViewName("login");
+        registry.addViewController("/backend/accounts/resetting/invalid-token").setViewName("invalid_token");
+        registry.addViewController("/backend/accounts/resetting/password-changed").setViewName("password_changed");
     }
 
     @Override

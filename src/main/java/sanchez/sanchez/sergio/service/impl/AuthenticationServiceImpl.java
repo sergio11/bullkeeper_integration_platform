@@ -36,7 +36,6 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
 	public JwtAuthenticationResponseDTO createAuthenticationTokenForParent(String username, String password,
 			Device device) {
 		
-		
 		UserDetails userDetails = parentUserDetails.loadUserByUsername(username);
 		Authentication auth = new UsernamePasswordAuthenticationToken (
 				userDetails.getUsername(),userDetails.getPassword (),userDetails.getAuthorities ());

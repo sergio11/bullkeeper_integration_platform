@@ -9,8 +9,6 @@ import org.springframework.ui.Model;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
 import sanchez.sanchez.sergio.dto.response.CommentDTO;
 import sanchez.sanchez.sergio.service.ICommentsService;
 
@@ -19,7 +17,7 @@ import sanchez.sanchez.sergio.service.ICommentsService;
  * @author sergio
  */
 @Controller
-@RequestMapping("/admin/comments")
+@RequestMapping("/backend/admin/comments")
 public class CommentsController {
     
 	private final static String VIEW_NAME = "comments";

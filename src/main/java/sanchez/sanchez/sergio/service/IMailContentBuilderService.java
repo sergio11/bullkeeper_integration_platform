@@ -6,4 +6,6 @@ package sanchez.sanchez.sergio.service;
  */
 public interface IMailContentBuilderService {
     String buildRegistrationSuccessTemplate(String firstname, String lastname);
+    String buildPasswordResetTemplate(String id, String firstname, String lastname, String token);
+    String buildConfirmPasswordChangeTemplate(String firstname, String lastname);
 }

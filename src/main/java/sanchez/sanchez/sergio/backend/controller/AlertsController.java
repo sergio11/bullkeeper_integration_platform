@@ -17,7 +17,7 @@ import sanchez.sanchez.sergio.service.IAlertService;
  * @author sergio
  */
 @Controller("AdminAlertController")
-@RequestMapping("/admin/alerts")
+@RequestMapping("/backend/admin/alerts")
 public class AlertsController {
 
     private final static String VIEW_NAME = "alerts";

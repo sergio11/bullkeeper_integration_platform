@@ -8,7 +8,8 @@ import org.springframework.context.ApplicationEvent;
  */
 public class ParentRegistrationSuccessEvent extends ApplicationEvent {
     
-    private final String identity;
+	private static final long serialVersionUID = 1L;
+	private final String identity;
 
     public ParentRegistrationSuccessEvent(String identity, Object source) {
         super(source);

@@ -4,7 +4,6 @@ package sanchez.sanchez.sergio.security.service;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

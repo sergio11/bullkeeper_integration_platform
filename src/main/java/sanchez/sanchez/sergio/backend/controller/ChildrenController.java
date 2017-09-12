@@ -17,7 +17,7 @@ import sanchez.sanchez.sergio.service.ISonService;
  * @author sergio
  */
 @Controller("AdminChildrenController")
-@RequestMapping("/admin/children")
+@RequestMapping("/backend/admin/children")
 public class ChildrenController {
 	
 	private final static String VIEW_NAME = "children";

@@ -32,6 +32,8 @@ public class SendMailForActivateAccount implements ApplicationListener<ParentReg
     @Override
     public void onApplicationEvent(ParentRegistrationSuccessEvent event) {
         
+    	logger.debug("Handle Event: ParentRegistrationSuccessEvent ");
+    	
         Optional.ofNullable(parentService.getParentById(event.getIdentity()))
                 .ifPresent(parent -> {
                     logger.debug("Save Confirmation token for user");
@@ -39,6 +41,7 @@ public class SendMailForActivateAccount implements ApplicationListener<ParentReg
                     parentService.setAsNotActiveAndConfirmationToken(parent.getIdentity(), 
                             tokenGeneratorService.generateToken(parent.getFirstName()));
                     // Send Mail for Activate Account
+                    logger.debug("Send email to: " + parent.getEmail());
                     mailClient.sendMailForActivateAccount(parent.getEmail(), parent.getFirstName(), parent.getLastName());
                 });
         

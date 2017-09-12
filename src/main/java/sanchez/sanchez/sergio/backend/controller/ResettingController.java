@@ -24,7 +24,7 @@ import sanchez.sanchez.sergio.service.IParentsService;
 import sanchez.sanchez.sergio.service.IPasswordResetTokenService;
 
 @Controller("AccountsResettingController")
-@RequestMapping("/accounts/resetting")
+@RequestMapping("/backend/accounts/resetting")
 @SessionAttributes({ResettingController.ATTRIBUTE_NAME})
 public class ResettingController extends BaseController {
 	
@@ -53,7 +53,7 @@ public class ResettingController extends BaseController {
 		if(!passwordResetTokenService.isValid(id, token)){
 			model.addAttribute("message", 
 					messageSourceResolver.resolver("resetting.token.invalid", new Object[] { token }));
-			return "redirect:/accounts/resetting/invalid-token";
+			return "redirect:/backend/accounts/resetting/invalid-token";
 		}
 		
 
@@ -89,7 +89,7 @@ public class ResettingController extends BaseController {
 		parentService.changeUserPassword(parent.getId(), updatePassword.getConfirmPassword());
 		applicationEventPublisher.publishEvent(new PasswordChangedEvent(this, parent.getId().toString()));
 		sessionStatus.setComplete();
-		return "redirect:/accounts/resetting/password-changed";
+		return "redirect:/backend/accounts/resetting/password-changed";
 	}
 	
 }

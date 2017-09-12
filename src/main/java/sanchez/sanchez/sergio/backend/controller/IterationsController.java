@@ -22,7 +22,7 @@ import sanchez.sanchez.sergio.websocket.constants.WebSocketConstants;
  * @author sergio
  */
 @Controller("AdminIterationsController")
-@RequestMapping("/admin/iterations")
+@RequestMapping("/backend/admin/iterations")
 public class IterationsController {
     
     private static Logger logger = LoggerFactory.getLogger(IterationsController.class);
