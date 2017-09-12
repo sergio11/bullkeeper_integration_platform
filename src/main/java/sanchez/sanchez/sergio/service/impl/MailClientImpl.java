@@ -46,10 +46,10 @@ public class MailClientImpl implements IMailClient {
     }
    
     @Override
-    public void sendMailForActivateAccount(String email, String firstname, String lastname) {
+    public void sendMailForActivateAccount(String email, String firstname, String lastname, String confirmationToken) {
     	logger.debug("Send Mail for Activate Account");
     	String subject = messageSourceResolver.resolver("mail.registration.success.subject.title", new Object[] { firstname + lastname});
-    	String content = mailContentBuilderService.buildRegistrationSuccessTemplate(firstname, lastname);
+    	String content = mailContentBuilderService.buildRegistrationSuccessTemplate(firstname, lastname, confirmationToken);
         try {
         	sendEmail(email, subject, content);
         } catch (MailException e) {

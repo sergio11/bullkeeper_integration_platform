@@ -16,4 +16,5 @@ public interface ParentRepository extends MongoRepository<ParentEntity, ObjectId
 	UserSystemEntity findOneByEmail(String email);
 	ParentEntity findByConfirmationToken(String confirmationToken);
 	Long countByEmail(String email);
+	Long countByConfirmationToken(String confirmationToken);
 }

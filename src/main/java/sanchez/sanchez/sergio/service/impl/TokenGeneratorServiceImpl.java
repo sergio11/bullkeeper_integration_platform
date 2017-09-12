@@ -2,6 +2,8 @@ package sanchez.sanchez.sergio.service.impl;
 
 import java.security.SecureRandom;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
+
 import sanchez.sanchez.sergio.service.ITokenGeneratorService;
 
 /**
@@ -15,8 +17,10 @@ public class TokenGeneratorServiceImpl implements ITokenGeneratorService {
 
     @Override
     public synchronized String generateToken(String id) {
+    	Assert.notNull(id, "Id can not be null");
+    	Assert.hasLength(id, "Id can not be empty");
         long longToken = Math.abs(random.nextLong());
         String random = Long.toString(longToken, 16);
-        return (id + ":" + random);
+        return (id.toLowerCase().trim().replace(" ", "_") + ":" + random);
     }
 }

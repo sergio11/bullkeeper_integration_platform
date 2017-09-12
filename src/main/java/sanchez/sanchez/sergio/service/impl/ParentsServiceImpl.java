@@ -1,5 +1,6 @@
 package sanchez.sanchez.sergio.service.impl;
 
+
 import javax.annotation.PostConstruct;
 
 import org.bson.types.ObjectId;
@@ -132,6 +133,24 @@ public class ParentsServiceImpl implements IParentsService {
 		parentRepository.setNewPassword(id, newPassword);
 	}
 	
+	@Override
+	public Boolean activateAccount(String token) {
+		Assert.notNull(token, "Token can not be null");
+		Assert.hasLength(token, "Token can not be empty");
+		
+		Boolean isActivated = Boolean.FALSE;
+		
+		Boolean exists = parentRepository.countByConfirmationToken(token) == 1 
+				? Boolean.TRUE : Boolean.FALSE;
+		
+		if(exists) {
+			parentRepository.setActiveAsTrueAndDeleteConfirmationToken(token);
+			isActivated = Boolean.TRUE;
+		}
+		
+		return isActivated;
+	}
+	
 	@PostConstruct
 	protected void init(){
 		Assert.notNull(parentRepository, "Parent Repository can not be null");
@@ -141,5 +160,4 @@ public class ParentsServiceImpl implements IParentsService {
 		Assert.notNull(passwordEncoder, "Password Encoder can not be null");
 		
 	}
-
 }

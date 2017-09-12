@@ -43,4 +43,15 @@ public class ParentRepositoryImpl implements ParentRepositoryCustom {
                 new Query(Criteria.where("_id").in(id)),
                 new Update().set("password", newPassword), ParentEntity.class);
 	}
+
+	@Override
+	public void setActiveAsTrueAndDeleteConfirmationToken(String confirmationToken) {
+		Assert.notNull(confirmationToken, "Confirmation Token can not be null");
+        Assert.hasLength(confirmationToken, "Confirmation Token can not be empty");
+		
+        mongoTemplate.updateFirst(
+                new Query(Criteria.where("confirmation_token").is(confirmationToken)),
+                new Update().set("is_active", Boolean.TRUE).set("confirmation_token", ""), ParentEntity.class);
+		
+	}
 }

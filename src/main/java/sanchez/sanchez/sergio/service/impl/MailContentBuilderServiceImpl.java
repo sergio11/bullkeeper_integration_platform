@@ -29,12 +29,14 @@ public class MailContentBuilderServiceImpl implements IMailContentBuilderService
     }
 
     @Override
-    public String buildRegistrationSuccessTemplate(String firstname, String lastname) {
+    public String buildRegistrationSuccessTemplate(String firstname, String lastname, String confirmationToken) {
         Assert.notNull(mailContentProperties.getRegistrationSuccessTemplate(), "Registration Success Template can not be null");
         Assert.hasLength(mailContentProperties.getRegistrationSuccessTemplate(), "Registration Success Template can not be empty");
         Context context = new Context();
         context.setVariable("firstname", firstname);
         context.setVariable("lastname", lastname);
+        context.setVariable("activateUrl", 
+        		UriComponentsBuilder.fromUriString("/backend/accounts/activate?token={token}").buildAndExpand(confirmationToken));
         return templateEngine.process(mailContentProperties.getRegistrationSuccessTemplate(), context);
     }
 

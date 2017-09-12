@@ -26,4 +26,5 @@ public interface IParentsService {
     void setAsNotActiveAndConfirmationToken(String id, String confirmationToken);
     ParentDTO update(final ObjectId id, final UpdateParentDTO updateParentDTO);
     void changeUserPassword(ObjectId id, String newPassword);
+    Boolean activateAccount(String token);
 }

@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sanchez.sanchez.sergio.service.IMailClient;
 import sanchez.sanchez.sergio.service.IParentsService;
-import sanchez.sanchez.sergio.service.ITokenGeneratorService;
 
 /**
  *
@@ -21,13 +20,10 @@ public class SendPasswordResetToken implements ApplicationListener<PasswordReset
     
     private final IMailClient mailClient;
     private final IParentsService parentService;
-    private final ITokenGeneratorService tokenGeneratorService;
 
-    public SendPasswordResetToken(IMailClient mailClient, IParentsService parentService, 
-            ITokenGeneratorService tokenGeneratorService) {
+    public SendPasswordResetToken(IMailClient mailClient, IParentsService parentService) {
         this.mailClient = mailClient;
         this.parentService = parentService;
-        this.tokenGeneratorService = tokenGeneratorService;
     }
     
 	@Override
@@ -38,9 +34,8 @@ public class SendPasswordResetToken implements ApplicationListener<PasswordReset
             logger.debug("Send mail for reset password token");
             // Send Mail for Activate Account
             logger.debug("Send email to: " + parent.getEmail());
-            
-            
-            mailClient.sendMailForActivateAccount(parent.getEmail(), parent.getFirstName(), parent.getLastName());
+            mailClient.sendMailForResetPassword(parent.getId().toString(), parent.getEmail(), parent.getFirstName(), 
+            		parent.getLastName(), event.getPasswordResetToken().getToken());
         });
 	}
 }

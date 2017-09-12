@@ -33,7 +33,7 @@ public class SendEmailToConfirmPasswordChange implements ApplicationListener<Pas
 		Optional.ofNullable(parentService.getParentById(event.getParentId()))
         .ifPresent(parent -> {
             logger.debug("Send Email To Confirm Password Change");
-            mailClient.sendMailForActivateAccount(parent.getEmail(), parent.getFirstName(), parent.getLastName());
+            mailClient.sendMailForConfirmPasswordChange(parent.getEmail(), parent.getFirstName(), parent.getLastName());
         });
 	}
 }

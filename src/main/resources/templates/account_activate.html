@@ -3,18 +3,20 @@
     xmlns:th="http://www.thymeleaf.org"
     xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 	<head>
-		<title>Invalid Token</title>
+		<title>Account Activate</title>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta content="Admin Dashboard" name="description" />
 		<meta content="Spring MVC Spring Integration Thymeleaf" name="keywords" />
 		<meta content="sergio" name="author" />
+		<th:block th:replace="fragments/common::common-styles" />
+		<link href="../static/css/login.css" th:href="@{/css/login.css}"
+			rel="stylesheet" media="screen" />
 	</head>
 <body>
 	<div class="wrapper">
-		<div class="alert alert-info">
-			<p th:text="#{accounts.activate.text(firstname, lastname)}">Welcome!</p>
-			<a th:href="${activateUrl}" th:text="#{accounts.activate.link}">Link Activate</a>
+		<div class="alert alert-success">
+			<p th:text="${message}">Activate account</p>
 		</div>
 	</div>
 </body>

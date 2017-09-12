@@ -37,12 +37,12 @@ public class SendMailForActivateAccount implements ApplicationListener<ParentReg
         Optional.ofNullable(parentService.getParentById(event.getIdentity()))
                 .ifPresent(parent -> {
                     logger.debug("Save Confirmation token for user");
+                    String confirmationToken = tokenGeneratorService.generateToken(parent.getFirstName());
                     // Set Account as inactive and save activation token
-                    parentService.setAsNotActiveAndConfirmationToken(parent.getIdentity(), 
-                            tokenGeneratorService.generateToken(parent.getFirstName()));
+                    parentService.setAsNotActiveAndConfirmationToken(parent.getIdentity(), confirmationToken);
                     // Send Mail for Activate Account
                     logger.debug("Send email to: " + parent.getEmail());
-                    mailClient.sendMailForActivateAccount(parent.getEmail(), parent.getFirstName(), parent.getLastName());
+                    mailClient.sendMailForActivateAccount(parent.getEmail(), parent.getFirstName(), parent.getLastName(), confirmationToken);
                 });
         
     }
