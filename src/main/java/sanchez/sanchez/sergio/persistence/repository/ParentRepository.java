@@ -15,4 +15,5 @@ import sanchez.sanchez.sergio.persistence.entity.UserSystemEntity;
 public interface ParentRepository extends MongoRepository<ParentEntity, ObjectId>, ParentRepositoryCustom{
 	UserSystemEntity findOneByEmail(String email);
 	ParentEntity findByConfirmationToken(String confirmationToken);
+	Long countByEmail(String email);
 }

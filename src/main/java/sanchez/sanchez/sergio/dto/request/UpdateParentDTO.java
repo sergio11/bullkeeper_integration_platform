@@ -5,7 +5,7 @@ import javax.validation.constraints.Size;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import sanchez.sanchez.sergio.persistence.constraints.UserEmailUnique;
+import sanchez.sanchez.sergio.persistence.constraints.ParentEmailShouldNotExist;
 
 public final class UpdateParentDTO {
 	
@@ -20,7 +20,7 @@ public final class UpdateParentDTO {
     private Integer age;
     @NotBlank(message="{user.email.notnull}")
     @Email(message="{user.email.invalid}")
-    @UserEmailUnique(message="{user.email.unique}")
+    @ParentEmailShouldNotExist(message="{user.email.unique}")
     private String email;
     
     public UpdateParentDTO(){}

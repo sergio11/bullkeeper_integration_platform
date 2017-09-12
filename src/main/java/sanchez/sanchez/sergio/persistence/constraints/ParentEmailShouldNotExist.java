@@ -17,9 +17,9 @@ import javax.validation.Payload;
 
 @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE})
 @Retention(RUNTIME)
-@Constraint(validatedBy = UserEmailUniqueValidator.class)
+@Constraint(validatedBy = ParentEmailShouldNotExistValidator.class)
 @Documented
-public @interface UserEmailUnique {
+public @interface ParentEmailShouldNotExist {
     String message() default "{constraints.email.unique}";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};

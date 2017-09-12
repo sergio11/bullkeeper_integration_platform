@@ -87,7 +87,7 @@ public class LoadInitialDataForDevelopmentEnvironment implements CommandLineRunn
     	
     	// PARENTS
     	
-    	ParentEntity federico = new ParentEntity("Federico", "Martín", 36, "federico@gmail.com", "$2a$10$0eCQpFRdw8i6jJzjj/IuNuKpJYnLaO5Yp9xSJ3itcfPmQNXVhmNyu", parentRole);
+    	ParentEntity federico = new ParentEntity("Federico", "Martín", 36, "sss4esob@gmail.com", "$2a$10$0eCQpFRdw8i6jJzjj/IuNuKpJYnLaO5Yp9xSJ3itcfPmQNXVhmNyu", parentRole);
     	
     	parentList.add(federico);
     	

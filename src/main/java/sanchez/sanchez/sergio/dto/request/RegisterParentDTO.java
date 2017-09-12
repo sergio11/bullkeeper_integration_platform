@@ -1,14 +1,11 @@
 package sanchez.sanchez.sergio.dto.request;
 
 import javax.validation.constraints.Size;
-
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import sanchez.sanchez.sergio.persistence.constraints.FieldMatch;
-import sanchez.sanchez.sergio.persistence.constraints.UserEmailUnique;
+import sanchez.sanchez.sergio.persistence.constraints.ParentEmailShouldNotExist;
 
 @FieldMatch(first = "passwordClear", second = "confirmPassword", message = "{user.pass.not.match}")
 public final class RegisterParentDTO {
@@ -17,8 +14,8 @@ public final class RegisterParentDTO {
     @Size(min = 5, max = 15, message = "{user.firstname.size}")
 	@JsonProperty("first_name")
 	private String firstName;
-	@NotBlank(message = "{user.firstname.notnull}")
-    @Size(min = 5, max = 15, message = "{user.firstname.size}")
+	@NotBlank(message = "{user.lastname.notnull}")
+    @Size(min = 5, max = 15, message = "{user.lastname.size}")
 	@JsonProperty("last_name")
     private String lastName;
     private Integer age;
@@ -26,11 +23,11 @@ public final class RegisterParentDTO {
     
     @NotBlank(message="{user.email.notnull}")
     @Email(message="{user.email.invalid}")
-    @UserEmailUnique(message="{user.email.unique}")
+    @ParentEmailShouldNotExist(message="{user.email.unique}")
     private String email;
     
-    @NotBlank(message="{parent.pass.notnull}")
-    @Size(min=8, max=25, message="{parent.pass.size}")
+    @NotBlank(message="{user.pass.notnull}")
+    @Size(min=8, max=25, message="{user.pass.size}")
 	@JsonProperty("password_clear")
     private String passwordClear;
     

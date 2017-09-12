@@ -127,6 +127,8 @@ public class WebSecurityConfig  {
 					.permitAll()
 				.antMatchers("/api/v1/parents/auth", "/api/v1/admin/auth")
 					.permitAll()
+				.antMatchers(HttpMethod.POST, "/api/v1/parents/")
+					.permitAll()
 				.anyRequest()
 					.authenticated()
 			.and()

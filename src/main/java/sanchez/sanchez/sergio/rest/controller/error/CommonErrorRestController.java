@@ -2,7 +2,6 @@ package sanchez.sanchez.sergio.rest.controller.error;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.ConstraintViolationException;
