@@ -1,11 +1,17 @@
 package sanchez.sanchez.sergio.dto.request;
 
+import java.util.Date;
+
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+import sanchez.sanchez.sergio.persistence.constraints.InDateRange;
 import sanchez.sanchez.sergio.persistence.constraints.ParentEmailShouldNotExist;
+import sanchez.sanchez.sergio.rest.deserializers.BirthdayDeserializer;
 
 public final class UpdateParentDTO {
 	
@@ -17,7 +23,10 @@ public final class UpdateParentDTO {
     @Size(min = 5, max = 15, message = "{user.firstname.size}")
 	@JsonProperty("last_name")
     private String lastName;
-    private Integer age;
+	@InDateRange(min = "1960-1-1", max = "2000-1-1", message="{user.birthdate.invalid}")
+	@JsonProperty("birthdate")
+	@JsonDeserialize(using = BirthdayDeserializer.class)
+    private Date birthdate;
     @NotBlank(message="{user.email.notnull}")
     @Email(message="{user.email.invalid}")
     @ParentEmailShouldNotExist(message="{user.email.unique}")
@@ -25,11 +34,11 @@ public final class UpdateParentDTO {
     
     public UpdateParentDTO(){}
     
-	public UpdateParentDTO(String firstName, String lastName, Integer age, String email) {
+	public UpdateParentDTO(String firstName, String lastName, Date birthdate, String email) {
 		super();
 		this.firstName = firstName;
 		this.lastName = lastName;
-		this.age = age;
+		this.birthdate = birthdate;
 		this.email = email;
 	}
 
@@ -49,12 +58,12 @@ public final class UpdateParentDTO {
 		this.lastName = lastName;
 	}
 
-	public Integer getAge() {
-		return age;
+	public Date getBirthdate() {
+		return birthdate;
 	}
 
-	public void setAge(Integer age) {
-		this.age = age;
+	public void setBirthdate(Date birthdate) {
+		this.birthdate = birthdate;
 	}
 
 	public String getEmail() {

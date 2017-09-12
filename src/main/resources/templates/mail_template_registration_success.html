@@ -13,8 +13,8 @@
 <body>
 	<div class="wrapper">
 		<div class="alert alert-info">
-			<p th:text="#{accounts.activate.text(firstname, lastname)}">Welcome!</p>
-			<a th:href="${activateUrl}" th:text="#{accounts.activate.link}">Link Activate</a>
+			<p th:text="#{accounts.activate.text(${firstname}, ${lastname})}">Welcome!</p>
+			<a th:href="${activateUrl}" target="_blank" th:text="#{accounts.activate.link}">Link Activate</a>
 		</div>
 	</div>
 </body>

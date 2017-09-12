@@ -1,5 +1,7 @@
 package sanchez.sanchez.sergio.persistence.entity;
 
+import java.util.Date;
+
 import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -18,8 +20,8 @@ public final class SonEntity extends PersonEntity {
     }
 
     @PersistenceConstructor
-    public SonEntity(String firstName, String lastName, Integer age, SchoolEntity school, ParentEntity parent) {
-        super(firstName, lastName, age);
+    public SonEntity(String firstName, String lastName, Date birthdate, SchoolEntity school, ParentEntity parent) {
+        super(firstName, lastName, birthdate);
         this.school = school;
         this.parent = parent;
     }

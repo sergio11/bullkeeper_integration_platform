@@ -2,6 +2,7 @@ package sanchez.sanchez.sergio.dto.request;
 
 import javax.validation.constraints.Size;
 
+import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
 
 public class AddSchoolDTO {
@@ -17,6 +18,7 @@ public class AddSchoolDTO {
 	private String location;
 	private String province;
 	private Integer tfno;
+	@Email(message="{school.email.invalid}")
 	private String email;
 	
 	

@@ -1,6 +1,7 @@
 package sanchez.sanchez.sergio.persistence.loader;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
@@ -49,7 +50,10 @@ public class LoadInitialDataForProductionEnvironment implements CommandLineRunne
     	
  
     	// ADMIN
-    	UserSystemEntity admin = new UserSystemEntity("Admin", "Admin", 30, "admin@gmail.com", "$2a$10$0eCQpFRdw8i6jJzjj/IuNuKpJYnLaO5Yp9xSJ3itcfPmQNXVhmNyu", adminRole);
+    	Calendar adminBirthdate = Calendar.getInstance();
+    	adminBirthdate.set(1982, 4, 23);
+    	
+    	UserSystemEntity admin = new UserSystemEntity("Admin", "Admin", adminBirthdate.getTime(), "admin@gmail.com", "$2a$10$0eCQpFRdw8i6jJzjj/IuNuKpJYnLaO5Yp9xSJ3itcfPmQNXVhmNyu", adminRole);
     	admins.add(admin);
     	
     }

@@ -1,5 +1,7 @@
 package sanchez.sanchez.sergio.service.impl;
 
+import javax.annotation.PostConstruct;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mail.MailException;
@@ -7,6 +9,8 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Service;
+
+import io.jsonwebtoken.lang.Assert;
 import sanchez.sanchez.sergio.mail.properties.MailProperties;
 import sanchez.sanchez.sergio.service.IMailClient;
 import sanchez.sanchez.sergio.service.IMailContentBuilderService;
@@ -48,7 +52,7 @@ public class MailClientImpl implements IMailClient {
     @Override
     public void sendMailForActivateAccount(String email, String firstname, String lastname, String confirmationToken) {
     	logger.debug("Send Mail for Activate Account");
-    	String subject = messageSourceResolver.resolver("mail.registration.success.subject.title", new Object[] { firstname + lastname});
+    	String subject = messageSourceResolver.resolver("mail.registration.success.subject.title", new Object[] { firstname, lastname});
     	String content = mailContentBuilderService.buildRegistrationSuccessTemplate(firstname, lastname, confirmationToken);
         try {
         	sendEmail(email, subject, content);
@@ -79,5 +83,25 @@ public class MailClientImpl implements IMailClient {
         } catch (MailException e) {
         	logger.error(e.toString());
         }  
+	}
+
+	@Override
+	public void sendMailForConfirmAccountActivation(String email, String firstname, String lastname) {
+		logger.debug("Send Mail for Confirm Account Activation");
+		String subject = messageSourceResolver.resolver("mail.confirm.account.activation.subject.title", new Object[] { firstname , lastname });
+    	String content = mailContentBuilderService.buildConfirmAccountActivationTemplate(firstname, lastname);
+        try {
+        	sendEmail(email, subject, content);
+        } catch (MailException e) {
+        	logger.error(e.toString());
+        } 
+	}
+	
+	@PostConstruct
+	protected void init(){
+		Assert.notNull(mailContentBuilderService, "Mail Content Builder Service can not be null");
+		Assert.notNull(mailSender, "Mail Sender can not be null");
+		Assert.notNull(messageSourceResolver, "Message Source Resolver can not be null");
+		Assert.notNull(mailProperties, "Mail Properties can not be null");
 	}
 }

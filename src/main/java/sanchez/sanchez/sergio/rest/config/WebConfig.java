@@ -52,7 +52,8 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         registry.addViewController("/backend/admin/login").setViewName("login");
         registry.addViewController("/backend/accounts/resetting/invalid-token").setViewName("invalid_token");
         registry.addViewController("/backend/accounts/resetting/password-changed").setViewName("password_changed");
-        registry.addViewController("/backend/accounts/activate/result").setViewName("account_activate");   
+        registry.addViewController("/backend/accounts/activate/active").setViewName("account_activated");
+        registry.addViewController("/backend/accounts/activate/invalid").setViewName("confirmation_token_invalid");
     }
 
     @Override

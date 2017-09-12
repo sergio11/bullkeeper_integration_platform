@@ -46,24 +46,31 @@ public class UserSystemEntity extends PersonEntity {
     }
 
     @PersistenceConstructor
-    public UserSystemEntity(String email, String password, String passwordRequestedAt, Date lastLoginAccess, String confirmationToken, AuthorityEntity authority, String firstName, String lastName, Integer age) {
-        super(firstName, lastName, age);
-        this.email = email;
-        this.password = password;
-        this.passwordRequestedAt = passwordRequestedAt;
-        this.lastLoginAccess = lastLoginAccess;
-        this.confirmationToken = confirmationToken;
-        this.authority = authority;
-    }
+    public UserSystemEntity(String firstName, String lastName, Date birthdate, String email, String password,
+			String passwordRequestedAt, Boolean active, Boolean locked, Date lastLoginAccess, String confirmationToken,
+			AuthorityEntity authority) {
+		super(firstName, lastName, birthdate);
+		this.email = email;
+		this.password = password;
+		this.passwordRequestedAt = passwordRequestedAt;
+		this.active = active;
+		this.locked = locked;
+		this.lastLoginAccess = lastLoginAccess;
+		this.confirmationToken = confirmationToken;
+		this.authority = authority;
+	}
     
-    public UserSystemEntity(String firstName, String lastName, Integer age, String email, String password, AuthorityEntity authority) {
-        super(firstName, lastName, age);
+    public UserSystemEntity(String firstName, String lastName, Date birthdate, String email, String password, AuthorityEntity authority) {
+        super(firstName, lastName, birthdate);
         this.email = email;
         this.password = password;
         this.authority = authority;
     }
 
-    public String getEmail() {
+    
+	
+
+	public String getEmail() {
         return email;
     }
 
@@ -111,7 +118,7 @@ public class UserSystemEntity extends PersonEntity {
         this.passwordRequestedAt = passwordRequestedAt;
     }
 
-    public Boolean getActive() {
+    public Boolean isActive() {
         return active;
     }
 

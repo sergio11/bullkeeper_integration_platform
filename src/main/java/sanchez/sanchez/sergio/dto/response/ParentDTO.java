@@ -12,6 +12,8 @@ public class ParentDTO extends ResourceSupport {
     private String firstName;
 	@JsonProperty("last_name")
     private String lastName;
+	@JsonProperty("birthdate")
+    private String birthdate;
 	@JsonProperty("age")
     private Integer age;
 	@JsonProperty("email")
@@ -21,14 +23,28 @@ public class ParentDTO extends ResourceSupport {
     
     public ParentDTO(){}
 
-	public ParentDTO(String identity, String firstName, String lastName, Integer age, String email, Long children) {
+	public ParentDTO(String identity, String firstName, String lastName, String birthdate, Integer age, String email,
+			Long children) {
 		super();
 		this.identity = identity;
 		this.firstName = firstName;
 		this.lastName = lastName;
+		this.birthdate = birthdate;
 		this.age = age;
 		this.email = email;
 		this.children = children;
+	}
+
+
+
+
+
+	public String getBirthdate() {
+		return birthdate;
+	}
+
+	public void setBirthdate(String birthdate) {
+		this.birthdate = birthdate;
 	}
 
 	public String getIdentity() {

@@ -43,10 +43,12 @@ public class ParentsDetailsServiceImpl implements UserDetailsService {
         		Set<SimpleGrantedAuthority> grantedAuthorities = new HashSet<SimpleGrantedAuthority>();
             	
             	grantedAuthorities.add(new SimpleGrantedAuthority(parentEntity.getAuthority().getAuthority()));
+            	
+            	logger.debug(parentEntity.getFirstName() + " is enabled -> " + parentEntity.isActive());
             
                 return new UserDetailsImpl<ObjectId>(parentEntity.getId(), parentEntity.getEmail(),
                 		parentEntity.getPassword(), parentEntity.getFirstName(), parentEntity.getLastName(), parentEntity.isLocked(),
-                		grantedAuthorities);
+                		parentEntity.isActive(), grantedAuthorities);
         	}).orElseThrow(() -> new UsernameNotFoundException("User " + email + " was not found in the " +
         "database"));
 	}

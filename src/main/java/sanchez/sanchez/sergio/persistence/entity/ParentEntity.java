@@ -13,11 +13,16 @@ public final class ParentEntity extends UserSystemEntity {
     }
 
     @PersistenceConstructor
-    public ParentEntity(String email, String password, String passwordRequestedAt, Date lastLoginAccess, String confirmationToken, AuthorityEntity authority, String firstName, String lastName, Integer age) {
-        super(email, password, passwordRequestedAt, lastLoginAccess, confirmationToken, authority, firstName, lastName, age);
-    }
+    public ParentEntity(String firstName, String lastName, Date birthdate, String email, String password,
+			String passwordRequestedAt, Boolean active, Boolean locked, Date lastLoginAccess, String confirmationToken,
+			AuthorityEntity authority) {
+		super(firstName, lastName, birthdate, email, password, passwordRequestedAt, active, locked, lastLoginAccess,
+				confirmationToken, authority);
+	}
     
-    public ParentEntity(String firstName, String lastName, Integer age, String email, String password, AuthorityEntity authority) {
-        super(firstName, lastName, age, email, password, authority);
+    
+    public ParentEntity(String firstName, String lastName, Date birthdate, String email, String password, AuthorityEntity authority) {
+        super(firstName, lastName, birthdate, email, password, authority);
     }
+	
 }

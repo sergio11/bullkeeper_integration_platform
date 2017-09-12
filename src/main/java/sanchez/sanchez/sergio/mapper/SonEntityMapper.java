@@ -23,7 +23,9 @@ public abstract class SonEntityMapper {
     
     @Mappings({
         @Mapping(expression="java(sonEntity.getId().toString())", target = "identity" ),
-        @Mapping(source="sonEntity.school.name", target = "school" )
+        @Mapping(source="sonEntity.school.name", target = "school" ),
+        @Mapping(source = "sonEntity.birthdate", target = "birthdate", dateFormat = "dd/MM/yyyy"),
+        @Mapping(source = "sonEntity.age", target = "age")
     })
     @Named("sonEntityToSonDTO")
     public abstract SonDTO sonEntityToSonDTO(SonEntity sonEntity); 

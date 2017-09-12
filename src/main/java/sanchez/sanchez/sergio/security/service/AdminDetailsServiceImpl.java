@@ -44,7 +44,7 @@ public class AdminDetailsServiceImpl implements UserDetailsService {
             
                 return new UserDetailsImpl<ObjectId>(userSystemEntity.getId(), userSystemEntity.getEmail(),
                 		userSystemEntity.getPassword(), userSystemEntity.getFirstName(), userSystemEntity.getLastName(), userSystemEntity.isLocked(),
-                		grantedAuthorities);
+                		userSystemEntity.isActive(), grantedAuthorities);
         	}).orElseThrow(() -> new UsernameNotFoundException("User " + usernameOrEmail + " was not found in the " +
         "database"));
 	}

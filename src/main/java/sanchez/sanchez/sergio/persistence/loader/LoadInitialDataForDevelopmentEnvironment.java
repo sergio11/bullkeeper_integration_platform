@@ -2,6 +2,8 @@ package sanchez.sanchez.sergio.persistence.loader;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
@@ -87,27 +89,34 @@ public class LoadInitialDataForDevelopmentEnvironment implements CommandLineRunn
     	
     	// PARENTS
     	
-    	ParentEntity federico = new ParentEntity("Federico", "Martín", 36, "sss4esob@gmail.com", "$2a$10$0eCQpFRdw8i6jJzjj/IuNuKpJYnLaO5Yp9xSJ3itcfPmQNXVhmNyu", parentRole);
+    	Calendar parentsBirthdate = Calendar.getInstance();
+    	parentsBirthdate.set(1982, 4, 23);
+    	
+    
+    	ParentEntity federico = new ParentEntity("Federico", "Martín", parentsBirthdate.getTime(), "sss4esob@gmail.com", "$2a$10$0eCQpFRdw8i6jJzjj/IuNuKpJYnLaO5Yp9xSJ3itcfPmQNXVhmNyu", parentRole);
     	
     	parentList.add(federico);
     	
-    	ParentEntity fernando = new ParentEntity("Fernando", "Muñoz", 40, "fernando@gmail.com", "$2a$10$0eCQpFRdw8i6jJzjj/IuNuKpJYnLaO5Yp9xSJ3itcfPmQNXVhmNyu", parentRole);
+    	ParentEntity fernando = new ParentEntity("Fernando", "Muñoz", parentsBirthdate.getTime(), "fernando@gmail.com", "$2a$10$0eCQpFRdw8i6jJzjj/IuNuKpJYnLaO5Yp9xSJ3itcfPmQNXVhmNyu", parentRole);
     	
     	parentList.add(fernando);
     	
-    	ParentEntity jaime = new ParentEntity("Jaime", "Gómez", 29, "jaime@gmail.com", "$2a$10$0eCQpFRdw8i6jJzjj/IuNuKpJYnLaO5Yp9xSJ3itcfPmQNXVhmNyu", parentRole);
+    	ParentEntity jaime = new ParentEntity("Jaime", "Gómez", parentsBirthdate.getTime(), "jaime@gmail.com", "$2a$10$0eCQpFRdw8i6jJzjj/IuNuKpJYnLaO5Yp9xSJ3itcfPmQNXVhmNyu", parentRole);
     	
     	parentList.add(jaime);
     	
     	// ADMIN
     	
-    	UserSystemEntity admin = new UserSystemEntity("Admin", "Admin", 30, "admin@gmail.com", "$2a$10$0eCQpFRdw8i6jJzjj/IuNuKpJYnLaO5Yp9xSJ3itcfPmQNXVhmNyu", adminRole);
+    	UserSystemEntity admin = new UserSystemEntity("Admin", "Admin", parentsBirthdate.getTime(), "admin@gmail.com", "$2a$10$0eCQpFRdw8i6jJzjj/IuNuKpJYnLaO5Yp9xSJ3itcfPmQNXVhmNyu", adminRole);
     	
     	admins.add(admin);
     	
     	// CHILDREN
     	
-    	SonEntity sergio = new SonEntity("Sergio", "Martín", 11, school1, federico);
+    	Calendar sergioBirthdate = Calendar.getInstance();
+    	sergioBirthdate.set(2005, 4, 23);
+    	
+    	SonEntity sergio = new SonEntity("Sergio", "Martín", sergioBirthdate.getTime(), school1, federico);
   
     	childrenList.add(sergio);
         
@@ -117,7 +126,10 @@ public class LoadInitialDataForDevelopmentEnvironment implements CommandLineRunn
             new SocialMediaEntity("ya29.GmaiBCC-Gpm_NO9Z-Au4imXzsb9gFjBNYoO2QMEtfJlzYksM93pSZoWsr1yxFvRvI8wuNrLimC4KRf364TcE-ZGr3uyVdery8sQtw3ZKOUxyF1bPicG7lAVBmL113Ji3sK3hrnEpa0Y", SocialMediaTypeEnum.YOUTUBE, sergio)
         }));
         
-        SonEntity pedro = new SonEntity("Pedro", "Sánchez", 12, school1, federico);
+        Calendar pedroBirthdate = Calendar.getInstance();
+        pedroBirthdate.set(2008, 6, 4);
+        
+        SonEntity pedro = new SonEntity("Pedro", "Sánchez", pedroBirthdate.getTime(), school1, federico);
         
         childrenList.add(pedro);
           
@@ -127,7 +139,10 @@ public class LoadInitialDataForDevelopmentEnvironment implements CommandLineRunn
             new SocialMediaEntity("pedro_access_token_instagram", SocialMediaTypeEnum.YOUTUBE, pedro)
         }));
         
-        SonEntity maite =  new SonEntity("Maite", "Pérez", 14, school1, federico);
+        Calendar maiteBirthdate = Calendar.getInstance();
+        maiteBirthdate.set(2002, 1, 4);
+        
+        SonEntity maite =  new SonEntity("Maite", "Pérez", maiteBirthdate.getTime(), school1, federico);
         
         childrenList.add(maite);
 
@@ -137,7 +152,10 @@ public class LoadInitialDataForDevelopmentEnvironment implements CommandLineRunn
             new SocialMediaEntity("maite_access_token_youtube", SocialMediaTypeEnum.YOUTUBE, maite)
         }));
         
-        SonEntity david =  new SonEntity("David", "García", 14, school2, fernando);
+        Calendar davidBirthdate = Calendar.getInstance();
+        davidBirthdate.set(2002, 12, 24);
+        
+        SonEntity david =  new SonEntity("David", "García", davidBirthdate.getTime(), school2, fernando);
        
         childrenList.add(david);
         
@@ -147,7 +165,10 @@ public class LoadInitialDataForDevelopmentEnvironment implements CommandLineRunn
             new SocialMediaEntity("david_access_token_youtube", SocialMediaTypeEnum.YOUTUBE, david)
         }));
         
-        SonEntity elena = new SonEntity("Elena", "Iglesias", 12, school2, fernando);
+        Calendar elenaBirthdate = Calendar.getInstance();
+        elenaBirthdate.set(2003, 5, 14);
+        
+        SonEntity elena = new SonEntity("Elena", "Iglesias", elenaBirthdate.getTime(), school2, fernando);
         
         childrenList.add(elena);
         

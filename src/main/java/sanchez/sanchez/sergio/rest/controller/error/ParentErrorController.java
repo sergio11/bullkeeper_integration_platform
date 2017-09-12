@@ -9,6 +9,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -38,6 +39,13 @@ public class ParentErrorController extends BaseController{
     protected ResponseEntity<APIResponse<String>> handleBadCredentialsException(BadCredentialsException badCredentialsException, HttpServletRequest request) {
         return ApiHelper.<String>createAndSendErrorResponse(ParentResponseCode.BAD_CREDENTIALS, HttpStatus.BAD_REQUEST, 
         		messageSourceResolver.resolver("bad.credentials"));
+    }
+    
+    @ExceptionHandler(DisabledException.class)
+    @ResponseBody
+    protected ResponseEntity<APIResponse<String>> handleDisabledException(DisabledException disabledException, HttpServletRequest request) {
+        return ApiHelper.<String>createAndSendErrorResponse(ParentResponseCode.ACCOUNT_DISABLED, HttpStatus.FORBIDDEN, 
+        		messageSourceResolver.resolver("account.disabled"));
     }
 
     @ExceptionHandler(ParentNotFoundException.class)

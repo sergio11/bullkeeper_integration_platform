@@ -14,14 +14,14 @@ import sanchez.sanchez.sergio.service.IParentsService;
  * @author sergio
  */
 @Component
-public class SendEmailToConfirmPasswordChange implements ApplicationListener<PasswordChangedEvent> {
+public class SendMailToConfirmPasswordChange implements ApplicationListener<PasswordChangedEvent> {
     
-    private static Logger logger = LoggerFactory.getLogger(SendEmailToConfirmPasswordChange.class);
+    private static Logger logger = LoggerFactory.getLogger(SendMailToConfirmPasswordChange.class);
     
     private final IMailClient mailClient;
     private final IParentsService parentService;
 
-    public SendEmailToConfirmPasswordChange(IMailClient mailClient, IParentsService parentService) {
+    public SendMailToConfirmPasswordChange(IMailClient mailClient, IParentsService parentService) {
         this.mailClient = mailClient;
         this.parentService = parentService;
     }

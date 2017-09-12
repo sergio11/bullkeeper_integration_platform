@@ -121,9 +121,6 @@ public class ParentsServiceImpl implements IParentsService {
 		// update parent
 		parentToUpdate.setFirstName(updateParentDTO.getFirstName());
 		parentToUpdate.setLastName(updateParentDTO.getLastName());
-		parentToUpdate.setAge(updateParentDTO.getAge());
-		parentToUpdate.setEmail(updateParentDTO.getEmail());
-
         final ParentEntity parentUpdated = parentRepository.save(parentToUpdate);
         return parentEntityMapper.parentEntityToParentDTO(parentUpdated);
 	}
@@ -149,6 +146,16 @@ public class ParentsServiceImpl implements IParentsService {
 		}
 		
 		return isActivated;
+	}
+	
+	@Override
+	public void lockAccount(String id) {
+		parentRepository.lockAccount(new ObjectId(id));
+	}
+
+	@Override
+	public void unlockAccount(String id) {
+		parentRepository.unlockAccount(new ObjectId(id));
 	}
 	
 	@PostConstruct

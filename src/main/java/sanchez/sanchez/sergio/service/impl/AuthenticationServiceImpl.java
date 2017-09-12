@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.mobile.device.Device;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,28 +22,32 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
 	private static Logger logger = LoggerFactory.getLogger(AuthenticationServiceImpl.class);
 	
 	@Autowired
-	@Qualifier("ParentsDetailsService")
-	private UserDetailsService parentUserDetails;
+    private JwtTokenUtil jwtTokenUtil;
 	
 	@Autowired
-	@Qualifier("AdminDetailsService") 
-	private UserDetailsService adminUserDetails;
-    
+	@Qualifier("ParentsAuthenticationManager")
+	private AuthenticationManager parentsAuthenticationManager;
+	
 	@Autowired
-    private JwtTokenUtil jwtTokenUtil;
-    
-  
+	@Qualifier("ParentsDetailsService") 
+	private UserDetailsService parentDetails;
+	
+	
+	@Autowired(required = false)
+	@Qualifier("AdminAuthenticationManager")
+	private AuthenticationManager adminAuthenticationManager;
+	
+
 	@Override
 	public JwtAuthenticationResponseDTO createAuthenticationTokenForParent(String username, String password,
 			Device device) {
 		
-		UserDetails userDetails = parentUserDetails.loadUserByUsername(username);
-		Authentication auth = new UsernamePasswordAuthenticationToken (
-				userDetails.getUsername(),userDetails.getPassword (),userDetails.getAuthorities ());
-		SecurityContextHolder.getContext().setAuthentication(auth);
-        
-        logger.debug("Principal Name: " + auth.getName());
-      
+        final Authentication authentication = parentsAuthenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(username,password)
+        );
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        UserDetails userDetails = parentDetails.loadUserByUsername(username);
 		final String token = jwtTokenUtil.generateToken(userDetails, device);
         
         return new JwtAuthenticationResponseDTO(token);
@@ -52,14 +57,13 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
 	public JwtAuthenticationResponseDTO createAuthenticationTokenForAdmin(String username, String password,
 			Device device) {
 		
-		UserDetails userDetails = adminUserDetails.loadUserByUsername(username);
-		Authentication auth = new UsernamePasswordAuthenticationToken (
-				userDetails.getUsername(),userDetails.getPassword (),userDetails.getAuthorities ());
-		SecurityContextHolder.getContext().setAuthentication(auth);
+		final Authentication authentication = parentsAuthenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(username,password)
+        );
+        SecurityContextHolder.getContext().setAuthentication(authentication);
         
-        logger.debug("Principal Name: " + auth.getName());
-      
-		final String token = jwtTokenUtil.generateToken(userDetails, device);
+     
+		final String token = jwtTokenUtil.generateToken((UserDetails)authentication.getDetails(), device);
         
         return new JwtAuthenticationResponseDTO(token);
 	}

@@ -12,4 +12,6 @@ public interface ParentRepositoryCustom {
     void setAsNotActiveAndConfirmationToken(ObjectId id, String confirmationToken);
     void setNewPassword(ObjectId id, String newPassword);
     void setActiveAsTrueAndDeleteConfirmationToken(String confirmationToken);
+    void lockAccount(ObjectId id);
+    void unlockAccount(ObjectId id);
 }

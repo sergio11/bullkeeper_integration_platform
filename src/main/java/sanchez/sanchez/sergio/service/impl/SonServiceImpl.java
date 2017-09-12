@@ -1,7 +1,5 @@
 package sanchez.sanchez.sergio.service.impl;
 
-import java.util.HashMap;
-import java.util.Map;
 
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
@@ -11,15 +9,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import sanchez.sanchez.sergio.dto.response.CommentsBySon;
 import sanchez.sanchez.sergio.dto.response.SonDTO;
 import sanchez.sanchez.sergio.mapper.SonEntityMapper;
-import sanchez.sanchez.sergio.persistence.entity.IterationEntity;
 import sanchez.sanchez.sergio.persistence.entity.SonEntity;
-import sanchez.sanchez.sergio.persistence.repository.IterationRepository;
 import sanchez.sanchez.sergio.persistence.repository.SonRepository;
-import sanchez.sanchez.sergio.persistence.repository.impl.SocialMediaRepositoryImpl;
 import sanchez.sanchez.sergio.service.ISonService;
 
 @Service
@@ -29,13 +22,11 @@ public class SonServiceImpl implements ISonService {
 	
 	private final SonRepository sonRepository;
 	private final SonEntityMapper sonEntityMapper;
-	private final IterationRepository iterationRepository;
 	
-	public SonServiceImpl(SonRepository sonRepository, SonEntityMapper sonEntityMapper, IterationRepository iterationRepository) {
+	public SonServiceImpl(SonRepository sonRepository, SonEntityMapper sonEntityMapper) {
 		super();
 		this.sonRepository = sonRepository;
 		this.sonEntityMapper = sonEntityMapper;
-		this.iterationRepository = iterationRepository;
 	}
 
 	@Override

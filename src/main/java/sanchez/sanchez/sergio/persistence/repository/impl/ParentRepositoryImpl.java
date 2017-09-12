@@ -52,6 +52,21 @@ public class ParentRepositoryImpl implements ParentRepositoryCustom {
         mongoTemplate.updateFirst(
                 new Query(Criteria.where("confirmation_token").is(confirmationToken)),
                 new Update().set("is_active", Boolean.TRUE).set("confirmation_token", ""), ParentEntity.class);
-		
+	}
+
+	@Override
+	public void lockAccount(ObjectId id) {
+		Assert.notNull(id, "id can not be null");
+		mongoTemplate.updateFirst(
+				new Query(Criteria.where("_id").in(id)), 
+				new Update().set("is_locked", Boolean.TRUE), ParentEntity.class);
+	}
+
+	@Override
+	public void unlockAccount(ObjectId id) {
+		Assert.notNull(id, "id can not be null");
+		mongoTemplate.updateFirst(
+				new Query(Criteria.where("_id").in(id)), 
+				new Update().set("is_locked", Boolean.FALSE), ParentEntity.class);
 	}
 }

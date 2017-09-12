@@ -1,9 +1,17 @@
 package sanchez.sanchez.sergio.dto.request;
 
+import java.util.Date;
+
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotBlank;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+import sanchez.sanchez.sergio.persistence.constraints.InDateRange;
 import sanchez.sanchez.sergio.persistence.constraints.SchoolMustExists;
+import sanchez.sanchez.sergio.rest.deserializers.BirthdayDeserializer;
 
 public final class RegisterSonDTO {
 	
@@ -13,17 +21,20 @@ public final class RegisterSonDTO {
 	@NotBlank(message = "{user.lastname.notnull}")
     @Size(min = 5, max = 15, message = "{user.lastname.size}")
     private String lastName;
-    private Integer age;
+
+	@JsonProperty("birthdate")
+	@JsonDeserialize(using = BirthdayDeserializer.class)
+    private Date birthdate;
     @SchoolMustExists
     private String school;
     
     public RegisterSonDTO(){}
 
-	public RegisterSonDTO(String firstName, String lastName, Integer age, String school) {
+	public RegisterSonDTO(String firstName, String lastName, Date birthdate, String school) {
 		super();
 		this.firstName = firstName;
 		this.lastName = lastName;
-		this.age = age;
+		this.birthdate = birthdate;
 		this.school = school;
 	}
 
@@ -43,12 +54,12 @@ public final class RegisterSonDTO {
 		this.lastName = lastName;
 	}
 
-	public Integer getAge() {
-		return age;
+	public Date getBirthdate() {
+		return birthdate;
 	}
 
-	public void setAge(Integer age) {
-		this.age = age;
+	public void setBirthdate(Date birthdate) {
+		this.birthdate = birthdate;
 	}
 
 	public String getSchool() {

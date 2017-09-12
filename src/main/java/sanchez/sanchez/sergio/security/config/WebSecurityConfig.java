@@ -116,7 +116,7 @@ public class WebSecurityConfig  {
     	@Autowired
     	private JwtAuthenticationTokenFilter authenticationTokenFilter;
 
-        protected void configure(HttpSecurity http) throws Exception {
+		protected void configure(HttpSecurity http) throws Exception {
         	http
         		.requestMatchers()
 		            .antMatchers(ApiHelper.BASE_API_ANY_REQUEST)

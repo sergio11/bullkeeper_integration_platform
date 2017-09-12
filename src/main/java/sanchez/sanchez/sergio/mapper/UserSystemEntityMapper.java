@@ -19,7 +19,9 @@ public abstract class UserSystemEntityMapper {
 	protected SonRepository sonRepository;
     
     @Mappings({
-        @Mapping(expression="java(userSystemEntity.getId().toString())", target = "identity" )
+        @Mapping(expression="java(userSystemEntity.getId().toString())", target = "identity" ),
+        @Mapping(source = "userSystemEntity.birthdate", target = "birthdate", dateFormat = "dd/MM/yyyy"),
+        @Mapping(source = "userSystemEntity.age", target = "age")
     })
     @Named("userSystemEntityToAdminDTO")
     public abstract AdminDTO userSystemEntityToAdminDTO(UserSystemEntity userSystemEntity);

@@ -18,19 +18,26 @@ public class AdminDTO extends ResourceSupport implements Serializable {
     private String firstName;
 	@JsonProperty("last_name")
     private String lastName;
+	@JsonProperty("birthdate")
+    private String birthdate;
 	@JsonProperty("age")
     private Integer age;
     
     public AdminDTO(){}
 
-    public AdminDTO(String identity, String firstName, String lastName, Integer age) {
-        this.identity = identity;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.age = age;
-    }
 
-    public String getIdentity() {
+    public AdminDTO(String identity, String firstName, String lastName, String birthdate, Integer age) {
+		super();
+		this.identity = identity;
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.birthdate = birthdate;
+		this.age = age;
+	}
+
+
+
+	public String getIdentity() {
         return identity;
     }
 
@@ -53,8 +60,18 @@ public class AdminDTO extends ResourceSupport implements Serializable {
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
+    
+    public String getBirthdate() {
+		return birthdate;
+	}
 
-    public Integer getAge() {
+
+	public void setBirthdate(String birthdate) {
+		this.birthdate = birthdate;
+	}
+
+
+	public Integer getAge() {
         return age;
     }
 
@@ -62,8 +79,10 @@ public class AdminDTO extends ResourceSupport implements Serializable {
         this.age = age;
     }
 
-    @Override
-    public String toString() {
-        return "UserDTO{" + "firstName=" + firstName + ", lastName=" + lastName + ", age=" + age + '}';
-    }
+
+	@Override
+	public String toString() {
+		return "AdminDTO [identity=" + identity + ", firstName=" + firstName + ", lastName=" + lastName + ", birthdate="
+				+ birthdate + ", age=" + age + "]";
+	}
 }

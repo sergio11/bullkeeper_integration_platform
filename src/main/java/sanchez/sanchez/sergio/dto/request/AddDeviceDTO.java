@@ -5,7 +5,6 @@ import org.hibernate.validator.constraints.NotBlank;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import sanchez.sanchez.sergio.persistence.constraints.DeviceShouldNotExists;
 
-
 public class AddDeviceDTO {
 	
 	@DeviceShouldNotExists(message = "{device.should.not.exists}")
@@ -16,10 +15,8 @@ public class AddDeviceDTO {
 	@JsonProperty("registration_token")
 	private String registrationToken;
 	
-	
 	public AddDeviceDTO(){}
 	
-
 	public AddDeviceDTO(String deviceId, String registrationToken) {
 		super();
 		this.deviceId = deviceId;

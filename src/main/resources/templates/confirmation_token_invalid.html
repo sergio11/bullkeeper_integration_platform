@@ -10,13 +10,11 @@
 		<meta content="Spring MVC Spring Integration Thymeleaf" name="keywords" />
 		<meta content="sergio" name="author" />
 		<th:block th:replace="fragments/common::common-styles" />
-		<link href="../static/css/login.css" th:href="@{/css/login.css}"
-			rel="stylesheet" media="screen" />
 	</head>
 <body>
 	<div class="wrapper">
-		<div class="alert alert-success">
-			<p th:text="${message}">Activate account</p>
+		<div class="alert alert-danger">
+			<p th:text="#{accounts.activate.failed}">Confirmation Token Invalid</p>
 		</div>
 	</div>
 </body>

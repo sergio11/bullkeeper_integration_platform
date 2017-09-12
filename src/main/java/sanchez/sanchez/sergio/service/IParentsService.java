@@ -27,4 +27,6 @@ public interface IParentsService {
     ParentDTO update(final ObjectId id, final UpdateParentDTO updateParentDTO);
     void changeUserPassword(ObjectId id, String newPassword);
     Boolean activateAccount(String token);
+    void lockAccount(String id);
+    void unlockAccount(String id);
 }

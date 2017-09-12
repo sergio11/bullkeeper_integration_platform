@@ -1,11 +1,17 @@
 package sanchez.sanchez.sergio.dto.request;
 
+import java.util.Date;
+
 import javax.validation.constraints.Size;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 import sanchez.sanchez.sergio.persistence.constraints.FieldMatch;
+import sanchez.sanchez.sergio.persistence.constraints.InDateRange;
 import sanchez.sanchez.sergio.persistence.constraints.ParentEmailShouldNotExist;
+import sanchez.sanchez.sergio.rest.deserializers.BirthdayDeserializer;
 
 @FieldMatch(first = "passwordClear", second = "confirmPassword", message = "{user.pass.not.match}")
 public final class RegisterParentDTO {
@@ -18,9 +24,12 @@ public final class RegisterParentDTO {
     @Size(min = 5, max = 15, message = "{user.lastname.size}")
 	@JsonProperty("last_name")
     private String lastName;
-    private Integer age;
-    
-    
+	
+	@JsonProperty("birthdate")
+	@JsonDeserialize(using = BirthdayDeserializer.class)
+	@InDateRange(min = "1960-1-1", max = "2000-1-1", message="{user.birthdate.invalid}")
+    private Date birthdate;
+ 
     @NotBlank(message="{user.email.notnull}")
     @Email(message="{user.email.invalid}")
     @ParentEmailShouldNotExist(message="{user.email.unique}")
@@ -37,12 +46,12 @@ public final class RegisterParentDTO {
     
     public RegisterParentDTO(){}
 
-	public RegisterParentDTO(String firstName, String lastName, Integer age, String email, String passwordClear,
+	public RegisterParentDTO(String firstName, String lastName, Date birthdate, String email, String passwordClear,
 			String confirmPassword) {
 		super();
 		this.firstName = firstName;
 		this.lastName = lastName;
-		this.age = age;
+		this.birthdate = birthdate;
 		this.email = email;
 		this.passwordClear = passwordClear;
 		this.confirmPassword = confirmPassword;
@@ -64,12 +73,12 @@ public final class RegisterParentDTO {
 		this.lastName = lastName;
 	}
 
-	public Integer getAge() {
-		return age;
+	public Date getBirthdate() {
+		return birthdate;
 	}
 
-	public void setAge(Integer age) {
-		this.age = age;
+	public void setBirthdate(Date birthdate) {
+		this.birthdate = birthdate;
 	}
 
 	public String getEmail() {
@@ -95,6 +104,8 @@ public final class RegisterParentDTO {
 	public void setConfirmPassword(String confirmPassword) {
 		this.confirmPassword = confirmPassword;
 	}
+	
+	
     
 	
 }

@@ -31,7 +31,9 @@ public abstract class ParentEntityMapper {
     
     @Mappings({
         @Mapping(expression="java(parentEntity.getId().toString())", target = "identity" ),
-        @Mapping(expression="java(sonRepository.countByParentId(parentEntity.getId()))", target = "children" )
+        @Mapping(expression="java(sonRepository.countByParentId(parentEntity.getId()))", target = "children" ),
+        @Mapping(source = "parentEntity.birthdate", target = "birthdate", dateFormat = "dd/MM/yyyy"),
+        @Mapping(source = "parentEntity.age", target = "age")
     })
     @Named("parentEntityToParentDTO")
     public abstract ParentDTO parentEntityToParentDTO(ParentEntity parentEntity); 

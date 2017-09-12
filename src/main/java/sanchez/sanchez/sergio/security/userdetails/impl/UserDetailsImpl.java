@@ -3,12 +3,18 @@ package sanchez.sanchez.sergio.security.userdetails.impl;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+import sanchez.sanchez.sergio.security.service.ParentsDetailsServiceImpl;
 import sanchez.sanchez.sergio.security.userdetails.CommonUserDetailsAware;
 
 public class UserDetailsImpl<T> implements CommonUserDetailsAware<T> {
+	
+	private static Logger logger = LoggerFactory.getLogger(UserDetailsImpl.class);
 
 	private static final long serialVersionUID = 1L;
 	
@@ -20,11 +26,12 @@ public class UserDetailsImpl<T> implements CommonUserDetailsAware<T> {
     private Boolean locked;
     private Set<SimpleGrantedAuthority> grantedAuthorities;
     private Date lastPasswordResetDate;
+    private Boolean active;
     
     public UserDetailsImpl(){}
 
 	public UserDetailsImpl(T id, String email, String password, String firstName, String lastName,
-			Boolean locked, Set<SimpleGrantedAuthority> grantedAuthorities) {
+			Boolean locked, Boolean active, Set<SimpleGrantedAuthority> grantedAuthorities) {
 		super();
 		this.id = id;
 		this.email = email;
@@ -32,6 +39,7 @@ public class UserDetailsImpl<T> implements CommonUserDetailsAware<T> {
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.locked = locked;
+		this.active = active;
 		this.grantedAuthorities = grantedAuthorities;
 	}
 
@@ -119,7 +127,8 @@ public class UserDetailsImpl<T> implements CommonUserDetailsAware<T> {
 
 	@Override
 	public boolean isEnabled() {
-		return true;
+		logger.debug("Account is active -> " + active);
+		return active;
 	}
 
 	@Override

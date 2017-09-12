@@ -108,13 +108,10 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
 	public ResponseEntity<APIResponse<JwtAuthenticationResponseDTO>> getParentAuthorizationToken(
 			@Valid @RequestBody JwtAuthenticationRequestDTO credentials, Device device) throws Throwable {
     	
+    	JwtAuthenticationResponseDTO jwtResponseDTO = authenticationService.createAuthenticationTokenForParent(credentials.getEmail(), credentials.getPassword(), device);
     
-		return Optional.ofNullable(authenticationService.createAuthenticationTokenForParent(credentials.getEmail(), credentials.getPassword(), device))
-				.map(jwtResponse -> ApiHelper.<JwtAuthenticationResponseDTO>createAndSendResponse(
-						ParentResponseCode.AUTHENTICATION_SUCCESS, HttpStatus.OK, jwtResponse))
-				.orElseThrow(() -> {
-                    throw new ResourceNotFoundException();
-                });
+    	return ApiHelper.<JwtAuthenticationResponseDTO>createAndSendResponse(
+				ParentResponseCode.AUTHENTICATION_SUCCESS, HttpStatus.OK, jwtResponseDTO);
 	}
     
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
@@ -135,6 +132,41 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
                 .map(parentResource -> ApiHelper.<ParentDTO>createAndSendResponse(ParentResponseCode.SINGLE_PARENT, 
                 		HttpStatus.OK, parentResource))
                 .orElseThrow(() -> { throw new ParentNotFoundException(); });
+    }
+    
+    @RequestMapping(value = "/{id}/lock", method = RequestMethod.GET)
+    @OnlyAccessForAdmin
+    @ApiOperation(value = "LOCK_PARENT_ACCOUNT", nickname = "LOCK_PARENT_ACCOUNT", 
+            notes = "Lock Parent Account")
+    public ResponseEntity<APIResponse<String>> lockAccount(
+    		@ApiParam(name = "id", value = "Identificador del Padre", required = true) 
+    			@Valid @ValidObjectId(message = "{parent.id.notvalid}")
+    				@ParentShouldExists(message = "{parent.not.exists}")
+    				@PathVariable String id) throws Throwable {
+        logger.debug("Lock Parent Account with id: " + id);
+        
+        parentsService.lockAccount(id);
+ 
+        return ApiHelper.<String>createAndSendResponse(ParentResponseCode.ACCOUNT_LOCKED, HttpStatus.OK, 
+        		messageSourceResolver.resolver("parents.locked"));
+    }
+    
+    
+    @RequestMapping(value = "/{id}/unlock", method = RequestMethod.GET)
+    @OnlyAccessForAdmin
+    @ApiOperation(value = "UNLOCK_PARENT_ACCOUNT", nickname = "UNLOCK_PARENT_ACCOUNT", 
+            notes = "Unlock Parent Account")
+    public ResponseEntity<APIResponse<String>> unlockAccount(
+    		@ApiParam(name = "id", value = "Identificador del Padre", required = true) 
+    			@Valid @ValidObjectId(message = "{parent.id.notvalid}")
+    				@ParentShouldExists(message = "{parent.not.exists}")
+    				@PathVariable String id) throws Throwable {
+        logger.debug("Unlock Parent Account with id: " + id);
+        
+        parentsService.unlockAccount(id);
+ 
+        return ApiHelper.<String>createAndSendResponse(ParentResponseCode.ACCOUNT_UNLOCKED, HttpStatus.OK, 
+        		messageSourceResolver.resolver("parents.unlocked"));
     }
     
     
@@ -170,14 +202,13 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     })
     public ResponseEntity<APIResponse<ParentDTO>> getSelfInformation(
     		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
+    	
         logger.debug("Get Information for Parent with id: " + selfParent.getUserId());
         return Optional.ofNullable(parentsService.getParentById(selfParent.getUserId()))
                 .map(parentResource -> addLinksToSelfParent(parentResource))
                 .map(parentResource -> ApiHelper.<ParentDTO>createAndSendResponse(ParentResponseCode.SELF_PARENT, 
                 		HttpStatus.OK, parentResource))
-                .orElseThrow(() -> {
-                    throw new ParentNotFoundException();
-                });
+                .orElseThrow(() -> { throw new ParentNotFoundException(); });
     }
     
     
@@ -292,18 +323,17 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     		@ApiParam(value = "son", required = true) 
     			@Valid @RequestBody RegisterSonDTO son) throws Throwable {
     	logger.debug("Add Son To Parent");
-    	return Optional.ofNullable(parentsService.addSon(id, son))
-        		.map(sonResource -> addLinksToSon(sonResource))
-        		.map(sonResource -> ApiHelper.<SonDTO>createAndSendResponse(ParentResponseCode.ADDED_SON_TO_PARENT, 
-        				HttpStatus.OK, sonResource))
-                .orElseThrow(() -> {
-                    throw new ResourceNotFoundException();
-                });
+    	
+    	SonDTO sonDTO = parentsService.addSon(id, son);
+    	
+    	return ApiHelper.<SonDTO>createAndSendResponse(ParentResponseCode.ADDED_SON_TO_PARENT, 
+				HttpStatus.OK, addLinksToSon(sonDTO));
     }
     
     @RequestMapping(value = "/self/children/add", method = RequestMethod.PUT)
     @OnlyAccessForParent
-    @ApiOperation(value = "ADD_SON_TO_SELF_PARENT", nickname = "ADD_SON_TO_SELF_PARENT", notes="Add son to currently authenticated parent for analysis")
+    @ApiOperation(value = "ADD_SON_TO_SELF_PARENT", nickname = "ADD_SON_TO_SELF_PARENT", 
+    	notes="Add son to currently authenticated parent for analysis")
     @ApiResponses(value = { 
     		@ApiResponse(code = 200, message= "Son Registered to self parent", response = SonDTO.class),
     		@ApiResponse(code = 403, message = "Validation Errors", response = ValidationErrorDTO.class)
@@ -313,14 +343,13 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     			@CurrentUser CommonUserDetailsAware<ObjectId> selfParent,
     		@ApiParam(value = "son", required = true) 
     			@Valid @RequestBody RegisterSonDTO son) throws Throwable {
+    	
     	logger.debug("Add Son To Self Parent");
-    	return Optional.ofNullable(parentsService.addSon(selfParent.getUserId().toString(), son))
-        		.map(sonResource -> addLinksToSon(sonResource))
-        		.map(sonResource -> ApiHelper.<SonDTO>createAndSendResponse(ParentResponseCode.ADDED_SON_TO_SELF_PARENT, 
-        				HttpStatus.OK, sonResource))
-                .orElseThrow(() -> {
-                    throw new ResourceNotFoundException();
-                });
+    	
+    	SonDTO sonDTO = parentsService.addSon(selfParent.getUserId().toString(), son);
+    	
+    	return ApiHelper.<SonDTO>createAndSendResponse(ParentResponseCode.ADDED_SON_TO_SELF_PARENT, 
+				HttpStatus.OK, addLinksToSon(sonDTO));
     }
     
 }

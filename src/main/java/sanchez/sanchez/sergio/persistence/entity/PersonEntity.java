@@ -3,7 +3,11 @@
 package sanchez.sanchez.sergio.persistence.entity;
 
 import org.springframework.data.annotation.Id;
+
+import java.util.Date;
 import org.bson.types.ObjectId;
+import org.joda.time.LocalDate;
+import org.joda.time.Years;
 import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -24,17 +28,18 @@ public abstract class PersonEntity {
     @Field("last_name")
     protected String lastName;
     
-    protected Integer age;
+    @Field("birthdate")
+    protected Date birthdate;
 
     
     public PersonEntity(){}
 
     @PersistenceConstructor
-    public PersonEntity(String firstName, String lastName, Integer age) {
+    public PersonEntity(String firstName, String lastName, Date birthdate) {
 		super();
 		this.firstName = firstName;
 		this.lastName = lastName;
-		this.age = age;
+		this.birthdate = birthdate;
 	}
     
 
@@ -58,23 +63,36 @@ public abstract class PersonEntity {
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
-
-    public Integer getAge() {
-        return age;
-    }
-
-    public void setAge(Integer age) {
-        this.age = age;
-    }
     
-    public String getFullName(){
+    public Date getBirthdate() {
+		return birthdate;
+	}
+
+	public void setBirthdate(Date birthdate) {
+		this.birthdate = birthdate;
+	}
+
+	public String getFullName(){
         return this.firstName + " - " + this.lastName;
     }
-    
-   
+	
+	
+	public Integer getAge() {
+		
+		Integer years = 0;
+		if ((birthdate != null)) {
+			Years age = Years.yearsBetween(LocalDate.fromDateFields(birthdate), LocalDate.now());
+			years = age.getYears();
+        }
+		
+		return years;
+	    
+	}
 
 	@Override
-    public String toString() {
-        return "UserEntity{" + "id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", age=" + age + '}';
-    }
+	public String toString() {
+		return "PersonEntity [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", birthdate="
+				+ birthdate + "]";
+	}
+   
 }

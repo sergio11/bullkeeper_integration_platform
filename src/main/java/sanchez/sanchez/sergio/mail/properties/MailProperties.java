@@ -25,6 +25,9 @@ public class MailProperties implements Serializable {
     @Value("${mail.confirm.password.change.template.name}")
     private String confirmPasswordChangeTemplate;
     
+    @Value("${mail.confirm.account.activation.template.name}")
+    private String confirmAccountActivationTemplate;
+    
     public String getMailFrom() {
         return mailFrom;
     }
@@ -39,6 +42,10 @@ public class MailProperties implements Serializable {
 
 	public String getConfirmPasswordChangeTemplate() {
 		return confirmPasswordChangeTemplate;
+	}
+
+	public String getConfirmAccountActivationTemplate() {
+		return confirmAccountActivationTemplate;
 	}
 	
 }
