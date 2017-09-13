@@ -1,5 +1,7 @@
 package sanchez.sanchez.sergio.service.impl;
 
+import java.util.Locale;
+
 import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
@@ -50,10 +52,10 @@ public class MailClientImpl implements IMailClient {
     }
    
     @Override
-    public void sendMailForActivateAccount(String email, String firstname, String lastname, String confirmationToken) {
+    public void sendMailForActivateAccount(String email, String firstname, String lastname, String confirmationToken, Locale locale) {
     	logger.debug("Send Mail for Activate Account");
     	String subject = messageSourceResolver.resolver("mail.registration.success.subject.title", new Object[] { firstname, lastname});
-    	String content = mailContentBuilderService.buildRegistrationSuccessTemplate(firstname, lastname, confirmationToken);
+    	String content = mailContentBuilderService.buildRegistrationSuccessTemplate(firstname, lastname, confirmationToken, locale);
         try {
         	sendEmail(email, subject, content);
         } catch (MailException e) {
@@ -62,10 +64,10 @@ public class MailClientImpl implements IMailClient {
     }
 
 	@Override
-	public void sendMailForResetPassword(String id, String email, String firstname, String lastname, String token) {
+	public void sendMailForResetPassword(String id, String email, String firstname, String lastname, String token, Locale locale) {
 		logger.debug("Send Mail for Reset Password");
 		String subject = messageSourceResolver.resolver("mail.password.reset.subject.title");
-    	String content = mailContentBuilderService.buildPasswordResetTemplate(id, firstname, lastname, token);
+    	String content = mailContentBuilderService.buildPasswordResetTemplate(id, firstname, lastname, token, locale);
         try {
         	sendEmail(email, subject, content);
         } catch (MailException e) {
@@ -74,10 +76,10 @@ public class MailClientImpl implements IMailClient {
 	}
 
 	@Override
-	public void sendMailForConfirmPasswordChange(String email, String firstname, String lastname) {
+	public void sendMailForConfirmPasswordChange(String email, String firstname, String lastname, Locale locale) {
 		logger.debug("Send Mail for Confirm Password Change");
 		String subject = messageSourceResolver.resolver("mail.confirm.password.change.subject.title", new Object[] { firstname + lastname });
-    	String content = mailContentBuilderService.buildConfirmPasswordChangeTemplate(firstname, lastname);
+    	String content = mailContentBuilderService.buildConfirmPasswordChangeTemplate(firstname, lastname, locale);
         try {
         	sendEmail(email, subject, content);
         } catch (MailException e) {
@@ -86,10 +88,10 @@ public class MailClientImpl implements IMailClient {
 	}
 
 	@Override
-	public void sendMailForConfirmAccountActivation(String email, String firstname, String lastname) {
+	public void sendMailForConfirmAccountActivation(String email, String firstname, String lastname, Locale locale) {
 		logger.debug("Send Mail for Confirm Account Activation");
 		String subject = messageSourceResolver.resolver("mail.confirm.account.activation.subject.title", new Object[] { firstname , lastname });
-    	String content = mailContentBuilderService.buildConfirmAccountActivationTemplate(firstname, lastname);
+    	String content = mailContentBuilderService.buildConfirmAccountActivationTemplate(firstname, lastname, locale);
         try {
         	sendEmail(email, subject, content);
         } catch (MailException e) {
@@ -98,10 +100,10 @@ public class MailClientImpl implements IMailClient {
 	}
 	
 	@Override
-	public void sendMailForConfirmRegistrationViaFacebook(String email, String firstname, String lastname) {
+	public void sendMailForConfirmRegistrationViaFacebook(String email, String firstname, String lastname, Locale locale) {
 		logger.debug("Send Mail for Confirm Registration via Facebook");
     	String subject = messageSourceResolver.resolver("mail.registration.success.subject.title", new Object[] { firstname, lastname});
-    	String content = mailContentBuilderService.buildConfirmRegistrationViaFacebookTemplate(firstname, lastname);
+    	String content = mailContentBuilderService.buildConfirmRegistrationViaFacebookTemplate(firstname, lastname, locale);
         try {
         	sendEmail(email, subject, content);
         } catch (MailException e) {
@@ -110,10 +112,10 @@ public class MailClientImpl implements IMailClient {
 	}
 	
 	@Override
-	public void sendMailForCompleteAccountDeletionProcess(String email, String firstname, String lastname, String confirmationToken) {
+	public void sendMailForCompleteAccountDeletionProcess(String email, String firstname, String lastname, String confirmationToken, Locale locale) {
 		logger.debug("Send Mail for Complete Account Deletion Process");
     	String subject = messageSourceResolver.resolver("mail.complete.account.deletion.process.subject.title", new Object[] { firstname, lastname});
-    	String content = mailContentBuilderService.buildCompleteAccountDeletionProcessTemplate(firstname, lastname, confirmationToken);
+    	String content = mailContentBuilderService.buildCompleteAccountDeletionProcessTemplate(firstname, lastname, confirmationToken, locale);
         try {
         	sendEmail(email, subject, content);
         } catch (MailException e) {

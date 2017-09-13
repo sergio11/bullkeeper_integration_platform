@@ -1,10 +1,13 @@
 package sanchez.sanchez.sergio.dto.request;
 
 import java.util.Date;
+import java.util.Locale;
 
 import javax.validation.constraints.Size;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
+import org.springframework.context.i18n.LocaleContextHolder;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
@@ -54,12 +57,14 @@ public  class RegisterParentDTO {
 	@JsonProperty("telephone")
 	@JsonDeserialize(using = PhoneNumberDeserializer.class)
 	protected PhoneNumber telephone;
-    
+	
+	protected Locale locale = LocaleContextHolder.getLocale();
+	
     public RegisterParentDTO(){}
 
 
 	public RegisterParentDTO(String firstName, String lastName, Date birthdate, String email, String passwordClear,
-			String confirmPassword, PhoneNumber telephone) {
+			String confirmPassword, PhoneNumber telephone, Locale locale) {
 		super();
 		this.firstName = firstName;
 		this.lastName = lastName;
@@ -68,6 +73,7 @@ public  class RegisterParentDTO {
 		this.passwordClear = passwordClear;
 		this.confirmPassword = confirmPassword;
 		this.telephone = telephone;
+		this.locale = locale;
 	}
 
 
@@ -127,5 +133,13 @@ public  class RegisterParentDTO {
 	public void setTelephone(PhoneNumber telephone) {
 		this.telephone = telephone;
 	}
-	
+
+
+	public Locale getLocale() {
+		return locale;
+	}
+
+	public void setLocale(Locale locale) {
+		this.locale = locale;
+	}
 }

@@ -20,7 +20,8 @@ public abstract class UserFacebookMapper {
 		@Mapping(source = "userFacebook.email", target = "email"),
 		@Mapping(source = "userFacebook.id", target = "fbId"),
 		@Mapping(source = "userFacebook.id", target = "passwordClear"),
-		@Mapping(source = "userFacebook.id", target = "confirmPassword")
+		@Mapping(source = "userFacebook.id", target = "confirmPassword"),
+		@Mapping(expression="java(new java.util.Locale(userFacebook.getLocale()))", target = "locale")
 	})
     @Named("userFacebookToRegisterParentByFacebookDTO")
     public abstract RegisterParentByFacebookDTO userFacebookToRegisterParentByFacebookDTO(User userFacebook);

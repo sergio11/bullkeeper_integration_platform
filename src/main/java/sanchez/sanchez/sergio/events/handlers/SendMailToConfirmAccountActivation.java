@@ -1,5 +1,6 @@
 package sanchez.sanchez.sergio.events.handlers;
 
+import java.util.Locale;
 import java.util.Optional;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
@@ -32,7 +33,8 @@ public class SendMailToConfirmAccountActivation implements ApplicationListener<P
 		Optional.ofNullable(parentService.getParentById(event.getIdentity()))
 	        .ifPresent(parent -> {
 	            logger.debug("Send Email To Confirm Account Activation");
-	            mailClient.sendMailForConfirmAccountActivation(parent.getEmail(), parent.getFirstName(), parent.getLastName());
+	            mailClient.sendMailForConfirmAccountActivation(parent.getEmail(), parent.getFirstName(), 
+	            		parent.getLastName(), new Locale(parent.getLocale()));
 	        });
 	}
 }

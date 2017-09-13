@@ -1,5 +1,6 @@
 package sanchez.sanchez.sergio.events.handlers;
 
+import java.util.Locale;
 import java.util.Optional;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
@@ -42,7 +43,8 @@ public class SendMailForActivateAccount implements ApplicationListener<ParentReg
                     parentService.setAsNotActiveAndConfirmationToken(parent.getIdentity(), confirmationToken);
                     // Send Mail for Activate Account
                     logger.debug("Send email to: " + parent.getEmail());
-                    mailClient.sendMailForActivateAccount(parent.getEmail(), parent.getFirstName(), parent.getLastName(), confirmationToken);
+                    mailClient.sendMailForActivateAccount(parent.getEmail(), parent.getFirstName(), 
+                    		parent.getLastName(), confirmationToken, new Locale(parent.getLocale()));
                 });
         
     }

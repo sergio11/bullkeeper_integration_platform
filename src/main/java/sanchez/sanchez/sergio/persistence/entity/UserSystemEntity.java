@@ -2,6 +2,8 @@
 package sanchez.sanchez.sergio.persistence.entity;
 
 import java.util.Date;
+import java.util.Locale;
+
 import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -36,6 +38,9 @@ public class UserSystemEntity extends PersonEntity {
     @Field("pending_deletion")
     protected Boolean pendingDeletion = Boolean.FALSE;
     
+    @Field("locale")
+    protected Locale locale = Locale.getDefault();
+    
     /* Random string sent to the user email address in order to verify it */
     @Field("confirmation_token")
     protected String confirmationToken;
@@ -47,19 +52,20 @@ public class UserSystemEntity extends PersonEntity {
     }
 
     @PersistenceConstructor
-    public UserSystemEntity(String firstName, String lastName, Date birthdate, String email, String password,
-			String passwordRequestedAt, Boolean active, Boolean locked, Date lastLoginAccess, String confirmationToken,
-			AuthorityEntity authority, Boolean pendingDeletion) {
-		super(firstName, lastName, birthdate);
+    public UserSystemEntity(String email, String password, String passwordRequestedAt, Boolean active, Boolean locked,
+			Date lastLoginAccess, Boolean pendingDeletion, Locale locale, String confirmationToken,
+			AuthorityEntity authority) {
+		super();
 		this.email = email;
 		this.password = password;
 		this.passwordRequestedAt = passwordRequestedAt;
 		this.active = active;
 		this.locked = locked;
 		this.lastLoginAccess = lastLoginAccess;
+		this.pendingDeletion = pendingDeletion;
+		this.locale = locale;
 		this.confirmationToken = confirmationToken;
 		this.authority = authority;
-		this.pendingDeletion = pendingDeletion;
 	}
     
     public UserSystemEntity(String firstName, String lastName, Date birthdate, String email, String password, AuthorityEntity authority) {
@@ -68,7 +74,7 @@ public class UserSystemEntity extends PersonEntity {
         this.password = password;
         this.authority = authority;
     }
-
+	
 
 	public String getEmail() {
         return email;
@@ -140,6 +146,13 @@ public class UserSystemEntity extends PersonEntity {
 
 	public void setPendingDeletion(Boolean pendingDeletion) {
 		this.pendingDeletion = pendingDeletion;
+	}
+	public Locale getLocale() {
+		return locale;
+	}
+
+	public void setLocale(Locale locale) {
+		this.locale = locale;
 	}
 
 	@Override

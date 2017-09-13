@@ -1,7 +1,6 @@
 package sanchez.sanchez.sergio.dto.response;
 
 import org.springframework.hateoas.ResourceSupport;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ParentDTO extends ResourceSupport {
@@ -24,12 +23,13 @@ public class ParentDTO extends ResourceSupport {
     private String fbId;
 	@JsonProperty("children")
     private Long children;
+	@JsonProperty("locale")
+    private String locale;
     
     public ParentDTO(){}
 
-
 	public ParentDTO(String identity, String firstName, String lastName, String birthdate, Integer age, String email,
-			String telephone, String fbId, Long children) {
+			String telephone, String fbId, Long children, String locale) {
 		super();
 		this.identity = identity;
 		this.firstName = firstName;
@@ -40,6 +40,7 @@ public class ParentDTO extends ResourceSupport {
 		this.telephone = telephone;
 		this.fbId = fbId;
 		this.children = children;
+		this.locale = locale;
 	}
 
 	public String getTelephone() {
@@ -112,5 +113,13 @@ public class ParentDTO extends ResourceSupport {
 
 	public void setChildren(Long children) {
 		this.children = children;
+	}
+
+	public String getLocale() {
+		return locale;
+	}
+
+	public void setLocale(String locale) {
+		this.locale = locale;
 	}
 }

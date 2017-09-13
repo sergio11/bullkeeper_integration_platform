@@ -1,14 +1,16 @@
 package sanchez.sanchez.sergio.service;
 
+import java.util.Locale;
+
 /**
  *
  * @author sergio
  */
 public interface IMailContentBuilderService {
-    String buildRegistrationSuccessTemplate(String firstname, String lastname, String confirmationToken);
-    String buildPasswordResetTemplate(String id, String firstname, String lastname, String token);
-    String buildConfirmPasswordChangeTemplate(String firstname, String lastname);
-    String buildConfirmAccountActivationTemplate(String firstname, String lastname);
-    String buildConfirmRegistrationViaFacebookTemplate(String firstname, String lastname);
-    String buildCompleteAccountDeletionProcessTemplate(String firstname, String lastname, String confirmationToken);
+    String buildRegistrationSuccessTemplate(String firstname, String lastname, String confirmationToken, Locale locale);
+    String buildPasswordResetTemplate(String id, String firstname, String lastname, String token, Locale locale);
+    String buildConfirmPasswordChangeTemplate(String firstname, String lastname, Locale locale);
+    String buildConfirmAccountActivationTemplate(String firstname, String lastname, Locale locale);
+    String buildConfirmRegistrationViaFacebookTemplate(String firstname, String lastname, Locale locale);
+    String buildCompleteAccountDeletionProcessTemplate(String firstname, String lastname, String confirmationToken, Locale locale);
 }

@@ -1,5 +1,6 @@
 package sanchez.sanchez.sergio.events.handlers;
 
+import java.util.Locale;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -31,7 +32,8 @@ public class SendEmailToCompleteAccountDeletionProcess  implements ApplicationLi
 		Optional.ofNullable(parentService.getParentById(event.getIdentity()))
         .ifPresent(parent -> {
             logger.debug("Send Email To Complete Account Deletion Process");
-            mailClient.sendMailForCompleteAccountDeletionProcess(parent.getEmail(), parent.getFirstName(), parent.getLastName(), event.getConfirmationToken());
+            mailClient.sendMailForCompleteAccountDeletionProcess(parent.getEmail(), parent.getFirstName(), 
+            		parent.getLastName(), event.getConfirmationToken(), new Locale(parent.getLocale()));
         });
 	}
 

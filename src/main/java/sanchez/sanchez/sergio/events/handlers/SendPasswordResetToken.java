@@ -1,5 +1,6 @@
 package sanchez.sanchez.sergio.events.handlers;
 
+import java.util.Locale;
 import java.util.Optional;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
@@ -35,7 +36,7 @@ public class SendPasswordResetToken implements ApplicationListener<PasswordReset
             // Send Mail for Activate Account
             logger.debug("Send email to: " + parent.getEmail());
             mailClient.sendMailForResetPassword(parent.getId().toString(), parent.getEmail(), parent.getFirstName(), 
-            		parent.getLastName(), event.getPasswordResetToken().getToken());
+            		parent.getLastName(), event.getPasswordResetToken().getToken(), new Locale(parent.getLocale()));
         });
 	}
 }

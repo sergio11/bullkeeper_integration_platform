@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -42,6 +43,14 @@ public class ParentErrorController extends BaseController{
         return ApiHelper.<String>createAndSendErrorResponse(ParentResponseCode.BAD_CREDENTIALS, HttpStatus.BAD_REQUEST, 
         		messageSourceResolver.resolver("bad.credentials"));
     }
+    
+    @ExceptionHandler(UsernameNotFoundException.class)
+    @ResponseBody
+    protected ResponseEntity<APIResponse<String>> handleBadCredentialsException(UsernameNotFoundException usernameNotFoundException, HttpServletRequest request) {
+        return ApiHelper.<String>createAndSendErrorResponse(ParentResponseCode.USERNAME_NOT_FOUND, HttpStatus.BAD_REQUEST, 
+        		messageSourceResolver.resolver("username.not.found"));
+    }
+   
     
     @ExceptionHandler(DisabledException.class)
     @ResponseBody

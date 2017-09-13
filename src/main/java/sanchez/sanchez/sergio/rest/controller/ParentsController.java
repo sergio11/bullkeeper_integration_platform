@@ -1,5 +1,6 @@
 package sanchez.sanchez.sergio.rest.controller;
 
+import java.util.Locale;
 import java.util.Optional;
 import javax.validation.Valid;
 import org.bson.types.ObjectId;
@@ -259,8 +260,11 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     })
     public ResponseEntity<APIResponse<ParentDTO>> registerParent(
     		@ApiParam(value = "parent", required = true) 
-    			@Valid @RequestBody RegisterParentDTO parent) throws Throwable {
+    			@Valid @RequestBody RegisterParentDTO parent,
+    		@ApiIgnore Locale locale) throws Throwable {
     	logger.debug("Register Parent");
+    	logger.debug("Locale -> " + locale.toString());
+    	parent.setLocale(locale);
         ParentDTO parentDTO = parentsService.save(parent);
         applicationEventPublisher.publishEvent(new ParentRegistrationSuccessEvent(parentDTO.getIdentity(), this));
         return ApiHelper.<ParentDTO>createAndSendResponse(ParentResponseCode.PARENT_REGISTERED_SUCCESSFULLY, 

@@ -1,5 +1,6 @@
 package sanchez.sanchez.sergio.events.handlers;
 
+import java.util.Locale;
 import java.util.Optional;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
@@ -33,7 +34,8 @@ public class SendMailToConfirmPasswordChange implements ApplicationListener<Pass
 		Optional.ofNullable(parentService.getParentById(event.getParentId()))
         .ifPresent(parent -> {
             logger.debug("Send Email To Confirm Password Change");
-            mailClient.sendMailForConfirmPasswordChange(parent.getEmail(), parent.getFirstName(), parent.getLastName());
+            mailClient.sendMailForConfirmPasswordChange(parent.getEmail(), parent.getFirstName(), 
+            		parent.getLastName(), new Locale(parent.getLocale()));
         });
 	}
 }

@@ -7,6 +7,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import sanchez.sanchez.sergio.dto.request.RegisterParentByFacebookDTO;
@@ -36,6 +37,7 @@ public abstract class ParentEntityMapper {
         @Mapping(expression="java(sonRepository.countByParentId(parentEntity.getId()))", target = "children" ),
         @Mapping(source = "parentEntity.birthdate", target = "birthdate", dateFormat = "dd/MM/yyyy"),
         @Mapping(source = "parentEntity.age", target = "age"),
+        @Mapping(expression="java(parentEntity.getLocale().toString())", target = "locale" )
     })
     @Named("parentEntityToParentDTO")
     public abstract ParentDTO parentEntityToParentDTO(ParentEntity parentEntity); 
