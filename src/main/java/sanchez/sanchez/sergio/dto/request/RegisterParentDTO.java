@@ -7,11 +7,14 @@ import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
 
 import sanchez.sanchez.sergio.persistence.constraints.FieldMatch;
 import sanchez.sanchez.sergio.persistence.constraints.InDateRange;
 import sanchez.sanchez.sergio.persistence.constraints.ParentEmailShouldNotExist;
+import sanchez.sanchez.sergio.persistence.constraints.ValidPhoneNumber;
 import sanchez.sanchez.sergio.rest.deserializers.BirthdayDeserializer;
+import sanchez.sanchez.sergio.rest.deserializers.PhoneNumberDeserializer;
 
 @FieldMatch(first = "passwordClear", second = "confirmPassword", message = "{user.pass.not.match}")
 public final class RegisterParentDTO {
@@ -43,11 +46,17 @@ public final class RegisterParentDTO {
     @NotBlank(message="{user.confirm.pass.notnull}")
     @JsonProperty("confirm_password")
     private String confirmPassword;
+
+	@ValidPhoneNumber(message = "user.telephone.not.valid")
+	@JsonProperty("telephone")
+	@JsonDeserialize(using = PhoneNumberDeserializer.class)
+	private PhoneNumber telephone;
     
     public RegisterParentDTO(){}
 
+
 	public RegisterParentDTO(String firstName, String lastName, Date birthdate, String email, String passwordClear,
-			String confirmPassword) {
+			String confirmPassword, PhoneNumber telephone) {
 		super();
 		this.firstName = firstName;
 		this.lastName = lastName;
@@ -55,7 +64,10 @@ public final class RegisterParentDTO {
 		this.email = email;
 		this.passwordClear = passwordClear;
 		this.confirmPassword = confirmPassword;
+		this.telephone = telephone;
 	}
+
+
 
 	public String getFirstName() {
 		return firstName;
@@ -105,7 +117,12 @@ public final class RegisterParentDTO {
 		this.confirmPassword = confirmPassword;
 	}
 	
-	
-    
+	public PhoneNumber getTelephone() {
+		return telephone;
+	}
+
+	public void setTelephone(PhoneNumber telephone) {
+		this.telephone = telephone;
+	}
 	
 }

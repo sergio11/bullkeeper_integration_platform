@@ -18,13 +18,15 @@ public class ParentDTO extends ResourceSupport {
     private Integer age;
 	@JsonProperty("email")
     private String email;
+	@JsonProperty("telephone")
+	private String telephone;
 	@JsonProperty("children")
     private Long children;
     
     public ParentDTO(){}
 
 	public ParentDTO(String identity, String firstName, String lastName, String birthdate, Integer age, String email,
-			Long children) {
+			String telephone, Long children) {
 		super();
 		this.identity = identity;
 		this.firstName = firstName;
@@ -32,12 +34,18 @@ public class ParentDTO extends ResourceSupport {
 		this.birthdate = birthdate;
 		this.age = age;
 		this.email = email;
+		this.telephone = telephone;
 		this.children = children;
 	}
 
 
+	public String getTelephone() {
+		return telephone;
+	}
 
-
+	public void setTelephone(String telephone) {
+		this.telephone = telephone;
+	}
 
 	public String getBirthdate() {
 		return birthdate;

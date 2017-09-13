@@ -43,7 +43,8 @@ public abstract class ParentEntityMapper {
     
     @Mappings({ 
 		@Mapping(expression="java(passwordEncoder.encode(registerParentDTO.getPasswordClear()))", target = "password"),
-		@Mapping(expression="java(authorityRepository.findByType(sanchez.sanchez.sergio.persistence.entity.AuthorityEnum.ROLE_PARENT))", target = "authority")
+		@Mapping(expression="java(authorityRepository.findByType(sanchez.sanchez.sergio.persistence.entity.AuthorityEnum.ROLE_PARENT))", target = "authority"),
+        @Mapping(source="registerParentDTO.telephone.rawInput", target = "telephone" )
 	})
     public abstract ParentEntity registerParentDTOToParentEntity(RegisterParentDTO registerParentDTO);
 }

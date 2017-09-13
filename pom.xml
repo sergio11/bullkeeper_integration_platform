@@ -456,6 +456,14 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-websocket</artifactId>
         </dependency>
+        
+        <!--  Lib Phone Number -->
+        <dependency>
+		    <groupId>com.googlecode.libphonenumber</groupId>
+		    <artifactId>libphonenumber</artifactId>
+		    <version>8.8.0</version>
+		</dependency>
+        
     </dependencies>
     
     <!-- One of the dependencies (markdown_to_asciidoc) of swagger2markup-maven-plugin need below repository -->
