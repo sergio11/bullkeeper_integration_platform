@@ -69,4 +69,16 @@ public class ParentRepositoryImpl implements ParentRepositoryCustom {
 				new Query(Criteria.where("_id").in(id)), 
 				new Update().set("is_locked", Boolean.FALSE), ParentEntity.class);
 	}
+
+	@Override
+	public void setFbAccessTokenByFbId(String fbAccessToken, String fbId) {
+		Assert.notNull(fbAccessToken, "Fb Access Token can not be null");
+		Assert.hasLength(fbAccessToken, "Fb Access Token can not be empty");
+		Assert.notNull(fbId, "Fb Id can not be null");
+		
+		mongoTemplate.updateFirst(
+				new Query(Criteria.where("fb_id").in(fbId)), 
+				new Update().set("fb_access_token", fbAccessToken), ParentEntity.class);
+		
+	}
 }

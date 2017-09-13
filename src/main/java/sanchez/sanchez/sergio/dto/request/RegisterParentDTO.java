@@ -17,40 +17,43 @@ import sanchez.sanchez.sergio.rest.deserializers.BirthdayDeserializer;
 import sanchez.sanchez.sergio.rest.deserializers.PhoneNumberDeserializer;
 
 @FieldMatch(first = "passwordClear", second = "confirmPassword", message = "{user.pass.not.match}")
-public final class RegisterParentDTO {
+public  class RegisterParentDTO {
 	
 	@NotBlank(message = "{user.firstname.notnull}")
     @Size(min = 5, max = 15, message = "{user.firstname.size}")
 	@JsonProperty("first_name")
-	private String firstName;
+	protected String firstName;
+	
 	@NotBlank(message = "{user.lastname.notnull}")
     @Size(min = 5, max = 15, message = "{user.lastname.size}")
 	@JsonProperty("last_name")
-    private String lastName;
+	protected String lastName;
 	
-	@JsonProperty("birthdate")
+	
 	@JsonDeserialize(using = BirthdayDeserializer.class)
 	@InDateRange(min = "1960-1-1", max = "2000-1-1", message="{user.birthdate.invalid}")
-    private Date birthdate;
+	@JsonProperty("birthdate")
+	protected Date birthdate;
  
     @NotBlank(message="{user.email.notnull}")
     @Email(message="{user.email.invalid}")
     @ParentEmailShouldNotExist(message="{user.email.unique}")
-    private String email;
+    @JsonProperty("email")
+    protected String email;
     
     @NotBlank(message="{user.pass.notnull}")
     @Size(min=8, max=25, message="{user.pass.size}")
 	@JsonProperty("password_clear")
-    private String passwordClear;
+    protected String passwordClear;
     
     @NotBlank(message="{user.confirm.pass.notnull}")
     @JsonProperty("confirm_password")
-    private String confirmPassword;
+    protected String confirmPassword;
 
 	@ValidPhoneNumber(message = "user.telephone.not.valid")
 	@JsonProperty("telephone")
 	@JsonDeserialize(using = PhoneNumberDeserializer.class)
-	private PhoneNumber telephone;
+	protected PhoneNumber telephone;
     
     public RegisterParentDTO(){}
 

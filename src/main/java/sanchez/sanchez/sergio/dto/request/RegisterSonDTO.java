@@ -8,8 +8,6 @@ import org.hibernate.validator.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
-import sanchez.sanchez.sergio.persistence.constraints.InDateRange;
 import sanchez.sanchez.sergio.persistence.constraints.SchoolMustExists;
 import sanchez.sanchez.sergio.rest.deserializers.BirthdayDeserializer;
 
@@ -17,15 +15,20 @@ public final class RegisterSonDTO {
 	
 	@NotBlank(message = "{user.firstname.notnull}")
     @Size(min = 5, max = 15, message = "{user.firstname.size}")
+	@JsonProperty("first_name")
 	private String firstName;
+	
 	@NotBlank(message = "{user.lastname.notnull}")
     @Size(min = 5, max = 15, message = "{user.lastname.size}")
+	@JsonProperty("last_name")
     private String lastName;
 
 	@JsonProperty("birthdate")
 	@JsonDeserialize(using = BirthdayDeserializer.class)
     private Date birthdate;
+	
     @SchoolMustExists
+    @JsonProperty("school")
     private String school;
     
     public RegisterSonDTO(){}

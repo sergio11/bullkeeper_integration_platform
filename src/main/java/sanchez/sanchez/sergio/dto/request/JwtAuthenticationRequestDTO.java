@@ -5,14 +5,18 @@ import javax.validation.constraints.Size;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public final class JwtAuthenticationRequestDTO {
 
 	@NotBlank(message = "{user.email.notnull}")
 	@Email(message="{user.email.invalid}")
+	@JsonProperty("email")
 	private String email;
 	@NotBlank(message="{user.pass.notnull}")
     @Size(min=8, max=25, message="{user.pass.size}")
-    private String password;
+	@JsonProperty("password")
+	private String password;
     
     public JwtAuthenticationRequestDTO(){}
 

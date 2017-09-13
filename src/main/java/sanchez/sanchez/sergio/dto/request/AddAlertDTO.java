@@ -3,6 +3,9 @@ package sanchez.sanchez.sergio.dto.request;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotBlank;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import sanchez.sanchez.sergio.persistence.constraints.SonShouldExists;
 import sanchez.sanchez.sergio.persistence.constraints.ValidAlertLevel;
 import sanchez.sanchez.sergio.persistence.constraints.ValidObjectId;
@@ -11,12 +14,15 @@ import sanchez.sanchez.sergio.persistence.constraints.group.Extended;
 public class AddAlertDTO {
 	
 	@ValidAlertLevel(message = "{alert.level.invalid}")
+	@JsonProperty("level")
 	private String level;
 	@NotBlank(message = "{alert.payload.notblank}")
     @Size(min = 5, message = "{alert.payload.size}")
+	@JsonProperty("payload")
 	private String payload;
 	@ValidObjectId(message = "{son.id.notvalid}")
 	@SonShouldExists(message = "{alert.target.not.exists}", groups = Extended.class)
+	@JsonProperty("target")
 	private String target;
 	
 	public AddAlertDTO(){}

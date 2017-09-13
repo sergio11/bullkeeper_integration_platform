@@ -20,13 +20,16 @@ public class ParentDTO extends ResourceSupport {
     private String email;
 	@JsonProperty("telephone")
 	private String telephone;
+	@JsonProperty("fb_id")
+    private String fbId;
 	@JsonProperty("children")
     private Long children;
     
     public ParentDTO(){}
 
+
 	public ParentDTO(String identity, String firstName, String lastName, String birthdate, Integer age, String email,
-			String telephone, Long children) {
+			String telephone, String fbId, Long children) {
 		super();
 		this.identity = identity;
 		this.firstName = firstName;
@@ -35,9 +38,9 @@ public class ParentDTO extends ResourceSupport {
 		this.age = age;
 		this.email = email;
 		this.telephone = telephone;
+		this.fbId = fbId;
 		this.children = children;
 	}
-
 
 	public String getTelephone() {
 		return telephone;
@@ -93,6 +96,14 @@ public class ParentDTO extends ResourceSupport {
 
 	public void setEmail(String email) {
 		this.email = email;
+	}
+
+	public String getFbId() {
+		return fbId;
+	}
+	
+	public void setFbId(String fbId) {
+		this.fbId = fbId;
 	}
 
 	public Long getChildren() {

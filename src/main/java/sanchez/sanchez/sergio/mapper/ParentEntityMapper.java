@@ -8,6 +8,8 @@ import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import sanchez.sanchez.sergio.dto.request.RegisterParentByFacebookDTO;
 import sanchez.sanchez.sergio.dto.request.RegisterParentDTO;
 import sanchez.sanchez.sergio.dto.response.ParentDTO;
 import sanchez.sanchez.sergio.persistence.entity.ParentEntity;
@@ -33,7 +35,7 @@ public abstract class ParentEntityMapper {
         @Mapping(expression="java(parentEntity.getId().toString())", target = "identity" ),
         @Mapping(expression="java(sonRepository.countByParentId(parentEntity.getId()))", target = "children" ),
         @Mapping(source = "parentEntity.birthdate", target = "birthdate", dateFormat = "dd/MM/yyyy"),
-        @Mapping(source = "parentEntity.age", target = "age")
+        @Mapping(source = "parentEntity.age", target = "age"),
     })
     @Named("parentEntityToParentDTO")
     public abstract ParentDTO parentEntityToParentDTO(ParentEntity parentEntity); 
@@ -47,4 +49,11 @@ public abstract class ParentEntityMapper {
         @Mapping(source="registerParentDTO.telephone.rawInput", target = "telephone" )
 	})
     public abstract ParentEntity registerParentDTOToParentEntity(RegisterParentDTO registerParentDTO);
+    
+    @Mappings({ 
+		@Mapping(expression="java(passwordEncoder.encode(registerParentByFacebookDTO.getPasswordClear()))", target = "password"),
+		@Mapping(expression="java(authorityRepository.findByType(sanchez.sanchez.sergio.persistence.entity.AuthorityEnum.ROLE_PARENT))", target = "authority"),
+        @Mapping(source="registerParentByFacebookDTO.telephone.rawInput", target = "telephone" )
+	})
+    public abstract ParentEntity registerParentByFacebookDTOToParentEntity(RegisterParentByFacebookDTO registerParentByFacebookDTO);
 }

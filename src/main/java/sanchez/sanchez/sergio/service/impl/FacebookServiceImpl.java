@@ -22,12 +22,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+
+import sanchez.sanchez.sergio.dto.request.RegisterParentByFacebookDTO;
+import sanchez.sanchez.sergio.dto.request.RegisterParentDTO;
 import sanchez.sanchez.sergio.exception.GetCommentsProcessException;
 import sanchez.sanchez.sergio.exception.InvalidAccessTokenException;
 import sanchez.sanchez.sergio.mapper.IFacebookCommentMapper;
+import sanchez.sanchez.sergio.mapper.UserFacebookMapper;
 import sanchez.sanchez.sergio.persistence.entity.CommentEntity;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaTypeEnum;
 import sanchez.sanchez.sergio.persistence.entity.SonEntity;
+import sanchez.sanchez.sergio.rest.exception.GetInformationFromFacebookException;
 import sanchez.sanchez.sergio.service.IFacebookService;
 import sanchez.sanchez.sergio.service.IMessageSourceResolver;
 import sanchez.sanchez.sergio.util.StreamUtils;
@@ -48,10 +53,13 @@ public class FacebookServiceImpl implements IFacebookService {
     
     private final IFacebookCommentMapper facebookCommentMapper;
     private final IMessageSourceResolver messageSourceResolver;
+    private final UserFacebookMapper userFacebookMapper;
 
-    public FacebookServiceImpl(IFacebookCommentMapper facebookCommentMapper, IMessageSourceResolver messageSourceResolver) {
+    public FacebookServiceImpl(IFacebookCommentMapper facebookCommentMapper, 
+    		IMessageSourceResolver messageSourceResolver, UserFacebookMapper userFacebookMapper) {
         this.facebookCommentMapper = facebookCommentMapper;
         this.messageSourceResolver = messageSourceResolver;
+        this.userFacebookMapper = userFacebookMapper;
     }
     
     private Stream<Comment> getCommentsByObjectAfterThan(final FacebookClient facebookClient, final String objectId, final Date startDate, User user) {
@@ -133,4 +141,26 @@ public class FacebookServiceImpl implements IFacebookService {
         Assert.notNull(facebookCommentMapper, "The Facebook Comment Mapper can not be null");
         Assert.notNull(messageSourceResolver, "The Message Source Resolver can not be null");
     }
+
+	@Override
+	public RegisterParentByFacebookDTO getRegistrationInformationForTheParent(String accessToken) {
+		
+		Assert.notNull(accessToken, "Token can not be null");
+		Assert.hasLength(accessToken, "Token can not be empty");
+		
+		RegisterParentByFacebookDTO registerParent = null;
+		
+		try {
+			FacebookClient facebookClient = new DefaultFacebookClient(accessToken, Version.VERSION_2_8);
+			// Get Information about access token owner
+            User user = facebookClient.fetchObject("me", User.class);
+            registerParent = userFacebookMapper.userFacebookToRegisterParentByFacebookDTO(user);
+            registerParent.setFbAccessToken(accessToken);
+		} catch (FacebookOAuthException e) { 
+			throw new GetInformationFromFacebookException();
+		}
+		
+		return registerParent;
+		
+	}
 }

@@ -14,4 +14,5 @@ public interface ParentRepositoryCustom {
     void setActiveAsTrueAndDeleteConfirmationToken(String confirmationToken);
     void lockAccount(ObjectId id);
     void unlockAccount(ObjectId id);
+    void setFbAccessTokenByFbId(String fbAccessToken, String fbId);
 }

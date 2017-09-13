@@ -4,6 +4,7 @@ import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import sanchez.sanchez.sergio.dto.request.RegisterParentByFacebookDTO;
 import sanchez.sanchez.sergio.dto.request.RegisterParentDTO;
 import sanchez.sanchez.sergio.dto.request.RegisterSonDTO;
 import sanchez.sanchez.sergio.dto.request.UpdateParentDTO;
@@ -22,6 +23,7 @@ public interface IParentsService {
     ParentDTO getParentById(ObjectId id);
     Iterable<SonDTO> getChildrenOfParent(String id);
     ParentDTO save(final RegisterParentDTO registerParent);
+    ParentDTO save(final RegisterParentByFacebookDTO registerParent);
     SonDTO addSon(String parentId, RegisterSonDTO registerSonDTO);
     void setAsNotActiveAndConfirmationToken(String id, String confirmationToken);
     ParentDTO update(final ObjectId id, final UpdateParentDTO updateParentDTO);
@@ -29,4 +31,6 @@ public interface IParentsService {
     Boolean activateAccount(String token);
     void lockAccount(String id);
     void unlockAccount(String id);
+    ParentDTO getParentByFbId(String fbId);
+    void updateFbAccessToken(String fbId, String fbAccessToken);
 }

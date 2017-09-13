@@ -93,7 +93,7 @@ public class LoadInitialDataForDevelopmentEnvironment implements CommandLineRunn
     	parentsBirthdate.set(1982, 4, 23);
     	
     
-    	ParentEntity federico = new ParentEntity("Federico", "Martín", parentsBirthdate.getTime(), "sss4esob@gmail.com", "$2a$10$0eCQpFRdw8i6jJzjj/IuNuKpJYnLaO5Yp9xSJ3itcfPmQNXVhmNyu", parentRole);
+    	ParentEntity federico = new ParentEntity("Federico", "Martín", parentsBirthdate.getTime(), "federico@gmail.com", "$2a$10$0eCQpFRdw8i6jJzjj/IuNuKpJYnLaO5Yp9xSJ3itcfPmQNXVhmNyu", parentRole);
     	
     	parentList.add(federico);
     	

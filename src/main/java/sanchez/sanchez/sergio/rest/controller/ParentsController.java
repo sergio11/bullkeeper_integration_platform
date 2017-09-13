@@ -28,6 +28,8 @@ import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.hateoas.Resource;
 import sanchez.sanchez.sergio.dto.request.JwtAuthenticationRequestDTO;
+import sanchez.sanchez.sergio.dto.request.JwtFacebookAuthenticationRequestDTO;
+import sanchez.sanchez.sergio.dto.request.RegisterParentByFacebookDTO;
 import sanchez.sanchez.sergio.dto.request.RegisterParentDTO;
 import sanchez.sanchez.sergio.dto.request.RegisterSonDTO;
 import sanchez.sanchez.sergio.dto.request.UpdateParentDTO;
@@ -45,7 +47,6 @@ import sanchez.sanchez.sergio.rest.exception.NoChildrenFoundForParentException;
 import sanchez.sanchez.sergio.rest.exception.NoChildrenFoundForSelfParentException;
 import sanchez.sanchez.sergio.rest.exception.NoParentsFoundException;
 import sanchez.sanchez.sergio.rest.exception.ParentNotFoundException;
-import sanchez.sanchez.sergio.rest.exception.ResourceNotFoundException;
 import sanchez.sanchez.sergio.rest.hal.IParentHAL;
 import sanchez.sanchez.sergio.rest.hal.ISonHAL;
 import sanchez.sanchez.sergio.rest.response.APIResponse;
@@ -55,6 +56,7 @@ import sanchez.sanchez.sergio.security.utils.CurrentUser;
 import sanchez.sanchez.sergio.security.utils.OnlyAccessForAdmin;
 import sanchez.sanchez.sergio.security.utils.OnlyAccessForParent;
 import sanchez.sanchez.sergio.service.IAuthenticationService;
+import sanchez.sanchez.sergio.service.IFacebookService;
 import sanchez.sanchez.sergio.service.IParentsService;
 import sanchez.sanchez.sergio.service.IPasswordResetTokenService;
 import springfox.documentation.annotations.ApiIgnore;
@@ -70,12 +72,14 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     private final IParentsService parentsService;
     private final IPasswordResetTokenService passwordResetTokenService;
     private final IAuthenticationService authenticationService;
+    private final IFacebookService facebookService;
  
     public ParentsController(IParentsService parentsService, IPasswordResetTokenService passwordResetTokenService, 
-    		IAuthenticationService authenticationService) {
+    		IAuthenticationService authenticationService, IFacebookService facebookService) {
         this.parentsService = parentsService;
         this.passwordResetTokenService = passwordResetTokenService;
         this.authenticationService = authenticationService;
+        this.facebookService = facebookService;
     }
     
     @RequestMapping(value = {"/", "/all"}, method = RequestMethod.GET)
@@ -112,6 +116,31 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     
     	return ApiHelper.<JwtAuthenticationResponseDTO>createAndSendResponse(
 				ParentResponseCode.AUTHENTICATION_SUCCESS, HttpStatus.OK, jwtResponseDTO);
+	}
+    
+    
+    @RequestMapping(value = "/auth/facebook", method = RequestMethod.POST)
+    @ApiOperation(value = "GET_AUTHORIZATION_TOKEN_VIA_FACEBOOK", nickname = "GET_AUTHORIZATION_TOKEN_VIA_FACEBOOK", notes = "Get Parent Authorization Token vi Facebook ")
+	@ApiResponses(value = { 
+    		@ApiResponse(code = 200, message = "Authentication Success", response = JwtAuthenticationResponseDTO.class),
+    		@ApiResponse(code = 403, message = "Validation Errors", response = ValidationErrorDTO.class)
+    })
+	public ResponseEntity<APIResponse<JwtAuthenticationResponseDTO>> getParentAuthorizationTokenViaFacebook(
+			@Valid @RequestBody JwtFacebookAuthenticationRequestDTO facebookInfo, Device device) throws Throwable {
+    	
+    	JwtAuthenticationResponseDTO jwtResponseDTO =  Optional.ofNullable(parentsService.getParentByFbId(facebookInfo.getId()))
+    			.map(parent -> {
+    				parentsService.updateFbAccessToken(facebookInfo.getId(), facebookInfo.getToken());
+    				return authenticationService.createAuthenticationTokenForParent(parent.getEmail(), parent.getFbId(), device);
+    			})
+    			.orElseGet(() -> {
+    				RegisterParentByFacebookDTO registerParent = facebookService.getRegistrationInformationForTheParent(facebookInfo.getToken());
+    				ParentDTO parent = parentsService.save(registerParent);
+    				return authenticationService.createAuthenticationTokenForParent(parent.getEmail(), parent.getFbId(), device);
+    			});
+    	
+    	return ApiHelper.<JwtAuthenticationResponseDTO>createAndSendResponse(
+				ParentResponseCode.AUTHENTICATION_VIA_FACEBOOK_SUCCESS, HttpStatus.OK, jwtResponseDTO);
 	}
     
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)

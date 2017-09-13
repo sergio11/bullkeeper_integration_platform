@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import sanchez.sanchez.sergio.rest.ApiHelper;
 import sanchez.sanchez.sergio.rest.controller.BaseController;
+import sanchez.sanchez.sergio.rest.exception.GetInformationFromFacebookException;
 import sanchez.sanchez.sergio.rest.exception.NoChildrenFoundForParentException;
 import sanchez.sanchez.sergio.rest.exception.NoChildrenFoundForSelfParentException;
 import sanchez.sanchez.sergio.rest.exception.NoParentsFoundException;
@@ -75,6 +76,15 @@ public class ParentErrorController extends BaseController{
     	return ApiHelper.<String>createAndSendErrorResponse(ParentResponseCode.PARENTS_NOT_FOUND, HttpStatus.NOT_FOUND,
     			messageSourceResolver.resolver("parents.not.found"));
     }
+    
+    @ExceptionHandler(GetInformationFromFacebookException.class)
+    @ResponseBody
+    protected ResponseEntity<APIResponse<String>> handleGetInformationFromFacebookException(GetInformationFromFacebookException getInformationFromFacebookException, HttpServletRequest request) {
+    	return ApiHelper.<String>createAndSendErrorResponse(ParentResponseCode.PARENTS_NOT_FOUND, HttpStatus.NOT_FOUND,
+    			messageSourceResolver.resolver("parent.get.information.from.facebook.failed"));
+    }
+    
+    
     
     @PostConstruct
     protected void init(){

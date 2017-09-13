@@ -125,7 +125,7 @@ public class WebSecurityConfig  {
 			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
 				.antMatchers(HttpMethod.OPTIONS, "/**")
 					.permitAll()
-				.antMatchers("/api/v1/parents/auth", "/api/v1/admin/auth")
+				.antMatchers("/api/v1/parents/auth/**", "/api/v1/admin/auth")
 					.permitAll()
 				.antMatchers(HttpMethod.POST, "/api/v1/parents/")
 					.permitAll()

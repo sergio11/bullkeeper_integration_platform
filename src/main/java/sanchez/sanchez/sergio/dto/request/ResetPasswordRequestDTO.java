@@ -3,10 +3,13 @@ package sanchez.sanchez.sergio.dto.request;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public final class ResetPasswordRequestDTO {
 
 	@NotBlank(message = "{user.email.notnull}")
 	@Email(message="{user.email.invalid}")
+	@JsonProperty("email")
 	private String email;
     
     public ResetPasswordRequestDTO(){}

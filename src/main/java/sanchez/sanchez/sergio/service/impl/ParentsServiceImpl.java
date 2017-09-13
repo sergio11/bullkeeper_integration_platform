@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import io.jsonwebtoken.lang.Assert;
+import sanchez.sanchez.sergio.dto.request.RegisterParentByFacebookDTO;
 import sanchez.sanchez.sergio.dto.request.RegisterParentDTO;
 import sanchez.sanchez.sergio.dto.request.RegisterSonDTO;
 import sanchez.sanchez.sergio.dto.request.UpdateParentDTO;
@@ -87,6 +88,13 @@ public class ParentsServiceImpl implements IParentsService {
         final ParentEntity parentSaved = parentRepository.save(parentToSave);
         return parentEntityMapper.parentEntityToParentDTO(parentSaved);
     }
+    
+    @Override
+	public ParentDTO save(RegisterParentByFacebookDTO registerParent) {
+    	final ParentEntity parentToSave = parentEntityMapper.registerParentByFacebookDTOToParentEntity(registerParent);
+        final ParentEntity parentSaved = parentRepository.save(parentToSave);
+        return parentEntityMapper.parentEntityToParentDTO(parentSaved);
+	}
 
     @Override
     public SonDTO addSon(String parentId, RegisterSonDTO registerSonDTO) {
@@ -156,6 +164,16 @@ public class ParentsServiceImpl implements IParentsService {
 	@Override
 	public void unlockAccount(String id) {
 		parentRepository.unlockAccount(new ObjectId(id));
+	}
+	
+	@Override
+	public ParentDTO getParentByFbId(String fbId) {
+		return parentEntityMapper.parentEntityToParentDTO(parentRepository.findByFbId(fbId));
+	}
+	
+	@Override
+	public void updateFbAccessToken(String fbId, String fbAccessToken) {
+		parentRepository.setFbAccessTokenByFbId(fbAccessToken, fbId);
 	}
 	
 	@PostConstruct

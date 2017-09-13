@@ -12,6 +12,12 @@ public final class ParentEntity extends UserSystemEntity {
 	
 	@Field("telephone")
 	private String telephone;
+	
+	@Field("fb_access_token")
+	private String fbAccessToken;
+	
+	@Field("fb_id")
+	private String fbId;
 
     public ParentEntity() {
     }
@@ -19,10 +25,12 @@ public final class ParentEntity extends UserSystemEntity {
     @PersistenceConstructor
     public ParentEntity(String firstName, String lastName, Date birthdate, String email, String password,
 			String passwordRequestedAt, Boolean active, Boolean locked, Date lastLoginAccess, String confirmationToken,
-			AuthorityEntity authority, String telephone) {
+			AuthorityEntity authority, String telephone, String fbAccessToken, String fbId) {
 		super(firstName, lastName, birthdate, email, password, passwordRequestedAt, active, locked, lastLoginAccess,
 				confirmationToken, authority);
 		this.telephone = telephone;
+		this.fbAccessToken = fbAccessToken;
+		this.fbId = fbId;
 	}
     
     
@@ -37,5 +45,21 @@ public final class ParentEntity extends UserSystemEntity {
 
 	public void setTelephone(String telephone) {
 		this.telephone = telephone;
+	}
+
+	public String getFbAccessToken() {
+		return fbAccessToken;
+	}
+
+	public void setFbAccessToken(String fbAccessToken) {
+		this.fbAccessToken = fbAccessToken;
+	}
+
+	public String getFbId() {
+		return fbId;
+	}
+
+	public void setFbId(String fbId) {
+		this.fbId = fbId;
 	}
 }
