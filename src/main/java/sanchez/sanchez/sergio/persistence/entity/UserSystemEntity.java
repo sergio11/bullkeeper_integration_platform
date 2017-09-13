@@ -1,5 +1,4 @@
 
-
 package sanchez.sanchez.sergio.persistence.entity;
 
 import java.util.Date;
@@ -9,7 +8,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 /**
- *
  * @author sergio
  */
 @Document(collection = UserSystemEntity.COLLECTION_NAME)
@@ -35,6 +33,9 @@ public class UserSystemEntity extends PersonEntity {
     @Field("last_login_access")
     protected Date lastLoginAccess;
     
+    @Field("pending_deletion")
+    protected Boolean pendingDeletion = Boolean.FALSE;
+    
     /* Random string sent to the user email address in order to verify it */
     @Field("confirmation_token")
     protected String confirmationToken;
@@ -48,7 +49,7 @@ public class UserSystemEntity extends PersonEntity {
     @PersistenceConstructor
     public UserSystemEntity(String firstName, String lastName, Date birthdate, String email, String password,
 			String passwordRequestedAt, Boolean active, Boolean locked, Date lastLoginAccess, String confirmationToken,
-			AuthorityEntity authority) {
+			AuthorityEntity authority, Boolean pendingDeletion) {
 		super(firstName, lastName, birthdate);
 		this.email = email;
 		this.password = password;
@@ -58,6 +59,7 @@ public class UserSystemEntity extends PersonEntity {
 		this.lastLoginAccess = lastLoginAccess;
 		this.confirmationToken = confirmationToken;
 		this.authority = authority;
+		this.pendingDeletion = pendingDeletion;
 	}
     
     public UserSystemEntity(String firstName, String lastName, Date birthdate, String email, String password, AuthorityEntity authority) {
@@ -67,8 +69,6 @@ public class UserSystemEntity extends PersonEntity {
         this.authority = authority;
     }
 
-    
-	
 
 	public String getEmail() {
         return email;
@@ -134,8 +134,15 @@ public class UserSystemEntity extends PersonEntity {
         this.confirmationToken = confirmationToken;
     }
     
+    public Boolean isPendingDeletion() {
+		return pendingDeletion;
+	}
 
-    @Override
+	public void setPendingDeletion(Boolean pendingDeletion) {
+		this.pendingDeletion = pendingDeletion;
+	}
+
+	@Override
     public String toString() {
         return "UserSystemEntity [email=" + email + ", password=" + password + ", locked=" + locked + ", authority="
                 + authority + "]";

@@ -11,5 +11,6 @@ public interface IMailClient {
     void sendMailForConfirmPasswordChange(String email, String firstname, String lastname);
     void sendMailForConfirmAccountActivation(String email, String firstname, String lastname);
     void sendMailForConfirmRegistrationViaFacebook(String email, String firstname, String lastname);
+    void sendMailForCompleteAccountDeletionProcess(String email, String firstname, String lastname, String confirmationToken);
     
 }

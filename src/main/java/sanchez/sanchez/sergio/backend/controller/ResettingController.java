@@ -54,8 +54,7 @@ public class ResettingController extends BaseController {
 					messageSourceResolver.resolver("resetting.token.invalid", new Object[] { token }));
 			return "redirect:/backend/accounts/resetting/invalid-token";
 		}
-		
-
+	
 		if(!model.containsAttribute(BINDING_RESULT_NAME)) {
             model.addAttribute(ATTRIBUTE_NAME, new UpdatePasswordDTO());
         }

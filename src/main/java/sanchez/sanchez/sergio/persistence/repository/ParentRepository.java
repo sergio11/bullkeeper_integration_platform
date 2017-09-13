@@ -18,4 +18,5 @@ public interface ParentRepository extends MongoRepository<ParentEntity, ObjectId
 	Long countByEmail(String email);
 	Long countByConfirmationToken(String confirmationToken);
 	ParentEntity findByFbId(String fbId);
+	Long deleteByConfirmationToken(String confirmationToken);
 }

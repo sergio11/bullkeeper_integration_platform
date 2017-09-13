@@ -3,18 +3,19 @@
     xmlns:th="http://www.thymeleaf.org"
     xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
 	<head>
-		<title>Account Activate</title>
+		<title>Invalid Token</title>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta content="Admin Dashboard" name="description" />
 		<meta content="Spring MVC Spring Integration Thymeleaf" name="keywords" />
 		<meta content="sergio" name="author" />
-		<th:block th:replace="fragments/common::common-styles" />
 	</head>
 <body>
 	<div class="wrapper">
-		<div class="alert alert-danger">
-			<p th:text="#{accounts.activate.failed}">Confirmation Token Invalid</p>
+		<div class="alert alert-info">
+			<p th:text="#{accounts.delete.text(${firstname}, ${lastname})}">Confirm Delete!</p>
+			<a th:href="${deleteUrl}" target="_blank" th:text="#{accounts.delete.link}">Link Delete</a>
+			<a th:href="${cancelUrl}" target="_blank" th:text="#{accounts.delete.cancel.link}">Cancel Delete</a>
 		</div>
 	</div>
 </body>

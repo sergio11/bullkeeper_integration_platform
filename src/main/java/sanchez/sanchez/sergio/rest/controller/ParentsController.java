@@ -38,6 +38,7 @@ import sanchez.sanchez.sergio.dto.response.ParentDTO;
 import sanchez.sanchez.sergio.dto.response.PasswordResetTokenDTO;
 import sanchez.sanchez.sergio.dto.response.SonDTO;
 import sanchez.sanchez.sergio.dto.response.ValidationErrorDTO;
+import sanchez.sanchez.sergio.events.AccountDeletionRequestEvent;
 import sanchez.sanchez.sergio.events.ParentRegistrationByFacebookSuccessEvent;
 import sanchez.sanchez.sergio.events.ParentRegistrationSuccessEvent;
 import sanchez.sanchez.sergio.events.PasswordResetEvent;
@@ -60,6 +61,7 @@ import sanchez.sanchez.sergio.service.IAuthenticationService;
 import sanchez.sanchez.sergio.service.IFacebookService;
 import sanchez.sanchez.sergio.service.IParentsService;
 import sanchez.sanchez.sergio.service.IPasswordResetTokenService;
+import sanchez.sanchez.sergio.service.ITokenGeneratorService;
 import springfox.documentation.annotations.ApiIgnore;
 
 @RestController("RestParentsController")
@@ -74,13 +76,15 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     private final IPasswordResetTokenService passwordResetTokenService;
     private final IAuthenticationService authenticationService;
     private final IFacebookService facebookService;
+    private final ITokenGeneratorService tokenGeneratorService;
  
     public ParentsController(IParentsService parentsService, IPasswordResetTokenService passwordResetTokenService, 
-    		IAuthenticationService authenticationService, IFacebookService facebookService) {
+    		IAuthenticationService authenticationService, IFacebookService facebookService, ITokenGeneratorService tokenGeneratorService) {
         this.parentsService = parentsService;
         this.passwordResetTokenService = passwordResetTokenService;
         this.authenticationService = authenticationService;
         this.facebookService = facebookService;
+        this.tokenGeneratorService = tokenGeneratorService;
     }
     
     @RequestMapping(value = {"/", "/all"}, method = RequestMethod.GET)
@@ -339,6 +343,26 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
         
         return ApiHelper.<ParentDTO>createAndSendResponse(ParentResponseCode.SELF_PARENT_UPDATED_SUCCESSFULLY, 
         				HttpStatus.OK, addLinksToParent(parentDTO));
+    }
+    
+    
+    @RequestMapping(value = "/self/delete",  method = RequestMethod.DELETE)
+    @OnlyAccessForParent
+    @ApiOperation(value = "DELETE_SELF_PARENT", nickname = "DELETE_SELF_PARENT", notes="Request deletion of the father's account")
+    public ResponseEntity<APIResponse<String>> deleteSelfParent(
+    		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
+    	
+    	logger.debug("Delete Parent");
+    	
+    	String confirmationToken = tokenGeneratorService.generateToken(selfParent.getFirstName());
+    	
+    	parentsService.startAccountDeletionProcess(selfParent.getUserId(), confirmationToken);
+    	
+    	//notify event
+    	applicationEventPublisher.publishEvent(new AccountDeletionRequestEvent(selfParent.getUserId().toString(), confirmationToken, this));
+    	
+        return ApiHelper.<String>createAndSendResponse(ParentResponseCode.SUCCESSFUL_ACCOUNT_DELETION_REQUEST, 
+        				HttpStatus.OK, messageSourceResolver.resolver("parents.delete.pending"));
     }
     
     

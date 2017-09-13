@@ -33,4 +33,7 @@ public interface IParentsService {
     void unlockAccount(String id);
     ParentDTO getParentByFbId(String fbId);
     void updateFbAccessToken(String fbId, String fbAccessToken);
+    void cancelAccountDeletionProcess(String confirmationToken);
+    void startAccountDeletionProcess(ObjectId id, String confirmationToken);
+    Long deleteAccount(String confirmationToken);
 }

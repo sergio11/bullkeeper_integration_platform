@@ -176,6 +176,23 @@ public class ParentsServiceImpl implements IParentsService {
 		parentRepository.setFbAccessTokenByFbId(fbAccessToken, fbId);
 	}
 	
+	
+	@Override
+	public Long deleteAccount(String confirmationToken) {
+		return parentRepository.deleteByConfirmationToken(confirmationToken);
+	}
+	
+	@Override
+	public void cancelAccountDeletionProcess(String confirmationToken) {
+		parentRepository.setPendingDeletionAsFalseAndDeleteConfirmationToken(confirmationToken);
+		
+	}
+
+	@Override
+	public void startAccountDeletionProcess(ObjectId id, String confirmationToken) {
+		parentRepository.setPendingDeletionAsTrueAndConfirmationTokenById(id, confirmationToken);
+	}
+	
 	@PostConstruct
 	protected void init(){
 		Assert.notNull(parentRepository, "Parent Repository can not be null");
@@ -185,4 +202,6 @@ public class ParentsServiceImpl implements IParentsService {
 		Assert.notNull(passwordEncoder, "Password Encoder can not be null");
 		
 	}
+
+	
 }

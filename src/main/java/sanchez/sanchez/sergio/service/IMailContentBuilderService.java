@@ -10,4 +10,5 @@ public interface IMailContentBuilderService {
     String buildConfirmPasswordChangeTemplate(String firstname, String lastname);
     String buildConfirmAccountActivationTemplate(String firstname, String lastname);
     String buildConfirmRegistrationViaFacebookTemplate(String firstname, String lastname);
+    String buildCompleteAccountDeletionProcessTemplate(String firstname, String lastname, String confirmationToken);
 }

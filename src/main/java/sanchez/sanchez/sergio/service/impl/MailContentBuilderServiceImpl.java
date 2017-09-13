@@ -86,10 +86,23 @@ public class MailContentBuilderServiceImpl implements IMailContentBuilderService
         return templateEngine.process(mailContentProperties.getConfirmRegistrationViaFacebookTemplate(), context);
 	}
 	
+	@Override
+	public String buildCompleteAccountDeletionProcessTemplate(String firstname, String lastname, String confirmationToken) {
+		Assert.notNull(mailContentProperties.getCompleteAccountDeletionProcessTemplate(), "Confirm Registration via Facebook Template can not be null");
+        Assert.hasLength(mailContentProperties.getCompleteAccountDeletionProcessTemplate(), "Confirm Registration via Facebook Template can not be empty");
+        Context context = new Context(LocaleContextHolder.getLocale());
+        context.setVariable("firstname", firstname);
+        context.setVariable("lastname", lastname);
+        context.setVariable("deleteUrl", 
+        		ServletUriComponentsBuilder.fromCurrentContextPath().path("/backend/accounts/delete?token={token}").buildAndExpand(confirmationToken));
+        context.setVariable("cancelUrl", 
+        		ServletUriComponentsBuilder.fromCurrentContextPath().path("/backend/accounts/cancel-delete?token={token}").buildAndExpand(confirmationToken));
+        return templateEngine.process(mailContentProperties.getCompleteAccountDeletionProcessTemplate(), context);
+	}
+	
 	@PostConstruct
 	protected void init(){
 		Assert.notNull(mailContentProperties, "Mail Content Properties can not be null");
 		Assert.notNull(templateEngine, "Template Engine can not be null");
 	}
-
 }

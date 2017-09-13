@@ -109,6 +109,18 @@ public class MailClientImpl implements IMailClient {
         }       
 	}
 	
+	@Override
+	public void sendMailForCompleteAccountDeletionProcess(String email, String firstname, String lastname, String confirmationToken) {
+		logger.debug("Send Mail for Complete Account Deletion Process");
+    	String subject = messageSourceResolver.resolver("mail.complete.account.deletion.process.subject.title", new Object[] { firstname, lastname});
+    	String content = mailContentBuilderService.buildCompleteAccountDeletionProcessTemplate(firstname, lastname, confirmationToken);
+        try {
+        	sendEmail(email, subject, content);
+        } catch (MailException e) {
+            logger.error(e.toString());
+        }
+	}
+	
 	@PostConstruct
 	protected void init(){
 		Assert.notNull(mailContentBuilderService, "Mail Content Builder Service can not be null");
@@ -116,4 +128,5 @@ public class MailClientImpl implements IMailClient {
 		Assert.notNull(messageSourceResolver, "Message Source Resolver can not be null");
 		Assert.notNull(mailProperties, "Mail Properties can not be null");
 	}
+	
 }

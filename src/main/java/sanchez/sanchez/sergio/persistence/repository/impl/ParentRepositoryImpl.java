@@ -81,4 +81,26 @@ public class ParentRepositoryImpl implements ParentRepositoryCustom {
 				new Update().set("fb_access_token", fbAccessToken), ParentEntity.class);
 		
 	}
+	
+	@Override
+	public void setPendingDeletionAsFalseAndDeleteConfirmationToken(String confirmationToken) {
+		Assert.notNull(confirmationToken, "confirmationToken can not be null");
+		Assert.hasLength(confirmationToken, "confirmationToken can not be empty");
+		
+		mongoTemplate.updateFirst(
+				new Query(Criteria.where("confirmation_token").is(confirmationToken)), 
+				new Update().set("pending_deletion", Boolean.FALSE).set("confirmation_token", ""), ParentEntity.class);
+	}
+
+	@Override
+	public void setPendingDeletionAsTrueAndConfirmationTokenById(ObjectId id, String confirmationToken) {
+		Assert.notNull(id, "id can not be null");
+		Assert.notNull(confirmationToken, "confirmationToken can not be null");
+		Assert.hasLength(confirmationToken, "confirmationToken can not be empty");
+		
+		mongoTemplate.updateFirst(
+				new Query(Criteria.where("_id").in(id)), 
+				new Update().set("pending_deletion", Boolean.TRUE).set("confirmation_token", confirmationToken), ParentEntity.class);
+	}
+	
 }
