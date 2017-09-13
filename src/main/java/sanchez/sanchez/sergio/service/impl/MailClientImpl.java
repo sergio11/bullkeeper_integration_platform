@@ -97,6 +97,18 @@ public class MailClientImpl implements IMailClient {
         } 
 	}
 	
+	@Override
+	public void sendMailForConfirmRegistrationViaFacebook(String email, String firstname, String lastname) {
+		logger.debug("Send Mail for Confirm Registration via Facebook");
+    	String subject = messageSourceResolver.resolver("mail.registration.success.subject.title", new Object[] { firstname, lastname});
+    	String content = mailContentBuilderService.buildConfirmRegistrationViaFacebookTemplate(firstname, lastname);
+        try {
+        	sendEmail(email, subject, content);
+        } catch (MailException e) {
+            logger.error(e.toString());
+        }       
+	}
+	
 	@PostConstruct
 	protected void init(){
 		Assert.notNull(mailContentBuilderService, "Mail Content Builder Service can not be null");

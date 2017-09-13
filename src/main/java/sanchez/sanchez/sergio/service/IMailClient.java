@@ -10,5 +10,6 @@ public interface IMailClient {
     void sendMailForResetPassword(String id, String email, String firstname, String lastname, String token);
     void sendMailForConfirmPasswordChange(String email, String firstname, String lastname);
     void sendMailForConfirmAccountActivation(String email, String firstname, String lastname);
+    void sendMailForConfirmRegistrationViaFacebook(String email, String firstname, String lastname);
     
 }

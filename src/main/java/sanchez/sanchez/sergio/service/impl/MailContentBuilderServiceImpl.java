@@ -76,10 +76,20 @@ public class MailContentBuilderServiceImpl implements IMailContentBuilderService
         return templateEngine.process(mailContentProperties.getConfirmAccountActivationTemplate(), context);
 	}
 	
+	@Override
+	public String buildConfirmRegistrationViaFacebookTemplate(String firstname, String lastname) {
+		Assert.notNull(mailContentProperties.getConfirmRegistrationViaFacebookTemplate(), "Confirm Registration via Facebook Template can not be null");
+        Assert.hasLength(mailContentProperties.getConfirmRegistrationViaFacebookTemplate(), "Confirm Registration via Facebook Template can not be empty");
+        Context context = new Context(LocaleContextHolder.getLocale());
+        context.setVariable("firstname", firstname);
+        context.setVariable("lastname", lastname);
+        return templateEngine.process(mailContentProperties.getConfirmRegistrationViaFacebookTemplate(), context);
+	}
+	
 	@PostConstruct
 	protected void init(){
 		Assert.notNull(mailContentProperties, "Mail Content Properties can not be null");
 		Assert.notNull(templateEngine, "Template Engine can not be null");
 	}
-    
+
 }

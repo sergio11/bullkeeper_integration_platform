@@ -38,6 +38,7 @@ import sanchez.sanchez.sergio.dto.response.ParentDTO;
 import sanchez.sanchez.sergio.dto.response.PasswordResetTokenDTO;
 import sanchez.sanchez.sergio.dto.response.SonDTO;
 import sanchez.sanchez.sergio.dto.response.ValidationErrorDTO;
+import sanchez.sanchez.sergio.events.ParentRegistrationByFacebookSuccessEvent;
 import sanchez.sanchez.sergio.events.ParentRegistrationSuccessEvent;
 import sanchez.sanchez.sergio.events.PasswordResetEvent;
 import sanchez.sanchez.sergio.persistence.constraints.ParentShouldExists;
@@ -137,6 +138,8 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     				RegisterParentByFacebookDTO registerParent = facebookService.getRegistrationInformationForTheParent(facebookInfo.getToken());
     				logger.debug(registerParent.toString());
     				ParentDTO parent = parentsService.save(registerParent);
+    				// notify event
+    				applicationEventPublisher.publishEvent(new ParentRegistrationByFacebookSuccessEvent(parent.getIdentity(), this));
     				return authenticationService.createAuthenticationTokenForParent(parent.getEmail(), parent.getFbId(), device);
     			});
     	
