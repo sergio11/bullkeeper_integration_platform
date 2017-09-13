@@ -134,13 +134,7 @@ public class FacebookServiceImpl implements IFacebookService {
         return comments;
     }
    
-    @PostConstruct
-    protected void init() {
-        Assert.notNull(appKey, "The app key can not be null");
-        Assert.notNull(appSecret, "The app secret can not be null");
-        Assert.notNull(facebookCommentMapper, "The Facebook Comment Mapper can not be null");
-        Assert.notNull(messageSourceResolver, "The Message Source Resolver can not be null");
-    }
+ 
 
 	@Override
 	public RegisterParentByFacebookDTO getRegistrationInformationForTheParent(String accessToken) {
@@ -153,7 +147,7 @@ public class FacebookServiceImpl implements IFacebookService {
 		try {
 			FacebookClient facebookClient = new DefaultFacebookClient(accessToken, Version.VERSION_2_8);
 			// Get Information about access token owner
-            User user = facebookClient.fetchObject("me", User.class);
+            User user = facebookClient.fetchObject("me", User.class, Parameter.with("fields", "email, name, first_name, last_name, birthday, locale"));
             registerParent = userFacebookMapper.userFacebookToRegisterParentByFacebookDTO(user);
             registerParent.setFbAccessToken(accessToken);
 		} catch (FacebookOAuthException e) { 
@@ -163,4 +157,12 @@ public class FacebookServiceImpl implements IFacebookService {
 		return registerParent;
 		
 	}
+	
+	@PostConstruct
+    protected void init() {
+        Assert.notNull(appKey, "The app key can not be null");
+        Assert.notNull(appSecret, "The app secret can not be null");
+        Assert.notNull(facebookCommentMapper, "The Facebook Comment Mapper can not be null");
+        Assert.notNull(messageSourceResolver, "The Message Source Resolver can not be null");
+    }
 }

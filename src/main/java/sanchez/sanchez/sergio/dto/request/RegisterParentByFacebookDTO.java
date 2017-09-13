@@ -34,4 +34,14 @@ public class RegisterParentByFacebookDTO extends RegisterParentDTO {
 	public void setFbId(String fbId) {
 		this.fbId = fbId;
 	}
+
+	@Override
+	public String toString() {
+		return "RegisterParentByFacebookDTO [fbAccessToken=" + fbAccessToken + ", fbId=" + fbId + ", firstName="
+				+ firstName + ", lastName=" + lastName + ", birthdate=" + birthdate + ", email=" + email
+				+ ", passwordClear=" + passwordClear + ", confirmPassword=" + confirmPassword + ", telephone="
+				+ telephone + "]";
+	}
+	
+	
 }
