@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import sanchez.sanchez.sergio.rest.ApiHelper;
 import sanchez.sanchez.sergio.rest.controller.BaseController;
 import sanchez.sanchez.sergio.rest.exception.GetInformationFromFacebookException;
+import sanchez.sanchez.sergio.rest.exception.InvalidFacebookIdException;
 import sanchez.sanchez.sergio.rest.exception.NoChildrenFoundForParentException;
 import sanchez.sanchez.sergio.rest.exception.NoChildrenFoundForSelfParentException;
 import sanchez.sanchez.sergio.rest.exception.NoParentsFoundException;
@@ -84,7 +85,12 @@ public class ParentErrorController extends BaseController{
     			messageSourceResolver.resolver("parent.get.information.from.facebook.failed"));
     }
     
-    
+    @ExceptionHandler(InvalidFacebookIdException.class)
+    @ResponseBody
+    protected ResponseEntity<APIResponse<String>> handleInvalidFacebookIdException(InvalidFacebookIdException invalidFacebookIdException, HttpServletRequest request) {
+    	return ApiHelper.<String>createAndSendErrorResponse(ParentResponseCode.INVALID_FACEBOOK_ID, HttpStatus.BAD_REQUEST,
+    			messageSourceResolver.resolver("parent.invalid.facebook.id"));
+    }
     
     @PostConstruct
     protected void init(){

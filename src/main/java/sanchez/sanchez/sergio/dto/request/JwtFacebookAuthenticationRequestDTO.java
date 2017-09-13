@@ -1,10 +1,11 @@
 package sanchez.sanchez.sergio.dto.request;
 
-import javax.validation.constraints.NotNull;
-
 import org.hibernate.validator.constraints.NotBlank;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import sanchez.sanchez.sergio.persistence.constraints.FacebookInfoShouldValid;
+
+@FacebookInfoShouldValid(fbId = "id", fbAccessToken = "token", message = "{user.facebook.info.invalid}")
 public final class JwtFacebookAuthenticationRequestDTO {
 
 	@NotBlank(message = "{user.fbid.notnull}")

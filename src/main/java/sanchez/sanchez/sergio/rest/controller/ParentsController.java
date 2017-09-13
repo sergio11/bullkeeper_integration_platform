@@ -139,7 +139,8 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     				return authenticationService.createAuthenticationTokenForParent(parent.getEmail(), parent.getFbId(), device);
     			})
     			.orElseGet(() -> {
-    				RegisterParentByFacebookDTO registerParent = facebookService.getRegistrationInformationForTheParent(facebookInfo.getToken());
+    				RegisterParentByFacebookDTO registerParent = 
+    						facebookService.getRegistrationInformationForTheParent(facebookInfo.getId(), facebookInfo.getToken());
     				logger.debug(registerParent.toString());
     				ParentDTO parent = parentsService.save(registerParent);
     				// notify event

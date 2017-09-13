@@ -33,6 +33,7 @@ import sanchez.sanchez.sergio.persistence.entity.CommentEntity;
 import sanchez.sanchez.sergio.persistence.entity.SocialMediaTypeEnum;
 import sanchez.sanchez.sergio.persistence.entity.SonEntity;
 import sanchez.sanchez.sergio.rest.exception.GetInformationFromFacebookException;
+import sanchez.sanchez.sergio.rest.exception.InvalidFacebookIdException;
 import sanchez.sanchez.sergio.service.IFacebookService;
 import sanchez.sanchez.sergio.service.IMessageSourceResolver;
 import sanchez.sanchez.sergio.util.StreamUtils;
@@ -137,7 +138,7 @@ public class FacebookServiceImpl implements IFacebookService {
  
 
 	@Override
-	public RegisterParentByFacebookDTO getRegistrationInformationForTheParent(String accessToken) {
+	public RegisterParentByFacebookDTO getRegistrationInformationForTheParent(String fbId, String accessToken) {
 		
 		Assert.notNull(accessToken, "Token can not be null");
 		Assert.hasLength(accessToken, "Token can not be empty");
@@ -148,6 +149,8 @@ public class FacebookServiceImpl implements IFacebookService {
 			FacebookClient facebookClient = new DefaultFacebookClient(accessToken, Version.VERSION_2_8);
 			// Get Information about access token owner
             User user = facebookClient.fetchObject("me", User.class, Parameter.with("fields", "email, name, first_name, last_name, birthday, locale"));
+            if(!user.getId().equals(fbId))
+            	throw new InvalidFacebookIdException();
             registerParent = userFacebookMapper.userFacebookToRegisterParentByFacebookDTO(user);
             registerParent.setFbAccessToken(accessToken);
 		} catch (FacebookOAuthException e) { 
