@@ -102,5 +102,11 @@ public class ParentRepositoryImpl implements ParentRepositoryCustom {
 				new Query(Criteria.where("_id").in(id)), 
 				new Update().set("pending_deletion", Boolean.TRUE).set("confirmation_token", confirmationToken), ParentEntity.class);
 	}
+
+	@Override
+	public void setPendingDeletionAsFalseAndDeleteConfirmationToken() {
+		mongoTemplate.updateMulti(new Query(Criteria.where("pending_deletion").is(Boolean.TRUE)), 
+				new Update().set("pending_deletion", Boolean.FALSE).set("confirmation_token", ""), ParentEntity.class);
+	}
 	
 }

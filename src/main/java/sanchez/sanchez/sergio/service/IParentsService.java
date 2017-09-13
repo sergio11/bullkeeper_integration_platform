@@ -36,4 +36,6 @@ public interface IParentsService {
     void cancelAccountDeletionProcess(String confirmationToken);
     void startAccountDeletionProcess(ObjectId id, String confirmationToken);
     Long deleteAccount(String confirmationToken);
+    Long deleteUnactivatedAccounts();
+    void cancelAllAccountDeletionProcess();
 }

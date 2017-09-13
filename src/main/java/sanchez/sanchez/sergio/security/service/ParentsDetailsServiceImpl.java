@@ -40,12 +40,12 @@ public class ParentsDetailsServiceImpl implements UserDetailsService {
 		
 		return Optional.ofNullable(parentRepository.findOneByEmail(email))
         	.map(parentEntity -> {
+        
+        		logger.debug(parentEntity.toString());
+        		
         		Set<SimpleGrantedAuthority> grantedAuthorities = new HashSet<SimpleGrantedAuthority>();
-            	
             	grantedAuthorities.add(new SimpleGrantedAuthority(parentEntity.getAuthority().getAuthority()));
             	
-            	logger.debug(parentEntity.getFirstName() + " is enabled -> " + parentEntity.isActive());
-            
                 return new UserDetailsImpl<ObjectId>(parentEntity.getId(), parentEntity.getEmail(),
                 		parentEntity.getPassword(), parentEntity.getFirstName(), parentEntity.getLastName(), parentEntity.isLocked(),
                 		parentEntity.isActive(), grantedAuthorities);

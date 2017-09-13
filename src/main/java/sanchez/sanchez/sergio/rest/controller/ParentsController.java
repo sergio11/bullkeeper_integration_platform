@@ -358,6 +358,7 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
     	
     	logger.debug("Delete Parent");
+    	logger.debug(selfParent.toString());
     	
     	String confirmationToken = tokenGeneratorService.generateToken(selfParent.getFirstName());
     	

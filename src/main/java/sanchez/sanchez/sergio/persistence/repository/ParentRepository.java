@@ -13,10 +13,11 @@ import sanchez.sanchez.sergio.persistence.entity.UserSystemEntity;
  */
 @Repository
 public interface ParentRepository extends MongoRepository<ParentEntity, ObjectId>, ParentRepositoryCustom{
-	UserSystemEntity findOneByEmail(String email);
+	ParentEntity findOneByEmail(String email);
 	ParentEntity findByConfirmationToken(String confirmationToken);
 	Long countByEmail(String email);
 	Long countByConfirmationToken(String confirmationToken);
 	ParentEntity findByFbId(String fbId);
 	Long deleteByConfirmationToken(String confirmationToken);
+	Long deleteByActiveFalse();
 }

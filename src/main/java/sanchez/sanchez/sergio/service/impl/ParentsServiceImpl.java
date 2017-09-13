@@ -2,7 +2,6 @@ package sanchez.sanchez.sergio.service.impl;
 
 
 import javax.annotation.PostConstruct;
-
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
@@ -11,7 +10,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import io.jsonwebtoken.lang.Assert;
 import sanchez.sanchez.sergio.dto.request.RegisterParentByFacebookDTO;
 import sanchez.sanchez.sergio.dto.request.RegisterParentDTO;
@@ -193,6 +191,16 @@ public class ParentsServiceImpl implements IParentsService {
 		parentRepository.setPendingDeletionAsTrueAndConfirmationTokenById(id, confirmationToken);
 	}
 	
+	@Override
+	public Long deleteUnactivatedAccounts() {
+		return parentRepository.deleteByActiveFalse();
+	}
+	
+	@Override
+	public void cancelAllAccountDeletionProcess() {
+		parentRepository.setPendingDeletionAsFalseAndDeleteConfirmationToken();
+	}
+	
 	@PostConstruct
 	protected void init(){
 		Assert.notNull(parentRepository, "Parent Repository can not be null");
@@ -200,8 +208,5 @@ public class ParentsServiceImpl implements IParentsService {
 		Assert.notNull(sonEntityMapper, "Son Entity Mapper can not be null");
 		Assert.notNull(sonRepository, "Son Repository can not be null");
 		Assert.notNull(passwordEncoder, "Password Encoder can not be null");
-		
 	}
-
-	
 }

@@ -16,13 +16,14 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import io.jsonwebtoken.lang.Assert;
 import sanchez.sanchez.sergio.batch.config.BatchConfiguration;
+import sanchez.sanchez.sergio.service.IParentsService;
 import sanchez.sanchez.sergio.service.IPasswordResetTokenService;
 
 @Configuration
 @EnableScheduling
 public class ScheduledTasks {
 	
-    private static final Logger log = LoggerFactory.getLogger(ScheduledTasks.class);
+    private static final Logger logger = LoggerFactory.getLogger(ScheduledTasks.class);
 	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 	
 	@Autowired
@@ -35,27 +36,44 @@ public class ScheduledTasks {
 	@Autowired
 	private IPasswordResetTokenService passwordResetTokenService;
 	
+	@Autowired
+	private IParentsService parentService;
+	
 	
 	@Scheduled(
 		initialDelayString = "${job.notification.scheduling.initial.delay}",
 		fixedRateString = "${job.notification.scheduling.fixed.rate}"
 	)
     public void scheduleNotificationJob() {
-        log.debug("Notification Job start at  {}", dateFormat.format(new Date()));
+        logger.debug("Notification Job start at  {}", dateFormat.format(new Date()));
         JobExecution execution = null;
         try {
             execution = jobLauncher.run(notificationJob, new JobParameters());	
     	} catch (Exception e) {
-    		log.error(e.toString());
+    		logger.error(e.toString());
     	} finally {
     		if(execution != null)
-    			log.debug("Notification Job Finish with Status -> " + execution.getStatus());
+    			logger.debug("Notification Job Finish with Status -> " + execution.getStatus());
     	}
     }
 	
 	@Scheduled(cron = "15 10 * * * ?")
 	public void deleteExpiredPasswordTokens(){
+		logger.debug("Delete Expired Tokens ...");
 		passwordResetTokenService.deleteExpiredTokens();
+	}
+	
+	@Scheduled(cron = "15 10 * * * ?")
+	public void deleteUnactivatedAccounts(){
+		logger.debug("Delete Unactivated Accounts ...");
+		Long total = parentService.deleteUnactivatedAccounts();
+		logger.debug( total + " inactive accounts deleted");
+	}
+	
+	@Scheduled(cron = "15 20 * * * ?")
+	public void cancelAccountDeletionProcess(){
+		logger.debug("Cancel Account Deletion Proccess ...");
+		parentService.cancelAllAccountDeletionProcess();
 	}
 	
 	@PostConstruct

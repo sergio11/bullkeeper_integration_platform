@@ -8,8 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-
-import sanchez.sanchez.sergio.security.service.ParentsDetailsServiceImpl;
 import sanchez.sanchez.sergio.security.userdetails.CommonUserDetailsAware;
 
 public class UserDetailsImpl<T> implements CommonUserDetailsAware<T> {
@@ -140,4 +138,12 @@ public class UserDetailsImpl<T> implements CommonUserDetailsAware<T> {
 	public Date getLastPasswordResetDate() {
 		return lastPasswordResetDate;
 	}
+
+	@Override
+	public String toString() {
+		return "UserDetailsImpl [id=" + id + ", email=" + email + ", password=" + password + ", firstName=" + firstName
+				+ ", lastName=" + lastName + ", locked=" + locked + ", grantedAuthorities=" + grantedAuthorities
+				+ ", lastPasswordResetDate=" + lastPasswordResetDate + ", active=" + active + "]";
+	}
+	
 }

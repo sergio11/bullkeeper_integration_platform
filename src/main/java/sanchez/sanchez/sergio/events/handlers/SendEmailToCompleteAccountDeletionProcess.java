@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 import sanchez.sanchez.sergio.events.AccountDeletionRequestEvent;
 import sanchez.sanchez.sergio.service.IMailClient;
 import sanchez.sanchez.sergio.service.IParentsService;
-import sanchez.sanchez.sergio.service.ITokenGeneratorService;
 
 @Component
 public class SendEmailToCompleteAccountDeletionProcess  implements ApplicationListener<AccountDeletionRequestEvent>{
@@ -21,8 +20,7 @@ public class SendEmailToCompleteAccountDeletionProcess  implements ApplicationLi
     private final IMailClient mailClient;
     private final IParentsService parentService;
 
-    public SendEmailToCompleteAccountDeletionProcess(IMailClient mailClient, IParentsService parentService,
-    		ITokenGeneratorService tokenGeneratorService) {
+    public SendEmailToCompleteAccountDeletionProcess(IMailClient mailClient, IParentsService parentService) {
         this.mailClient = mailClient;
         this.parentService = parentService;
     }

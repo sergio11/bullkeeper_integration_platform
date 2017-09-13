@@ -65,4 +65,16 @@ public final class ParentEntity extends UserSystemEntity {
 	public void setFbId(String fbId) {
 		this.fbId = fbId;
 	}
+
+	@Override
+	public String toString() {
+		return "ParentEntity [telephone=" + telephone + ", fbAccessToken=" + fbAccessToken + ", fbId=" + fbId
+				+ ", email=" + email + ", password=" + password + ", passwordRequestedAt=" + passwordRequestedAt
+				+ ", active=" + active + ", locked=" + locked + ", lastLoginAccess=" + lastLoginAccess
+				+ ", pendingDeletion=" + pendingDeletion + ", locale=" + locale + ", confirmationToken="
+				+ confirmationToken + ", authority=" + authority + ", id=" + id + ", firstName=" + firstName
+				+ ", lastName=" + lastName + ", birthdate=" + birthdate + "]";
+	}
+	
+	
 }
