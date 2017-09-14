@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>sanchez.sanchez.sergio</groupId>
     <artifactId>bullytect-integration-platform</artifactId>
-    <version>0.0.10-SNAPSHOT</version>
+    <version>0.0.11-SNAPSHOT</version>
     <packaging>${packaging.type}</packaging>
     <name>BullyTect Integration Platform</name>
     <description>BullyTect Integration Platform. EIPs patterns with Spring Integration.</description>
@@ -45,7 +45,7 @@
 			<properties>
 				<packaging.type>war</packaging.type>
         		<activatedProperties>prod</activatedProperties>
-        		<start-class>sanchez.sanchez.sergio.BullyTectIntegrationPlatformProductionApplication</start-class>
+        		<start-class>es.bisite.usal.bullytect.BullyTectIntegrationPlatformProductionApplication</start-class>
         		<!-- asciidoctor -->
 		        <asciidoctor.input.directory>${project.basedir}/src/docs/asciidoc</asciidoctor.input.directory>
 		        <asciidoctor.html.output.directory>${project.build.directory}/asciidoc/html</asciidoctor.html.output.directory>
@@ -91,7 +91,7 @@
 		                    <apiSources>
 		                        <apiSource>
 		                            <springmvc>true</springmvc>
-		                            <locations>sanchez.sanchez.sergio.rest.controller</locations>
+		                            <locations>es.bisite.usal.bullytect.rest.controller</locations>
 		                            <schemes>http,https</schemes>
 		                            <host>bullytect-integration-platform</host>
 		                            <basePath>/api</basePath>
@@ -280,7 +280,7 @@
 			<properties>
 				<packaging.type>jar</packaging.type>
 				<activatedProperties>dev</activatedProperties>
-				<start-class>sanchez.sanchez.sergio.BullyTectIntegrationPlatformDevelopmentApplication</start-class>
+				<start-class>es.bisite.usal.bullytect.BullyTectIntegrationPlatformDevelopmentApplication</start-class>
 			</properties>
 			<dependencies>
 				<dependency>
