@@ -204,3 +204,11 @@ Press q to exit. Now that we've manually started the daemon and verified that it
 
 ```sudo systemctl enable mongod```
 
+
+Encrypt data with Jasypt.
+
+```
+	java -cp ~/.m2/repository/org/jasypt/jasypt/1.9.2/jasypt-1.9.2.jar org.jasypt.intf.cli.JasyptPBEStringEncryptionCLI input="PASSWORD" password=bisite00 algorithm=PBEWithMD5AndDES
+	
+```
+
