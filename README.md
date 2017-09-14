@@ -1,5 +1,5 @@
-# spring-integration-sample
-A Spring Integration Sample Applying EIPs
+# BullyTect Integration Platform
+BullyTect Integration Platform. EIPs patterns with Spring Integration
 
 ## Deployment Guide
 
