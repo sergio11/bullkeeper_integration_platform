@@ -7,7 +7,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,8 +36,11 @@ public class CustomLoginSuccessHandler extends SavedRequestAwareAuthenticationSu
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) 
     		throws ServletException, IOException {
-        this.setDefaultTargetUrl(defaultSuccessUrl);
-        logger.debug("LOGIN SUCCESS REDIRECT TO -> " + defaultSuccessUrl);
+    	
+    	String absoluteDefaultSuccessUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
+    			.path(defaultSuccessUrl).build().toUriString();
+        this.setDefaultTargetUrl(absoluteDefaultSuccessUrl);
+        logger.debug("LOGIN SUCCESS REDIRECT TO -> " + absoluteDefaultSuccessUrl);
         CommonUserDetailsAware<ObjectId> userDetails = authorizationService.getUserDetails();
         userSystemRepository.updateLastLoginAccess(userDetails.getUserId(), new Date());
         HttpSession session = request.getSession();

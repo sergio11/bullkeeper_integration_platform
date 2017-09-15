@@ -3,32 +3,17 @@ package es.bisite.usal.bullytect.dto.request;
 import org.hibernate.validator.constraints.NotBlank;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import es.bisite.usal.bullytect.persistence.constraints.FacebookInfoShouldValid;
-
-@FacebookInfoShouldValid(fbId = "id", fbAccessToken = "token", message = "{user.facebook.info.invalid}")
 public final class JwtFacebookAuthenticationRequestDTO {
 
-	@NotBlank(message = "{user.fbid.notnull}")
-	@JsonProperty("id")
-	private String id;
 	@NotBlank(message = "{user.fbAccessToken.notnull}")
 	@JsonProperty("token")
     private String token;
     
     public JwtFacebookAuthenticationRequestDTO(){}
 
-	public JwtFacebookAuthenticationRequestDTO(String id, String token) {
+	public JwtFacebookAuthenticationRequestDTO(String token) {
 		super();
-		this.id = id;
 		this.token = token;
-	}
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
 	}
 
 	public String getToken() {

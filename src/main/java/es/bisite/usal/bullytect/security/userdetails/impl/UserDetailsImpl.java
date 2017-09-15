@@ -30,7 +30,7 @@ public class UserDetailsImpl<T> implements CommonUserDetailsAware<T> {
     public UserDetailsImpl(){}
 
 	public UserDetailsImpl(T id, String email, String password, String firstName, String lastName,
-			Boolean locked, Boolean active, Set<SimpleGrantedAuthority> grantedAuthorities) {
+			Boolean locked, Date lastPasswordResetDate, Boolean active, Set<SimpleGrantedAuthority> grantedAuthorities) {
 		super();
 		this.id = id;
 		this.email = email;
@@ -38,6 +38,7 @@ public class UserDetailsImpl<T> implements CommonUserDetailsAware<T> {
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.locked = locked;
+		this.lastPasswordResetDate = lastPasswordResetDate;
 		this.active = active;
 		this.grantedAuthorities = grantedAuthorities;
 	}

@@ -161,6 +161,25 @@ public class FacebookServiceImpl implements IFacebookService {
 		
 	}
 	
+	@Override
+	public String getFbIdByAccessToken(String accessToken) {
+		Assert.notNull(accessToken, "Token can not be null");
+		Assert.hasLength(accessToken, "Token can not be empty");
+		
+		String fbId = null;
+		
+		try {
+			FacebookClient facebookClient = new DefaultFacebookClient(accessToken, Version.VERSION_2_8);
+			 User user = facebookClient.fetchObject("me", User.class);
+			 fbId = user.getId();
+		} catch (FacebookOAuthException e) { 
+			throw new GetInformationFromFacebookException();
+		}
+		
+		return fbId;
+		
+	}
+	
 	@PostConstruct
     protected void init() {
         Assert.notNull(appKey, "The app key can not be null");
@@ -168,4 +187,6 @@ public class FacebookServiceImpl implements IFacebookService {
         Assert.notNull(facebookCommentMapper, "The Facebook Comment Mapper can not be null");
         Assert.notNull(messageSourceResolver, "The Message Source Resolver can not be null");
     }
+
+	
 }

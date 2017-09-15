@@ -41,6 +41,9 @@ public class UserSystemEntity extends PersonEntity {
     @Field("locale")
     protected Locale locale = Locale.getDefault();
     
+    @Field("last_password_reset_date")
+    protected Date lastPasswordResetDate;
+    
     /* Random string sent to the user email address in order to verify it */
     @Field("confirmation_token")
     protected String confirmationToken;
@@ -53,7 +56,7 @@ public class UserSystemEntity extends PersonEntity {
 
     @PersistenceConstructor
     public UserSystemEntity(String email, String password, String passwordRequestedAt, Boolean active, Boolean locked,
-			Date lastLoginAccess, Boolean pendingDeletion, Locale locale, String confirmationToken,
+			Date lastLoginAccess, Boolean pendingDeletion, Locale locale, Date lastPasswordResetDate, String confirmationToken,
 			AuthorityEntity authority) {
 		super();
 		this.email = email;
@@ -64,6 +67,7 @@ public class UserSystemEntity extends PersonEntity {
 		this.lastLoginAccess = lastLoginAccess;
 		this.pendingDeletion = pendingDeletion;
 		this.locale = locale;
+		this.lastPasswordResetDate = lastPasswordResetDate;
 		this.confirmationToken = confirmationToken;
 		this.authority = authority;
 	}
@@ -153,6 +157,14 @@ public class UserSystemEntity extends PersonEntity {
 
 	public void setLocale(Locale locale) {
 		this.locale = locale;
+	}
+
+	public Date getLastPasswordResetDate() {
+		return lastPasswordResetDate;
+	}
+
+	public void setLastPasswordResetDate(Date lastPasswordResetDate) {
+		this.lastPasswordResetDate = lastPasswordResetDate;
 	}
 
 	@Override

@@ -1,6 +1,7 @@
 package es.bisite.usal.bullytect.persistence.repository.impl;
 
 
+import java.util.Date;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,7 +11,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.Assert;
-
 import es.bisite.usal.bullytect.persistence.entity.ParentEntity;
 import es.bisite.usal.bullytect.persistence.repository.ParentRepositoryCustom;
 
@@ -42,7 +42,7 @@ public class ParentRepositoryImpl implements ParentRepositoryCustom {
         
         mongoTemplate.updateFirst(
                 new Query(Criteria.where("_id").in(id)),
-                new Update().set("password", newPassword), ParentEntity.class);
+                new Update().set("password", newPassword).set("last_password_reset_date", new Date()), ParentEntity.class);
 	}
 
 	@Override

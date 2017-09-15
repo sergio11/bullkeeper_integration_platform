@@ -136,14 +136,16 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
 	public ResponseEntity<APIResponse<JwtAuthenticationResponseDTO>> getParentAuthorizationTokenViaFacebook(
 			@Valid @RequestBody JwtFacebookAuthenticationRequestDTO facebookInfo, Device device) throws Throwable {
     	
-    	JwtAuthenticationResponseDTO jwtResponseDTO =  Optional.ofNullable(parentsService.getParentByFbId(facebookInfo.getId()))
+    	final String fbId = facebookService.getFbIdByAccessToken(facebookInfo.getToken());
+    	
+    	JwtAuthenticationResponseDTO jwtResponseDTO =  Optional.ofNullable(parentsService.getParentByFbId(fbId))
     			.map(parent -> {
-    				parentsService.updateFbAccessToken(facebookInfo.getId(), facebookInfo.getToken());
+    				parentsService.updateFbAccessToken(parent.getFbId(), facebookInfo.getToken());
     				return authenticationService.createAuthenticationTokenForParent(parent.getEmail(), parent.getFbId(), device);
     			})
     			.orElseGet(() -> {
     				RegisterParentByFacebookDTO registerParent = 
-    						facebookService.getRegistrationInformationForTheParent(facebookInfo.getId(), facebookInfo.getToken());
+    						facebookService.getRegistrationInformationForTheParent(fbId, facebookInfo.getToken());
     				logger.debug(registerParent.toString());
     				ParentDTO parent = parentsService.save(registerParent);
     				// notify event

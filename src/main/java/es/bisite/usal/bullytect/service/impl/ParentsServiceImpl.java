@@ -143,7 +143,6 @@ public class ParentsServiceImpl implements IParentsService {
 		Assert.hasLength(token, "Token can not be empty");
 		
 		Boolean isActivated = Boolean.FALSE;
-		
 		Boolean exists = parentRepository.countByConfirmationToken(token) == 1 
 				? Boolean.TRUE : Boolean.FALSE;
 		
@@ -184,7 +183,6 @@ public class ParentsServiceImpl implements IParentsService {
 	@Override
 	public void cancelAccountDeletionProcess(String confirmationToken) {
 		parentRepository.setPendingDeletionAsFalseAndDeleteConfirmationToken(confirmationToken);
-		
 	}
 
 	@Override

@@ -26,10 +26,10 @@ public final class ParentEntity extends UserSystemEntity {
 
     @PersistenceConstructor
     public ParentEntity(String email, String password, String passwordRequestedAt, Boolean active, Boolean locked,
-			Date lastLoginAccess, Boolean pendingDeletion, Locale locale, String confirmationToken,
-			AuthorityEntity authority, String telephone, String fbAccessToken, String fbId) {
+			Date lastLoginAccess, Boolean pendingDeletion, Locale locale, Date lastPasswordResetDate,
+			String confirmationToken, AuthorityEntity authority, String telephone, String fbAccessToken, String fbId) {
 		super(email, password, passwordRequestedAt, active, locked, lastLoginAccess, pendingDeletion, locale,
-				confirmationToken, authority);
+				lastPasswordResetDate, confirmationToken, authority);
 		this.telephone = telephone;
 		this.fbAccessToken = fbAccessToken;
 		this.fbId = fbId;
@@ -39,8 +39,6 @@ public final class ParentEntity extends UserSystemEntity {
     		String password, AuthorityEntity authority) {
         super(firstName, lastName, birthdate, email, password, authority);
     }
-
-
 
 	public String getTelephone() {
 		return telephone;
