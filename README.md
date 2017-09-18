@@ -230,6 +230,14 @@ You should have an entry for mongod in /etc/passwd , as it's a daemon.
 ```sudo chown -R 107:65534 /data/db```
 
 
+###Securing MongoDB
+
+Earlier versions of MongoDB were vulnerable to automated exploits because by default no authentication was required to interact with the database. Any user could create and destroy databases, as well as read from and write to their contents by default. This was compounded because those earlier versions also configured the MongoDB daemon to listen on all interfaces by default, which meant that automated scripts could detect MongoDB instances that weren't protected by a firewall and, if authentication hadn't been enabled, gain complete access to MongoDB.
+
+The situation has been mitigated in the 3.x release as well as earlier versions provided by some package managers because the daemon is now bound to 127.0.0.1 so it will only accept connections on the Unix socket. It is not automatically open to the Internet.
+
+However, authentication is still disabled by default, so any users on the local system have complete access to the databases. To secure this we'll create an administrative user, enable authentication and test.
+
 Encrypt data with Jasypt.
 
 ```
