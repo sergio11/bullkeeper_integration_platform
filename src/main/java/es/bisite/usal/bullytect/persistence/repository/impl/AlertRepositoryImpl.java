@@ -29,14 +29,14 @@ public class AlertRepositoryImpl implements AlertRepositoryCustom {
 	public void setAsDelivered(List<ObjectId> alertIds) {
 		mongoTemplate.updateMulti(
         		new Query(Criteria.where("_id").in(alertIds)),
-        		Update.update("delivered", "true").update("delivered_at", new Date()), AlertEntity.class);
+        		new Update().set("delivered", Boolean.TRUE).set("delivered_at", new Date()), AlertEntity.class);
 	}
 
 	@Override
 	public void setAsDelivered(ObjectId alertId) {
 		mongoTemplate.updateFirst(
         		new Query(Criteria.where("_id").in(alertId)),
-        		Update.update("delivered", "true").update("delivered_at", new Date()), AlertEntity.class);
+        		new Update().set("delivered", Boolean.TRUE).set("delivered_at", new Date()), AlertEntity.class);
 		
 	}   
 }

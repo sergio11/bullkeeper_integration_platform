@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>sanchez.sanchez.sergio</groupId>
     <artifactId>bullytect-integration-platform</artifactId>
-    <version>0.0.12-SNAPSHOT</version>
+    <version>0.0.15-SNAPSHOT</version>
     <packaging>${packaging.type}</packaging>
     <name>BullyTect Integration Platform</name>
     <description>BullyTect Integration Platform. EIPs patterns with Spring Integration.</description>
@@ -68,6 +68,16 @@
 			</dependencies>
 			
 			<build>
+			
+				<resources>
+			        <resource>
+			            <directory>src/main/resources</directory>
+			            <filtering>true</filtering>
+			            <excludes>
+			                <exclude>dev/**</exclude>
+			            </excludes>
+			        </resource>
+			    </resources>
 			
 				<plugins>
 					<plugin>
@@ -486,13 +496,7 @@
     
     <build>
     
-    	<!-- That will allow you to insert properties defined in the previous step into any file in the resources directory, which is the subsequent step. -->
-    	<resources>
-	        <resource>
-	            <directory>src/main/resources</directory>
-	            <filtering>true</filtering>
-	        </resource>
-	    </resources>
+    
     
         <plugins>
         

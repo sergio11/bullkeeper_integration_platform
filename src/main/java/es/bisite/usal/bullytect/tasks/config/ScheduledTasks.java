@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.launch.support.SimpleJobLauncher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -41,15 +42,16 @@ public class ScheduledTasks {
 	private IParentsService parentService;
 	
 	
-	@Scheduled(
-		initialDelayString = "${job.notification.scheduling.initial.delay}",
-		fixedRateString = "${job.notification.scheduling.fixed.rate}"
-	)
+	@Scheduled(cron = "${task.push.notification}")
     public void scheduleNotificationJob() {
-        logger.debug("Notification Job start at  {}", dateFormat.format(new Date()));
+		
+		String dateParam = new Date().toString();
+        logger.debug("Notification Job start at  {}", dateParam);
+        JobParameters param =
+        		  new JobParametersBuilder().addString("date", dateParam).toJobParameters();
         JobExecution execution = null;
         try {
-            execution = jobLauncher.run(notificationJob, new JobParameters());	
+            execution = jobLauncher.run(notificationJob, param);	
     	} catch (Exception e) {
     		logger.error(e.toString());
     	} finally {
@@ -58,20 +60,20 @@ public class ScheduledTasks {
     	}
     }
 	
-	@Scheduled(cron = "15 10 * * * ?")
+	@Scheduled(cron = "${task.delete.expired.tokens}")
 	public void deleteExpiredPasswordTokens(){
 		logger.debug("Delete Expired Tokens ...");
 		passwordResetTokenService.deleteExpiredTokens();
 	}
 	
-	@Scheduled(cron = "15 10 * * * ?")
+	@Scheduled(cron = "${task.delete.unactivated.accounts}")
 	public void deleteUnactivatedAccounts(){
 		logger.debug("Delete Unactivated Accounts ...");
 		Long total = parentService.deleteUnactivatedAccounts();
 		logger.debug( total + " inactive accounts deleted");
 	}
 	
-	@Scheduled(cron = "15 20 * * * ?")
+	@Scheduled(cron = "${task.cancel.account.deletion.proccess}")
 	public void cancelAccountDeletionProcess(){
 		logger.debug("Cancel Account Deletion Proccess ...");
 		parentService.cancelAllAccountDeletionProcess();

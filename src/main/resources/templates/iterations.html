@@ -9,7 +9,7 @@
     <body>
         <th:block layout:fragment="content">
 
-            <th:block th:include="fragments/common::breadcrumb(${ {{url:'/admin/home',text:'dashboard.menu.home'},{url:#httpServletRequest.requestURI,text:'dashboard.menu.iterations'}} })"/>
+            <th:block th:include="fragments/common::breadcrumb(${ {{url:'/backend/admin/home',text:'dashboard.menu.home'},{url:#httpServletRequest.requestURI,text:'dashboard.menu.iterations'}} })"/>
             
             <div class="content-box-large">
                 <div class="panel-heading">

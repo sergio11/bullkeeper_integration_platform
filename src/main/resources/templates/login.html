@@ -23,7 +23,7 @@
             <div th:if="${param.logout}" th:text="#{dashboard.login.form.logged.out}" class="alert alert-success"> 
                 You have been logged out.
             </div>
-			<form class="form-signin" th:action="@{/admin/login}" method="post">
+			<form class="form-signin" th:action="@{/backend/admin/login}" method="post">
 				<h2 class="form-signin-heading">Please login</h2>
 				<input type="email" class="form-control" name="email"
 					placeholder="Email Address" required="required"

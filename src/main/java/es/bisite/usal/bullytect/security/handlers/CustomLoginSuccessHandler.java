@@ -30,6 +30,7 @@ public class CustomLoginSuccessHandler extends SavedRequestAwareAuthenticationSu
     private UserSystemRepository userSystemRepository;
     @Autowired
     private IAuthorizationService authorizationService;
+    
     @Value("${redirect.after.success.login}")
     private String defaultSuccessUrl;
     

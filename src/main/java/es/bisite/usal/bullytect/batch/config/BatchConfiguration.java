@@ -3,14 +3,12 @@ package es.bisite.usal.bullytect.batch.config;
 import com.mongodb.DBObject;
 import com.mongodb.DBRef;
 import com.mongodb.Mongo;
-
 import es.bisite.usal.bullytect.batch.AlertItemProcessor;
 import es.bisite.usal.bullytect.batch.MongoDBItemReader;
 import es.bisite.usal.bullytect.batch.SendNotificationsWriter;
 import es.bisite.usal.bullytect.exception.NoDeviceGroupForUserException;
 import es.bisite.usal.bullytect.fcm.operations.FCMNotificationOperation;
 import es.bisite.usal.bullytect.persistence.entity.AlertEntity;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,6 +26,7 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean;
 import org.springframework.batch.support.transaction.ResourcelessTransactionManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
@@ -45,7 +44,9 @@ public class BatchConfiguration {
 	
 	private Logger logger = LoggerFactory.getLogger(BatchConfiguration.class);
     
-    private final String DB_NAME = "test";
+	@Value("${spring.data.mongodb.database}")
+	private String dbName;
+	
     private final String JOB_NAME = "SEND_NOTIFICATION_JOB";
     
     @Autowired
@@ -99,9 +100,9 @@ public class BatchConfiguration {
         Assert.notNull(mongod, "Mongod can not be null");
         MongoDBItemReader reader = new MongoDBItemReader();
         reader.setMongo(mongod);
-        reader.setDb(DB_NAME);
+        reader.setDb(dbName);
         reader.setCollection(AlertEntity.COLLECTION_NAME);
-        reader.setQuery("{ delivered: {$ne: true} }");
+        reader.setQuery("{ delivered: { $ne: true }, delivery_mode: { $eq: 'PUSH_NOTIFICATION' } }");
         reader.setConverter(new Converter<DBObject, Map<String, String>>() {
 			@Override
 			public Map<String, String> convert(DBObject source) {
@@ -131,6 +132,7 @@ public class BatchConfiguration {
                 .faultTolerant()
                 .skip(NoDeviceGroupForUserException.class)
                 .skipLimit(100000)
+                .allowStartIfComplete(Boolean.TRUE)
                 .build();
     }
     

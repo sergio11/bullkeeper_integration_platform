@@ -8,7 +8,7 @@ var IndexPage = (function($){
     
     var showIterationsGraphData = function(){
         if (iterations_data.length > 0) {
-            $("#lastIteration").text("Last Iteration at: " + iterations_data[iterations_data.length - 1].finishDate);
+            $("#lastIteration").text("Last Iteration at: " + iterations_data[iterations_data.length - 1]["finish_date"]);
             $("#no-iterations-found").hide();
             if ( iterationChart != null ) {
                 iterationChart.setData(iterations_data);
@@ -16,8 +16,8 @@ var IndexPage = (function($){
             	iterationChart = Morris.Area({
                     element: 'morris-area-chart',
                     data: iterations_data,
-                    xkey: 'finishDate',
-                    ykeys: ['totalComments'],
+                    xkey: 'finish_date',
+                    ykeys: ['total_comments'],
                     labels: ['Total Comments'],
                     pointSize: 2,
                     hideHover: 'auto',
@@ -60,7 +60,7 @@ var IndexPage = (function($){
         iterations_data.push(JSON.parse(message.body));
         showIterationsGraphData();
         $("#totalIterations").text(iterations_data.length);
-        var totalComments = iterations_data.map(function(iteration) { return iteration.totalComments })
+        var totalComments = iterations_data.map(function(iteration) { return iteration["total_comments"] })
                 .reduce(function(acc, comments) { return acc + comments });
         $("#totalComments").text(totalComments);
        

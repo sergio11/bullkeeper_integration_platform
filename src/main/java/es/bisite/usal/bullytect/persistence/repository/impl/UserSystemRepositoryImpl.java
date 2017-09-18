@@ -1,14 +1,12 @@
 package es.bisite.usal.bullytect.persistence.repository.impl;
 
 import java.util.Date;
-
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
-
 import es.bisite.usal.bullytect.persistence.entity.UserSystemEntity;
 import es.bisite.usal.bullytect.persistence.repository.UserSystemRepositoryCustom;
 
