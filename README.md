@@ -212,8 +212,8 @@ Or you need to do su - to become superuser, and then create the directory with m
 
 To see the permissions and ownership of the '/data/db/' directory, do this: (this is what the permissions and ownership should look like):
 
-```ls -ld /data
-drwxr-xr-x 3 root root 4096 Sep 18 08:31 /data```
+```ls -ld /data```
+```drwxr-xr-x 3 root root 4096 Sep 18 08:31 /data```
 
 The left side 'drwxr-xr-x' shows the permissions for the User, Group, and Others. 'mongod mongod' shows who owns the directory, and which group that directory belongs to. Both are called 'mongod' in this case.
 
@@ -221,13 +221,13 @@ If your '/data/db' directory doesn't have the permissions and ownership above, d
 
 First check what user and group your mongo user has:
 
-```grep mongo /etc/passwd
-mongodb:x:107:65534::/home/mongodb:/bin/false```
+```grep mongo /etc/passwd```
+```mongodb:x:107:65534::/home/mongodb:/bin/false```
 
 You should have an entry for mongod in /etc/passwd , as it's a daemon.
 
-```sudo chmod 0755 /data/db
-sudo chown -R 107:65534 /data/db```
+```sudo chmod 0755 /data/db```
+```sudo chown -R 107:65534 /data/db```
 
 
 Encrypt data with Jasypt.
