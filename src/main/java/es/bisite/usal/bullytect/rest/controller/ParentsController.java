@@ -23,6 +23,7 @@ import es.bisite.usal.bullytect.dto.request.JwtFacebookAuthenticationRequestDTO;
 import es.bisite.usal.bullytect.dto.request.RegisterParentByFacebookDTO;
 import es.bisite.usal.bullytect.dto.request.RegisterParentDTO;
 import es.bisite.usal.bullytect.dto.request.RegisterSonDTO;
+import es.bisite.usal.bullytect.dto.request.ResetPasswordRequestDTO;
 import es.bisite.usal.bullytect.dto.request.UpdateParentDTO;
 import es.bisite.usal.bullytect.dto.response.JwtAuthenticationResponseDTO;
 import es.bisite.usal.bullytect.dto.response.ParentDTO;
@@ -318,8 +319,9 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     
     
     @RequestMapping(value = "/self/reset-password",  method = RequestMethod.POST)
-    @ApiOperation(value = "RESET_PASSWORD", nickname = "RESET_PASSWORD", notes="Reset Password")
-    public ResponseEntity<APIResponse<String>> resetPassword(
+    @OnlyAccessForParent
+    @ApiOperation(value = "SELF_RESET_PASSWORD", nickname = "SELF_RESET_PASSWORD", notes="Reset Password For Self User")
+    public ResponseEntity<APIResponse<String>> selfResetPassword(
     		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent){
     	
     	logger.debug("Reset Password");
@@ -328,6 +330,27 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     	
     	PasswordResetTokenDTO resetPasswordToken  = Optional.ofNullable(passwordResetTokenService.getPasswordResetTokenForUser(userId))
     		.orElseGet(() -> passwordResetTokenService.createPasswordResetTokenForUser(userId));
+    	
+    	applicationEventPublisher.publishEvent(new PasswordResetEvent(this, resetPasswordToken));
+    	
+    	return ApiHelper.<String>createAndSendResponse(ParentResponseCode.PARENT_RESET_PASSWORD_REQUEST, 
+        		HttpStatus.OK, messageSourceResolver.resolver("parent.password.reseted"));	
+    }
+    
+    
+    @RequestMapping(value = "/reset-password",  method = RequestMethod.POST)
+    @OnlyAccessForParent
+    @ApiOperation(value = "RESET_PASSWORD", nickname = "RESET_PASSWORD", notes="Reset Password")
+    public ResponseEntity<APIResponse<String>> resetPassword(
+    		@ApiParam(value = "resetPasswordRequest", required = true) 
+			@Valid @RequestBody  ResetPasswordRequestDTO request){
+    	
+    	logger.debug("Reset Password");
+    	
+    	final ParentDTO parent = parentsService.getParentByEmail(request.getEmail());
+    	
+    	PasswordResetTokenDTO resetPasswordToken  = Optional.ofNullable(passwordResetTokenService.getPasswordResetTokenForUser(parent.getIdentity()))
+    		.orElseGet(() -> passwordResetTokenService.createPasswordResetTokenForUser(parent.getIdentity()));
     	
     	applicationEventPublisher.publishEvent(new PasswordResetEvent(this, resetPasswordToken));
     	

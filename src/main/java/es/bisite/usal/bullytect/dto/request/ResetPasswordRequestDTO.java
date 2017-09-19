@@ -5,10 +5,13 @@ import org.hibernate.validator.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import es.bisite.usal.bullytect.persistence.constraints.ParentEmailShouldExist;
+
 public final class ResetPasswordRequestDTO {
 
 	@NotBlank(message = "{user.email.notnull}")
 	@Email(message="{user.email.invalid}")
+	@ParentEmailShouldExist(message="{}")
 	@JsonProperty("email")
 	private String email;
     
