@@ -27,7 +27,7 @@ public class AdminErrorController extends BaseController {
 	@ExceptionHandler(AdminNotFoundException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleAdminNotFoundException(AdminNotFoundException adminNotFoundException, HttpServletRequest request) {
-        return ApiHelper.<String>createAndSendErrorResponse(AdminResponseCode.ADMIN_NOT_FOUND, HttpStatus.NOT_FOUND,
+        return ApiHelper.<String>createAndSendErrorResponseWithHeader(AdminResponseCode.ADMIN_NOT_FOUND, HttpStatus.NOT_FOUND,
         		messageSourceResolver.resolver("admin.not.found"));
     }
     

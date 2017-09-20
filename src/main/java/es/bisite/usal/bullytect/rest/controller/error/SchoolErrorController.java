@@ -25,14 +25,14 @@ public class SchoolErrorController extends BaseController {
     @ExceptionHandler(SchoolNotFoundException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleSchoolNotFoundException(SchoolNotFoundException schoolNotFound, HttpServletRequest request) {
-        return ApiHelper.<String>createAndSendErrorResponse(SchoolResponseCode.SCHOOL_NOT_FOUND, HttpStatus.NOT_FOUND,
+        return ApiHelper.<String>createAndSendErrorResponseWithHeader(SchoolResponseCode.SCHOOL_NOT_FOUND, HttpStatus.NOT_FOUND,
         		messageSourceResolver.resolver("school.not.found"));
     }
 	
 	@ExceptionHandler(NoSchoolsFoundException.class)
 	@ResponseBody
     protected ResponseEntity<APIResponse<String>> handleNoSchoolsFoundException(NoSchoolsFoundException noSchoolsFoundException, HttpServletRequest request) {
-        return ApiHelper.<String>createAndSendErrorResponse(SchoolResponseCode.NO_SCHOOLS_FOUND, HttpStatus.NOT_FOUND,
+        return ApiHelper.<String>createAndSendErrorResponseWithHeader(SchoolResponseCode.NO_SCHOOLS_FOUND, HttpStatus.NOT_FOUND,
         		messageSourceResolver.resolver("schools.not.found"));
     }
 	

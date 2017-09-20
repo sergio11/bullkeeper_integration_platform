@@ -37,14 +37,14 @@ public class CommentsErrorController extends BaseController {
     @ExceptionHandler(NoCommentsFoundException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleNoCommentsFoundException(NoCommentsFoundException noCommentsFoundException, HttpServletRequest request) {
-        return ApiHelper.<String>createAndSendErrorResponse(CommentResponseCode.COMMENTS_NOT_FOUND, HttpStatus.NOT_FOUND,
+        return ApiHelper.<String>createAndSendErrorResponseWithHeader(CommentResponseCode.COMMENTS_NOT_FOUND, HttpStatus.NOT_FOUND,
         		messageSourceResolver.resolver("comments.not.found"));
     }
     
     @ExceptionHandler(CommentNotFoundException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleCommentNotFoundException(CommentNotFoundException commentNotFoundException, HttpServletRequest request) {
-        return ApiHelper.<String>createAndSendErrorResponse(CommentResponseCode.COMMENT_NOT_FOUND, HttpStatus.NOT_FOUND,
+        return ApiHelper.<String>createAndSendErrorResponseWithHeader(CommentResponseCode.COMMENT_NOT_FOUND, HttpStatus.NOT_FOUND,
         		messageSourceResolver.resolver("comment.not.found"));
     }
     

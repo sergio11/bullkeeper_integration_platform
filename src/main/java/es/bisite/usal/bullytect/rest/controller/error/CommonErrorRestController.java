@@ -45,7 +45,8 @@ public class CommonErrorRestController extends BaseController {
         for (FieldError fieldError: fieldErrors) {
             validationErrorResource.addFieldError(fieldError.getField(), fieldError.getDefaultMessage());
         }
-        return ApiHelper.<ValidationErrorDTO>createAndSendErrorResponse(CommonErrorResponseCode.VALIDATION_ERROR, HttpStatus.BAD_REQUEST, validationErrorResource);
+        
+        return ApiHelper.<ValidationErrorDTO>createAndSendErrorResponseWithHeader(CommonErrorResponseCode.VALIDATION_ERROR, HttpStatus.BAD_REQUEST, validationErrorResource);
     }
     
     @ExceptionHandler(ConstraintViolationException.class)
@@ -54,27 +55,27 @@ public class CommonErrorRestController extends BaseController {
     	List<String> messages = ex.getConstraintViolations().stream()
     			.map(constraintViolation -> constraintViolation.getMessage())
     			.collect(Collectors.toList());
-    	return ApiHelper.<List<String>>createAndSendErrorResponse(CommonErrorResponseCode.VALIDATION_ERROR, HttpStatus.BAD_REQUEST, messages);
+    	return ApiHelper.<List<String>>createAndSendErrorResponseWithHeader(CommonErrorResponseCode.VALIDATION_ERROR, HttpStatus.BAD_REQUEST, messages);
 
     }
     
     @ExceptionHandler(LockedException.class)
     @ResponseBody
     public ResponseEntity<APIResponse<String>> handleLockedException(LockedException ex) {
-    	return ApiHelper.<String>createAndSendErrorResponse(CommonErrorResponseCode.ACCOUNT_LOCKED, HttpStatus.FORBIDDEN, ex.getMessage());
+    	return ApiHelper.<String>createAndSendErrorResponseWithHeader(CommonErrorResponseCode.ACCOUNT_LOCKED, HttpStatus.FORBIDDEN, ex.getMessage());
     }
     
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseBody
     public ResponseEntity<APIResponse<String>> handleAccessDeniedException(AccessDeniedException ex) {
-    	return ApiHelper.<String>createAndSendErrorResponse(CommonErrorResponseCode.ACCESS_DENIED, HttpStatus.FORBIDDEN, ex.getMessage());
+    	return ApiHelper.<String>createAndSendErrorResponseWithHeader(CommonErrorResponseCode.ACCESS_DENIED, HttpStatus.FORBIDDEN, ex.getMessage());
     }
     
     
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<APIResponse<String>> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
         ex.printStackTrace();
-    	return ApiHelper.<String>createAndSendErrorResponse(CommonErrorResponseCode.MESSAGE_NOT_READABLE, HttpStatus.BAD_REQUEST, 
+    	return ApiHelper.<String>createAndSendErrorResponseWithHeader(CommonErrorResponseCode.MESSAGE_NOT_READABLE, HttpStatus.BAD_REQUEST, 
     			messageSourceResolver.resolver("message.not.readable"));
     }
     
@@ -84,7 +85,7 @@ public class CommonErrorRestController extends BaseController {
     		Throwable exception, HttpServletRequest request, HttpServletResponse response) {
     	logger.error(exception.getMessage());
     	exception.printStackTrace();
-		return ApiHelper.<String>createAndSendErrorResponse(CommonErrorResponseCode.GENERIC_ERROR, HttpStatus.INTERNAL_SERVER_ERROR, 
+		return ApiHelper.<String>createAndSendErrorResponseWithHeader(CommonErrorResponseCode.GENERIC_ERROR, HttpStatus.INTERNAL_SERVER_ERROR, 
 				messageSourceResolver.resolver("unexpected.error.occurred"));
     }
 }

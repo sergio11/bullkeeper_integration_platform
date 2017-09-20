@@ -35,14 +35,14 @@ public class AlertsErrorController extends BaseController {
     @ExceptionHandler(NoAlertsFoundException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleNoAlertsFoundException(NoAlertsFoundException noAlertsFoundException, HttpServletRequest request) {
-        return ApiHelper.<String>createAndSendErrorResponse(AlertResponseCode.NO_ALERTS_FOUND, HttpStatus.NOT_FOUND, 
+        return ApiHelper.<String>createAndSendErrorResponseWithHeader(AlertResponseCode.NO_ALERTS_FOUND, HttpStatus.NOT_FOUND, 
         		messageSourceResolver.resolver("alerts.not.found"));
     }
     
     @ExceptionHandler(CreateAlertFailedException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleCreateAlertFailedException(CreateAlertFailedException createAlertFailedException, HttpServletRequest request) {
-        return ApiHelper.<String>createAndSendErrorResponse(AlertResponseCode.CREATE_ALERT_FAILED, HttpStatus.INTERNAL_SERVER_ERROR, 
+        return ApiHelper.<String>createAndSendErrorResponseWithHeader(AlertResponseCode.CREATE_ALERT_FAILED, HttpStatus.INTERNAL_SERVER_ERROR, 
         		messageSourceResolver.resolver("alert.create.failed"));
     }
     

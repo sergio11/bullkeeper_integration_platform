@@ -128,7 +128,7 @@ public class WebSecurityConfig  {
 					.permitAll()
 				.antMatchers("/api/v1/parents/auth/**", "/api/v1/admin/auth")
 					.permitAll()
-				.antMatchers(HttpMethod.POST, "/api/v1/parents/")
+				.antMatchers(HttpMethod.POST, "/api/v1/parents/", "/api/v1/parents/reset-password")
 					.permitAll()
 				.anyRequest()
 					.authenticated()

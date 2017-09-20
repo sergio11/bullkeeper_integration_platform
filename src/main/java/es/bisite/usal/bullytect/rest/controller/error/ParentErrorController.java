@@ -41,14 +41,14 @@ public class ParentErrorController extends BaseController{
     @ExceptionHandler(BadCredentialsException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleBadCredentialsException(BadCredentialsException badCredentialsException, HttpServletRequest request) {
-        return ApiHelper.<String>createAndSendErrorResponse(ParentResponseCode.BAD_CREDENTIALS, HttpStatus.BAD_REQUEST, 
+        return ApiHelper.<String>createAndSendErrorResponseWithHeader(ParentResponseCode.BAD_CREDENTIALS, HttpStatus.BAD_REQUEST, 
         		messageSourceResolver.resolver("bad.credentials"));
     }
     
     @ExceptionHandler(UsernameNotFoundException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleBadCredentialsException(UsernameNotFoundException usernameNotFoundException, HttpServletRequest request) {
-        return ApiHelper.<String>createAndSendErrorResponse(ParentResponseCode.USERNAME_NOT_FOUND, HttpStatus.BAD_REQUEST, 
+        return ApiHelper.<String>createAndSendErrorResponseWithHeader(ParentResponseCode.USERNAME_NOT_FOUND, HttpStatus.BAD_REQUEST, 
         		messageSourceResolver.resolver("username.not.found"));
     }
    
@@ -56,49 +56,49 @@ public class ParentErrorController extends BaseController{
     @ExceptionHandler(DisabledException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleDisabledException(DisabledException disabledException, HttpServletRequest request) {
-        return ApiHelper.<String>createAndSendErrorResponse(ParentResponseCode.ACCOUNT_DISABLED, HttpStatus.FORBIDDEN, 
+        return ApiHelper.<String>createAndSendErrorResponseWithHeader(ParentResponseCode.ACCOUNT_DISABLED, HttpStatus.FORBIDDEN, 
         		messageSourceResolver.resolver("account.disabled"));
     }
 
     @ExceptionHandler(ParentNotFoundException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleParentNotFoundException(ParentNotFoundException parentNotFoundException, HttpServletRequest request) {
-        return ApiHelper.<String>createAndSendErrorResponse(ParentResponseCode.PARENT_NOT_FOUND, HttpStatus.NOT_FOUND,
+        return ApiHelper.<String>createAndSendErrorResponseWithHeader(ParentResponseCode.PARENT_NOT_FOUND, HttpStatus.NOT_FOUND,
         		messageSourceResolver.resolver("parent.not.found"));
     }
     
     @ExceptionHandler(NoChildrenFoundForSelfParentException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleNoChildrenFoundForSelfParentException(NoChildrenFoundForSelfParentException noChildrenFoundForSelfParentException, HttpServletRequest request) {
-    	return ApiHelper.<String>createAndSendErrorResponse(ParentResponseCode.NO_CHILDREN_FOUND_FOR_SELF_PARENT, HttpStatus.NOT_FOUND,
+    	return ApiHelper.<String>createAndSendErrorResponseWithHeader(ParentResponseCode.NO_CHILDREN_FOUND_FOR_SELF_PARENT, HttpStatus.NOT_FOUND,
     			messageSourceResolver.resolver("self.parent.not.children.found"));
     }
     
     @ExceptionHandler(NoChildrenFoundForParentException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleNoChildrenFoundForParentException(NoChildrenFoundForParentException noChildrenFoundForParentException, HttpServletRequest request) {
-    	return ApiHelper.<String>createAndSendErrorResponse(ParentResponseCode.NO_CHILDREN_FOUND_FOR_PARENT, HttpStatus.NOT_FOUND,
+    	return ApiHelper.<String>createAndSendErrorResponseWithHeader(ParentResponseCode.NO_CHILDREN_FOUND_FOR_PARENT, HttpStatus.NOT_FOUND,
     			messageSourceResolver.resolver("parent.not.children.found"));
     }
     
     @ExceptionHandler(NoParentsFoundException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleNoParentsFoundException(NoParentsFoundException noParentsFoundException, HttpServletRequest request) {
-    	return ApiHelper.<String>createAndSendErrorResponse(ParentResponseCode.PARENTS_NOT_FOUND, HttpStatus.NOT_FOUND,
+    	return ApiHelper.<String>createAndSendErrorResponseWithHeader(ParentResponseCode.PARENTS_NOT_FOUND, HttpStatus.NOT_FOUND,
     			messageSourceResolver.resolver("parents.not.found"));
     }
     
     @ExceptionHandler(GetInformationFromFacebookException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleGetInformationFromFacebookException(GetInformationFromFacebookException getInformationFromFacebookException, HttpServletRequest request) {
-    	return ApiHelper.<String>createAndSendErrorResponse(ParentResponseCode.PARENTS_NOT_FOUND, HttpStatus.NOT_FOUND,
+    	return ApiHelper.<String>createAndSendErrorResponseWithHeader(ParentResponseCode.PARENTS_NOT_FOUND, HttpStatus.NOT_FOUND,
     			messageSourceResolver.resolver("parent.get.information.from.facebook.failed"));
     }
     
     @ExceptionHandler(InvalidFacebookIdException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleInvalidFacebookIdException(InvalidFacebookIdException invalidFacebookIdException, HttpServletRequest request) {
-    	return ApiHelper.<String>createAndSendErrorResponse(ParentResponseCode.INVALID_FACEBOOK_ID, HttpStatus.BAD_REQUEST,
+    	return ApiHelper.<String>createAndSendErrorResponseWithHeader(ParentResponseCode.INVALID_FACEBOOK_ID, HttpStatus.BAD_REQUEST,
     			messageSourceResolver.resolver("parent.invalid.facebook.id"));
     }
     

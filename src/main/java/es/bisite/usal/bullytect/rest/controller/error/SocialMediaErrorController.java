@@ -31,7 +31,7 @@ public class SocialMediaErrorController extends BaseController {
     @ExceptionHandler(SocialMediaNotFoundException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleSocialMediaNotFoundException(SocialMediaNotFoundException socialMediaNotFoundException, HttpServletRequest request){
-        return ApiHelper.<String>createAndSendResponse(SocialMediaResponseCode.SOCIAL_MEDIA_BY_CHILD_NOT_FOUND, HttpStatus.NOT_FOUND,
+        return ApiHelper.<String>createAndSendErrorResponseWithHeader(SocialMediaResponseCode.SOCIAL_MEDIA_BY_CHILD_NOT_FOUND, HttpStatus.NOT_FOUND,
         		messageSourceResolver.resolver("social.media.by.son.not.found"));
     }
     

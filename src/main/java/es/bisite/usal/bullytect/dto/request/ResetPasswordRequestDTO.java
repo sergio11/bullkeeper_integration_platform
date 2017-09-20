@@ -11,7 +11,7 @@ public final class ResetPasswordRequestDTO {
 
 	@NotBlank(message = "{user.email.notnull}")
 	@Email(message="{user.email.invalid}")
-	@ParentEmailShouldExist(message="{}")
+	@ParentEmailShouldExist(message="{user.email.not.exists}")
 	@JsonProperty("email")
 	private String email;
     

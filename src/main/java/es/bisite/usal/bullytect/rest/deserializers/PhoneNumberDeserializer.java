@@ -22,7 +22,6 @@ public class PhoneNumberDeserializer extends  JsonDeserializer<PhoneNumber>  {
 		try {
 			numberProto  = phoneUtil.parse(jsonparser.getText(), null);
 		} catch (NumberParseException e) {
-			throw new RuntimeException(e);
 		}
 		
 		return numberProto;

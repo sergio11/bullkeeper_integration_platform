@@ -37,28 +37,28 @@ public class DeviceGroupErrorController extends BaseController {
     @ExceptionHandler(NoDevicesIntoTheGroupException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleNoDevicesIntoTheGroupException(NoDevicesIntoTheGroupException noDevicesIntoTheGroupException) {
-        return ApiHelper.<String>createAndSendErrorResponse(DeviceGroupResponseCode.NO_DEVICES_INTO_GROUP, 
+        return ApiHelper.<String>createAndSendErrorResponseWithHeader(DeviceGroupResponseCode.NO_DEVICES_INTO_GROUP, 
         		HttpStatus.NOT_FOUND, messageSourceResolver.resolver("devices.not.found"));
     }
     
     @ExceptionHandler(DeviceGroupCreateFailedException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleDeviceGroupCreateFailedException(DeviceGroupCreateFailedException deviceGroupCreateFailedException) {
-        return ApiHelper.<String>createAndSendErrorResponse(DeviceGroupResponseCode.DEVICES_GROUP_CREATE_FAILED, 
+        return ApiHelper.<String>createAndSendErrorResponseWithHeader(DeviceGroupResponseCode.DEVICES_GROUP_CREATE_FAILED, 
         		HttpStatus.INTERNAL_SERVER_ERROR, messageSourceResolver.resolver("devices.group.create.failed"));
     }
     
     @ExceptionHandler(RemoveDeviceFromGroupFailedException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleRemoveDeviceFromGroupFailedException(RemoveDeviceFromGroupFailedException removeDeviceFromGroupFailedException) {
-        return ApiHelper.<String>createAndSendErrorResponse(DeviceGroupResponseCode.REMOVE_DEVICE_FROM_GROUP_FAILED, 
+        return ApiHelper.<String>createAndSendErrorResponseWithHeader(DeviceGroupResponseCode.REMOVE_DEVICE_FROM_GROUP_FAILED, 
         		HttpStatus.INTERNAL_SERVER_ERROR, messageSourceResolver.resolver("remove.device.from.group.failed"));
     }
     
     @ExceptionHandler(UpdateDeviceFailedException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleUpdateDeviceFailedException(UpdateDeviceFailedException updateDeviceFailedException) {
-        return ApiHelper.<String>createAndSendErrorResponse(DeviceGroupResponseCode.UPDATE_DEVICE_FAILED, 
+        return ApiHelper.<String>createAndSendErrorResponseWithHeader(DeviceGroupResponseCode.UPDATE_DEVICE_FAILED, 
         		HttpStatus.INTERNAL_SERVER_ERROR, messageSourceResolver.resolver("update.device.failed"));
     }
     

@@ -339,7 +339,6 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     
     
     @RequestMapping(value = "/reset-password",  method = RequestMethod.POST)
-    @OnlyAccessForParent
     @ApiOperation(value = "RESET_PASSWORD", nickname = "RESET_PASSWORD", notes="Reset Password")
     public ResponseEntity<APIResponse<String>> resetPassword(
     		@ApiParam(value = "resetPasswordRequest", required = true) 

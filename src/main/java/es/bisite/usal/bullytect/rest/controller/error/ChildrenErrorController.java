@@ -37,14 +37,14 @@ public class ChildrenErrorController extends BaseController {
     @ExceptionHandler(SonNotFoundException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleSonNotFoundException(SonNotFoundException resourceNotFound, HttpServletRequest request) {
-        return ApiHelper.<String>createAndSendErrorResponse(ChildrenResponseCode.USER_NOT_FOUND, HttpStatus.NOT_FOUND,
+        return ApiHelper.<String>createAndSendErrorResponseWithHeader(ChildrenResponseCode.USER_NOT_FOUND, HttpStatus.NOT_FOUND,
         		messageSourceResolver.resolver("son.not.found"));
     }
     
     @ExceptionHandler(CommentsBySonNotFoundException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleCommentsBySonNotFoundException(CommentsBySonNotFoundException commentsBySonNotFound, HttpServletRequest request){
-        return ApiHelper.<String>createAndSendErrorResponse(CommentResponseCode.COMMENTS_BY_CHILD_NOT_FOUND, HttpStatus.NOT_FOUND,
+        return ApiHelper.<String>createAndSendErrorResponseWithHeader(CommentResponseCode.COMMENTS_BY_CHILD_NOT_FOUND, HttpStatus.NOT_FOUND,
         		messageSourceResolver.resolver("comments.by.son.not.found"));
     }
    
@@ -52,7 +52,7 @@ public class ChildrenErrorController extends BaseController {
     @ExceptionHandler(NoChildrenFoundException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleNoChildrenFoundException(NoChildrenFoundException noChildrenFoundException, HttpServletRequest request){
-        return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.NO_CHILDREN_FOUND, HttpStatus.NOT_FOUND,
+        return ApiHelper.<String>createAndSendErrorResponseWithHeader(ChildrenResponseCode.NO_CHILDREN_FOUND, HttpStatus.NOT_FOUND,
         		messageSourceResolver.resolver("children.not.found"));
     }
     
