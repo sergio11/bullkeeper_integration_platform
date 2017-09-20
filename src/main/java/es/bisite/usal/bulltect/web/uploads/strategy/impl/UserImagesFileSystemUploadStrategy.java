@@ -26,36 +26,27 @@ import org.springframework.context.annotation.ScopedProxyMode;
 import es.bisite.usal.bulltect.web.uploads.config.conditions.FileSystemStrategySelected;
 
 @Component
-@Scope(value="request", proxyMode= ScopedProxyMode.TARGET_CLASS)
+@Scope(value = "request", proxyMode = ScopedProxyMode.TARGET_CLASS)
 @Conditional(FileSystemStrategySelected.class)
 public class UserImagesFileSystemUploadStrategy implements IUploadStrategy<String, RequestUploadFile> {
-	
-	private static Logger logger = LoggerFactory.getLogger(UserImagesFileSystemUploadStrategy.class);
-	
-	@Autowired
+
+    private static Logger logger = LoggerFactory.getLogger(UserImagesFileSystemUploadStrategy.class);
+
+    @Autowired
     private HttpServletRequest request;
-	@Value("${uploads.user.images.folder}")
+    @Value("${uploads.user.images.folder}")
     private String userImagesFolder;
     private String realPathtoUploads;
-	
-	@PostConstruct
-    public void init() {
-        logger.info("init UploadProductsImagesStrategy bean");
-        realPathtoUploads = request.getServletContext().getRealPath(userImagesFolder);
-        if (!new File(realPathtoUploads).exists()) {
-            new File(realPathtoUploads).mkdirs();
-        }
-    }
-	
-	private File getFileToSave(String contentType){
+
+   
+    private File getFileToSave(String contentType) {
         String name = String.format("%s.%s", RandomStringUtils.randomAlphanumeric(8), contentType.replace("image/", ""));
         return new File(realPathtoUploads, name);
     }
-	
 
-	@Override
-	public String save(final RequestUploadFile fileInfo) throws UploadFailException {
-		try {
+    @Override
+    public String save(final RequestUploadFile fileInfo) {
+        try {
             // get new file to save bytes
             File fileToSave = getFileToSave(fileInfo.getContentType());
             Files.write(fileToSave.toPath(), fileInfo.getBytes(), StandardOpenOption.CREATE);
@@ -65,25 +56,26 @@ public class UserImagesFileSystemUploadStrategy implements IUploadStrategy<Strin
             logger.error(ex.getMessage());
             throw new UploadFailException();
         }
-	}
+    }
 
-	@Override
-	public void delete(String id) {
-		if(id != null){
+    @Override
+    public void delete(String id) {
+        if (id != null) {
             File file = new File(realPathtoUploads, id);
-            if(file.exists() && file.canWrite())
+            if (file.exists() && file.canWrite()) {
                 file.delete();
+            }
         }
-		
-	}
 
-	@Override
-	public UploadFileInfo get(String id) throws FileNotFoundException, UploadFailException {
-		UploadFileInfo info = null;
-        if(id != null){
+    }
+
+    @Override
+    public UploadFileInfo get(String id) {
+        UploadFileInfo info = null;
+        if (id != null) {
             try {
                 File file = new File(realPathtoUploads, id);
-                if(file.exists() && file.canRead()){
+                if (file.exists() && file.canRead()) {
                     String contentType = Files.probeContentType(file.toPath());
                     byte[] content = Files.readAllBytes(file.toPath());
                     info = new UploadFileInfo(file.length(), contentType, content);
@@ -96,6 +88,20 @@ public class UserImagesFileSystemUploadStrategy implements IUploadStrategy<Strin
             }
         }
         return info;
-	}
-
+    }
+    
+    @Override
+    public Boolean exists(String id) {
+        File file = new File(realPathtoUploads, id);
+        return file.exists() && file.canRead();
+    }
+    
+    @PostConstruct
+    public void init() {
+        logger.debug("init UserImagesFileSystemUploadStrategy ...");
+        realPathtoUploads = request.getServletContext().getRealPath(userImagesFolder);
+        if (!new File(realPathtoUploads).exists()) {
+            new File(realPathtoUploads).mkdirs();
+        }
+    }
 }

@@ -2,7 +2,10 @@ package es.bisite.usal.bulltect.web.rest.response;
 
 public enum ImageResponseCode implements IResponseCodeTypes {
 
-	IMAGE_UPLOAD_SUCCESSFULLY(1000L), FAILED_TO_UPLOAD_IMAGE(1001L);
+	IMAGE_UPLOAD_SUCCESSFULLY(1000L), FAILED_TO_UPLOAD_IMAGE(1001L), 
+        IMAGE_DELETED_SUCCESSFULLY(1002L);
+
+;
 
     private Long code;
 

@@ -8,14 +8,17 @@ import org.springframework.stereotype.Component;
 @Component
 public final class UploadProperties implements Serializable {
 
+    private static final long serialVersionUID = 1L;
 
-	private static final long serialVersionUID = 1L;
-	
-	@Value("${upload.strategy}")
+    @Value("${upload.strategy}")
     private String strategy;
 
-	public String getStrategy() {
-		return strategy;
-	}
+    public String getStrategy() {
+        return strategy;
+    }
 
+    @Override
+    public String toString() {
+        return "UploadProperties{" + "strategy=" + strategy + '}';
+    }
 }

@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import com.google.common.collect.Iterables;
-
 import es.bisite.usal.bulltect.domain.service.IAuthenticationService;
 import es.bisite.usal.bulltect.domain.service.IParentsService;
 import es.bisite.usal.bulltect.domain.service.IPasswordResetTokenService;
@@ -36,6 +35,7 @@ import es.bisite.usal.bulltect.web.dto.request.RegisterParentDTO;
 import es.bisite.usal.bulltect.web.dto.request.RegisterSonDTO;
 import es.bisite.usal.bulltect.web.dto.request.ResetPasswordRequestDTO;
 import es.bisite.usal.bulltect.web.dto.request.UpdateParentDTO;
+import es.bisite.usal.bulltect.web.dto.response.ImageDTO;
 import es.bisite.usal.bulltect.web.dto.response.JwtAuthenticationResponseDTO;
 import es.bisite.usal.bulltect.web.dto.response.ParentDTO;
 import es.bisite.usal.bulltect.web.dto.response.PasswordResetTokenDTO;
@@ -46,6 +46,7 @@ import es.bisite.usal.bulltect.web.rest.exception.NoChildrenFoundForParentExcept
 import es.bisite.usal.bulltect.web.rest.exception.NoChildrenFoundForSelfParentException;
 import es.bisite.usal.bulltect.web.rest.exception.NoParentsFoundException;
 import es.bisite.usal.bulltect.web.rest.exception.ParentNotFoundException;
+import es.bisite.usal.bulltect.web.rest.hal.IImageHAL;
 import es.bisite.usal.bulltect.web.rest.hal.IParentHAL;
 import es.bisite.usal.bulltect.web.rest.hal.ISonHAL;
 import es.bisite.usal.bulltect.web.rest.response.APIResponse;
@@ -54,17 +55,25 @@ import es.bisite.usal.bulltect.web.security.userdetails.CommonUserDetailsAware;
 import es.bisite.usal.bulltect.web.security.utils.CurrentUser;
 import es.bisite.usal.bulltect.web.security.utils.OnlyAccessForAdmin;
 import es.bisite.usal.bulltect.web.security.utils.OnlyAccessForParent;
+import es.bisite.usal.bulltect.web.uploads.models.RequestUploadFile;
+import es.bisite.usal.bulltect.web.uploads.models.UploadFileInfo;
+import es.bisite.usal.bulltect.web.uploads.service.IUploadFilesService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.ApiResponse;
+import javax.annotation.PostConstruct;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.hateoas.Resource;
+import org.springframework.http.MediaType;
+import org.springframework.util.Assert;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 
 import springfox.documentation.annotations.ApiIgnore;
 
@@ -72,7 +81,7 @@ import springfox.documentation.annotations.ApiIgnore;
 @Validated
 @RequestMapping("/api/v1/parents/")
 @Api(tags = "parents", value = "/parents/", description = "Manejo de la información del tutor", produces = "application/json")
-public class ParentsController extends BaseController implements IParentHAL, ISonHAL {
+public class ParentsController extends BaseController implements IParentHAL, ISonHAL, IImageHAL {
 
     private static Logger logger = LoggerFactory.getLogger(ParentsController.class);
     
@@ -81,14 +90,17 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     private final IAuthenticationService authenticationService;
     private final IFacebookService facebookService;
     private final ITokenGeneratorService tokenGeneratorService;
+    private final IUploadFilesService uploadFilesService;
  
     public ParentsController(IParentsService parentsService, IPasswordResetTokenService passwordResetTokenService, 
-    		IAuthenticationService authenticationService, IFacebookService facebookService, ITokenGeneratorService tokenGeneratorService) {
+    		IAuthenticationService authenticationService, IFacebookService facebookService, 
+                ITokenGeneratorService tokenGeneratorService, IUploadFilesService uploadFilesService) {
         this.parentsService = parentsService;
         this.passwordResetTokenService = passwordResetTokenService;
         this.authenticationService = authenticationService;
         this.facebookService = facebookService;
         this.tokenGeneratorService = tokenGeneratorService;
+        this.uploadFilesService = uploadFilesService;
     }
     
     @RequestMapping(value = {"/", "/all"}, method = RequestMethod.GET)
@@ -254,6 +266,51 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
                 .map(parentResource -> ApiHelper.<ParentDTO>createAndSendResponse(ParentResponseCode.SELF_PARENT, 
                 		HttpStatus.OK, parentResource))
                 .orElseThrow(() -> { throw new ParentNotFoundException(); });
+    }
+    
+    
+    @RequestMapping(value = "/self/profile", method = RequestMethod.POST)
+    @OnlyAccessForParent
+    @ApiOperation(value = "UPLOAD_PROFILE_IMAGE_FOR_SELF_USER", nickname = "UPLOAD_PROFILE_IMAGE_FOR_SELF_USER", notes = "Upload Profile Image For Self User")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message= "Profile Image", response = ImageDTO.class),
+    	@ApiResponse(code = 500, message= "Upload Failed")
+    })
+    public ResponseEntity<APIResponse<ImageDTO>> uploadProfileImageForSelfUser(
+            @RequestPart("profile_image") MultipartFile profileImage,
+            @ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
+        
+        
+        RequestUploadFile uploadProfileImage = new RequestUploadFile(profileImage.getBytes(), 
+                profileImage.getContentType(), profileImage.getOriginalFilename());
+        ImageDTO imageDto = uploadFilesService.uploadParentProfileImage(selfParent.getUserId(), uploadProfileImage);
+        return ApiHelper.<ImageDTO>createAndSendResponse(ParentResponseCode.PROFILE_IMAGE_UPLOAD_SUCCESSFULLY, 
+        		HttpStatus.OK, addLinksToImage(imageDto));
+
+    }
+
+    @RequestMapping(value = "/self/profile", method = RequestMethod.GET)
+    @OnlyAccessForParent
+    @ApiOperation(value = "DOWNLOAD_SELF_PROFILE_IMAGE", nickname = "DOWNLOAD_SELF_PROFILE_IMAGE", notes = "Download Self Profile Image")
+    public ResponseEntity<byte[]> downloadProfileImage(
+            @ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent
+        ) {
+        
+        UploadFileInfo imageInfo = uploadFilesService.getProfileImage(selfParent.getProfileImageId());
+        return ResponseEntity.ok()
+                .contentLength(imageInfo.getSize())
+                .contentType(MediaType.parseMediaType(imageInfo.getContentType()))
+                .body(imageInfo.getContent());
+    }
+    
+    @RequestMapping(value = "/self/profile", method = RequestMethod.DELETE)
+    @OnlyAccessForParent
+    @ApiOperation(value = "DELETE_SELF_PROFILE_IMAGE", nickname = "DELETE_SELF_PROFILE_IMAGE", notes = "Delete Self Profile Image")
+    public ResponseEntity<APIResponse<String>> deleteProfileImage(
+            @ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) {
+        uploadFilesService.deleteProfileImage(selfParent.getProfileImageId());
+        return ApiHelper.<String>createAndSendResponse(ParentResponseCode.PROFILE_IMAGE_DELETED_SUCCESSFULLY, 
+        		HttpStatus.OK, messageSourceResolver.resolver("image.deleted.successfully"));
     }
     
     
@@ -440,6 +497,17 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     	
     	return ApiHelper.<SonDTO>createAndSendResponse(ParentResponseCode.ADDED_SON_TO_SELF_PARENT, 
 				HttpStatus.OK, addLinksToSon(sonDTO));
+    }
+    
+    @PostConstruct
+    protected void init(){
+        Assert.notNull(parentsService, "Parent Service can not be null");
+        Assert.notNull(uploadFilesService, "Upload Files Service can not be null");
+        Assert.notNull(passwordResetTokenService, "Password Reset Token Service can not be null");
+        Assert.notNull(authenticationService, "Authentication Service can not be null");
+        Assert.notNull(facebookService, "FacebookService can not be null");
+        Assert.notNull(tokenGeneratorService, "TokenGeneratorService can not be null");
+        Assert.notNull(uploadFilesService, "UploadFilesService can not be null");
     }
     
 }

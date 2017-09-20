@@ -5,47 +5,38 @@ import org.springframework.hateoas.ResourceSupport;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ImageDTO extends ResourceSupport {
-	
-	@JsonProperty("id")
-	private String identity;
-	@JsonProperty("size")
-	private Long size;
-	@JsonProperty("content-type")
+
+    @JsonProperty("id")
+    private String identity;
+    @JsonProperty("size")
+    private Long size;
+    @JsonProperty("content-type")
     private String contentType;
-	@JsonProperty("original-name")
-	private String originalName;
-	
-	public ImageDTO(){}
 
-	public String getIdentity() {
-		return identity;
-	}
+    public ImageDTO() {
+    }
 
-	public void setIdentity(String id) {
-		this.identity = id;
-	}
+    public String getIdentity() {
+        return identity;
+    }
 
-	public Long getSize() {
-		return size;
-	}
+    public void setIdentity(String id) {
+        this.identity = id;
+    }
 
-	public void setSize(Long size) {
-		this.size = size;
-	}
+    public Long getSize() {
+        return size;
+    }
 
-	public String getContentType() {
-		return contentType;
-	}
+    public void setSize(Long size) {
+        this.size = size;
+    }
 
-	public void setContentType(String contentType) {
-		this.contentType = contentType;
-	}
+    public String getContentType() {
+        return contentType;
+    }
 
-	public String getOriginalName() {
-		return originalName;
-	}
-
-	public void setOriginalName(String originalName) {
-		this.originalName = originalName;
-	}
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
+    }
 }

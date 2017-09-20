@@ -12,11 +12,14 @@ import org.springframework.hateoas.config.EnableHypermediaSupport;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 
 import es.bisite.usal.bulltect.web.rest.interceptor.LoggingRequestInterceptor;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
 @SpringBootApplication
 @Profile("dev")
 @EnableHypermediaSupport(type = HAL)
 @EnableMongoRepositories( value = { "es.bisite.usal.bulltect.persistence.repository" } )
+@PropertySource({ "classpath:application.properties", "classpath:application-dev.properties"})
 public class BullTectIntegrationPlatformDevelopmentApplication {
 	
 	@Bean
@@ -27,5 +30,10 @@ public class BullTectIntegrationPlatformDevelopmentApplication {
 	
     public static void main(String[] args) {
         SpringApplication.run(BullTectIntegrationPlatformDevelopmentApplication.class, args);
+    }
+    
+    @Bean
+    public static PropertySourcesPlaceholderConfigurer propertyPlaceHolderConfigurer() {
+        return new PropertySourcesPlaceholderConfigurer();
     }
 }
