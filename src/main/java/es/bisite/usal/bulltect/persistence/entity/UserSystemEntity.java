@@ -3,7 +3,6 @@ package es.bisite.usal.bulltect.persistence.entity;
 
 import java.util.Date;
 import java.util.Locale;
-
 import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -47,6 +46,9 @@ public class UserSystemEntity extends PersonEntity {
     /* Random string sent to the user email address in order to verify it */
     @Field("confirmation_token")
     protected String confirmationToken;
+    
+    @Field("profile_image_id")
+    protected String profileImageId;
 
     @DBRef
     protected AuthorityEntity authority;
@@ -57,7 +59,7 @@ public class UserSystemEntity extends PersonEntity {
     @PersistenceConstructor
     public UserSystemEntity(String email, String password, String passwordRequestedAt, Boolean active, Boolean locked,
 			Date lastLoginAccess, Boolean pendingDeletion, Locale locale, Date lastPasswordResetDate, String confirmationToken,
-			AuthorityEntity authority) {
+			AuthorityEntity authority, String profileImageId) {
 		super();
 		this.email = email;
 		this.password = password;
@@ -70,6 +72,7 @@ public class UserSystemEntity extends PersonEntity {
 		this.lastPasswordResetDate = lastPasswordResetDate;
 		this.confirmationToken = confirmationToken;
 		this.authority = authority;
+		this.profileImageId = profileImageId;
 	}
     
     public UserSystemEntity(String firstName, String lastName, Date birthdate, String email, String password, AuthorityEntity authority) {
@@ -165,6 +168,14 @@ public class UserSystemEntity extends PersonEntity {
 
 	public void setLastPasswordResetDate(Date lastPasswordResetDate) {
 		this.lastPasswordResetDate = lastPasswordResetDate;
+	}
+
+	public String getProfileImageId() {
+		return profileImageId;
+	}
+
+	public void setProfileImageId(String profileImageId) {
+		this.profileImageId = profileImageId;
 	}
 
 	@Override

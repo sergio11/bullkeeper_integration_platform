@@ -110,5 +110,16 @@ public class ParentRepositoryImpl implements ParentRepositoryCustom {
 		mongoTemplate.updateMulti(new Query(Criteria.where("pending_deletion").is(Boolean.TRUE)), 
 				new Update().set("pending_deletion", Boolean.FALSE).set("confirmation_token", ""), ParentEntity.class);
 	}
+
+	@Override
+	public void setProfileImageId(ObjectId id, String profileImageId) {
+		Assert.notNull(id, "id can not be null");
+		Assert.notNull(profileImageId, "profileImageId can not be null");
+		
+		mongoTemplate.updateFirst(
+				new Query(Criteria.where("_id").in(id)), 
+				new Update().set("profile_image_id", profileImageId), ParentEntity.class);
+		
+	}
 	
 }
