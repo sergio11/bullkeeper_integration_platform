@@ -24,27 +24,27 @@ public interface IAlertHAL {
     
             	// All Alerts
             	ResponseEntity<APIResponse<PagedResources<Resource<AlertDTO>>>> allAlertsLinkBuilder = methodOn(AlertController.class)
-                        .getAllSelfAlerts(null, null, null);
+                        .getAllSelfAlerts(null, null, null, null);
                 Link allAlertsLink = linkTo(allAlertsLinkBuilder).withRel("all_alerts");
                 alertResource.add(allAlertsLink);
                 // Info Alerts
                 ResponseEntity<APIResponse<PagedResources<Resource<AlertDTO>>>> infoAlertsLinkBuilder = methodOn(AlertController.class)
-                        .getInfoAlerts(null, null, null);
+                        .getInfoAlerts(null, null, null, null);
                 Link infoAlertsLink = linkTo(infoAlertsLinkBuilder).withRel("info_alerts");
                 alertResource.add(infoAlertsLink);
                 // Warning Alerts
                 ResponseEntity<APIResponse<PagedResources<Resource<AlertDTO>>>> warningAlertsLinkBuilder = methodOn(AlertController.class)
-                        .getWarningAlerts(null, null, null);
+                        .getWarningAlerts(null, null, null, null);
                 Link warningAlertsLink = linkTo(warningAlertsLinkBuilder).withRel("warning_alerts");
                 alertResource.add(warningAlertsLink);
                 // Danger Alerts
                 ResponseEntity<APIResponse<PagedResources<Resource<AlertDTO>>>> dangerAlertsLinkBuilder = methodOn(AlertController.class)
-                        .getDangerAlerts(null, null, null);
+                        .getDangerAlerts(null, null, null, null);
                 Link dangerAlertsLink = linkTo(dangerAlertsLinkBuilder).withRel("danger_alerts");
                 alertResource.add(dangerAlertsLink);
                 // Success Alerts
                 ResponseEntity<APIResponse<PagedResources<Resource<AlertDTO>>>> successAlertsLinkBuilder = methodOn(AlertController.class)
-                        .getSuccessAlerts(null, null, null);
+                        .getSuccessAlerts(null, null, null, null);
                 Link successAlertsLink = linkTo(successAlertsLinkBuilder).withRel("success_alerts");
                 alertResource.add(successAlertsLink);
                 

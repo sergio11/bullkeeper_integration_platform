@@ -1,9 +1,7 @@
 package es.bisite.usal.bulltect.web.security.config;
 
-import java.io.Serializable;
 
 import javax.annotation.PostConstruct;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -16,9 +14,7 @@ import es.bisite.usal.bulltect.persistence.repository.RememberMeTokenRepository;
 import es.bisite.usal.bulltect.web.security.CustomPersistentTokenRepositoryImpl;
 
 @Configuration
-public class CommonSecurityConfig implements Serializable {
-    
-	private static final long serialVersionUID = 1L;
+public class CommonSecurityConfig {
 	
 	private Logger logger = LoggerFactory.getLogger(CommonSecurityConfig.class);
 

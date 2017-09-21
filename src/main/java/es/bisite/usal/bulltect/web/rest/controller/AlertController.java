@@ -10,13 +10,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
+import com.google.common.collect.Iterables;
 import es.bisite.usal.bulltect.domain.service.IAlertService;
 import es.bisite.usal.bulltect.persistence.constraints.group.ICommonSequence;
 import es.bisite.usal.bulltect.persistence.entity.AlertLevelEnum;
@@ -31,7 +30,6 @@ import es.bisite.usal.bulltect.web.security.userdetails.CommonUserDetailsAware;
 import es.bisite.usal.bulltect.web.security.utils.CurrentUser;
 import es.bisite.usal.bulltect.web.security.utils.OnlyAccessForAdmin;
 import es.bisite.usal.bulltect.web.security.utils.OnlyAccessForParent;
-
 import java.util.Optional;
 import javax.annotation.PostConstruct;
 import org.bson.types.ObjectId;
@@ -63,9 +61,11 @@ public class AlertController extends BaseController {
     	response = PagedResources.class)
 	public ResponseEntity<APIResponse<PagedResources<Resource<AlertDTO>>>> getAllAlerts(
     		@ApiIgnore @PageableDefault Pageable pageable,
-    		@ApiIgnore PagedResourcesAssembler<AlertDTO> pagedAssembler) throws Throwable {
+    		@ApiIgnore PagedResourcesAssembler<AlertDTO> pagedAssembler,
+    		@ApiParam(name= "delivered", value = "Notificaciones entregadas", required = false)
+    			@RequestParam(name="delivered", defaultValue="false", required=false) Boolean delivered) throws Throwable {
 		
-		final Page<AlertDTO> alertsPage = alertService.findPaginated(pageable);
+		final Page<AlertDTO> alertsPage = alertService.findPaginated(delivered, pageable);
 		
 		if(alertsPage.getNumberOfElements() == 0) {
 			throw new NoAlertsFoundException();
@@ -75,16 +75,18 @@ public class AlertController extends BaseController {
         		HttpStatus.OK, pagedAssembler.toResource(alertsPage));
     }
 
-	@RequestMapping(value = { "/self", "/self/all" }, method = RequestMethod.GET)
+	@RequestMapping(value = { "/self" }, method = RequestMethod.GET)
 	@OnlyAccessForParent
-    @ApiOperation(value = "GET_ALL_SELF_ALERT", nickname = "GET_ALL_SELF_ALERT", notes="Get all alerts for the currently authenticated user", 
+    @ApiOperation(value = "GET_ALL_SELF_ALERT_PAGINATED", nickname = "GET_ALL_SELF_ALERT_PAGINATED", notes="Get all alerts for the currently authenticated user", 
     	response = PagedResources.class)
 	public ResponseEntity<APIResponse<PagedResources<Resource<AlertDTO>>>> getAllSelfAlerts(
     		@ApiIgnore @PageableDefault Pageable pageable,
     		@ApiIgnore PagedResourcesAssembler<AlertDTO> pagedAssembler,
-    		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
+    		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent,
+    		@ApiParam(name= "delivered", value = "Notificaciones entregadas", required = false)
+    			@RequestParam(name="delivered", defaultValue="false", required=false) Boolean delivered) throws Throwable {
 		
-		Page<AlertDTO> alertsPage = alertService.findByParentPaginated(selfParent.getUserId(), pageable);
+		Page<AlertDTO> alertsPage = alertService.findByParentPaginated(selfParent.getUserId(), delivered,  pageable);
 		
 		if(alertsPage.getNumberOfElements() == 0) {
 			throw new NoAlertsFoundException();
@@ -94,12 +96,33 @@ public class AlertController extends BaseController {
         		HttpStatus.OK, pagedAssembler.toResource(alertsPage));
     }
 	
+	@RequestMapping(value = { "/self/all" }, method = RequestMethod.GET)
+	@OnlyAccessForParent
+    @ApiOperation(value = "GET_ALL_SELF_ALERT", nickname = "GET_ALL_SELF_ALERT", notes="Get all alerts for the currently authenticated user", 
+    	response = PagedResources.class)
+	public ResponseEntity<APIResponse<Iterable<AlertDTO>>> getAllSelfAlerts(
+    		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent,
+    		@ApiParam(name= "delivered", value = "Notificaciones entregadas", required = false)
+    			@RequestParam(name="delivered", defaultValue="false", required=false) Boolean delivered) throws Throwable {
+		
+		Iterable<AlertDTO> alertsPage = alertService.findByParent(selfParent.getUserId(), delivered);
+		
+		if(Iterables.size(alertsPage) == 0) {
+			throw new NoAlertsFoundException();
+		}
+		
+		return ApiHelper.<Iterable<AlertDTO>>createAndSendResponse(AlertResponseCode.ALL_SELF_ALERTS, 
+        		HttpStatus.OK, alertsPage);
+    }
+	
 	@RequestMapping(value = "/", method = RequestMethod.POST)
 	@ApiOperation(value = "CREATE_ALERT", nickname = "CREATE_ALERT", notes="Create Alert", 
 		response = AlertDTO.class)
 	public ResponseEntity<APIResponse<AlertDTO>> addAlert(
 			@ApiParam(value = "alert", required = true)
-				@Validated(ICommonSequence.class) @RequestBody AddAlertDTO alert) throws Throwable {
+				@Validated(ICommonSequence.class) @RequestBody AddAlertDTO alert,
+			@ApiParam(name= "delivered", value = "Notificaciones entregadas", required = false)
+				@RequestParam(name="delivered", defaultValue="false", required=false) Boolean delivered) throws Throwable {
 		return Optional.ofNullable(alertService.save(alert))
         		.map(alertResource -> ApiHelper.<AlertDTO>createAndSendResponse(AlertResponseCode.ALERT_CREATED, HttpStatus.OK, alertResource))
         		.orElseThrow(() -> { throw new SocialMediaNotFoundException(); }); 
@@ -112,9 +135,11 @@ public class AlertController extends BaseController {
 	public ResponseEntity<APIResponse<PagedResources<Resource<AlertDTO>>>> getInfoAlerts(
     		@ApiIgnore @PageableDefault Pageable pageable,
     		@ApiIgnore PagedResourcesAssembler<AlertDTO> pagedAssembler,
-    		@CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
+    			@CurrentUser CommonUserDetailsAware<ObjectId> selfParent,
+    		@ApiParam(name= "delivered", value = "Notificaciones entregadas", required = false)
+    			@RequestParam(name="delivered", defaultValue="false", required=false) Boolean delivered) throws Throwable {
 		
-		Page<AlertDTO> alertsPage = alertService.findByParentPaginated(selfParent.getUserId(), AlertLevelEnum.INFO, pageable);
+		Page<AlertDTO> alertsPage = alertService.findByParentPaginated(selfParent.getUserId(), AlertLevelEnum.INFO, delivered, pageable);
 		
 		if(alertsPage.getNumberOfElements() == 0) {
 			throw new NoAlertsFoundException();
@@ -131,9 +156,11 @@ public class AlertController extends BaseController {
 	public ResponseEntity<APIResponse<PagedResources<Resource<AlertDTO>>>> getWarningAlerts(
     		@ApiIgnore @PageableDefault Pageable pageable,
     		@ApiIgnore PagedResourcesAssembler<AlertDTO> pagedAssembler,
-    		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
+    		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent,
+    		@ApiParam(name= "delivered", value = "Notificaciones entregadas", required = false)
+    			@RequestParam(name="delivered", defaultValue="false", required=false) Boolean delivered) throws Throwable {
 		
-		Page<AlertDTO> alertsPage = alertService.findByParentPaginated(selfParent.getUserId(), AlertLevelEnum.WARNING, pageable);
+		Page<AlertDTO> alertsPage = alertService.findByParentPaginated(selfParent.getUserId(), AlertLevelEnum.WARNING, delivered, pageable);
 		
 		if(alertsPage.getNumberOfElements() == 0) {
 			throw new NoAlertsFoundException();
@@ -150,9 +177,11 @@ public class AlertController extends BaseController {
 	public ResponseEntity<APIResponse<PagedResources<Resource<AlertDTO>>>> getDangerAlerts(
     		@ApiIgnore @PageableDefault Pageable pageable,
     		@ApiIgnore PagedResourcesAssembler<AlertDTO> pagedAssembler,
-    		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
+    		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent,
+    		@ApiParam(name= "delivered", value = "Notificaciones entregadas", required = false)
+    			@RequestParam(name="delivered", defaultValue="false", required=false) Boolean delivered) throws Throwable {
 		
-		Page<AlertDTO> alertsPage = alertService.findByParentPaginated(selfParent.getUserId(), AlertLevelEnum.DANGER, pageable);
+		Page<AlertDTO> alertsPage = alertService.findByParentPaginated(selfParent.getUserId(), AlertLevelEnum.DANGER, delivered, pageable);
 		
 		if(alertsPage.getNumberOfElements() == 0) {
 			throw new NoAlertsFoundException();
@@ -169,9 +198,11 @@ public class AlertController extends BaseController {
 	public ResponseEntity<APIResponse<PagedResources<Resource<AlertDTO>>>> getSuccessAlerts(
     		@ApiIgnore @PageableDefault Pageable pageable,
     		@ApiIgnore PagedResourcesAssembler<AlertDTO> pagedAssembler,
-    		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
+    		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent,
+    		@ApiParam(name= "delivered", value = "Notificaciones entregadas", required = false)
+    			@RequestParam(name="delivered", defaultValue="false", required=false) Boolean delivered) throws Throwable {
 		
-		Page<AlertDTO> alertsPage = alertService.findByParentPaginated(selfParent.getUserId(), AlertLevelEnum.SUCCESS, pageable);
+		Page<AlertDTO> alertsPage = alertService.findByParentPaginated(selfParent.getUserId(), AlertLevelEnum.SUCCESS, delivered, pageable);
 		
 		if(alertsPage.getNumberOfElements() == 0) {
 			throw new NoAlertsFoundException();

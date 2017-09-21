@@ -1,6 +1,5 @@
 package es.bisite.usal.bulltect.web.security.config;
 
-import java.io.Serializable;
 import java.util.Arrays;
 
 import javax.annotation.PostConstruct;
@@ -19,9 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.Assert;
 
 @Configuration
-public class AuthenticationProvidersConfig implements Serializable {
-
-	private static final long serialVersionUID = 1L;
+public class AuthenticationProvidersConfig {
 	
 	private Logger logger = LoggerFactory.getLogger(AuthenticationProvidersConfig.class);
 	

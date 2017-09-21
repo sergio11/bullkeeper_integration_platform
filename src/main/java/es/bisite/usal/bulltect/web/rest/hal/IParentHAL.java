@@ -1,6 +1,5 @@
 package es.bisite.usal.bulltect.web.rest.hal;
 
-
 import org.springframework.data.domain.Page;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedResources;
@@ -58,7 +57,7 @@ public interface IParentHAL {
             }
             // All Alerts
             ResponseEntity<APIResponse<PagedResources<Resource<AlertDTO>>>> allAlertsLinkBuilder = methodOn(AlertController.class)
-                    .getAllSelfAlerts(null, null, null);
+                    .getAllSelfAlerts(null, null, null, null);
             Link allAlertsLink = linkTo(allAlertsLinkBuilder).withRel("all_alerts");
             parentResource.add(allAlertsLink);
 

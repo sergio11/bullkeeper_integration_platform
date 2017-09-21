@@ -13,21 +13,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Conditional;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
 import es.bisite.usal.bulltect.web.uploads.exceptions.FileNotFoundException;
 import es.bisite.usal.bulltect.web.uploads.exceptions.UploadFailException;
 import es.bisite.usal.bulltect.web.uploads.models.RequestUploadFile;
 import es.bisite.usal.bulltect.web.uploads.models.UploadFileInfo;
 import es.bisite.usal.bulltect.web.uploads.strategy.IUploadStrategy;
 import org.springframework.context.annotation.ScopedProxyMode;
-import es.bisite.usal.bulltect.web.uploads.config.conditions.FileSystemStrategySelected;
 
 @Component
 @Scope(value = "request", proxyMode = ScopedProxyMode.TARGET_CLASS)
-@Conditional(FileSystemStrategySelected.class)
+@ConditionalOnProperty(prefix = "upload.strategy", name = "fs", matchIfMissing = true)
 public class UserImagesFileSystemUploadStrategy implements IUploadStrategy<String, RequestUploadFile> {
 
     private static Logger logger = LoggerFactory.getLogger(UserImagesFileSystemUploadStrategy.class);

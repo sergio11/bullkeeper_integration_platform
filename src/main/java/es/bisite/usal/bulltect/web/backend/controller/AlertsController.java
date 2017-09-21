@@ -31,7 +31,7 @@ public class AlertsController {
 
     @GetMapping(value = {"", "/"})
     public String findPaginated(Model model, @PageableDefault Pageable pageable) {
-        Page<AlertDTO> resultPage = alertService.findPaginated(pageable);
+        Page<AlertDTO> resultPage = alertService.findPaginated(false, pageable);
         model.addAttribute("page", resultPage);
         return VIEW_NAME;
     }

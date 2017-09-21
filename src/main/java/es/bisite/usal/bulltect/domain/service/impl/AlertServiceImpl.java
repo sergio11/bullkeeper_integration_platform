@@ -1,5 +1,7 @@
 package es.bisite.usal.bulltect.domain.service.impl;
 
+import java.util.List;
+
 import javax.annotation.PostConstruct;
 import org.bson.types.ObjectId;
 import org.springframework.core.convert.converter.Converter;
@@ -29,8 +31,8 @@ public class AlertServiceImpl implements IAlertService {
     }
 
     @Override
-    public Page<AlertDTO> findByParentPaginated(ObjectId id, Pageable pageable) {
-        Page<AlertEntity> alertsPage = alertRepository.findByParentIdOrderByCreateAtDesc(id, pageable);
+    public Page<AlertDTO> findByParentPaginated(ObjectId id, Boolean delivered, Pageable pageable) {
+        Page<AlertEntity> alertsPage = alertRepository.findByParentIdAndDeliveredOrderByCreateAtDesc(id, delivered, pageable);
         return alertsPage.map(new Converter<AlertEntity, AlertDTO>() {
             @Override
             public AlertDTO convert(AlertEntity alertEntity) {
@@ -40,8 +42,8 @@ public class AlertServiceImpl implements IAlertService {
     }
 
     @Override
-    public Page<AlertDTO> findByParentPaginated(ObjectId id, AlertLevelEnum level, Pageable pageable) {
-        Page<AlertEntity> alertsPage = alertRepository.findByLevelAndParentIdOrderByCreateAtDesc(level, id, pageable);
+    public Page<AlertDTO> findByParentPaginated(ObjectId id, AlertLevelEnum level, Boolean delivered, Pageable pageable) {
+        Page<AlertEntity> alertsPage = alertRepository.findByLevelAndParentIdAndDeliveredOrderByCreateAtDesc(level, id, delivered, pageable);
         return alertsPage.map(new Converter<AlertEntity, AlertDTO>() {
             @Override
             public AlertDTO convert(AlertEntity alertEntity) {
@@ -58,7 +60,7 @@ public class AlertServiceImpl implements IAlertService {
     }
 
     @Override
-    public Page<AlertDTO> findPaginated(Pageable pageable) {
+    public Page<AlertDTO> findPaginated(Boolean delivered, Pageable pageable) {
         Page<AlertEntity> alertsPage = alertRepository.findAll(pageable);
         return alertsPage.map(new Converter<AlertEntity, AlertDTO>() {
             @Override
@@ -72,6 +74,12 @@ public class AlertServiceImpl implements IAlertService {
     public Long getTotalAlerts() {
         return alertRepository.count();
     }
+    
+    @Override
+	public Iterable<AlertDTO> findByParent(ObjectId id, Boolean delivered) {
+    	List<AlertEntity> alertEntities = alertRepository.findByDeliveredTrueAndParentIdOrderByCreateAtDesc(id);
+    	return alertMapper.alertEntitiesToAlertDTO(alertEntities);
+	}
 
     @PostConstruct
     protected void init() {

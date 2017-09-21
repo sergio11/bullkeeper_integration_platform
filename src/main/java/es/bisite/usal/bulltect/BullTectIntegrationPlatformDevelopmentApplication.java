@@ -19,7 +19,6 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 @Profile("dev")
 @EnableHypermediaSupport(type = HAL)
 @EnableMongoRepositories( value = { "es.bisite.usal.bulltect.persistence.repository" } )
-@PropertySource({ "classpath:application.properties", "classpath:application-dev.properties"})
 public class BullTectIntegrationPlatformDevelopmentApplication {
 	
 	@Bean
@@ -30,10 +29,5 @@ public class BullTectIntegrationPlatformDevelopmentApplication {
 	
     public static void main(String[] args) {
         SpringApplication.run(BullTectIntegrationPlatformDevelopmentApplication.class, args);
-    }
-    
-    @Bean
-    public static PropertySourcesPlaceholderConfigurer propertyPlaceHolderConfigurer() {
-        return new PropertySourcesPlaceholderConfigurer();
     }
 }

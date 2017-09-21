@@ -8,7 +8,7 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Conditional;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.gridfs.GridFsOperations;
@@ -22,10 +22,9 @@ import es.bisite.usal.bulltect.web.uploads.models.RequestUploadFile;
 import es.bisite.usal.bulltect.web.uploads.models.UploadFileInfo;
 import es.bisite.usal.bulltect.web.uploads.strategy.IUploadStrategy;
 import io.jsonwebtoken.lang.Assert;
-import es.bisite.usal.bulltect.web.uploads.config.conditions.GridFSStrategySelected;
 
 @Component
-@Conditional(GridFSStrategySelected.class)
+@ConditionalOnProperty(prefix = "upload.strategy", name = "gridfs", matchIfMissing = false)
 public class UserImagesGridFSUploadStrategy implements IUploadStrategy<String, RequestUploadFile> {
 
     private static Logger logger = LoggerFactory.getLogger(UserImagesGridFSUploadStrategy.class);
