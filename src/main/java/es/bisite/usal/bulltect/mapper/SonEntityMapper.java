@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import es.bisite.usal.bulltect.persistence.entity.SonEntity;
 import es.bisite.usal.bulltect.persistence.repository.SchoolRepository;
 import es.bisite.usal.bulltect.web.dto.request.RegisterSonDTO;
+import es.bisite.usal.bulltect.web.dto.request.UpdateSonDTO;
 import es.bisite.usal.bulltect.web.dto.response.SonDTO;
 
 /**
@@ -37,4 +38,10 @@ public abstract class SonEntityMapper {
         @Mapping(expression="java(schoolRepository.findOne(new org.bson.types.ObjectId(registerSonDTO.getSchool())))", target = "school" )
     })
     public abstract SonEntity registerSonDTOToSonEntity(RegisterSonDTO registerSonDTO);
+    
+    @Mappings({
+        @Mapping(expression="java(schoolRepository.findOne(new org.bson.types.ObjectId(updateSonDTO.getSchool())))", target = "school" )
+    })
+    public abstract SonEntity updateSonDTOToSonEntity(UpdateSonDTO updateSonDTO);
+    
 }

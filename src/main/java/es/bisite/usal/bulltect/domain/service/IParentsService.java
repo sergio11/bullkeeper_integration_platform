@@ -8,6 +8,7 @@ import es.bisite.usal.bulltect.web.dto.request.RegisterParentByFacebookDTO;
 import es.bisite.usal.bulltect.web.dto.request.RegisterParentDTO;
 import es.bisite.usal.bulltect.web.dto.request.RegisterSonDTO;
 import es.bisite.usal.bulltect.web.dto.request.UpdateParentDTO;
+import es.bisite.usal.bulltect.web.dto.request.UpdateSonDTO;
 import es.bisite.usal.bulltect.web.dto.response.ParentDTO;
 import es.bisite.usal.bulltect.web.dto.response.SonDTO;
 
@@ -25,6 +26,7 @@ public interface IParentsService {
     ParentDTO save(final RegisterParentDTO registerParent);
     ParentDTO save(final RegisterParentByFacebookDTO registerParent);
     SonDTO addSon(String parentId, RegisterSonDTO registerSonDTO);
+    SonDTO updateSon(String parentId, UpdateSonDTO registerSonDTO);
     void setAsNotActiveAndConfirmationToken(String id, String confirmationToken);
     ParentDTO update(final ObjectId id, final UpdateParentDTO updateParentDTO);
     void changeUserPassword(ObjectId id, String newPassword);

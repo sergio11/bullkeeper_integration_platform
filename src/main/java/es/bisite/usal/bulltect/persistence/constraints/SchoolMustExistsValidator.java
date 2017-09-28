@@ -22,6 +22,6 @@ public class SchoolMustExistsValidator implements ConstraintValidator<SchoolMust
 
     @Override
     public boolean isValid(String id, ConstraintValidatorContext context) {
-    	return schoolRepository.exists(new ObjectId(id));
+    	return id != null && !id.isEmpty() && schoolRepository.exists(new ObjectId(id));
     }
 }

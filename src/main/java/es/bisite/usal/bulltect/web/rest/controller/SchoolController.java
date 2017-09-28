@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.common.collect.Iterables;
+
 import es.bisite.usal.bulltect.domain.service.ISchoolService;
 import es.bisite.usal.bulltect.persistence.constraints.ValidObjectId;
 import es.bisite.usal.bulltect.web.dto.request.AddSchoolDTO;
@@ -71,6 +73,22 @@ public class SchoolController extends BaseController implements ISchoolHAL {
     	
     }
     
+    
+    @RequestMapping(value = "/all/names", method = RequestMethod.GET)
+    @ApiOperation(value = "GET_ALL_SCHOOL_NAMES", nickname = "GET_ALL_SCHOOL_NAMES", notes = "Get all School Names",
+            response = PagedResources.class)
+    public ResponseEntity<APIResponse<Iterable<String>>> getAllSchoolNames() throws Throwable {
+    	
+    	Iterable<String> schoolNames = schoolService.getAllSchoolNames();
+
+    	if(Iterables.size(schoolNames) == 0)
+    		throw new NoSchoolsFoundException();
+    	
+    	return ApiHelper.<Iterable<String>>createAndSendResponse(SchoolResponseCode.ALL_SCHOOLS_NAMES, HttpStatus.OK, schoolNames);
+    	
+    }
+    
+    
     @RequestMapping(value = "/", method = RequestMethod.GET)
     @ApiOperation(value = "FIND_SCHOOLS_BY_NAME", nickname = "FIND_SCHOOLS_BY_NAME", notes = "Find Schools by name",
             response = PagedResources.class)
@@ -108,8 +126,7 @@ public class SchoolController extends BaseController implements ISchoolHAL {
                 .orElseThrow(() -> { throw new SchoolNotFoundException(); });
     }
    
-    @RequestMapping(value = "/", method = RequestMethod.PUT)
-    @OnlyAccessForAdmin
+    @RequestMapping(value = "/", method = RequestMethod.POST)
     @ApiOperation(value = "CREATE_SCHOOL", nickname = "CREATE_SCHOOL", notes = "Create School")
     @ApiResponses(value = { 
     		@ApiResponse(code = 200, message= "School Saved", response = SchoolDTO.class),

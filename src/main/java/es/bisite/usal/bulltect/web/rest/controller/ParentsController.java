@@ -35,6 +35,7 @@ import es.bisite.usal.bulltect.web.dto.request.RegisterParentDTO;
 import es.bisite.usal.bulltect.web.dto.request.RegisterSonDTO;
 import es.bisite.usal.bulltect.web.dto.request.ResetPasswordRequestDTO;
 import es.bisite.usal.bulltect.web.dto.request.UpdateParentDTO;
+import es.bisite.usal.bulltect.web.dto.request.UpdateSonDTO;
 import es.bisite.usal.bulltect.web.dto.response.ImageDTO;
 import es.bisite.usal.bulltect.web.dto.response.JwtAuthenticationResponseDTO;
 import es.bisite.usal.bulltect.web.dto.response.ParentDTO;
@@ -269,7 +270,7 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     }
     
     
-    @RequestMapping(value = "/self/profile", method = RequestMethod.POST)
+    @RequestMapping(value = "/self/image", method = RequestMethod.POST)
     @OnlyAccessForParent
     @ApiOperation(value = "UPLOAD_PROFILE_IMAGE_FOR_SELF_USER", nickname = "UPLOAD_PROFILE_IMAGE_FOR_SELF_USER", notes = "Upload Profile Image For Self User")
     @ApiResponses(value = {
@@ -289,7 +290,7 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
 
     }
 
-    @RequestMapping(value = "/self/profile", method = RequestMethod.GET)
+    @RequestMapping(value = "/self/image", method = RequestMethod.GET)
     @OnlyAccessForParent
     @ApiOperation(value = "DOWNLOAD_SELF_PROFILE_IMAGE", nickname = "DOWNLOAD_SELF_PROFILE_IMAGE", notes = "Download Self Profile Image")
     public ResponseEntity<byte[]> downloadProfileImage(
@@ -303,7 +304,7 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
                 .body(imageInfo.getContent());
     }
     
-    @RequestMapping(value = "/self/profile", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/self/image", method = RequestMethod.DELETE)
     @OnlyAccessForParent
     @ApiOperation(value = "DELETE_SELF_PROFILE_IMAGE", nickname = "DELETE_SELF_PROFILE_IMAGE", notes = "Delete Self Profile Image")
     public ResponseEntity<APIResponse<String>> deleteProfileImage(
@@ -414,7 +415,7 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
         		HttpStatus.OK, messageSourceResolver.resolver("parent.password.reseted"));	
     }
     
-    @RequestMapping(value = "/self/update",  method = RequestMethod.POST)
+    @RequestMapping(value = { "/self", "/self/update" },  method = RequestMethod.POST)
     @OnlyAccessForParent
     @ApiOperation(value = "UPDATE_SELF_PARENT", nickname = "UPDATE_SELF_PARENT", notes="Update information for self parent")
     @ApiResponses(value = { 
@@ -434,7 +435,7 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     }
     
     
-    @RequestMapping(value = "/self/delete",  method = RequestMethod.DELETE)
+    @RequestMapping(value = { "/self", "/self/delete" },  method = RequestMethod.DELETE)
     @OnlyAccessForParent
     @ApiOperation(value = "DELETE_SELF_PARENT", nickname = "DELETE_SELF_PARENT", notes="Request deletion of the father's account")
     public ResponseEntity<APIResponse<String>> deleteSelfParent(
@@ -455,7 +456,7 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     }
     
     
-    @RequestMapping(value = "/{id}/children/add", method = RequestMethod.PUT)
+    @RequestMapping(value = "/{id}/children/add", method = RequestMethod.POST)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isTheAuthenticatedUser(#id) )")
     @ApiOperation(value = "ADD_SON_TO_PARENT", nickname = "ADD_SON_TO_PARENT", notes="Add son to parent for analysis")
     @ApiResponses(value = { 
@@ -477,7 +478,7 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
 				HttpStatus.OK, addLinksToSon(sonDTO));
     }
     
-    @RequestMapping(value = "/self/children/add", method = RequestMethod.PUT)
+    @RequestMapping(value = "/self/children/add", method = RequestMethod.POST)
     @OnlyAccessForParent
     @ApiOperation(value = "ADD_SON_TO_SELF_PARENT", nickname = "ADD_SON_TO_SELF_PARENT", 
     	notes="Add son to currently authenticated parent for analysis")
@@ -496,6 +497,29 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     	SonDTO sonDTO = parentsService.addSon(selfParent.getUserId().toString(), son);
     	
     	return ApiHelper.<SonDTO>createAndSendResponse(ParentResponseCode.ADDED_SON_TO_SELF_PARENT, 
+				HttpStatus.OK, addLinksToSon(sonDTO));
+    }
+    
+    
+    @RequestMapping(value = "/self/children/update", method = RequestMethod.POST)
+    @OnlyAccessForParent
+    @ApiOperation(value = "SAVE_SON_INFORMATION", nickname = "SAVE_SON_INFORMATION", 
+    	notes="Update son for currently authenticated parent")
+    @ApiResponses(value = { 
+    		@ApiResponse(code = 200, message= "Son To Add or Update", response = SonDTO.class),
+    		@ApiResponse(code = 403, message = "Validation Errors", response = ValidationErrorDTO.class)
+    })
+    public ResponseEntity<APIResponse<SonDTO>> saveSonInformation(
+    		@ApiParam(hidden = true) 
+    			@CurrentUser CommonUserDetailsAware<ObjectId> selfParent,
+    		@ApiParam(value = "son", required = true) 
+    			@Valid @RequestBody UpdateSonDTO son) throws Throwable {
+    	
+    	logger.debug("Save Son Information");
+    	
+    	SonDTO sonDTO = parentsService.updateSon(selfParent.getUserId().toString(), son);
+    	
+    	return ApiHelper.<SonDTO>createAndSendResponse(ParentResponseCode.SAVE_SON_INFORMATION, 
 				HttpStatus.OK, addLinksToSon(sonDTO));
     }
     

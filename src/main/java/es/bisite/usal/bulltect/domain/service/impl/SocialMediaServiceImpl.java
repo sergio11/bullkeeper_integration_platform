@@ -1,5 +1,6 @@
 package es.bisite.usal.bulltect.domain.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import org.bson.types.ObjectId;
@@ -106,6 +107,15 @@ public class SocialMediaServiceImpl implements ISocialMediaService {
 		}
 		SocialMediaEntity socialMediaEntitySaved = socialMediaRepository.save(socialMediaEntityToSave);
 		return socialMediaMapper.socialMediaEntityToSocialMediaDTO(socialMediaEntitySaved);
+	}
+	
+	@Override
+	public Iterable<SocialMediaDTO> save(Iterable<SaveSocialMediaDTO> socialMediaList) {
+		List<SocialMediaDTO> socialMediaDTOs = new ArrayList<>();
+		for(SaveSocialMediaDTO socialMedia: socialMediaList){
+			socialMediaDTOs.add(save(socialMedia));
+		}
+		return socialMediaDTOs;
 	}
         
     @Override

@@ -80,4 +80,9 @@ public class SchoolServiceImpl implements ISchoolService {
 		schoolRepository.delete(schoolToDelete);
 		return schoolEntityMapper.schoolEntityToSchoolDTO(schoolToDelete);
 	}
+
+	@Override
+	public Iterable<String> getAllSchoolNames() {
+		return schoolRepository.getAllSchoolNames();
+	}
 }

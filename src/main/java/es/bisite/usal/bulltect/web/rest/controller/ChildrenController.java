@@ -189,6 +189,28 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
         		.orElseThrow(() -> { throw new SocialMediaNotFoundException(); });        
     }
     
+    
+    @RequestMapping(value = "/{id}/social/save/all", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
+    @ApiOperation(value = "SAVE_ALL_SOCIAL_MEDIA", nickname = "SAVE_ALL_SOCIAL_MEDIA", notes = "Save Social Media",
+            response = SocialMediaDTO.class)
+    public ResponseEntity<APIResponse<Iterable<SocialMediaDTO>>> saveAllSocialMediaToSon(
+    		@ApiParam(name = "id", value = "Identificador del hijo", required = true)
+        	@Valid @ValidObjectId(message = "{son.id.notvalid}")
+         		@PathVariable String id,
+            @ApiParam(value = "socialMedias", required = true) 
+				@Validated(ICommonSequence.class) @RequestBody List<SaveSocialMediaDTO> socialMedias) throws Throwable {
+    	
+    	
+    	Iterable<SocialMediaDTO> socialMediaEntitiesSaved = socialMediaService.save(socialMedias);
+    	
+    	if(Iterables.size(socialMediaEntitiesSaved) == 0)
+    		throw new SocialMediaNotFoundException();
+    	
+    	return ApiHelper.<Iterable<SocialMediaDTO>>createAndSendResponse(SocialMediaResponseCode.ALL_SOCIAL_MEDIA_SAVED, 
+				HttpStatus.OK, addLinksToSocialMedia(socialMediaEntitiesSaved));    
+    }
+    
     @RequestMapping(value = "/{id}/social/delete/all", method = RequestMethod.DELETE)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     @ApiOperation(value = "DELETE_ALL_SOCIAL_MEDIA", nickname = "DELETE_ALL_SOCIAL_MEDIA", notes = "Delete all social media of user",

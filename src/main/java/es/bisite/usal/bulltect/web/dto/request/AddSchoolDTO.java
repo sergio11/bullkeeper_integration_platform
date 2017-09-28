@@ -5,20 +5,28 @@ import javax.validation.constraints.Size;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class AddSchoolDTO {
 	
 	@NotBlank(message = "{school.name.notblank}")
     @Size(min = 5, max = 15, message = "{school.name.size}")
+	@JsonProperty("name")
 	private String name;
 	@NotBlank(message = "{school.residence.notblank}")
     @Size(min = 5, max = 15, message = "{school.residence.size}")
+	@JsonProperty("residence")
 	private String residence;
 	@NotBlank(message = "{school.location.notblank}")
     @Size(min = 5, max = 15, message = "{school.location.size}")
+	@JsonProperty("location")
 	private String location;
+	@JsonProperty("province")
 	private String province;
+	@JsonProperty("tfno")
 	private Integer tfno;
 	@Email(message="{school.email.invalid}")
+	@JsonProperty("email")
 	private String email;
 	
 	

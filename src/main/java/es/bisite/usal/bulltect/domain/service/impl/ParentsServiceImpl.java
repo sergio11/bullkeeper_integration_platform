@@ -22,6 +22,7 @@ import es.bisite.usal.bulltect.web.dto.request.RegisterParentByFacebookDTO;
 import es.bisite.usal.bulltect.web.dto.request.RegisterParentDTO;
 import es.bisite.usal.bulltect.web.dto.request.RegisterSonDTO;
 import es.bisite.usal.bulltect.web.dto.request.UpdateParentDTO;
+import es.bisite.usal.bulltect.web.dto.request.UpdateSonDTO;
 import es.bisite.usal.bulltect.web.dto.response.ParentDTO;
 import es.bisite.usal.bulltect.web.dto.response.SonDTO;
 import io.jsonwebtoken.lang.Assert;
@@ -103,6 +104,14 @@ public class ParentsServiceImpl implements IParentsService {
         parentRepository.save(parentEntity);
         return sonEntityMapper.sonEntityToSonDTO(sonToAdd);
     }
+    
+
+	@Override
+	public SonDTO updateSon(String parentId, UpdateSonDTO updateSonDTO) {
+		SonEntity sonToUpdate = sonEntityMapper.updateSonDTOToSonEntity(updateSonDTO);
+		SonEntity sonUpdated = sonRepository.save(sonToUpdate);
+        return sonEntityMapper.sonEntityToSonDTO(sonUpdated);
+	}
 
     @Override
     public ParentDTO getParentById(ObjectId id) {

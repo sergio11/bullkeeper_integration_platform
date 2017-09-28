@@ -8,10 +8,13 @@ import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
 
 import es.bisite.usal.bulltect.persistence.constraints.InDateRange;
 import es.bisite.usal.bulltect.persistence.constraints.ParentEmailShouldNotExist;
+import es.bisite.usal.bulltect.persistence.constraints.ValidPhoneNumber;
 import es.bisite.usal.bulltect.web.rest.deserializers.BirthdayDeserializer;
+import es.bisite.usal.bulltect.web.rest.deserializers.PhoneNumberDeserializer;
 
 public final class UpdateParentDTO {
 	
@@ -31,15 +34,21 @@ public final class UpdateParentDTO {
     @Email(message="{user.email.invalid}")
     @ParentEmailShouldNotExist(message="{user.email.unique}")
     private String email;
+    @NotBlank(message="{user.telephone.notnull}")
+	@ValidPhoneNumber(message = "user.telephone.not.valid")
+	@JsonProperty("telephone")
+	@JsonDeserialize(using = PhoneNumberDeserializer.class)
+	private PhoneNumber telephone;
     
     public UpdateParentDTO(){}
-    
-	public UpdateParentDTO(String firstName, String lastName, Date birthdate, String email) {
+   
+	public UpdateParentDTO(String firstName, String lastName, Date birthdate, String email, PhoneNumber telephone) {
 		super();
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.birthdate = birthdate;
 		this.email = email;
+		this.telephone = telephone;
 	}
 
 	public String getFirstName() {
@@ -73,4 +82,14 @@ public final class UpdateParentDTO {
 	public void setEmail(String email) {
 		this.email = email;
 	}
+
+	public PhoneNumber getTelephone() {
+		return telephone;
+	}
+
+	public void setTelephone(PhoneNumber telephone) {
+		this.telephone = telephone;
+	}
+    
+	
 }
