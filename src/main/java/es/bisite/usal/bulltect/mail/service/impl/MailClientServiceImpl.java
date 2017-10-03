@@ -66,11 +66,12 @@ public class MailClientServiceImpl implements IMailClientService {
 	@Override
 	public void sendMailForResetPassword(String id, String email, String firstname, String lastname, String token, Locale locale) {
 		logger.debug("Send Mail for Reset Password");
-		String subject = messageSourceResolver.resolver("mail.password.reset.subject.title");
-    	String content = mailContentBuilderService.buildPasswordResetTemplate(id, firstname, lastname, token, locale);
+		
         try {
+        	String subject = messageSourceResolver.resolver("mail.password.reset.subject.title");
+        	String content = mailContentBuilderService.buildPasswordResetTemplate(id, firstname, lastname, token, locale);
         	sendEmail(email, subject, content);
-        } catch (MailException e) {
+        } catch (Exception e) {
         	logger.error(e.toString());
         }   
 	}

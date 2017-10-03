@@ -22,8 +22,8 @@ import es.bisite.usal.bulltect.persistence.repository.UserSystemRepository;
  * @author sergio
  */
 
-@Component
-@Profile("prod")
+/*@Component
+@Profile("prod")*/
 public class LoadInitialDataForProductionEnvironment implements CommandLineRunner {
     
     private static final Logger logger = LoggerFactory.getLogger(LoadInitialDataForProductionEnvironment.class);

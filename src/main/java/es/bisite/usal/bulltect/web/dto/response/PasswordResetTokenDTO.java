@@ -47,4 +47,11 @@ public final class PasswordResetTokenDTO implements Serializable {
 	public void setExpiryDate(String expiryDate) {
 		this.expiryDate = expiryDate;
 	}
+
+	@Override
+	public String toString() {
+		return "PasswordResetTokenDTO [token=" + token + ", user=" + user + ", expiryDate=" + expiryDate + "]";
+	}
+	
+	
 }

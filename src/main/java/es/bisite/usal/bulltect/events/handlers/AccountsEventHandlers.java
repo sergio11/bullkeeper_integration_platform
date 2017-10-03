@@ -124,10 +124,11 @@ public class AccountsEventHandlers {
 		Optional.ofNullable(parentService.getParentById(passwordResetEvent.getPasswordResetToken().getUser()))
         .ifPresent(parent -> {
             logger.debug("Send mail for reset password token");
+            logger.debug("Send mail for reset password token");
             // Send Mail for Activate Account
             logger.debug("Send email to: " + parent.getEmail());
-            mailClient.sendMailForResetPassword(parent.getId().toString(), parent.getEmail(), parent.getFirstName(), 
-            		parent.getLastName(), passwordResetEvent.getPasswordResetToken().getToken(), new Locale(parent.getLocale()));
+            mailClient.sendMailForResetPassword(parent.getIdentity(), parent.getEmail(), parent.getFirstName(), 
+            		parent.getLastName(), passwordResetEvent.getPasswordResetToken().getToken(), parent.getLocale() != null ? new Locale(parent.getLocale()): Locale.getDefault());
         });
 	}
 }

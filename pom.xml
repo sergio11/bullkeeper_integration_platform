@@ -118,7 +118,7 @@
 		                    <apiSources>
 		                        <apiSource>
 		                            <springmvc>true</springmvc>
-		                            <locations>es.bisite.usal.bulltect.rest.controller</locations>
+		                            <locations>es.bisite.usal.bulltect.web.rest.controller</locations>
 		                            <schemes>http,https</schemes>
 		                            <host>bulltect-integration-platform</host>
 		                            <basePath>/api</basePath>
