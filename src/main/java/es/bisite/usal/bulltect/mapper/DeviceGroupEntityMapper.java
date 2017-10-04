@@ -16,7 +16,7 @@ import es.bisite.usal.bulltect.web.dto.response.DeviceGroupDTO;
 public abstract class DeviceGroupEntityMapper {
     @Mappings({
     	@Mapping(expression="java(deviceGroupEntity.getId().toString())", target = "identity" ),
-    	@Mapping(source = "deviceGroupEntity.createAt", target = "createAt", dateFormat = "dd/MM/yyyy")
+    	@Mapping(source = "deviceGroupEntity.createAt", target = "createAt", dateFormat = "yyyy/MM/dd")
     })
     @Named("deviceGroupEntityToDeviceGroupDTO")
     public abstract DeviceGroupDTO deviceGroupEntityToDeviceGroupDTO(DeviceGroupEntity deviceGroupEntity); 

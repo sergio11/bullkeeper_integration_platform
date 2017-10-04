@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartException;
+
 import es.bisite.usal.bulltect.web.rest.ApiHelper;
 import es.bisite.usal.bulltect.web.rest.controller.BaseController;
 import es.bisite.usal.bulltect.web.rest.response.APIResponse;
@@ -29,4 +31,14 @@ public class ImageErrorController extends BaseController {
         return ApiHelper.<String>createAndSendErrorResponseWithHeader(ImageResponseCode.FAILED_TO_UPLOAD_IMAGE, HttpStatus.INTERNAL_SERVER_ERROR,
         		messageSourceResolver.resolver("image.upload.failed"));
     }
+	
+	@ExceptionHandler(MultipartException.class)
+    @ResponseBody
+    protected ResponseEntity<APIResponse<String>> handleMultipartException(MultipartException multipartException, HttpServletRequest request) {
+        return ApiHelper.<String>createAndSendErrorResponseWithHeader(ImageResponseCode.FAILED_TO_UPLOAD_IMAGE, HttpStatus.INTERNAL_SERVER_ERROR,
+        		messageSourceResolver.resolver("image.upload.failed"));
+    }
+	
+	
+	
 }

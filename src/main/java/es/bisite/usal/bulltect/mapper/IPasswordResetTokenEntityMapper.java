@@ -17,7 +17,7 @@ public interface IPasswordResetTokenEntityMapper {
     
     @Mappings({
         @Mapping(expression="java(passwordResetTokenEntity.getUser().toString())", target = "user" ),
-        @Mapping(source = "passwordResetTokenEntity.expiryDate", target = "expiryDate", dateFormat = "dd/MM/yyyy HH:mm:ss")
+        @Mapping(source = "passwordResetTokenEntity.expiryDate", target = "expiryDate", dateFormat = "yyyy/MM/dd HH:mm:ss")
     })
     @Named("passwordResetTokenEntityToPasswordResetTokenDTO")
     PasswordResetTokenDTO passwordResetTokenEntityToPasswordResetTokenDTO(PasswordResetTokenEntity passwordResetTokenEntity); 

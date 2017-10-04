@@ -6,6 +6,7 @@ import javax.annotation.PostConstruct;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -42,7 +43,8 @@ public final class UploadFilesServiceImpl implements IUploadFilesService {
     
     @Override
     public UploadFileInfo getProfileImage(String id) {
-        return uploadStrategy.get(id);
+    	
+    	return uploadStrategy.get(id);
     }
     
     @Override

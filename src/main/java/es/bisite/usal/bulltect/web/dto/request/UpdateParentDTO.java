@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
 
 import es.bisite.usal.bulltect.persistence.constraints.InDateRange;
+import es.bisite.usal.bulltect.persistence.constraints.NewParentEmailShouldNotExist;
 import es.bisite.usal.bulltect.persistence.constraints.ParentEmailShouldNotExist;
 import es.bisite.usal.bulltect.persistence.constraints.ValidPhoneNumber;
 import es.bisite.usal.bulltect.web.rest.deserializers.BirthdayDeserializer;
@@ -32,7 +33,7 @@ public final class UpdateParentDTO {
     private Date birthdate;
     @NotBlank(message="{user.email.notnull}")
     @Email(message="{user.email.invalid}")
-    @ParentEmailShouldNotExist(message="{user.email.unique}")
+    @NewParentEmailShouldNotExist(message="{user.email.unique}")
     private String email;
     @NotBlank(message="{user.telephone.notnull}")
 	@ValidPhoneNumber(message = "user.telephone.not.valid")

@@ -1,8 +1,11 @@
 package es.bisite.usal.bulltect.web.rest.controller;
 
+import java.io.IOException;
 import java.util.Locale;
 import java.util.Optional;
 import javax.validation.Valid;
+
+import org.apache.commons.io.IOUtils;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,6 +68,8 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.ApiResponse;
 import javax.annotation.PostConstruct;
+
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -103,6 +108,7 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
         this.tokenGeneratorService = tokenGeneratorService;
         this.uploadFilesService = uploadFilesService;
     }
+   
     
     @RequestMapping(value = {"/", "/all"}, method = RequestMethod.GET)
     @OnlyAccessForAdmin
@@ -283,7 +289,7 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
         
         
         RequestUploadFile uploadProfileImage = new RequestUploadFile(profileImage.getBytes(), 
-                profileImage.getContentType(), profileImage.getOriginalFilename());
+                profileImage.getContentType() != null ? profileImage.getContentType() : MediaType.IMAGE_PNG_VALUE, profileImage.getOriginalFilename());
         ImageDTO imageDto = uploadFilesService.uploadParentProfileImage(selfParent.getUserId(), uploadProfileImage);
         return ApiHelper.<ImageDTO>createAndSendResponse(ParentResponseCode.PROFILE_IMAGE_UPLOAD_SUCCESSFULLY, 
         		HttpStatus.OK, addLinksToImage(imageDto));
@@ -295,12 +301,31 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     @ApiOperation(value = "DOWNLOAD_SELF_PROFILE_IMAGE", nickname = "DOWNLOAD_SELF_PROFILE_IMAGE", notes = "Download Self Profile Image")
     public ResponseEntity<byte[]> downloadProfileImage(
             @ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent
-        ) {
+        ) throws IOException {
+    	
+    	logger.debug("DOWNLOAD_SELF_PROFILE_IMAGE");
         
-        UploadFileInfo imageInfo = uploadFilesService.getProfileImage(selfParent.getProfileImageId());
+    	UploadFileInfo imageInfo = null;
+    	try {
+    		imageInfo = uploadFilesService.getProfileImage(selfParent.getProfileImageId());
+    		
+    		if(imageInfo == null) {
+    			
+    			final org.springframework.core.io.Resource userDefault = resourceLoader.getResource("classpath:user_default.png");
+        		imageInfo = new UploadFileInfo(userDefault.contentLength(), MediaType.IMAGE_PNG_VALUE, IOUtils.toByteArray(userDefault.getInputStream()));
+    		}
+    		
+    		
+    	} catch (Exception ex) {
+    		logger.debug("DOWNLOAD USER DEFAULT IMAGE");
+    		final org.springframework.core.io.Resource userDefault = resourceLoader.getResource("classpath:user_default.png");
+    		imageInfo = new UploadFileInfo(userDefault.contentLength(), MediaType.IMAGE_PNG_VALUE, IOUtils.toByteArray(userDefault.getInputStream()));
+
+    	}
+    	
         return ResponseEntity.ok()
                 .contentLength(imageInfo.getSize())
-                .contentType(MediaType.parseMediaType(imageInfo.getContentType()))
+                .contentType( imageInfo.getContentType() != null ?  MediaType.parseMediaType(imageInfo.getContentType()) : MediaType.IMAGE_PNG)
                 .body(imageInfo.getContent());
     }
     

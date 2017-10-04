@@ -45,6 +45,8 @@ public class UserImagesFileSystemUploadStrategy implements IUploadStrategy<Strin
     @Override
     public String save(final RequestUploadFile fileInfo) {
         try {
+        	
+        	logger.debug("RequestUploadFile -> " + fileInfo.toString());
             // get new file to save bytes
             File fileToSave = getFileToSave(fileInfo.getContentType());
             Files.write(fileToSave.toPath(), fileInfo.getBytes(), StandardOpenOption.CREATE);
@@ -82,7 +84,7 @@ public class UserImagesFileSystemUploadStrategy implements IUploadStrategy<Strin
                 }
             } catch (IOException ex) {
                 logger.error(ex.getMessage());
-                throw new UploadFailException();
+                throw new FileNotFoundException();
             }
         }
         return info;

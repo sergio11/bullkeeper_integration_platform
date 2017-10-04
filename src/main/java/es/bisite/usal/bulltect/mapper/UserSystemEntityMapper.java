@@ -21,7 +21,7 @@ public abstract class UserSystemEntityMapper {
     
     @Mappings({
         @Mapping(expression="java(userSystemEntity.getId().toString())", target = "identity" ),
-        @Mapping(source = "userSystemEntity.birthdate", target = "birthdate", dateFormat = "dd/MM/yyyy"),
+        @Mapping(source = "userSystemEntity.birthdate", target = "birthdate", dateFormat = "yyyy/MM/dd"),
         @Mapping(source = "userSystemEntity.age", target = "age")
     })
     @Named("userSystemEntityToAdminDTO")

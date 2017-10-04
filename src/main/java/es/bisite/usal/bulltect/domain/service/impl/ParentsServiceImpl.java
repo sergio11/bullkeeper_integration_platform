@@ -3,6 +3,8 @@ package es.bisite.usal.bulltect.domain.service.impl;
 
 import javax.annotation.PostConstruct;
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.domain.Page;
@@ -25,10 +27,13 @@ import es.bisite.usal.bulltect.web.dto.request.UpdateParentDTO;
 import es.bisite.usal.bulltect.web.dto.request.UpdateSonDTO;
 import es.bisite.usal.bulltect.web.dto.response.ParentDTO;
 import es.bisite.usal.bulltect.web.dto.response.SonDTO;
+import es.bisite.usal.bulltect.web.rest.controller.ParentsController;
 import io.jsonwebtoken.lang.Assert;
 
 @Service
 public class ParentsServiceImpl implements IParentsService {
+	
+	private static Logger logger = LoggerFactory.getLogger(ParentsServiceImpl.class);
 
     private final ParentRepository parentRepository;
     private final ParentEntityMapper parentEntityMapper;
@@ -84,6 +89,8 @@ public class ParentsServiceImpl implements IParentsService {
 
     @Override
     public ParentDTO save(RegisterParentDTO registerParent) {
+    	logger.debug("Telephone -> " + registerParent.getTelephone().getRawInput());
+    	logger.debug("Telephone -> " + registerParent.getTelephone().toString());
         final ParentEntity parentToSave = parentEntityMapper.registerParentDTOToParentEntity(registerParent);
         final ParentEntity parentSaved = parentRepository.save(parentToSave);
         return parentEntityMapper.parentEntityToParentDTO(parentSaved);

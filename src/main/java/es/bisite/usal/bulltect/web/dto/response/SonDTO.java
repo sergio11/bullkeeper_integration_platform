@@ -23,11 +23,13 @@ public class SonDTO extends ResourceSupport implements Serializable{
     private Integer age;
 	@JsonProperty("school")
     private String school;
-    
+	@JsonProperty("profile_image")
+    private String profileImage;
+	
     public SonDTO(){}
    
 
-	public SonDTO(String identity, String firstName, String lastName, String birthdate, Integer age, String school) {
+	public SonDTO(String identity, String firstName, String lastName, String birthdate, Integer age, String school, String profileImage) {
 		super();
 		this.identity = identity;
 		this.firstName = firstName;
@@ -35,6 +37,7 @@ public class SonDTO extends ResourceSupport implements Serializable{
 		this.birthdate = birthdate;
 		this.age = age;
 		this.school = school;
+		this.profileImage = profileImage;
 	}
 
 
@@ -87,12 +90,19 @@ public class SonDTO extends ResourceSupport implements Serializable{
 		this.school = school;
 	}
 
+	public String getProfileImage() {
+		return profileImage;
+	}
+
+
+	public void setProfileImage(String profileImage) {
+		this.profileImage = profileImage;
+	}
+
 
 	@Override
 	public String toString() {
 		return "SonDTO [identity=" + identity + ", firstName=" + firstName + ", lastName=" + lastName + ", birthdate="
-				+ birthdate + ", age=" + age + ", school=" + school + "]";
+				+ birthdate + ", age=" + age + ", school=" + school + ", profileImage=" + profileImage + "]";
 	}
-	
-	
 }

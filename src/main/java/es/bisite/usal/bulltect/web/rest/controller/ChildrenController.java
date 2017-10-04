@@ -2,9 +2,13 @@ package es.bisite.usal.bulltect.web.rest.controller;
 
 import java.util.Optional;
 import javax.validation.Valid;
+
+import org.apache.commons.io.IOUtils;
+import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -12,7 +16,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.google.common.collect.Iterables;
 
 import es.bisite.usal.bulltect.domain.service.ICommentsService;
@@ -23,6 +30,7 @@ import es.bisite.usal.bulltect.persistence.constraints.ValidObjectId;
 import es.bisite.usal.bulltect.persistence.constraints.group.ICommonSequence;
 import es.bisite.usal.bulltect.web.dto.request.SaveSocialMediaDTO;
 import es.bisite.usal.bulltect.web.dto.response.CommentDTO;
+import es.bisite.usal.bulltect.web.dto.response.ImageDTO;
 import es.bisite.usal.bulltect.web.dto.response.SocialMediaDTO;
 import es.bisite.usal.bulltect.web.dto.response.SonDTO;
 import es.bisite.usal.bulltect.web.rest.ApiHelper;
@@ -31,16 +39,27 @@ import es.bisite.usal.bulltect.web.rest.exception.NoChildrenFoundException;
 import es.bisite.usal.bulltect.web.rest.exception.SocialMediaNotFoundException;
 import es.bisite.usal.bulltect.web.rest.exception.SonNotFoundException;
 import es.bisite.usal.bulltect.web.rest.hal.ICommentHAL;
+import es.bisite.usal.bulltect.web.rest.hal.IImageHAL;
 import es.bisite.usal.bulltect.web.rest.hal.ISocialMediaHAL;
 import es.bisite.usal.bulltect.web.rest.hal.ISonHAL;
 import es.bisite.usal.bulltect.web.rest.response.APIResponse;
 import es.bisite.usal.bulltect.web.rest.response.ChildrenResponseCode;
 import es.bisite.usal.bulltect.web.rest.response.CommentResponseCode;
+import es.bisite.usal.bulltect.web.rest.response.ParentResponseCode;
 import es.bisite.usal.bulltect.web.rest.response.SocialMediaResponseCode;
+import es.bisite.usal.bulltect.web.security.userdetails.CommonUserDetailsAware;
+import es.bisite.usal.bulltect.web.security.utils.CurrentUser;
 import es.bisite.usal.bulltect.web.security.utils.OnlyAccessForAdmin;
+import es.bisite.usal.bulltect.web.security.utils.OnlyAccessForParent;
+import es.bisite.usal.bulltect.web.uploads.models.RequestUploadFile;
+import es.bisite.usal.bulltect.web.uploads.models.UploadFileInfo;
+import es.bisite.usal.bulltect.web.uploads.service.IUploadFilesService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -56,18 +75,21 @@ import org.springframework.data.domain.Page;
 @Validated
 @RequestMapping("/api/v1/children/")
 @Api(tags = "children", value = "/children/", description = "Punto de Entrada para el manejo de usuarios analizados", produces = "application/json")
-public class ChildrenController extends BaseController implements ISonHAL, ICommentHAL, ISocialMediaHAL {
+public class ChildrenController extends BaseController implements ISonHAL, ICommentHAL, ISocialMediaHAL, IImageHAL {
 
     private static Logger logger = LoggerFactory.getLogger(ChildrenController.class);
     
     private final ISonService sonService;
     private final ICommentsService commentService;
     private final ISocialMediaService socialMediaService;
+    private final IUploadFilesService uploadFilesService;
     
-    public ChildrenController(ISonService sonService, ICommentsService commentService, ISocialMediaService socialMediaService) {
+    public ChildrenController(ISonService sonService, ICommentsService commentService, ISocialMediaService socialMediaService,
+    		IUploadFilesService uploadFilesService) {
         this.sonService = sonService;
         this.commentService = commentService;
         this.socialMediaService = socialMediaService;
+        this.uploadFilesService = uploadFilesService;
     }
     
     @RequestMapping(value = {"/", "/all"}, method = RequestMethod.GET)
@@ -112,7 +134,8 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
             @ApiParam(name = "id", value = "Identificador del hijo", required = true)
             	@Valid @ValidObjectId(message = "{son.id.notvalid}")
              		@PathVariable String id) throws Throwable {
-        logger.debug("Get Comments by user with id: " + id);
+        
+    	logger.debug("Get Comments by user with id: " + id);
         
         Page<CommentDTO> commentsPage = commentService.getCommentBySonId(pageable, id);
         
@@ -121,6 +144,65 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
         
         return ApiHelper.<PagedResources<Resource<CommentDTO>>>createAndSendResponse(CommentResponseCode.ALL_COMMENTS_BY_CHILD, 
         		HttpStatus.OK, pagedAssembler.toResource(addLinksToComments((commentsPage))));
+        
+    }
+    
+    @RequestMapping(value = "/{id}/image", method = RequestMethod.POST)
+    @OnlyAccessForParent
+    @ApiOperation(value = "UPLOAD_PROFILE_IMAGE_FOR_SON", nickname = "UPLOAD_PROFILE_IMAGE_FOR_SON", notes = "Upload Profile Image For Son")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message= "Profile Image", response = ImageDTO.class),
+    	@ApiResponse(code = 500, message= "Upload Failed")
+    })
+    public ResponseEntity<APIResponse<ImageDTO>> uploadProfileImageForSon(
+            @RequestPart("profile_image") MultipartFile profileImage,
+            @ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
+        
+        
+        RequestUploadFile uploadProfileImage = new RequestUploadFile(profileImage.getBytes(), 
+                profileImage.getContentType() != null ? profileImage.getContentType() : MediaType.IMAGE_PNG_VALUE, profileImage.getOriginalFilename());
+        ImageDTO imageDto = uploadFilesService.uploadParentProfileImage(selfParent.getUserId(), uploadProfileImage);
+        return ApiHelper.<ImageDTO>createAndSendResponse(ChildrenResponseCode.PROFILE_IMAGE_UPLOAD_SUCCESSFULLY, 
+        		HttpStatus.OK, addLinksToImage(imageDto));
+
+    }
+    
+    @RequestMapping(value = "/{id}/image", method = RequestMethod.GET)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
+    @ApiOperation(value = "DOWNLOAD_SON_PROFILE_IMAGE", nickname = "DOWNLOAD_SON_PROFILE_IMAGE", notes = "Download Son Profile Image")
+    public ResponseEntity<byte[]> downloadSonProfileImage(
+            @ApiParam(name = "id", value = "Identificador del hijo", required = true)
+            	@Valid @ValidObjectId(message = "{son.id.notvalid}")
+             		@PathVariable String id) throws Throwable {
+        
+    	
+    	logger.debug("Download Son Profile Image");
+        
+    	UploadFileInfo imageInfo = null;
+    	try {
+    		
+    		SonDTO sonDTO = sonService.getSonById(id);
+    		
+    		imageInfo = uploadFilesService.getProfileImage(sonDTO.getProfileImage());
+    		
+    		if(imageInfo == null) {
+    			
+    			final org.springframework.core.io.Resource userDefault = resourceLoader.getResource("classpath:user_default.png");
+        		imageInfo = new UploadFileInfo(userDefault.contentLength(), MediaType.IMAGE_PNG_VALUE, IOUtils.toByteArray(userDefault.getInputStream()));
+    		}
+    		
+    		
+    	} catch (Exception ex) {
+    		logger.debug("DOWNLOAD USER DEFAULT IMAGE");
+    		final org.springframework.core.io.Resource userDefault = resourceLoader.getResource("classpath:user_default.png");
+    		imageInfo = new UploadFileInfo(userDefault.contentLength(), MediaType.IMAGE_PNG_VALUE, IOUtils.toByteArray(userDefault.getInputStream()));
+
+    	}
+    	
+        return ResponseEntity.ok()
+                .contentLength(imageInfo.getSize())
+                .contentType( imageInfo.getContentType() != null ?  MediaType.parseMediaType(imageInfo.getContentType()) : MediaType.IMAGE_PNG)
+                .body(imageInfo.getContent());
         
     }
     

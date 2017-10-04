@@ -17,8 +17,8 @@ import es.bisite.usal.bulltect.web.dto.response.IterationDTO;
 public interface IIterationEntityMapper {
     
     @Mappings({
-        @Mapping(source = "iterationEntity.startDate", target = "startDate", dateFormat = "dd/MM/yyyy HH:mm:ss"),
-        @Mapping(source = "iterationEntity.finishDate", target = "finishDate", dateFormat = "dd/MM/yyyy HH:mm:ss")
+        @Mapping(source = "iterationEntity.startDate", target = "startDate", dateFormat = "yyyy/MM/dd HH:mm:ss"),
+        @Mapping(source = "iterationEntity.finishDate", target = "finishDate", dateFormat = "yyyy/MM/dd HH:mm:ss")
     })
     @Named("iterationEntityToIterationDTO")
     IterationDTO iterationEntityToIterationDTO(IterationEntity iterationEntity); 

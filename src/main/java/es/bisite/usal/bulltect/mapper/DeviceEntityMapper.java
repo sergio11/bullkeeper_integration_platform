@@ -16,7 +16,7 @@ import es.bisite.usal.bulltect.web.dto.response.DeviceDTO;
 public abstract class DeviceEntityMapper {
 
     @Mappings({
-    	@Mapping(source = "deviceEntity.createAt", target = "createAt", dateFormat = "dd/MM/yyyy"),
+    	@Mapping(source = "deviceEntity.createAt", target = "createAt", dateFormat = "yyyy/MM/dd"),
     	@Mapping(source = "deviceEntity.deviceGroup.notificationKeyName", target = "notificationKeyName"),
     	@Mapping(source = "deviceEntity.deviceGroup.notificationKey", target = "notificationKey")
     })
