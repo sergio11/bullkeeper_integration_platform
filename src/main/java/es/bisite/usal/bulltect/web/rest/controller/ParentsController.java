@@ -36,6 +36,7 @@ import es.bisite.usal.bulltect.events.PasswordResetEvent;
 import es.bisite.usal.bulltect.persistence.constraints.ParentShouldExists;
 import es.bisite.usal.bulltect.persistence.constraints.ValidObjectId;
 import es.bisite.usal.bulltect.persistence.constraints.group.ICommonSequence;
+import es.bisite.usal.bulltect.persistence.constraints.group.IResendActivationEmailSequence;
 import es.bisite.usal.bulltect.persistence.constraints.group.IResetPasswordSequence;
 import es.bisite.usal.bulltect.rrss.service.IFacebookService;
 import es.bisite.usal.bulltect.web.dto.request.JwtAuthenticationRequestDTO;
@@ -43,10 +44,12 @@ import es.bisite.usal.bulltect.web.dto.request.JwtFacebookAuthenticationRequestD
 import es.bisite.usal.bulltect.web.dto.request.RegisterParentByFacebookDTO;
 import es.bisite.usal.bulltect.web.dto.request.RegisterParentDTO;
 import es.bisite.usal.bulltect.web.dto.request.RegisterSonDTO;
+import es.bisite.usal.bulltect.web.dto.request.ResendActivationEmailDTO;
 import es.bisite.usal.bulltect.web.dto.request.ResetPasswordRequestDTO;
 import es.bisite.usal.bulltect.web.dto.request.UpdateParentDTO;
 import es.bisite.usal.bulltect.web.dto.request.UpdateSonDTO;
 import es.bisite.usal.bulltect.web.dto.response.AlertsPageDTO;
+import es.bisite.usal.bulltect.web.dto.response.CommentsBySonDTO;
 import es.bisite.usal.bulltect.web.dto.response.ImageDTO;
 import es.bisite.usal.bulltect.web.dto.response.IterationDTO;
 import es.bisite.usal.bulltect.web.dto.response.IterationWithTasksDTO;
@@ -58,6 +61,7 @@ import es.bisite.usal.bulltect.web.dto.response.ValidationErrorDTO;
 import es.bisite.usal.bulltect.web.rest.ApiHelper;
 import es.bisite.usal.bulltect.web.rest.exception.NoChildrenFoundForParentException;
 import es.bisite.usal.bulltect.web.rest.exception.NoChildrenFoundForSelfParentException;
+import es.bisite.usal.bulltect.web.rest.exception.NoCommentsBySonFoundForLastIterationException;
 import es.bisite.usal.bulltect.web.rest.exception.NoIterationsFoundForSelfParentException;
 import es.bisite.usal.bulltect.web.rest.exception.NoNewAlertsFoundException;
 import es.bisite.usal.bulltect.web.rest.exception.NoParentsFoundException;
@@ -375,7 +379,22 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
         return ApiHelper.<ParentDTO>createAndSendResponse(ParentResponseCode.PARENT_REGISTERED_SUCCESSFULLY, 
         				HttpStatus.OK, addLinksToParent(parentDTO));
     }
-   
+    
+    
+    @RequestMapping(value = "/resend-activation-email",  method = RequestMethod.POST)
+    @ApiOperation(value = "RESEND_ACTIVATION_EMAIL", nickname = "RESEND_ACTIVATION_EMAIL", notes="Resend Activation Email")
+    public ResponseEntity<APIResponse<String>> resendActivationEmail(
+    		@ApiParam(value = "parent", required = true) 
+    			@Validated(IResendActivationEmailSequence.class) @RequestBody ResendActivationEmailDTO resendActivation) throws Throwable {
+    	logger.debug("Resend Activation Email");
+        
+        ParentDTO parentDTO = parentsService.getParentByEmail(resendActivation.getEmail());
+        
+        applicationEventPublisher.publishEvent(new ParentRegistrationSuccessEvent(parentDTO.getIdentity(), this));
+        
+        return ApiHelper.<String>createAndSendResponse(
+                ParentResponseCode.ACCOUNT_ACTIVATION_EMAIL_SENT, HttpStatus.OK, messageSourceResolver.resolver("account.activation.email.sent"));
+    }
     
     @RequestMapping(value = "/{id}/children", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isTheAuthenticatedUser(#id) )")
@@ -443,6 +462,24 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
    
     }
     
+    
+    @RequestMapping(value = "/self/alerts", method = RequestMethod.DELETE)
+    @OnlyAccessForParent
+    @ApiOperation(value = "DELETE_ALERT_OF_SELF_PARENT", nickname = "DELETE_ALERT_OF_SELF_PARENT", 
+            notes = "Delete all alerts of self parent")
+    @ApiResponses(value = { 
+    		@ApiResponse(code = 200, message= "Number of alerts deleted", response = Long.class)
+    })
+    public ResponseEntity<APIResponse<Long>> deleteAlertsOfSelfParent(
+    		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
+    	
+        Long countDeleted = alertService.deleteAlertsOfParent(selfParent.getUserId());
+        
+        return ApiHelper.<Long>createAndSendResponse(ParentResponseCode.ALERTS_OF_SELF_PARENT_DELETED, 
+        		HttpStatus.OK, countDeleted);
+   
+    }
+    
     @RequestMapping(value = "/self/iterations", method = RequestMethod.GET)
     @OnlyAccessForParent
     @ApiOperation(value = "GET_LAST_ITERATIONS_FOR_SELF_PARENT", nickname = "GET_LAST_ITERATIONS_FOR_SELF_PARENT", 
@@ -486,6 +523,29 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
                 .orElseThrow(() -> { throw new NoIterationsFoundForSelfParentException(); });
    
     }
+    
+    @RequestMapping(value = "/self/iterations/last/comments-by-son", method = RequestMethod.GET)
+    @OnlyAccessForParent
+    @ApiOperation(value = "GET_COMMENTS_BY_SON_FOR_LAST_ITERATION", nickname = "GET_COMMENTS_BY_SON_FOR_LAST_ITERATION", 
+            notes = "Get Comments By Son For last iteration")
+    @ApiResponses(value = { 
+    		@ApiResponse(code = 200, message= "Comments By Son for last iteration", response = CommentsBySonDTO.class)
+    })
+    public ResponseEntity<APIResponse<List<CommentsBySonDTO>>> getCommentsBySonForLastIteration(
+    		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
+    	
+        logger.debug("Get Comments By Son For Last Iteration");
+        List<CommentsBySonDTO> commentsBySon = iterationService.getCommentsBySonForLastIteration(selfParent.getUserId());
+        
+        if(commentsBySon.size() == 0) {
+            throw new NoCommentsBySonFoundForLastIterationException();
+        }
+        
+        return ApiHelper.<List<CommentsBySonDTO>>createAndSendResponse(
+                ParentResponseCode.COMMENTS_BY_SON_FOR_LAST_ITERATION, HttpStatus.OK, commentsBySon);
+   
+    }
+    
     
     
     @RequestMapping(value = "/self/reset-password",  method = RequestMethod.POST)

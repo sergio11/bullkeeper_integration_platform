@@ -19,18 +19,21 @@ public class AlertEntity {
     @Field
     private AlertLevelEnum level = AlertLevelEnum.INFO;
 
-    @Field
+    @Field("title")
+    private String title;
+
+    @Field("payload")
     private String payload;
 
     @Field("create_at")
     private Date createAt = new Date();
-    
+
     @Field("delivered_at")
     private Date deliveredAt;
-    
+
     @Field("delivery_mode")
     private AlertDeliveryModeEnum deliveryMode = AlertDeliveryModeEnum.PUSH_NOTIFICATION;
-    
+
     @Field("parent")
     @DBRef
     private ParentEntity parent;
@@ -38,29 +41,33 @@ public class AlertEntity {
     @Field("son")
     @DBRef
     private SonEntity son;
-    
+
     private Boolean delivered = Boolean.FALSE;
 
-    public AlertEntity() {}
+    public AlertEntity() {
+    }
 
-    public AlertEntity(String payload, ParentEntity parent, SonEntity son) {
-		super();
-		this.payload = payload;
-		this.parent = parent;
-		this.son = son;
-	}
-
-	public AlertEntity(AlertLevelEnum level, String payload, ParentEntity parent, SonEntity son) {
+    public AlertEntity(String title, String payload, ParentEntity parent, SonEntity son) {
         super();
-        this.level = level;
+        this.title = title;
         this.payload = payload;
         this.parent = parent;
         this.son = son;
     }
-	
-	public AlertEntity(AlertLevelEnum level, String payload, ParentEntity parent, SonEntity son, AlertDeliveryModeEnum deliveryMode) {
+
+    public AlertEntity(AlertLevelEnum level, String title, String payload, ParentEntity parent, SonEntity son) {
         super();
         this.level = level;
+        this.title = title;
+        this.payload = payload;
+        this.parent = parent;
+        this.son = son;
+    }
+
+    public AlertEntity(AlertLevelEnum level, String title, String payload, ParentEntity parent, SonEntity son, AlertDeliveryModeEnum deliveryMode) {
+        super();
+        this.level = level;
+        this.title = title;
         this.payload = payload;
         this.parent = parent;
         this.son = son;
@@ -68,23 +75,24 @@ public class AlertEntity {
     }
 
     @PersistenceConstructor
-    public AlertEntity(AlertLevelEnum level, String payload, Date createAt, ParentEntity parent, SonEntity son,
-			Boolean delivered, AlertDeliveryModeEnum deliveryMode) {
-		super();
-		this.level = level;
-		this.payload = payload;
-		this.createAt = createAt;
-		this.parent = parent;
-		this.son = son;
-		this.delivered = delivered;
-		this.deliveryMode = deliveryMode;
-	}
+    public AlertEntity(AlertLevelEnum level, String title, String payload, Date createAt, ParentEntity parent, SonEntity son,
+            Boolean delivered, AlertDeliveryModeEnum deliveryMode) {
+        super();
+        this.level = level;
+        this.title = title;
+        this.payload = payload;
+        this.createAt = createAt;
+        this.parent = parent;
+        this.son = son;
+        this.delivered = delivered;
+        this.deliveryMode = deliveryMode;
+    }
 
     public ObjectId getId() {
         return id;
-    } 
+    }
 
-	public void setId(ObjectId id) {
+    public void setId(ObjectId id) {
         this.id = id;
     }
 
@@ -96,6 +104,14 @@ public class AlertEntity {
         this.level = level;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+    
     public String getPayload() {
         return payload;
     }
@@ -111,16 +127,16 @@ public class AlertEntity {
     public void setCreateAt(Date createAt) {
         this.createAt = createAt;
     }
-    
+
     public ParentEntity getParent() {
-		return parent;
-	}
+        return parent;
+    }
 
-	public void setParent(ParentEntity parent) {
-		this.parent = parent;
-	}
+    public void setParent(ParentEntity parent) {
+        this.parent = parent;
+    }
 
-	public SonEntity getSon() {
+    public SonEntity getSon() {
         return son;
     }
 
@@ -136,19 +152,19 @@ public class AlertEntity {
         this.delivered = delivered;
     }
 
-	public Date getDeliveredAt() {
-		return deliveredAt;
-	}
+    public Date getDeliveredAt() {
+        return deliveredAt;
+    }
 
-	public void setDeliveredAt(Date deliveredAt) {
-		this.deliveredAt = deliveredAt;
-	}
+    public void setDeliveredAt(Date deliveredAt) {
+        this.deliveredAt = deliveredAt;
+    }
 
-	public AlertDeliveryModeEnum getDeliveryMode() {
-		return deliveryMode;
-	}
+    public AlertDeliveryModeEnum getDeliveryMode() {
+        return deliveryMode;
+    }
 
-	public void setDeliveryMode(AlertDeliveryModeEnum deliveryMode) {
-		this.deliveryMode = deliveryMode;
-	}
+    public void setDeliveryMode(AlertDeliveryModeEnum deliveryMode) {
+        this.deliveryMode = deliveryMode;
+    }
 }

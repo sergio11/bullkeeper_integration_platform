@@ -28,6 +28,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import es.bisite.usal.bulltect.fcm.properties.FCMCustomProperties;
 import es.bisite.usal.bulltect.fcm.utils.FCMErrorHandler;
 import es.bisite.usal.bulltect.web.rest.interceptor.HeaderRequestInterceptor;
+import org.springframework.beans.factory.annotation.Value;
 
 @Configuration
 public class WebConfig extends WebMvcConfigurerAdapter {
@@ -39,6 +40,9 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     
     @Autowired
     private FCMCustomProperties fcmProperties;
+    
+    @Value("${platform.documentation.path}")
+    private String platformDocumentationPath;
 
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
@@ -49,7 +53,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         registry.addRedirectViewController("/documentation/swagger-resources", "/swagger-resources");
         registry.addRedirectViewController("/documentation/configuration/ui", "/configuration/ui");
         registry.addRedirectViewController("/documentation/configuration/security", "/configuration/security");
-        registry.addRedirectViewController("/", "/docs/index.html");
+        registry.addRedirectViewController("/", platformDocumentationPath);
         registry.addViewController("/backend/admin/login").setViewName("login");
         registry.addViewController("/backend/accounts/resetting/password-changed").setViewName("password_changed");
     }

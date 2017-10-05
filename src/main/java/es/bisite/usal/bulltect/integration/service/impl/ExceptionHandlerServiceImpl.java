@@ -1,5 +1,6 @@
 package es.bisite.usal.bulltect.integration.service.impl;
 
+import es.bisite.usal.bulltect.domain.service.IAlertService;
 import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,9 +12,6 @@ import es.bisite.usal.bulltect.exception.GetCommentsProcessException;
 import es.bisite.usal.bulltect.exception.InvalidAccessTokenException;
 import es.bisite.usal.bulltect.exception.visitor.IExceptionVisitor;
 import es.bisite.usal.bulltect.integration.service.IExceptionHandlerService;
-import es.bisite.usal.bulltect.persistence.entity.AlertEntity;
-import es.bisite.usal.bulltect.persistence.entity.AlertLevelEnum;
-import es.bisite.usal.bulltect.persistence.repository.AlertRepository;
 import es.bisite.usal.bulltect.persistence.repository.SocialMediaRepository;
 import es.bisite.usal.bulltect.util.IVisitable;
 
@@ -27,12 +25,12 @@ public class ExceptionHandlerServiceImpl implements IExceptionHandlerService, IE
     private static Logger logger = LoggerFactory.getLogger(ExceptionHandlerServiceImpl.class);
 
     private final SocialMediaRepository socialMediaRepository;
-    private final AlertRepository alertRepository;
+    private final IAlertService alertService;
     
 
-    public ExceptionHandlerServiceImpl(SocialMediaRepository socialMediaRepository, AlertRepository alertRepository) {
+    public ExceptionHandlerServiceImpl(SocialMediaRepository socialMediaRepository, IAlertService alertService) {
         this.socialMediaRepository = socialMediaRepository;
-        this.alertRepository = alertRepository;
+        this.alertService = alertService;
     }
     
     @Override
@@ -54,7 +52,9 @@ public class ExceptionHandlerServiceImpl implements IExceptionHandlerService, IE
     	Assert.notNull(exception.getTarget(), "Target can not be null");
     	logger.debug("Save exception as Alert for: " + exception.getTarget().getFullName());
         socialMediaRepository.setAccessTokenAsInvalid(exception.getAccessToken(), exception.getSocialMediaType());
-        alertRepository.save(new AlertEntity(AlertLevelEnum.WARNING, exception.getMessage(), exception.getTarget().getParent(), exception.getTarget()));
+        alertService.createInvalidAccessTokenAlert(exception.getMessage(), 
+                exception.getTarget().getParent(), exception.getTarget());
+       
     }
     
     @Override
@@ -66,6 +66,6 @@ public class ExceptionHandlerServiceImpl implements IExceptionHandlerService, IE
     @PostConstruct
     protected void init(){
         Assert.notNull(socialMediaRepository, "The SocialMediaRepository can not be null");
-        Assert.notNull(alertRepository, "The AlertRepository can not be null");
+        Assert.notNull(alertService, "The Alert Service can not be null");
     }
 }

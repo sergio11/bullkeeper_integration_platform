@@ -22,6 +22,7 @@ import es.bisite.usal.bulltect.web.rest.exception.GetInformationFromFacebookExce
 import es.bisite.usal.bulltect.web.rest.exception.InvalidFacebookIdException;
 import es.bisite.usal.bulltect.web.rest.exception.NoChildrenFoundForParentException;
 import es.bisite.usal.bulltect.web.rest.exception.NoChildrenFoundForSelfParentException;
+import es.bisite.usal.bulltect.web.rest.exception.NoCommentsBySonFoundForLastIterationException;
 import es.bisite.usal.bulltect.web.rest.exception.NoIterationsFoundForSelfParentException;
 import es.bisite.usal.bulltect.web.rest.exception.NoParentsFoundException;
 import es.bisite.usal.bulltect.web.rest.exception.ParentNotFoundException;
@@ -110,6 +111,12 @@ public class ParentErrorController extends BaseController{
     			messageSourceResolver.resolver("parent.no.iterations.found"));
     }
     
+    @ExceptionHandler(NoCommentsBySonFoundForLastIterationException.class)
+    @ResponseBody
+    protected ResponseEntity<APIResponse<String>> handleNoCommentsBySonFoundForLastIterationException(NoCommentsBySonFoundForLastIterationException noCommentsBySonFoundForLastIterationException, HttpServletRequest request) {
+    	return ApiHelper.<String>createAndSendErrorResponseWithHeader(ParentResponseCode.NO_COMMENTS_BY_SON_FOUND_FOR_LAST_ITERATION, HttpStatus.NOT_FOUND,
+    			messageSourceResolver.resolver("no.comments.by.son.found.for.last.iteration"));
+    }
     
     
     

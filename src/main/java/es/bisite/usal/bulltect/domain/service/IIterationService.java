@@ -27,4 +27,5 @@ public interface IIterationService {
     List<CommentsBySonDTO> getCommentsBySonForLastIteration();
     List<IterationDTO> getLastIterationsByParent(ObjectId id, Integer count);
     IterationWithTasksDTO getLastIterationByParent(ObjectId id);
+    List<CommentsBySonDTO> getCommentsBySonForLastIteration(ObjectId parent);
 }

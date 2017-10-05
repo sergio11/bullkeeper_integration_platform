@@ -23,5 +23,8 @@ public interface AlertRepository extends MongoRepository<AlertEntity, ObjectId>,
 	List<AlertEntity> findByParentIdAndCreateAtGreaterThanEqualOrderByCreateAtDesc(ObjectId id, Date lastAccessToAlerts, Pageable pageable);
 	Integer countByParentId(ObjectId id);
 	Integer countByParentIdAndCreateAtGreaterThanEqual(ObjectId id, Date lastAccessToAlerts);
+        Long deleteByParentId(ObjectId parent);
+        List<AlertEntity> findBySonIdOrderByCreateAtDesc(ObjectId id);
+        Long deleteBySonId(ObjectId son);
 	
 }

@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import es.bisite.usal.bulltect.domain.service.IIterationService;
-import es.bisite.usal.bulltect.integration.properties.IntegrationFlowProperties;
 import es.bisite.usal.bulltect.integration.service.IItegrationFlowService;
 import es.bisite.usal.bulltect.mapper.IterationEntityMapper;
 import es.bisite.usal.bulltect.persistence.entity.IterationEntity;
@@ -160,6 +159,13 @@ public class IterationServiceImpl implements IIterationService {
 	public IterationWithTasksDTO getLastIterationByParent(ObjectId id) {
     	return iterationEntityMapper.iterationEntityToIterationWithTasksDTO(iterationRepository.findFirstByParentIdOrderByFinishDateDesc(id));
 	}
+        
+        
+        @Override
+    public List<CommentsBySonDTO> getCommentsBySonForLastIteration(ObjectId parent) {
+        IterationEntity lastIteration = iterationRepository.findFirstByParentIdOrderByFinishDateDesc(parent);
+        return lastIteration != null ? getCommentsBySonForIteration(lastIteration) : new ArrayList<>();
+    }
     
     @PostConstruct
     protected void init() {
@@ -167,6 +173,5 @@ public class IterationServiceImpl implements IIterationService {
         Assert.notNull(iterationEntityMapper, "IIterationEntityMapper cannot be null");
         Assert.notNull(simpMessagingTemplate, "SimpMessagingTemplate cannot be null");
     }
-
 	
 }

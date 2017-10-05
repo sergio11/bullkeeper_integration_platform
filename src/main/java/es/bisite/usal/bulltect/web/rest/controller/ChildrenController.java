@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.google.common.collect.Iterables;
+import es.bisite.usal.bulltect.domain.service.IAlertService;
 
 import es.bisite.usal.bulltect.domain.service.ICommentsService;
 import es.bisite.usal.bulltect.domain.service.ISocialMediaService;
@@ -29,12 +30,15 @@ import es.bisite.usal.bulltect.persistence.constraints.SocialMediaShouldExists;
 import es.bisite.usal.bulltect.persistence.constraints.ValidObjectId;
 import es.bisite.usal.bulltect.persistence.constraints.group.ICommonSequence;
 import es.bisite.usal.bulltect.web.dto.request.SaveSocialMediaDTO;
+import es.bisite.usal.bulltect.web.dto.response.AlertDTO;
 import es.bisite.usal.bulltect.web.dto.response.CommentDTO;
 import es.bisite.usal.bulltect.web.dto.response.ImageDTO;
 import es.bisite.usal.bulltect.web.dto.response.SocialMediaDTO;
 import es.bisite.usal.bulltect.web.dto.response.SonDTO;
 import es.bisite.usal.bulltect.web.rest.ApiHelper;
+import es.bisite.usal.bulltect.web.rest.exception.AlertNotFoundException;
 import es.bisite.usal.bulltect.web.rest.exception.CommentsBySonNotFoundException;
+import es.bisite.usal.bulltect.web.rest.exception.NoAlertsBySonFoundException;
 import es.bisite.usal.bulltect.web.rest.exception.NoChildrenFoundException;
 import es.bisite.usal.bulltect.web.rest.exception.SocialMediaNotFoundException;
 import es.bisite.usal.bulltect.web.rest.exception.SonNotFoundException;
@@ -45,7 +49,6 @@ import es.bisite.usal.bulltect.web.rest.hal.ISonHAL;
 import es.bisite.usal.bulltect.web.rest.response.APIResponse;
 import es.bisite.usal.bulltect.web.rest.response.ChildrenResponseCode;
 import es.bisite.usal.bulltect.web.rest.response.CommentResponseCode;
-import es.bisite.usal.bulltect.web.rest.response.ParentResponseCode;
 import es.bisite.usal.bulltect.web.rest.response.SocialMediaResponseCode;
 import es.bisite.usal.bulltect.web.security.userdetails.CommonUserDetailsAware;
 import es.bisite.usal.bulltect.web.security.utils.CurrentUser;
@@ -61,6 +64,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
 import java.util.List;
+import javax.annotation.PostConstruct;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -69,6 +73,7 @@ import org.springframework.hateoas.Resource;
 
 import springfox.documentation.annotations.ApiIgnore;
 import org.springframework.data.domain.Page;
+import org.springframework.util.Assert;
 
 
 @RestController("RestUserController")
@@ -83,13 +88,15 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
     private final ICommentsService commentService;
     private final ISocialMediaService socialMediaService;
     private final IUploadFilesService uploadFilesService;
+    private final IAlertService alertService;
     
     public ChildrenController(ISonService sonService, ICommentsService commentService, ISocialMediaService socialMediaService,
-    		IUploadFilesService uploadFilesService) {
+    		IUploadFilesService uploadFilesService, IAlertService alertService) {
         this.sonService = sonService;
         this.commentService = commentService;
         this.socialMediaService = socialMediaService;
         this.uploadFilesService = uploadFilesService;
+        this.alertService = alertService;
     }
     
     @RequestMapping(value = {"/", "/all"}, method = RequestMethod.GET)
@@ -362,5 +369,96 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
         	throw new SocialMediaNotFoundException();
         return ApiHelper.<Iterable<SocialMediaDTO>>createAndSendResponse(SocialMediaResponseCode.VALID_SOCIAL_MEDIA_BY_CHILD, 
         		HttpStatus.OK, addLinksToSocialMedia(socialMedia));
+    }
+    
+    
+    @RequestMapping(value = "/{id}/alerts", method = RequestMethod.GET)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
+    @ApiOperation(value = "GET_ALERTS_BY_SON", nickname = "GET_ALERTS_BY_SON", notes = "Get Alerts By Son Id",
+            response = AlertDTO.class)
+    public ResponseEntity<APIResponse<Iterable<AlertDTO>>> getAlertsBySonId(
+            @ApiParam(name = "id", value = "Identificador del hijo", required = true)
+            	@Valid @ValidObjectId(message = "{son.id.notvalid}")
+             		@PathVariable String id) throws Throwable {
+        
+    	logger.debug("Get Alerts by Son with id: " + id);
+        
+        Iterable<AlertDTO> alerts = alertService.findBySon(new ObjectId(id));
+        
+        if(Iterables.size(alerts) == 0)
+            throw new NoAlertsBySonFoundException();
+
+        return ApiHelper.<Iterable<AlertDTO>>createAndSendResponse(ChildrenResponseCode.ALERTS_BY_SON, 
+        		HttpStatus.OK, alerts);
+        
+    }
+    
+    @RequestMapping(value = "/{id}/alerts", method = RequestMethod.DELETE)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
+    @ApiOperation(value = "CLEAR_CHILD_ALERTS", nickname = "CLEAR_CHILD_ALERTS", notes = "Clear Child Alerts",
+            response = Long.class)
+    public ResponseEntity<APIResponse<Long>> clearChildAlerts(
+            @ApiParam(name = "id", value = "Identificador del hijo", required = true)
+            	@Valid @ValidObjectId(message = "{son.id.notvalid}")
+             		@PathVariable String id) throws Throwable {
+        
+    	logger.debug("Clear alerts of son with id: " + id);
+        
+        Long alertsDeleted = alertService.clearChildAlerts(new ObjectId(id));
+       
+        return ApiHelper.<Long>createAndSendResponse(ChildrenResponseCode.CHILD_ALERTS_CLEANED, 
+        		HttpStatus.OK, alertsDeleted);
+        
+    }
+    
+    @RequestMapping(value = "/{son}/alerts/{alert}", method = RequestMethod.GET)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
+    @ApiOperation(value = "GET_ALERT_BY_ID", nickname = "GET_ALERT_BY_ID", notes = "Get alert by id",
+            response = AlertDTO.class)
+    public ResponseEntity<APIResponse<AlertDTO>> getAlertById(
+            @ApiParam(name = "son", value = "Identificador del hijo", required = true)
+            	@Valid @ValidObjectId(message = "{son.id.notvalid}")
+             		@PathVariable String son,
+             @ApiParam(name = "son", value = "Identificador de la alerta", required = true)
+            	@Valid @ValidObjectId(message = "{alert.id.notvalid}")
+             		@PathVariable String alert) throws Throwable {
+        
+        
+        return Optional.ofNullable(alertService.findById(new ObjectId(alert)))
+        		.map(alertDTO -> ApiHelper.<AlertDTO>createAndSendResponse(ChildrenResponseCode.GET_ALERT_BY_ID, 
+        				HttpStatus.OK, alertDTO))
+        		.orElseThrow(() -> { throw new AlertNotFoundException(); }); 
+        
+    }
+    
+    
+    @RequestMapping(value = "/{son}/alerts/{alert}", method = RequestMethod.DELETE)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
+    @ApiOperation(value = "GET_ALERT_BY_ID", nickname = "GET_ALERT_BY_ID", notes = "Get alert by id",
+            response = AlertDTO.class)
+    public ResponseEntity<APIResponse<String>> deleteAlertById(
+            @ApiParam(name = "son", value = "Identificador del hijo", required = true)
+            	@Valid @ValidObjectId(message = "{son.id.notvalid}")
+             		@PathVariable String son,
+             @ApiParam(name = "son", value = "Identificador de la alerta", required = true)
+            	@Valid @ValidObjectId(message = "{alert.id.notvalid}")
+             		@PathVariable String alert) throws Throwable {
+        
+        logger.debug("Delete Alert by id: " + alert);
+        
+        alertService.deleteById(new ObjectId(alert));
+        
+        return ApiHelper.<String>createAndSendResponse(
+                ChildrenResponseCode.ALERT_BY_ID_DELETED, HttpStatus.OK, messageSourceResolver.resolver("alert.deleted"));
+        
+    }
+    
+    @PostConstruct
+    protected void init() {
+        Assert.notNull(sonService, "Son Service cannot be a null");
+        Assert.notNull(commentService, "Comment Service cannot be a null");
+        Assert.notNull(socialMediaService, "Social Media Service cannot be a null");
+        Assert.notNull(uploadFilesService, "Upload Files Service cannot be a null");
+ 
     }
 }

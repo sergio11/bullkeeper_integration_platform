@@ -73,7 +73,7 @@ public class AccountsEventHandlers {
 	void handle(final ParentRegistrationSuccessEvent parentRegistrationSuccessEvent) {
 		logger.debug("Handle Event: ParentRegistrationSuccessEvent ");
     	
-        Optional.ofNullable(parentService.getParentById(parentRegistrationSuccessEvent.getIdentity()))
+            Optional.ofNullable(parentService.getParentById(parentRegistrationSuccessEvent.getIdentity()))
                 .ifPresent(parent -> {
                     logger.debug("Save Confirmation token for user");
                     String confirmationToken = tokenGeneratorService.generateToken(parent.getFirstName());

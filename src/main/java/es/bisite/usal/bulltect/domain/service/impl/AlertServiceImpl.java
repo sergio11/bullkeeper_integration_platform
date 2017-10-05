@@ -16,24 +16,36 @@ import org.springframework.util.Assert;
 import com.google.common.collect.Iterables;
 
 import es.bisite.usal.bulltect.domain.service.IAlertService;
+import es.bisite.usal.bulltect.i18n.service.IMessageSourceResolverService;
 import es.bisite.usal.bulltect.mapper.AlertEntityMapper;
 import es.bisite.usal.bulltect.persistence.entity.AlertEntity;
 import es.bisite.usal.bulltect.persistence.entity.AlertLevelEnum;
+import es.bisite.usal.bulltect.persistence.entity.ParentEntity;
+import es.bisite.usal.bulltect.persistence.entity.SonEntity;
 import es.bisite.usal.bulltect.persistence.repository.AlertRepository;
 import es.bisite.usal.bulltect.web.dto.request.AddAlertDTO;
 import es.bisite.usal.bulltect.web.dto.response.AlertDTO;
 import es.bisite.usal.bulltect.web.dto.response.AlertsPageDTO;
+import java.util.Locale;
 
 @Service
 public class AlertServiceImpl implements IAlertService {
 
     private final AlertRepository alertRepository;
     private final AlertEntityMapper alertMapper;
+    private final IMessageSourceResolverService messageSourceResolverService;
 
-    public AlertServiceImpl(AlertRepository alertRepository, AlertEntityMapper alertMapper) {
+    public AlertServiceImpl(AlertRepository alertRepository, AlertEntityMapper alertMapper,
+            IMessageSourceResolverService messageSourceResolverService) {
         super();
         this.alertRepository = alertRepository;
         this.alertMapper = alertMapper;
+        this.messageSourceResolverService = messageSourceResolverService;
+    }
+    
+    @Override
+    public AlertDTO findById(ObjectId id) {
+        return alertMapper.alertEntityToAlertDTO(alertRepository.findOne(id));
     }
 
     @Override
@@ -110,11 +122,43 @@ public class AlertServiceImpl implements IAlertService {
 		return alertsPageDTO;
 		
 	}
+        
+        
+    @Override
+    public Long deleteAlertsOfParent(ObjectId parent) {
+        return alertRepository.deleteByParentId(parent);
+    }
+    
+    @Override
+    public Iterable<AlertDTO> findBySon(ObjectId son) {
+       return this.alertMapper.alertEntitiesToAlertDTO(alertRepository.findBySonIdOrderByCreateAtDesc(son));
+    }
+    
+    @Override
+    public Long clearChildAlerts(ObjectId son) {
+        return alertRepository.deleteBySonId(son);
+    }
+    
+    @Override
+    public void deleteById(ObjectId id) {
+        alertRepository.delete(id);
+    }
+    
+    @Override
+    public void createInvalidAccessTokenAlert(String payload, ParentEntity parent, SonEntity son) {
+        Assert.notNull(payload, "Payload can not be null");
+        Assert.hasLength(payload, "Payload can not be empty");
+        Assert.notNull(parent, "Parent can not be null");
+        Assert.notNull(son, "Son can not be null");
+        String title = messageSourceResolverService.resolver("alerts.title.invalid.access.token", parent.getLocale());
+        alertRepository.save(new AlertEntity(AlertLevelEnum.WARNING, title, payload, parent, son));
+    }
 
     @PostConstruct
     protected void init() {
         Assert.notNull(alertRepository, "Alert Repository cannot be null");
+        Assert.notNull(alertMapper, "Alert Mapper cannot be null");
+        Assert.notNull(messageSourceResolverService, "Message Source Resolver Service cannot be null");
+        
     }
-
-	
 }

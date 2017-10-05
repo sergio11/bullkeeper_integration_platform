@@ -16,7 +16,9 @@ import org.springframework.web.servlet.LocaleResolver;
 import es.bisite.usal.bulltect.i18n.service.IMessageSourceResolverService;
 import es.bisite.usal.bulltect.web.rest.ApiHelper;
 import es.bisite.usal.bulltect.web.rest.controller.BaseController;
+import es.bisite.usal.bulltect.web.rest.exception.AlertNotFoundException;
 import es.bisite.usal.bulltect.web.rest.exception.CommentsBySonNotFoundException;
+import es.bisite.usal.bulltect.web.rest.exception.NoAlertsBySonFoundException;
 import es.bisite.usal.bulltect.web.rest.exception.NoChildrenFoundException;
 import es.bisite.usal.bulltect.web.rest.exception.SonNotFoundException;
 import es.bisite.usal.bulltect.web.rest.response.APIResponse;
@@ -54,6 +56,20 @@ public class ChildrenErrorController extends BaseController {
     protected ResponseEntity<APIResponse<String>> handleNoChildrenFoundException(NoChildrenFoundException noChildrenFoundException, HttpServletRequest request){
         return ApiHelper.<String>createAndSendErrorResponseWithHeader(ChildrenResponseCode.NO_CHILDREN_FOUND, HttpStatus.NOT_FOUND,
         		messageSourceResolver.resolver("children.not.found"));
+    }
+    
+    @ExceptionHandler(NoAlertsBySonFoundException.class)
+    @ResponseBody
+    protected ResponseEntity<APIResponse<String>> handleNoAlertsBySonFoundException(NoAlertsBySonFoundException noAlertsBySonFoundException, HttpServletRequest request){
+        return ApiHelper.<String>createAndSendErrorResponseWithHeader(ChildrenResponseCode.NO_ALERTS_BY_SON_FOUNDED, HttpStatus.NOT_FOUND,
+        		messageSourceResolver.resolver("alerts.by.son.founded"));
+    }
+    
+    @ExceptionHandler(AlertNotFoundException.class)
+    @ResponseBody
+    protected ResponseEntity<APIResponse<String>> handleAlertNotFoundException(AlertNotFoundException alertNotFoundException, HttpServletRequest request){
+        return ApiHelper.<String>createAndSendErrorResponseWithHeader(ChildrenResponseCode.ALERT_NOT_FOUND, HttpStatus.NOT_FOUND,
+        		messageSourceResolver.resolver("alert.not.found"));
     }
     
     @PostConstruct

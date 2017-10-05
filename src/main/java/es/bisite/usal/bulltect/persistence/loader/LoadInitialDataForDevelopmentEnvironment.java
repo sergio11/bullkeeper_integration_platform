@@ -181,7 +181,7 @@ public class LoadInitialDataForDevelopmentEnvironment implements CommandLineRunn
         
         // Alerts
         
-        AlertEntity alertInfo = new AlertEntity("Alerta de Prueba", federico, sergio);
+        AlertEntity alertInfo = new AlertEntity("Alerta de Prueba", "Alerta de Prueba", federico, sergio);
         
         alertList.add(alertInfo);
         
