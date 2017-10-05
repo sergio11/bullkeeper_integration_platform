@@ -36,6 +36,7 @@ import es.bisite.usal.bulltect.events.PasswordResetEvent;
 import es.bisite.usal.bulltect.persistence.constraints.ParentShouldExists;
 import es.bisite.usal.bulltect.persistence.constraints.ValidObjectId;
 import es.bisite.usal.bulltect.persistence.constraints.group.ICommonSequence;
+import es.bisite.usal.bulltect.persistence.constraints.group.IResetPasswordSequence;
 import es.bisite.usal.bulltect.rrss.service.IFacebookService;
 import es.bisite.usal.bulltect.web.dto.request.JwtAuthenticationRequestDTO;
 import es.bisite.usal.bulltect.web.dto.request.JwtFacebookAuthenticationRequestDTO;
@@ -511,7 +512,7 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     @ApiOperation(value = "RESET_PASSWORD", nickname = "RESET_PASSWORD", notes="Reset Password")
     public ResponseEntity<APIResponse<String>> resetPassword(
     		@ApiParam(value = "resetPasswordRequest", required = true) 
-			@Valid @RequestBody  ResetPasswordRequestDTO request){
+			@Validated(IResetPasswordSequence.class) @RequestBody  ResetPasswordRequestDTO request){
     	
     	logger.debug("Reset Password");
     	

@@ -48,7 +48,6 @@ public  class RegisterParentDTO {
     @Email(message="{user.email.invalid}")
     @ParentEmailShouldNotExist(message="{user.email.unique}", groups = Extended.class)
     @JsonProperty("email")
-    @JsonDeserialize(using = ClearStringDeserializer.class)
     protected String email;
     
     @NotBlank(message="{user.pass.notnull}")

@@ -1,5 +1,7 @@
 package es.bisite.usal.bulltect.web.dto.request;
 
+import javax.validation.GroupSequence;
+
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
 
@@ -8,14 +10,19 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import es.bisite.usal.bulltect.persistence.constraints.ParentAccountShouldActive;
 import es.bisite.usal.bulltect.persistence.constraints.ParentAccountShouldNotLocked;
 import es.bisite.usal.bulltect.persistence.constraints.ParentEmailShouldExist;
+import es.bisite.usal.bulltect.persistence.constraints.group.IResetPasswordSequence.IAccountShouldActive;
+import es.bisite.usal.bulltect.persistence.constraints.group.IResetPasswordSequence.IAccountShouldNotLocked;
+import es.bisite.usal.bulltect.persistence.constraints.group.IResetPasswordSequence.IEmailShouldExist;
+import es.bisite.usal.bulltect.persistence.constraints.group.IResetPasswordSequence.IValidEmail;
+
 
 public final class ResetPasswordRequestDTO {
-
+	
 	@NotBlank(message = "{user.email.notnull}")
-	@Email(message="{user.email.invalid}")
-	@ParentEmailShouldExist(message="{user.email.not.exists}")
-	@ParentAccountShouldActive(message="{user.email.not.activate}")
-	@ParentAccountShouldNotLocked(message="{user.email.not.locked}")
+	@Email(message="{user.email.invalid}", groups = IValidEmail.class)
+	@ParentEmailShouldExist(message="{user.email.not.exists}", groups = IEmailShouldExist.class)
+	@ParentAccountShouldActive(message="{user.email.not.activate}", groups = IAccountShouldActive.class)
+	@ParentAccountShouldNotLocked(message="{user.email.not.locked}", groups = IAccountShouldNotLocked.class)
 	@JsonProperty("email")
 	private String email;
     
