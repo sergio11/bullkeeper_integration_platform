@@ -18,12 +18,12 @@ public class AlertsPageDTO implements Serializable {
 	@JsonProperty("remaining")
 	private Integer remaining;
 	@JsonProperty("last_query")
-	private Date lastQuery;
+	private String lastQuery;
 	
 	public AlertsPageDTO(){}
 
 	public AlertsPageDTO(Iterable<AlertDTO> alerts, Integer total, Integer returned, Integer remaining,
-			Date lastQuery) {
+			String lastQuery) {
 		super();
 		this.alerts = alerts;
 		this.total = total;
@@ -64,11 +64,11 @@ public class AlertsPageDTO implements Serializable {
 		this.remaining = remaining;
 	}
 
-	public Date getLastQuery() {
+	public String getLastQuery() {
 		return lastQuery;
 	}
 
-	public void setLastQuery(Date lastQuery) {
+	public void setLastQuery(String lastQuery) {
 		this.lastQuery = lastQuery;
 	}
 

@@ -20,8 +20,8 @@ public interface AlertRepository extends MongoRepository<AlertEntity, ObjectId>,
 	Page<AlertEntity> findByLevelAndParentIdAndDeliveredOrderByCreateAtDesc(AlertLevelEnum level, ObjectId id, Boolean delivered, Pageable pageable);
 	List<AlertEntity> findByParentIdAndDeliveredOrderByCreateAtDesc(ObjectId id, Boolean delivered);
 	List<AlertEntity> findByDeliveredTrueAndParentIdOrderByCreateAtDesc(ObjectId id);
-	List<AlertEntity> findByParentIdAndCreateAtAfterOrderByCreateAtDesc(ObjectId id, Date lastAccessToAlerts, Pageable pageable);
+	List<AlertEntity> findByParentIdAndCreateAtGreaterThanEqualOrderByCreateAtDesc(ObjectId id, Date lastAccessToAlerts, Pageable pageable);
 	Integer countByParentId(ObjectId id);
-	Integer countByParentIdAndCreateAtAfter(ObjectId id, Date lastAccessToAlerts);
+	Integer countByParentIdAndCreateAtGreaterThanEqual(ObjectId id, Date lastAccessToAlerts);
 	
 }

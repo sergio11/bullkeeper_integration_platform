@@ -1,5 +1,6 @@
 package es.bisite.usal.bulltect.domain.service.impl;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -92,7 +93,7 @@ public class AlertServiceImpl implements IAlertService {
     	AlertsPageDTO alertsPageDTO = new AlertsPageDTO();
 		
     	Pageable countAlerts = new PageRequest(0, count);
-		Iterable<AlertEntity> lastAlerts = alertRepository.findByParentIdAndCreateAtAfterOrderByCreateAtDesc(parent, lastAccessToAlerts, countAlerts);
+		Iterable<AlertEntity> lastAlerts = alertRepository.findByParentIdAndCreateAtGreaterThanEqualOrderByCreateAtDesc(parent, lastAccessToAlerts, countAlerts);
 		Iterable<AlertDTO> lastAlertsDTO = alertMapper.alertEntitiesToAlertDTO(lastAlerts);
 		alertsPageDTO.setAlerts(lastAlertsDTO);
 		// total alerts count
@@ -102,10 +103,9 @@ public class AlertServiceImpl implements IAlertService {
 		Integer returned = Iterables.size(lastAlerts);
 		alertsPageDTO.setReturned(returned);
 		// total remaining alerts
-		Integer totalNewAlerts = alertRepository.countByParentIdAndCreateAtAfter(parent, lastAccessToAlerts);
+		Integer totalNewAlerts = alertRepository.countByParentIdAndCreateAtGreaterThanEqual(parent, lastAccessToAlerts);
 		alertsPageDTO.setRemaining(totalNewAlerts - returned);
-		
-		alertsPageDTO.setLastQuery(lastAccessToAlerts);
+		alertsPageDTO.setLastQuery(new SimpleDateFormat("yyyy-MM-dd").format(lastAccessToAlerts));
 		
 		return alertsPageDTO;
 		
