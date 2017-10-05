@@ -14,6 +14,7 @@ import es.bisite.usal.bulltect.persistence.constraints.SonShouldExists;
 import es.bisite.usal.bulltect.persistence.constraints.ValidObjectId;
 import es.bisite.usal.bulltect.persistence.constraints.group.Extended;
 import es.bisite.usal.bulltect.web.rest.deserializers.BirthdayDeserializer;
+import es.bisite.usal.bulltect.web.rest.deserializers.ClearStringDeserializer;
 
 public final class UpdateSonDTO {
 	
@@ -26,11 +27,13 @@ public final class UpdateSonDTO {
 	@NotBlank(message = "{user.firstname.notnull}")
     @Size(min = 5, max = 15, message = "{user.firstname.size}")
 	@JsonProperty("first_name")
+	@JsonDeserialize(using = ClearStringDeserializer.class)
 	private String firstName;
 	
 	@NotBlank(message = "{user.lastname.notnull}")
     @Size(min = 5, max = 15, message = "{user.lastname.size}")
 	@JsonProperty("last_name")
+	@JsonDeserialize(using = ClearStringDeserializer.class)
     private String lastName;
 
 	@JsonProperty("birthdate")

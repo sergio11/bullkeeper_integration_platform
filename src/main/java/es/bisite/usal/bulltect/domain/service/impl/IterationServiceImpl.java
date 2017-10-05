@@ -23,12 +23,13 @@ import org.springframework.util.Assert;
 import es.bisite.usal.bulltect.domain.service.IIterationService;
 import es.bisite.usal.bulltect.integration.properties.IntegrationFlowProperties;
 import es.bisite.usal.bulltect.integration.service.IItegrationFlowService;
-import es.bisite.usal.bulltect.mapper.IIterationEntityMapper;
+import es.bisite.usal.bulltect.mapper.IterationEntityMapper;
 import es.bisite.usal.bulltect.persistence.entity.IterationEntity;
 import es.bisite.usal.bulltect.persistence.repository.IterationRepository;
 import es.bisite.usal.bulltect.persistence.repository.SocialMediaRepository;
 import es.bisite.usal.bulltect.web.dto.response.CommentsBySonDTO;
 import es.bisite.usal.bulltect.web.dto.response.IterationDTO;
+import es.bisite.usal.bulltect.web.dto.response.IterationWithTasksDTO;
 import es.bisite.usal.bulltect.web.websocket.constants.WebSocketConstants;
 
 /**
@@ -40,13 +41,13 @@ public class IterationServiceImpl implements IIterationService {
     private Logger logger = LoggerFactory.getLogger(IterationServiceImpl.class);
     
     private final IterationRepository iterationRepository;
-    private final IIterationEntityMapper iterationEntityMapper;
+    private final IterationEntityMapper iterationEntityMapper;
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final SocialMediaRepository socialMediaRepository;
     private final IItegrationFlowService itegrationFlowService;
 
     public IterationServiceImpl(IterationRepository iterationRepository, 
-            IIterationEntityMapper iterationEntityMapper, SimpMessagingTemplate simpMessagingTemplate,
+            IterationEntityMapper iterationEntityMapper, SimpMessagingTemplate simpMessagingTemplate,
             SocialMediaRepository socialMediaRepository, IItegrationFlowService itegrationFlowService) {
         this.iterationRepository = iterationRepository;
         this.iterationEntityMapper = iterationEntityMapper;
@@ -142,11 +143,22 @@ public class IterationServiceImpl implements IIterationService {
     
     @Override
 	public List<CommentsBySonDTO> getCommentsBySonForLastIteration() {
-    	List<CommentsBySonDTO> commentsBySon = new ArrayList<>();
     	PageRequest request = new PageRequest(0, 1, new Sort(Sort.Direction.DESC, "finishDate"));
     	List<IterationEntity> iterations = iterationRepository.findAll(request).getContent();
     	IterationEntity lastIteration = iterations.size() > 0 ? iterations.get(0) : null;
     	return lastIteration != null ? getCommentsBySonForIteration(lastIteration) : new ArrayList<>();
+	}
+    
+    @Override
+	public List<IterationDTO> getLastIterationsByParent(ObjectId id, Integer count) {
+    	PageRequest page = new PageRequest(0, count);
+    	return iterationEntityMapper.iterationEntitiesToIterationDTOs(iterationRepository.findByParentIdOrderByFinishDateDesc(id, page));
+    	
+	}
+    
+    @Override
+	public IterationWithTasksDTO getLastIterationByParent(ObjectId id) {
+    	return iterationEntityMapper.iterationEntityToIterationWithTasksDTO(iterationRepository.findFirstByParentIdOrderByFinishDateDesc(id));
 	}
     
     @PostConstruct
@@ -155,4 +167,6 @@ public class IterationServiceImpl implements IIterationService {
         Assert.notNull(iterationEntityMapper, "IIterationEntityMapper cannot be null");
         Assert.notNull(simpMessagingTemplate, "SimpMessagingTemplate cannot be null");
     }
+
+	
 }

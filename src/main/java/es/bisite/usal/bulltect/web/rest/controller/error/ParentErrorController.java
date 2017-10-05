@@ -22,6 +22,7 @@ import es.bisite.usal.bulltect.web.rest.exception.GetInformationFromFacebookExce
 import es.bisite.usal.bulltect.web.rest.exception.InvalidFacebookIdException;
 import es.bisite.usal.bulltect.web.rest.exception.NoChildrenFoundForParentException;
 import es.bisite.usal.bulltect.web.rest.exception.NoChildrenFoundForSelfParentException;
+import es.bisite.usal.bulltect.web.rest.exception.NoIterationsFoundForSelfParentException;
 import es.bisite.usal.bulltect.web.rest.exception.NoParentsFoundException;
 import es.bisite.usal.bulltect.web.rest.exception.ParentNotFoundException;
 import es.bisite.usal.bulltect.web.rest.response.APIResponse;
@@ -101,6 +102,16 @@ public class ParentErrorController extends BaseController{
     	return ApiHelper.<String>createAndSendErrorResponseWithHeader(ParentResponseCode.INVALID_FACEBOOK_ID, HttpStatus.BAD_REQUEST,
     			messageSourceResolver.resolver("parent.invalid.facebook.id"));
     }
+    
+    @ExceptionHandler(NoIterationsFoundForSelfParentException.class)
+    @ResponseBody
+    protected ResponseEntity<APIResponse<String>> handleNoIterationsFoundForSelfParentException(NoIterationsFoundForSelfParentException noIterationsFoundForSelfParentException, HttpServletRequest request) {
+    	return ApiHelper.<String>createAndSendErrorResponseWithHeader(ParentResponseCode.NO_ITERATIONS_FOUND_FOR_SELF_PARENT, HttpStatus.NOT_FOUND,
+    			messageSourceResolver.resolver("parent.no.iterations.found"));
+    }
+    
+    
+    
     
     @PostConstruct
     protected void init(){

@@ -1,6 +1,7 @@
 package es.bisite.usal.bulltect.domain.service.impl;
 
 
+
 import javax.annotation.PostConstruct;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
@@ -12,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 
 import es.bisite.usal.bulltect.domain.service.IParentsService;
 import es.bisite.usal.bulltect.mapper.ParentEntityMapper;
@@ -27,7 +29,6 @@ import es.bisite.usal.bulltect.web.dto.request.UpdateParentDTO;
 import es.bisite.usal.bulltect.web.dto.request.UpdateSonDTO;
 import es.bisite.usal.bulltect.web.dto.response.ParentDTO;
 import es.bisite.usal.bulltect.web.dto.response.SonDTO;
-import es.bisite.usal.bulltect.web.rest.controller.ParentsController;
 import io.jsonwebtoken.lang.Assert;
 
 @Service
@@ -89,8 +90,6 @@ public class ParentsServiceImpl implements IParentsService {
 
     @Override
     public ParentDTO save(RegisterParentDTO registerParent) {
-    	logger.debug("Telephone -> " + registerParent.getTelephone().getRawInput());
-    	logger.debug("Telephone -> " + registerParent.getTelephone().toString());
         final ParentEntity parentToSave = parentEntityMapper.registerParentDTOToParentEntity(registerParent);
         final ParentEntity parentSaved = parentRepository.save(parentToSave);
         return parentEntityMapper.parentEntityToParentDTO(parentSaved);
@@ -215,6 +214,12 @@ public class ParentsServiceImpl implements IParentsService {
 	public void cancelAllAccountDeletionProcess() {
 		parentRepository.setPendingDeletionAsFalseAndDeleteConfirmationToken();
 	}
+	
+	@Override
+	public void updateLastAccessToAlerts(ObjectId id) {
+		parentRepository.setLastAccessToAlerts(id);
+	}
+	
 	
 	@PostConstruct
 	protected void init(){

@@ -1,6 +1,7 @@
 package es.bisite.usal.bulltect.web.rest.controller;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import javax.validation.Valid;
@@ -18,9 +19,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.google.common.collect.Iterables;
+
+import es.bisite.usal.bulltect.domain.service.IAlertService;
 import es.bisite.usal.bulltect.domain.service.IAuthenticationService;
+import es.bisite.usal.bulltect.domain.service.IIterationService;
 import es.bisite.usal.bulltect.domain.service.IParentsService;
 import es.bisite.usal.bulltect.domain.service.IPasswordResetTokenService;
 import es.bisite.usal.bulltect.domain.service.ITokenGeneratorService;
@@ -39,7 +44,10 @@ import es.bisite.usal.bulltect.web.dto.request.RegisterSonDTO;
 import es.bisite.usal.bulltect.web.dto.request.ResetPasswordRequestDTO;
 import es.bisite.usal.bulltect.web.dto.request.UpdateParentDTO;
 import es.bisite.usal.bulltect.web.dto.request.UpdateSonDTO;
+import es.bisite.usal.bulltect.web.dto.response.AlertsPageDTO;
 import es.bisite.usal.bulltect.web.dto.response.ImageDTO;
+import es.bisite.usal.bulltect.web.dto.response.IterationDTO;
+import es.bisite.usal.bulltect.web.dto.response.IterationWithTasksDTO;
 import es.bisite.usal.bulltect.web.dto.response.JwtAuthenticationResponseDTO;
 import es.bisite.usal.bulltect.web.dto.response.ParentDTO;
 import es.bisite.usal.bulltect.web.dto.response.PasswordResetTokenDTO;
@@ -48,6 +56,8 @@ import es.bisite.usal.bulltect.web.dto.response.ValidationErrorDTO;
 import es.bisite.usal.bulltect.web.rest.ApiHelper;
 import es.bisite.usal.bulltect.web.rest.exception.NoChildrenFoundForParentException;
 import es.bisite.usal.bulltect.web.rest.exception.NoChildrenFoundForSelfParentException;
+import es.bisite.usal.bulltect.web.rest.exception.NoIterationsFoundForSelfParentException;
+import es.bisite.usal.bulltect.web.rest.exception.NoNewAlertsFoundException;
 import es.bisite.usal.bulltect.web.rest.exception.NoParentsFoundException;
 import es.bisite.usal.bulltect.web.rest.exception.ParentNotFoundException;
 import es.bisite.usal.bulltect.web.rest.hal.IImageHAL;
@@ -97,16 +107,21 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     private final IFacebookService facebookService;
     private final ITokenGeneratorService tokenGeneratorService;
     private final IUploadFilesService uploadFilesService;
+    private final IAlertService alertService;
+    private final IIterationService iterationService;
  
     public ParentsController(IParentsService parentsService, IPasswordResetTokenService passwordResetTokenService, 
     		IAuthenticationService authenticationService, IFacebookService facebookService, 
-                ITokenGeneratorService tokenGeneratorService, IUploadFilesService uploadFilesService) {
+                ITokenGeneratorService tokenGeneratorService, IUploadFilesService uploadFilesService, IAlertService alertService,
+                IIterationService iterationService) {
         this.parentsService = parentsService;
         this.passwordResetTokenService = passwordResetTokenService;
         this.authenticationService = authenticationService;
         this.facebookService = facebookService;
         this.tokenGeneratorService = tokenGeneratorService;
         this.uploadFilesService = uploadFilesService;
+        this.alertService = alertService;
+        this.iterationService = iterationService;
     }
    
     
@@ -401,6 +416,76 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     }
     
     
+    @RequestMapping(value = "/self/alerts", method = RequestMethod.GET)
+    @OnlyAccessForParent
+    @ApiOperation(value = "GET_ALERTS_FOR_SELF_PARENT", nickname = "GET_ALERTS_FOR_SELF_PARENT", 
+            notes = "Get Alerts For Self Parent")
+    @ApiResponses(value = { 
+    		@ApiResponse(code = 200, message= "Alerts", response = AlertsPageDTO.class)
+    })
+    public ResponseEntity<APIResponse<AlertsPageDTO>> getAlertsForSelfParent(
+    		@RequestParam(value = "count", required=false, defaultValue="10") Integer count,
+    		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
+    	
+        logger.debug("Get " + count + " Alerts For Self Parent");
+        
+        AlertsPageDTO alertsPageDTO = alertService.getAlerts(selfParent.getUserId(), selfParent.getLastAccessToAlerts(), count);
+        // Update Last Access To Alerts
+        parentsService.updateLastAccessToAlerts(selfParent.getUserId());
+        
+        if(Iterables.size(alertsPageDTO.getAlerts()) == 0)
+        	throw new NoNewAlertsFoundException();
+  
+        return ApiHelper.<AlertsPageDTO>createAndSendResponse(ParentResponseCode.ALERTS_FOR_SELF_PARENT, 
+        		HttpStatus.OK, alertsPageDTO);
+   
+    }
+    
+    @RequestMapping(value = "/self/iterations", method = RequestMethod.GET)
+    @OnlyAccessForParent
+    @ApiOperation(value = "GET_LAST_ITERATIONS_FOR_SELF_PARENT", nickname = "GET_LAST_ITERATIONS_FOR_SELF_PARENT", 
+            notes = "Get Last Iteration For Self Parent")
+    @ApiResponses(value = { 
+    		@ApiResponse(code = 200, message= "Iterations List", response = IterationDTO.class)
+    })
+    public ResponseEntity<APIResponse<List<IterationDTO>>> getIterationsForSelfParent(
+    		@RequestParam(value = "count", required=false, defaultValue="10") Integer count,
+    		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
+    	
+    	
+        logger.debug("Get " + count + " Iterations For Self Parent");
+        
+        List<IterationDTO> iterations = iterationService.getLastIterationsByParent(selfParent.getUserId(), count);
+        
+        if(iterations.size() == 0)
+        	throw new NoIterationsFoundForSelfParentException();
+        
+  
+        return ApiHelper.<List<IterationDTO>>createAndSendResponse(ParentResponseCode.LAST_ITERATIONS_FOR_SELF_PARENT, 
+        		HttpStatus.OK, iterations);
+   
+    }
+    
+    @RequestMapping(value = "/self/iterations/last", method = RequestMethod.GET)
+    @OnlyAccessForParent
+    @ApiOperation(value = "GET_LAST_ITERATION_FOR_SELF_PARENT", nickname = "GET_LAST_ITERATION_FOR_SELF_PARENT", 
+            notes = "Get Last Iteration For Self Parent")
+    @ApiResponses(value = { 
+    		@ApiResponse(code = 200, message= "Get Last Iteration", response = IterationDTO.class)
+    })
+    public ResponseEntity<APIResponse<IterationWithTasksDTO>> getLastIterationForSelfParent(
+    		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
+    	
+        logger.debug("Get Last Iteration");
+        
+        return Optional.ofNullable(iterationService.getLastIterationByParent(selfParent.getUserId()))
+                .map(lastIteration -> ApiHelper.<IterationWithTasksDTO>createAndSendResponse(ParentResponseCode.LAST_ITERATION_FOR_SELF_PARENT, 
+                		HttpStatus.OK, lastIteration))
+                .orElseThrow(() -> { throw new NoIterationsFoundForSelfParentException(); });
+   
+    }
+    
+    
     @RequestMapping(value = "/self/reset-password",  method = RequestMethod.POST)
     @OnlyAccessForParent
     @ApiOperation(value = "SELF_RESET_PASSWORD", nickname = "SELF_RESET_PASSWORD", notes="Reset Password For Self User")
@@ -557,6 +642,9 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
         Assert.notNull(facebookService, "FacebookService can not be null");
         Assert.notNull(tokenGeneratorService, "TokenGeneratorService can not be null");
         Assert.notNull(uploadFilesService, "UploadFilesService can not be null");
+        Assert.notNull(alertService, "Alert Service can not be null");
+        Assert.notNull(iterationService, "Iteration Service can not be null");
+
     }
     
 }

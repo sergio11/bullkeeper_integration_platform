@@ -47,6 +47,10 @@ public class IterationEntity {
     @CascadeSave
     private Set<TaskEntity> tasks = new HashSet<>();
     
+    @Field("parent")
+    @DBRef
+    private ParentEntity parent;
+    
     public IterationEntity(){}
     
     public IterationEntity(Date startDate, Date finishDate, Long duration){
@@ -56,21 +60,25 @@ public class IterationEntity {
     }
    
     @PersistenceConstructor
-    public IterationEntity(Date startDate, Date finishDate, Integer totalTasks, Integer totalFailedTasks,
-			Integer totalComments, Set<TaskEntity> tasks) {
+    public IterationEntity(ObjectId id, Date startDate, Date finishDate, Long duration, Integer totalTasks,
+			Integer totalFailedTasks, Integer totalComments, Set<TaskEntity> tasks, ParentEntity parent) {
 		super();
+		this.id = id;
 		this.startDate = startDate;
 		this.finishDate = finishDate;
+		this.duration = duration;
 		this.totalTasks = totalTasks;
 		this.totalFailedTasks = totalFailedTasks;
 		this.totalComments = totalComments;
 		this.tasks = tasks;
+		this.parent = parent;
 	}
     
     public ObjectId getId() {
         return id;
     }
 
+	
 	public void setId(ObjectId id) {
         this.id = id;
     }
@@ -135,4 +143,14 @@ public class IterationEntity {
     public void addTask(TaskEntity task) {
         this.tasks.add(task);
     }
+
+	public ParentEntity getParent() {
+		return parent;
+	}
+
+	public void setParent(ParentEntity parent) {
+		this.parent = parent;
+	}
+    
+    
 }

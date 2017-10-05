@@ -16,6 +16,7 @@ import es.bisite.usal.bulltect.web.rest.ApiHelper;
 import es.bisite.usal.bulltect.web.rest.controller.BaseController;
 import es.bisite.usal.bulltect.web.rest.exception.CreateAlertFailedException;
 import es.bisite.usal.bulltect.web.rest.exception.NoAlertsFoundException;
+import es.bisite.usal.bulltect.web.rest.exception.NoNewAlertsFoundException;
 import es.bisite.usal.bulltect.web.rest.response.APIResponse;
 import es.bisite.usal.bulltect.web.rest.response.AlertResponseCode;
 import io.jsonwebtoken.lang.Assert;
@@ -44,6 +45,13 @@ public class AlertsErrorController extends BaseController {
     protected ResponseEntity<APIResponse<String>> handleCreateAlertFailedException(CreateAlertFailedException createAlertFailedException, HttpServletRequest request) {
         return ApiHelper.<String>createAndSendErrorResponseWithHeader(AlertResponseCode.CREATE_ALERT_FAILED, HttpStatus.INTERNAL_SERVER_ERROR, 
         		messageSourceResolver.resolver("alert.create.failed"));
+    }
+    
+    @ExceptionHandler(NoNewAlertsFoundException.class)
+    @ResponseBody
+    protected ResponseEntity<APIResponse<String>> handleNoNewAlertsFoundException(NoNewAlertsFoundException noNewAlertsFoundException, HttpServletRequest request) {
+        return ApiHelper.<String>createAndSendErrorResponseWithHeader(AlertResponseCode.NO_NEW_ALERTS_FOUND, HttpStatus.NOT_FOUND, 
+        		messageSourceResolver.resolver("no.new.alerts.found"));
     }
     
     @PostConstruct

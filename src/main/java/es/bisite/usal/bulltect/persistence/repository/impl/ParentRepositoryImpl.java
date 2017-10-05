@@ -121,5 +121,13 @@ public class ParentRepositoryImpl implements ParentRepositoryCustom {
 				new Update().set("profile_image_id", profileImageId), ParentEntity.class);
 		
 	}
-	
+
+	@Override
+	public void setLastAccessToAlerts(ObjectId id) {
+		Assert.notNull(id, "id can not be null");
+		
+		mongoTemplate.updateFirst(
+				new Query(Criteria.where("_id").in(id)), 
+				new Update().set("last_access_to_alerts", new Date()), ParentEntity.class);
+	}
 }

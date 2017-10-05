@@ -132,6 +132,7 @@ public class InfrastructureConfiguration {
                     s.headerExpressions(h -> 
                     	h.put(IntegrationConstants.USER_HEADER, "payload.sonEntity")
                     		.put(IntegrationConstants.SOCIAL_MEDIA_ID_HEADER, "payload.id")
+                    		.put(IntegrationConstants.PARENT_HEADER, "payload.sonEntity.parent")
                     )
                     .header(MessageHeaders.ERROR_CHANNEL, "socialMediaErrorChannel")
                     .header(IntegrationConstants.TASK_START_HEADER, new Date())

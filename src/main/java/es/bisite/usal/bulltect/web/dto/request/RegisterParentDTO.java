@@ -18,6 +18,7 @@ import es.bisite.usal.bulltect.persistence.constraints.ParentEmailShouldNotExist
 import es.bisite.usal.bulltect.persistence.constraints.ValidPhoneNumber;
 import es.bisite.usal.bulltect.web.rest.deserializers.BirthdayDeserializer;
 import es.bisite.usal.bulltect.web.rest.deserializers.PhoneNumberDeserializer;
+import es.bisite.usal.bulltect.web.rest.deserializers.ClearStringDeserializer;
 
 @FieldMatch(first = "passwordClear", second = "confirmPassword", message = "{user.pass.not.match}")
 public  class RegisterParentDTO {
@@ -25,11 +26,13 @@ public  class RegisterParentDTO {
 	@NotBlank(message = "{user.firstname.notnull}")
     @Size(min = 5, max = 15, message = "{user.firstname.size}")
 	@JsonProperty("first_name")
+	@JsonDeserialize(using = ClearStringDeserializer.class)
 	protected String firstName;
 	
 	@NotBlank(message = "{user.lastname.notnull}")
     @Size(min = 5, max = 15, message = "{user.lastname.size}")
 	@JsonProperty("last_name")
+	@JsonDeserialize(using = ClearStringDeserializer.class)
 	protected String lastName;
 	
 	
@@ -42,6 +45,7 @@ public  class RegisterParentDTO {
     @Email(message="{user.email.invalid}")
     @ParentEmailShouldNotExist(message="{user.email.unique}")
     @JsonProperty("email")
+    @JsonDeserialize(using = ClearStringDeserializer.class)
     protected String email;
     
     @NotBlank(message="{user.pass.notnull}")

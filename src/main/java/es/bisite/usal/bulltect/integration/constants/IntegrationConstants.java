@@ -6,6 +6,7 @@ public final class IntegrationConstants implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	
+	public static String PARENT_HEADER = "PARENT";
 	public static String USER_HEADER = "USER";
 	public static String SOCIAL_MEDIA_ID_HEADER = "SOCIAL_MEDIA_ID";
 	public static String TASK_START_HEADER = "TASK_START";

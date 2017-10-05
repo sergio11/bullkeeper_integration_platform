@@ -1,5 +1,7 @@
 package es.bisite.usal.bulltect.domain.service;
 
+import java.util.Date;
+
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -40,4 +42,5 @@ public interface IParentsService {
     Long deleteAccount(String confirmationToken);
     Long deleteUnactivatedAccounts();
     void cancelAllAccountDeletionProcess();
+    void updateLastAccessToAlerts(ObjectId id);
 }

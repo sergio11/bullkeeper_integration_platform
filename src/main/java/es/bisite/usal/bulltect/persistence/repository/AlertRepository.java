@@ -1,5 +1,6 @@
 package es.bisite.usal.bulltect.persistence.repository;
 
+import java.util.Date;
 import java.util.List;
 
 import org.bson.types.ObjectId;
@@ -19,4 +20,8 @@ public interface AlertRepository extends MongoRepository<AlertEntity, ObjectId>,
 	Page<AlertEntity> findByLevelAndParentIdAndDeliveredOrderByCreateAtDesc(AlertLevelEnum level, ObjectId id, Boolean delivered, Pageable pageable);
 	List<AlertEntity> findByParentIdAndDeliveredOrderByCreateAtDesc(ObjectId id, Boolean delivered);
 	List<AlertEntity> findByDeliveredTrueAndParentIdOrderByCreateAtDesc(ObjectId id);
+	List<AlertEntity> findByParentIdAndCreateAtAfterOrderByCreateAtDesc(ObjectId id, Date lastAccessToAlerts, Pageable pageable);
+	Integer countByParentId(ObjectId id);
+	Integer countByParentIdAndCreateAtAfter(ObjectId id, Date lastAccessToAlerts);
+	
 }

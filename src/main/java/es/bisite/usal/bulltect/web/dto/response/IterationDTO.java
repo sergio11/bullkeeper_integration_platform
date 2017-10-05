@@ -10,6 +10,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class IterationDTO implements Serializable {
     
+
+	private static final long serialVersionUID = 1L;
+	
 	@JsonProperty("start_date")
     private String startDate;
 	@JsonProperty("finish_date")

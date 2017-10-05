@@ -1,14 +1,18 @@
 package es.bisite.usal.bulltect.domain.service.impl;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
 import org.bson.types.ObjectId;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+
+import com.google.common.collect.Iterables;
 
 import es.bisite.usal.bulltect.domain.service.IAlertService;
 import es.bisite.usal.bulltect.mapper.AlertEntityMapper;
@@ -17,6 +21,7 @@ import es.bisite.usal.bulltect.persistence.entity.AlertLevelEnum;
 import es.bisite.usal.bulltect.persistence.repository.AlertRepository;
 import es.bisite.usal.bulltect.web.dto.request.AddAlertDTO;
 import es.bisite.usal.bulltect.web.dto.response.AlertDTO;
+import es.bisite.usal.bulltect.web.dto.response.AlertsPageDTO;
 
 @Service
 public class AlertServiceImpl implements IAlertService {
@@ -80,9 +85,36 @@ public class AlertServiceImpl implements IAlertService {
     	List<AlertEntity> alertEntities = alertRepository.findByDeliveredTrueAndParentIdOrderByCreateAtDesc(id);
     	return alertMapper.alertEntitiesToAlertDTO(alertEntities);
 	}
+    
+    @Override
+	public AlertsPageDTO getAlerts(ObjectId parent, Date lastAccessToAlerts, Integer count) {
+    	
+    	AlertsPageDTO alertsPageDTO = new AlertsPageDTO();
+		
+    	Pageable countAlerts = new PageRequest(0, count);
+		Iterable<AlertEntity> lastAlerts = alertRepository.findByParentIdAndCreateAtAfterOrderByCreateAtDesc(parent, lastAccessToAlerts, countAlerts);
+		Iterable<AlertDTO> lastAlertsDTO = alertMapper.alertEntitiesToAlertDTO(lastAlerts);
+		alertsPageDTO.setAlerts(lastAlertsDTO);
+		// total alerts count
+		Integer totalAlerts = alertRepository.countByParentId(parent);
+		alertsPageDTO.setTotal(totalAlerts);
+		// total returned alerts count
+		Integer returned = Iterables.size(lastAlerts);
+		alertsPageDTO.setReturned(returned);
+		// total remaining alerts
+		Integer totalNewAlerts = alertRepository.countByParentIdAndCreateAtAfter(parent, lastAccessToAlerts);
+		alertsPageDTO.setRemaining(totalNewAlerts - returned);
+		
+		alertsPageDTO.setLastQuery(lastAccessToAlerts);
+		
+		return alertsPageDTO;
+		
+	}
 
     @PostConstruct
     protected void init() {
         Assert.notNull(alertRepository, "Alert Repository cannot be null");
     }
+
+	
 }

@@ -49,6 +49,9 @@ public class UserSystemEntity extends PersonEntity {
     
     @Field("profile_image_id")
     protected String profileImageId;
+    
+    @Field("last_access_to_alerts")
+	protected Date lastAccessToAlerts = new Date();
 
     @DBRef
     protected AuthorityEntity authority;
@@ -58,8 +61,8 @@ public class UserSystemEntity extends PersonEntity {
 
     @PersistenceConstructor
     public UserSystemEntity(String email, String password, String passwordRequestedAt, Boolean active, Boolean locked,
-			Date lastLoginAccess, Boolean pendingDeletion, Locale locale, Date lastPasswordResetDate, String confirmationToken,
-			AuthorityEntity authority, String profileImageId) {
+			Date lastLoginAccess, Boolean pendingDeletion, Locale locale, Date lastPasswordResetDate,
+			String confirmationToken, String profileImageId, Date lastAccessToAlerts, AuthorityEntity authority) {
 		super();
 		this.email = email;
 		this.password = password;
@@ -71,8 +74,9 @@ public class UserSystemEntity extends PersonEntity {
 		this.locale = locale;
 		this.lastPasswordResetDate = lastPasswordResetDate;
 		this.confirmationToken = confirmationToken;
-		this.authority = authority;
 		this.profileImageId = profileImageId;
+		this.lastAccessToAlerts = lastAccessToAlerts;
+		this.authority = authority;
 	}
     
     public UserSystemEntity(String firstName, String lastName, Date birthdate, String email, String password, AuthorityEntity authority) {
@@ -176,6 +180,16 @@ public class UserSystemEntity extends PersonEntity {
 
 	public void setProfileImageId(String profileImageId) {
 		this.profileImageId = profileImageId;
+	}
+	
+	
+
+	public Date getLastAccessToAlerts() {
+		return lastAccessToAlerts;
+	}
+
+	public void setLastAccessToAlerts(Date lastAccessToAlerts) {
+		this.lastAccessToAlerts = lastAccessToAlerts;
 	}
 
 	@Override

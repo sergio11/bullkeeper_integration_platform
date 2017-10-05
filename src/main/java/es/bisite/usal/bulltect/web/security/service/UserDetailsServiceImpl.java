@@ -50,7 +50,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             
                 return new UserDetailsImpl<ObjectId>(userSystemEntity.getId(), userSystemEntity.getEmail(),
                 		userSystemEntity.getPassword(), userSystemEntity.getFirstName(), userSystemEntity.getLastName(), userSystemEntity.isLocked(),
-                		userSystemEntity.getLastPasswordResetDate(), userSystemEntity.isActive(), grantedAuthorities, userSystemEntity.getProfileImageId());
+                		userSystemEntity.getLastPasswordResetDate(), userSystemEntity.isActive(), grantedAuthorities, userSystemEntity.getProfileImageId(), userSystemEntity.getLastAccessToAlerts());
         	}).orElseThrow(() -> new UsernameNotFoundException("User " + email + " was not found in the " +
         "database"));
 	}

@@ -25,13 +25,14 @@ public class UserDetailsImpl<T> implements CommonUserDetailsAware<T> {
     private Date lastPasswordResetDate;
     private Boolean active;
     private String profileImageId;
+    private Date lastAccessToAlerts;
 
     public UserDetailsImpl() {
     }
 
     public UserDetailsImpl(T id, String email, String password, String firstName, String lastName,
             Boolean locked, Date lastPasswordResetDate, Boolean active,
-            Set<SimpleGrantedAuthority> grantedAuthorities, String profileImageId) {
+            Set<SimpleGrantedAuthority> grantedAuthorities, String profileImageId, Date lastAccessToAlerts) {
         super();
         this.id = id;
         this.email = email;
@@ -43,6 +44,7 @@ public class UserDetailsImpl<T> implements CommonUserDetailsAware<T> {
         this.active = active;
         this.grantedAuthorities = grantedAuthorities;
         this.profileImageId = profileImageId;
+        this.lastAccessToAlerts = lastAccessToAlerts;
     }
 
     public T getId() {
@@ -147,6 +149,11 @@ public class UserDetailsImpl<T> implements CommonUserDetailsAware<T> {
     public String getProfileImageId() {
         return profileImageId;
     }
+    
+    @Override
+	public Date getLastAccessToAlerts() {
+		return lastAccessToAlerts;
+	}
 
     @Override
     public String toString() {

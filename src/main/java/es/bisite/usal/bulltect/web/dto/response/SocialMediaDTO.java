@@ -11,6 +11,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class SocialMediaDTO extends ResourceSupport implements Serializable {
     
+	private static final long serialVersionUID = 1L;
+	
 	@JsonProperty("identity")
     private String identity;
 	@JsonProperty("access_token")

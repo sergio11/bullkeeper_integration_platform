@@ -1,5 +1,6 @@
 package es.bisite.usal.bulltect.persistence.repository;
 
+
 import org.bson.types.ObjectId;
 
 
@@ -19,4 +20,5 @@ public interface ParentRepositoryCustom {
     void setPendingDeletionAsFalseAndDeleteConfirmationToken();
     void setPendingDeletionAsTrueAndConfirmationTokenById(ObjectId id, String confirmationToken);
     void setProfileImageId(ObjectId id, String profileImageId);
+    void setLastAccessToAlerts(ObjectId id);
 }

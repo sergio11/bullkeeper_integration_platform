@@ -12,20 +12,22 @@ import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
 
 import es.bisite.usal.bulltect.persistence.constraints.InDateRange;
 import es.bisite.usal.bulltect.persistence.constraints.NewParentEmailShouldNotExist;
-import es.bisite.usal.bulltect.persistence.constraints.ParentEmailShouldNotExist;
 import es.bisite.usal.bulltect.persistence.constraints.ValidPhoneNumber;
 import es.bisite.usal.bulltect.web.rest.deserializers.BirthdayDeserializer;
 import es.bisite.usal.bulltect.web.rest.deserializers.PhoneNumberDeserializer;
+import es.bisite.usal.bulltect.web.rest.deserializers.ClearStringDeserializer;
 
 public final class UpdateParentDTO {
 	
 	@NotBlank(message = "{user.firstname.notnull}")
     @Size(min = 5, max = 15, message = "{user.firstname.size}")
 	@JsonProperty("first_name")
+	@JsonDeserialize(using = ClearStringDeserializer.class)
 	private String firstName;
 	@NotBlank(message = "{user.firstname.notnull}")
     @Size(min = 5, max = 15, message = "{user.firstname.size}")
 	@JsonProperty("last_name")
+	@JsonDeserialize(using = ClearStringDeserializer.class)
     private String lastName;
 	@InDateRange(min = "1960-1-1", max = "2000-1-1", message="{user.birthdate.invalid}")
 	@JsonProperty("birthdate")
@@ -34,9 +36,9 @@ public final class UpdateParentDTO {
     @NotBlank(message="{user.email.notnull}")
     @Email(message="{user.email.invalid}")
     @NewParentEmailShouldNotExist(message="{user.email.unique}")
+    @JsonDeserialize(using = ClearStringDeserializer.class)
     private String email;
-    @NotBlank(message="{user.telephone.notnull}")
-	@ValidPhoneNumber(message = "user.telephone.not.valid")
+    @ValidPhoneNumber(message = "user.telephone.not.valid")
 	@JsonProperty("telephone")
 	@JsonDeserialize(using = PhoneNumberDeserializer.class)
 	private PhoneNumber telephone;

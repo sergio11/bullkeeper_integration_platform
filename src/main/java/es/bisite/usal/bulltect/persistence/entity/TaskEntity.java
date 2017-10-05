@@ -1,5 +1,6 @@
 package es.bisite.usal.bulltect.persistence.entity;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import org.bson.types.ObjectId;
@@ -37,7 +38,7 @@ public class TaskEntity {
     @Field("comments")
     @DBRef
     @CascadeSave
-    private List<CommentEntity> comments;
+    private List<CommentEntity> comments = new ArrayList<>();
     
     @Field("target")
     @DBRef
@@ -45,6 +46,7 @@ public class TaskEntity {
     
     @Field("social_media_id")
     private ObjectId socialMediaId;
+    
     
     public TaskEntity(){}
     
