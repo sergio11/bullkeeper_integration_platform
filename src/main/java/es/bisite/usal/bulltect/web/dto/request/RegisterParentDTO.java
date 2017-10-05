@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.Locale;
 
 import javax.validation.constraints.Size;
+import javax.validation.groups.Default;
+
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -16,6 +18,7 @@ import es.bisite.usal.bulltect.persistence.constraints.FieldMatch;
 import es.bisite.usal.bulltect.persistence.constraints.InDateRange;
 import es.bisite.usal.bulltect.persistence.constraints.ParentEmailShouldNotExist;
 import es.bisite.usal.bulltect.persistence.constraints.ValidPhoneNumber;
+import es.bisite.usal.bulltect.persistence.constraints.group.Extended;
 import es.bisite.usal.bulltect.web.rest.deserializers.BirthdayDeserializer;
 import es.bisite.usal.bulltect.web.rest.deserializers.PhoneNumberDeserializer;
 import es.bisite.usal.bulltect.web.rest.deserializers.ClearStringDeserializer;
@@ -24,7 +27,7 @@ import es.bisite.usal.bulltect.web.rest.deserializers.ClearStringDeserializer;
 public  class RegisterParentDTO {
 	
 	@NotBlank(message = "{user.firstname.notnull}")
-    @Size(min = 5, max = 15, message = "{user.firstname.size}")
+    @Size(min = 5, max = 15, message = "{user.firstname.size}", groups = Extended.class)
 	@JsonProperty("first_name")
 	@JsonDeserialize(using = ClearStringDeserializer.class)
 	protected String firstName;
@@ -43,7 +46,7 @@ public  class RegisterParentDTO {
  
     @NotBlank(message="{user.email.notnull}")
     @Email(message="{user.email.invalid}")
-    @ParentEmailShouldNotExist(message="{user.email.unique}")
+    @ParentEmailShouldNotExist(message="{user.email.unique}", groups = Extended.class)
     @JsonProperty("email")
     @JsonDeserialize(using = ClearStringDeserializer.class)
     protected String email;

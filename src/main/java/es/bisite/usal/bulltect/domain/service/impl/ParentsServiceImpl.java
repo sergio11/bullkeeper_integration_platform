@@ -13,8 +13,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.PhoneNumberUtil.PhoneNumberFormat;
 import es.bisite.usal.bulltect.domain.service.IParentsService;
 import es.bisite.usal.bulltect.mapper.ParentEntityMapper;
 import es.bisite.usal.bulltect.mapper.SonEntityMapper;
@@ -143,6 +143,10 @@ public class ParentsServiceImpl implements IParentsService {
 		// update parent
 		parentToUpdate.setFirstName(updateParentDTO.getFirstName());
 		parentToUpdate.setLastName(updateParentDTO.getLastName());
+		parentToUpdate.setEmail(updateParentDTO.getEmail());
+		parentToUpdate.setBirthdate(updateParentDTO.getBirthdate());
+		parentToUpdate.setTelephone(PhoneNumberUtil.getInstance().format(updateParentDTO.getTelephone(), PhoneNumberFormat.E164));
+
         final ParentEntity parentUpdated = parentRepository.save(parentToUpdate);
         return parentEntityMapper.parentEntityToParentDTO(parentUpdated);
 	}

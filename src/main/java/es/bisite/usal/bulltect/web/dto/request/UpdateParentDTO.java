@@ -12,7 +12,10 @@ import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
 
 import es.bisite.usal.bulltect.persistence.constraints.InDateRange;
 import es.bisite.usal.bulltect.persistence.constraints.NewParentEmailShouldNotExist;
+import es.bisite.usal.bulltect.persistence.constraints.SonShouldExists;
+import es.bisite.usal.bulltect.persistence.constraints.ValidObjectId;
 import es.bisite.usal.bulltect.persistence.constraints.ValidPhoneNumber;
+import es.bisite.usal.bulltect.persistence.constraints.group.Extended;
 import es.bisite.usal.bulltect.web.rest.deserializers.BirthdayDeserializer;
 import es.bisite.usal.bulltect.web.rest.deserializers.PhoneNumberDeserializer;
 import es.bisite.usal.bulltect.web.rest.deserializers.ClearStringDeserializer;
@@ -20,12 +23,12 @@ import es.bisite.usal.bulltect.web.rest.deserializers.ClearStringDeserializer;
 public final class UpdateParentDTO {
 	
 	@NotBlank(message = "{user.firstname.notnull}")
-    @Size(min = 5, max = 15, message = "{user.firstname.size}")
+    @Size(min = 5, max = 15, message = "{user.firstname.size}", groups = Extended.class)
 	@JsonProperty("first_name")
 	@JsonDeserialize(using = ClearStringDeserializer.class)
 	private String firstName;
 	@NotBlank(message = "{user.firstname.notnull}")
-    @Size(min = 5, max = 15, message = "{user.firstname.size}")
+    @Size(min = 5, max = 15, message = "{user.firstname.size}", groups = Extended.class)
 	@JsonProperty("last_name")
 	@JsonDeserialize(using = ClearStringDeserializer.class)
     private String lastName;
@@ -33,11 +36,12 @@ public final class UpdateParentDTO {
 	@JsonProperty("birthdate")
 	@JsonDeserialize(using = BirthdayDeserializer.class)
     private Date birthdate;
+	
     @NotBlank(message="{user.email.notnull}")
     @Email(message="{user.email.invalid}")
-    @NewParentEmailShouldNotExist(message="{user.email.unique}")
-    @JsonDeserialize(using = ClearStringDeserializer.class)
+    @NewParentEmailShouldNotExist(message="{user.email.unique}", groups = Extended.class)
     private String email;
+    
     @ValidPhoneNumber(message = "user.telephone.not.valid")
 	@JsonProperty("telephone")
 	@JsonDeserialize(using = PhoneNumberDeserializer.class)

@@ -10,10 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import es.bisite.usal.bulltect.persistence.entity.ParentEntity;
+import es.bisite.usal.bulltect.persistence.entity.SonEntity;
 import es.bisite.usal.bulltect.persistence.repository.AuthorityRepository;
 import es.bisite.usal.bulltect.persistence.repository.SonRepository;
 import es.bisite.usal.bulltect.web.dto.request.RegisterParentByFacebookDTO;
 import es.bisite.usal.bulltect.web.dto.request.RegisterParentDTO;
+import es.bisite.usal.bulltect.web.dto.request.UpdateParentDTO;
+import es.bisite.usal.bulltect.web.dto.request.UpdateSonDTO;
 import es.bisite.usal.bulltect.web.dto.response.ParentDTO;
 
 
@@ -58,4 +61,6 @@ public abstract class ParentEntityMapper {
         @Mapping(source="registerParentByFacebookDTO.telephone.rawInput", target = "telephone" )
 	})
     public abstract ParentEntity registerParentByFacebookDTOToParentEntity(RegisterParentByFacebookDTO registerParentByFacebookDTO);
+    
+ 
 }

@@ -35,6 +35,7 @@ import es.bisite.usal.bulltect.events.ParentRegistrationSuccessEvent;
 import es.bisite.usal.bulltect.events.PasswordResetEvent;
 import es.bisite.usal.bulltect.persistence.constraints.ParentShouldExists;
 import es.bisite.usal.bulltect.persistence.constraints.ValidObjectId;
+import es.bisite.usal.bulltect.persistence.constraints.group.ICommonSequence;
 import es.bisite.usal.bulltect.rrss.service.IFacebookService;
 import es.bisite.usal.bulltect.web.dto.request.JwtAuthenticationRequestDTO;
 import es.bisite.usal.bulltect.web.dto.request.JwtFacebookAuthenticationRequestDTO;
@@ -363,7 +364,7 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     })
     public ResponseEntity<APIResponse<ParentDTO>> registerParent(
     		@ApiParam(value = "parent", required = true) 
-    			@Valid @RequestBody RegisterParentDTO parent,
+    			@Validated(ICommonSequence.class) @RequestBody RegisterParentDTO parent,
     		@ApiIgnore Locale locale) throws Throwable {
     	logger.debug("Register Parent");
     	logger.debug("Locale -> " + locale.toString());
@@ -535,7 +536,7 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     public ResponseEntity<APIResponse<ParentDTO>> updateSelfParent(
     		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent,
     		@ApiParam(value = "parent", required = true) 
-    			@Valid @RequestBody UpdateParentDTO parent) throws Throwable {
+    			@Validated(ICommonSequence.class) @RequestBody UpdateParentDTO parent) throws Throwable {
     	
     	logger.debug("Update Parent");
         ParentDTO parentDTO = parentsService.update(selfParent.getUserId(), parent);
