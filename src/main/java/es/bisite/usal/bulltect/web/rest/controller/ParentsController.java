@@ -48,6 +48,7 @@ import es.bisite.usal.bulltect.web.dto.request.ResendActivationEmailDTO;
 import es.bisite.usal.bulltect.web.dto.request.ResetPasswordRequestDTO;
 import es.bisite.usal.bulltect.web.dto.request.UpdateParentDTO;
 import es.bisite.usal.bulltect.web.dto.request.UpdateSonDTO;
+import es.bisite.usal.bulltect.web.dto.response.AlertDTO;
 import es.bisite.usal.bulltect.web.dto.response.AlertsPageDTO;
 import es.bisite.usal.bulltect.web.dto.response.CommentsBySonDTO;
 import es.bisite.usal.bulltect.web.dto.response.ImageDTO;
@@ -59,6 +60,7 @@ import es.bisite.usal.bulltect.web.dto.response.PasswordResetTokenDTO;
 import es.bisite.usal.bulltect.web.dto.response.SonDTO;
 import es.bisite.usal.bulltect.web.dto.response.ValidationErrorDTO;
 import es.bisite.usal.bulltect.web.rest.ApiHelper;
+import es.bisite.usal.bulltect.web.rest.exception.NoAlertsFoundException;
 import es.bisite.usal.bulltect.web.rest.exception.NoChildrenFoundForParentException;
 import es.bisite.usal.bulltect.web.rest.exception.NoChildrenFoundForSelfParentException;
 import es.bisite.usal.bulltect.web.rest.exception.NoCommentsBySonFoundForLastIterationException;
@@ -436,21 +438,45 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
    
     }
     
-    
     @RequestMapping(value = "/self/alerts", method = RequestMethod.GET)
     @OnlyAccessForParent
     @ApiOperation(value = "GET_ALERTS_FOR_SELF_PARENT", nickname = "GET_ALERTS_FOR_SELF_PARENT", 
             notes = "Get Alerts For Self Parent")
     @ApiResponses(value = { 
+    		@ApiResponse(code = 200, message= "Alerts", response = AlertDTO.class)
+    })
+    public ResponseEntity<APIResponse<Iterable<AlertDTO>>> getAlertsForSelfParent(
+    		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
+    	
+        logger.debug("Get Alerts For Self Parent");
+        
+        Iterable<AlertDTO> alerts = alertService.findByParent(selfParent.getUserId());
+        
+        // Update Last Access To Alerts
+        parentsService.updateLastAccessToAlerts(selfParent.getUserId());
+        
+        if(Iterables.size(alerts) == 0)
+        	throw new NoAlertsFoundException();
+  
+        return ApiHelper.<Iterable<AlertDTO>>createAndSendResponse(ParentResponseCode.ALERTS_FOR_SELF_PARENT, HttpStatus.OK, alerts);
+   
+    }
+    
+    
+    @RequestMapping(value = "/self/alerts/last", method = RequestMethod.GET)
+    @OnlyAccessForParent
+    @ApiOperation(value = "GET_LAST_ALERTS_FOR_SELF_PARENT", nickname = "GET_LAST_ALERTS_FOR_SELF_PARENT", 
+            notes = "Get Last Alerts For Self Parent")
+    @ApiResponses(value = { 
     		@ApiResponse(code = 200, message= "Alerts", response = AlertsPageDTO.class)
     })
-    public ResponseEntity<APIResponse<AlertsPageDTO>> getAlertsForSelfParent(
+    public ResponseEntity<APIResponse<AlertsPageDTO>> getLastAlertsForSelfParent(
     		@RequestParam(value = "count", required=false, defaultValue="10") Integer count,
     		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
     	
         logger.debug("Get " + count + " Alerts For Self Parent");
         
-        AlertsPageDTO alertsPageDTO = alertService.getAlerts(selfParent.getUserId(), selfParent.getLastAccessToAlerts(), count);
+        AlertsPageDTO alertsPageDTO = alertService.getLastAlerts(selfParent.getUserId(), selfParent.getLastAccessToAlerts(), count);
         // Update Last Access To Alerts
         parentsService.updateLastAccessToAlerts(selfParent.getUserId());
         

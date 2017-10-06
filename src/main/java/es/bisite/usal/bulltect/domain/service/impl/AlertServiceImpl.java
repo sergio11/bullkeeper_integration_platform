@@ -100,7 +100,7 @@ public class AlertServiceImpl implements IAlertService {
 	}
     
     @Override
-	public AlertsPageDTO getAlerts(ObjectId parent, Date lastAccessToAlerts, Integer count) {
+	public AlertsPageDTO getLastAlerts(ObjectId parent, Date lastAccessToAlerts, Integer count) {
     	
     	AlertsPageDTO alertsPageDTO = new AlertsPageDTO();
 		
@@ -117,7 +117,7 @@ public class AlertServiceImpl implements IAlertService {
 		// total remaining alerts
 		Integer totalNewAlerts = alertRepository.countByParentIdAndCreateAtGreaterThanEqual(parent, lastAccessToAlerts);
 		alertsPageDTO.setRemaining(totalNewAlerts - returned);
-		alertsPageDTO.setLastQuery(new SimpleDateFormat("yyyy-MM-dd").format(lastAccessToAlerts));
+		alertsPageDTO.setLastQuery(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(lastAccessToAlerts));
 		
 		return alertsPageDTO;
 		
@@ -153,6 +153,11 @@ public class AlertServiceImpl implements IAlertService {
         String title = messageSourceResolverService.resolver("alerts.title.invalid.access.token", parent.getLocale());
         alertRepository.save(new AlertEntity(AlertLevelEnum.WARNING, title, payload, parent, son));
     }
+    
+    @Override
+	public Iterable<AlertDTO> findByParent(ObjectId id) {
+    	return alertMapper.alertEntitiesToAlertDTO(alertRepository.findByParentIdOrderByCreateAtDesc(id));
+	}
 
     @PostConstruct
     protected void init() {

@@ -30,8 +30,10 @@ public interface IAlertService {
     Long getTotalAlerts();
 
     Iterable<AlertDTO> findByParent(ObjectId id, Boolean delivered);
+    
+    Iterable<AlertDTO> findByParent(ObjectId id);
 
-    AlertsPageDTO getAlerts(ObjectId parent, Date lastAccessToAlerts, Integer count);
+    AlertsPageDTO getLastAlerts(ObjectId parent, Date lastAccessToAlerts, Integer count);
 
     Long deleteAlertsOfParent(ObjectId parent);
 
