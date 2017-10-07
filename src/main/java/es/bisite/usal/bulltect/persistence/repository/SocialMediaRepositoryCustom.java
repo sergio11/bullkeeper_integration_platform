@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.bson.types.ObjectId;
+import org.springframework.data.mongodb.repository.Query;
 
 import es.bisite.usal.bulltect.persistence.entity.SocialMediaTypeEnum;
 
@@ -16,4 +17,5 @@ public interface SocialMediaRepositoryCustom {
     void setScheduledFor(ObjectId id, Date scheduledFor);
     void setScheduledForAndLastProbing(List<ObjectId> ids, Date scheduledFor, Date lastProbing);
     void setScheduledForAndLastProbing(ObjectId id, Date scheduledFor, Date lastProbing);
+    SocialMediaTypeEnum getSocialMediaTypeById(ObjectId id);
 }

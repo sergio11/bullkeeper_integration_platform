@@ -42,7 +42,7 @@ public class SocialMediaRepositoryImpl implements SocialMediaRepositoryCustom {
 		
 		mongoTemplate.updateMulti(
         		new Query(Criteria.where("_id").in(ids)),
-        		Update.update("scheduled_for", scheduledFor), SocialMediaEntity.class);
+        		Update.update("scheduled_for", scheduledFor.getTime()), SocialMediaEntity.class);
 	}
 
 	@Override
@@ -52,7 +52,7 @@ public class SocialMediaRepositoryImpl implements SocialMediaRepositoryCustom {
 		
 		mongoTemplate.updateFirst(
         		new Query(Criteria.where("_id").is(id)),
-        		Update.update("scheduled_for", scheduledFor), SocialMediaEntity.class);
+        		Update.update("scheduled_for", scheduledFor.getTime()), SocialMediaEntity.class);
 	}
 
 	@Override
@@ -63,7 +63,7 @@ public class SocialMediaRepositoryImpl implements SocialMediaRepositoryCustom {
 
 		mongoTemplate.updateMulti(
         		new Query(Criteria.where("_id").in(ids)),
-        		new Update().set("scheduled_for", scheduledFor).set("last_probing", lastProbing), SocialMediaEntity.class);
+        		new Update().set("scheduled_for", scheduledFor.getTime()).set("last_probing", lastProbing), SocialMediaEntity.class);
 	}
 
 	@Override
@@ -74,6 +74,17 @@ public class SocialMediaRepositoryImpl implements SocialMediaRepositoryCustom {
 		
 		mongoTemplate.updateFirst(
         		new Query(Criteria.where("_id").is(id)),
-        		new Update().set("scheduled_for", scheduledFor).set("last_probing", lastProbing), SocialMediaEntity.class);
+        		new Update().set("scheduled_for", scheduledFor.getTime()).set("last_probing", lastProbing), SocialMediaEntity.class);
+	}
+
+	@Override
+	public SocialMediaTypeEnum getSocialMediaTypeById(ObjectId id) {
+		Assert.notNull(id, "Id can not be null");
+		
+		Query query = new Query(Criteria.where("_id").is(id));
+		query.fields().include("social_media_type");
+		
+		return mongoTemplate.findOne(query, SocialMediaTypeEnum.class);
+	
 	}   
 }

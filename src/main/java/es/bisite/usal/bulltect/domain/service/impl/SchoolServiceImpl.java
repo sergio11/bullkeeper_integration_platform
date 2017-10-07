@@ -1,5 +1,7 @@
 package es.bisite.usal.bulltect.domain.service.impl;
 
+import java.util.stream.Collectors;
+
 import org.bson.types.ObjectId;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.domain.Page;
@@ -83,6 +85,6 @@ public class SchoolServiceImpl implements ISchoolService {
 
 	@Override
 	public Iterable<String> getAllSchoolNames() {
-		return schoolRepository.getAllSchoolNames();
+		return schoolRepository.getAllSchoolNames().stream().map((school) -> school.getName()).collect(Collectors.toList());
 	}
 }

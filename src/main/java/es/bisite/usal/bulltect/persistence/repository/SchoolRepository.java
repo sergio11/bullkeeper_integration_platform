@@ -15,8 +15,6 @@ import es.bisite.usal.bulltect.persistence.entity.SchoolEntity;
  * @author sergio
  */
 @Repository
-public interface SchoolRepository extends MongoRepository<SchoolEntity, ObjectId> {
+public interface SchoolRepository extends MongoRepository<SchoolEntity, ObjectId>, SchoolRepositoryCustom {
 	Page<SchoolEntity> findAllByNameLike(String name, Pageable pageable);
-	@Query(value="{}", fields="{ 'id' : 0, 'name' : 1, 'residence': 0, 'location': 0, 'province': 0, 'tfno': 0, 'email': 0}")
-	Iterable<String> getAllSchoolNames();
 }

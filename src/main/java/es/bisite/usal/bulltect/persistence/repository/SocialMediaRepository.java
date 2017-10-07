@@ -25,6 +25,4 @@ public interface SocialMediaRepository extends MongoRepository<SocialMediaEntity
     SocialMediaEntity deleteById(ObjectId id);
     Long countById(ObjectId id);
     Long countByInvalidTokenFalse();
-    @Query(value="{ '_id': ?0 }", fields="{ 'social_media_type': 1 }")
-    SocialMediaTypeEnum getSocialMediaTypeById(ObjectId id);
 }
