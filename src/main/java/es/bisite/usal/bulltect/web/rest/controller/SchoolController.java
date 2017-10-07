@@ -25,6 +25,7 @@ import com.google.common.collect.Iterables;
 
 import es.bisite.usal.bulltect.domain.service.ISchoolService;
 import es.bisite.usal.bulltect.persistence.constraints.ValidObjectId;
+import es.bisite.usal.bulltect.persistence.constraints.group.ICommonSequence;
 import es.bisite.usal.bulltect.web.dto.request.AddSchoolDTO;
 import es.bisite.usal.bulltect.web.dto.response.SchoolDTO;
 import es.bisite.usal.bulltect.web.dto.response.ValidationErrorDTO;
@@ -134,7 +135,7 @@ public class SchoolController extends BaseController implements ISchoolHAL {
     })
     public ResponseEntity<APIResponse<SchoolDTO>> saveSchool(
     		@ApiParam(value = "school", required = true) 
-				@Valid @RequestBody AddSchoolDTO school) throws Throwable {        
+				@Validated(ICommonSequence.class) @RequestBody AddSchoolDTO school) throws Throwable {        
         return Optional.ofNullable(schoolService.save(school))
                 .map(schoolResource -> addLinksToSchool(schoolResource))
                 .map(schoolResource -> ApiHelper.<SchoolDTO>createAndSendResponse(SchoolResponseCode.SCHOOL_SAVED, 

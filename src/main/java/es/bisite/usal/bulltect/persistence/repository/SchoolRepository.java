@@ -17,4 +17,5 @@ import es.bisite.usal.bulltect.persistence.entity.SchoolEntity;
 @Repository
 public interface SchoolRepository extends MongoRepository<SchoolEntity, ObjectId>, SchoolRepositoryCustom {
 	Page<SchoolEntity> findAllByNameLike(String name, Pageable pageable);
+	Long countByName(String name);
 }

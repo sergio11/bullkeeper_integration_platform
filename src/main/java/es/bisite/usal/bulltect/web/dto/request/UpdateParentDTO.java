@@ -42,7 +42,7 @@ public final class UpdateParentDTO {
     @NewParentEmailShouldNotExist(message="{user.email.unique}", groups = Extended.class)
     private String email;
     
-    @ValidPhoneNumber(message = "user.telephone.not.valid")
+    @ValidPhoneNumber(message = "{user.telephone.not.valid}")
 	@JsonProperty("telephone")
 	@JsonDeserialize(using = PhoneNumberDeserializer.class)
 	private PhoneNumber telephone;

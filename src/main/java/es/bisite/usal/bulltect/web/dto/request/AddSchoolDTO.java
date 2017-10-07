@@ -6,13 +6,20 @@ import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+import es.bisite.usal.bulltect.persistence.constraints.SchoolNameShouldNotExists;
+import es.bisite.usal.bulltect.persistence.constraints.group.Extended;
+import es.bisite.usal.bulltect.web.rest.deserializers.ClearStringDeserializer;
 
 public class AddSchoolDTO {
 	
 	@NotBlank(message = "{school.name.notblank}")
     @Size(min = 5, max = 15, message = "{school.name.size}")
+	@SchoolNameShouldNotExists(message="{school.name.should.not.exists}", groups = Extended.class)
 	@JsonProperty("name")
-	private String name;
+	@JsonDeserialize(using = ClearStringDeserializer.class)
+	private String schoolName;
 	@NotBlank(message = "{school.residence.notblank}")
     @Size(min = 5, max = 15, message = "{school.residence.size}")
 	@JsonProperty("residence")
@@ -30,10 +37,13 @@ public class AddSchoolDTO {
 	private String email;
 	
 	
+	public AddSchoolDTO(){}
+	
+	
 	public AddSchoolDTO(String name, String residence, String location, String province, Integer tfno,
 			String email) {
 		super();
-		this.name = name;
+		this.schoolName = name;
 		this.residence = residence;
 		this.location = location;
 		this.province = province;
@@ -43,12 +53,12 @@ public class AddSchoolDTO {
 
 
 	public String getName() {
-		return name;
+		return schoolName;
 	}
 
 
 	public void setName(String name) {
-		this.name = name;
+		this.schoolName = name;
 	}
 
 
