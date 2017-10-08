@@ -23,7 +23,7 @@ public class SchoolRepositoryImpl implements SchoolRepositoryCustom {
 		
 		logger.debug("Get School Names");
 		Query query = new Query();
-		query.fields().include("name");
+		query.fields().include("_id").include("name");
 		
 		return mongoTemplate.find(query, SchoolEntity.class);
 	}

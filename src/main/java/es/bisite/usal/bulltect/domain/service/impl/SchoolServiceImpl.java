@@ -15,6 +15,7 @@ import es.bisite.usal.bulltect.persistence.entity.SchoolEntity;
 import es.bisite.usal.bulltect.persistence.repository.SchoolRepository;
 import es.bisite.usal.bulltect.web.dto.request.AddSchoolDTO;
 import es.bisite.usal.bulltect.web.dto.response.SchoolDTO;
+import es.bisite.usal.bulltect.web.dto.response.SchoolNameDTO;
 
 @Service
 public class SchoolServiceImpl implements ISchoolService {
@@ -84,7 +85,8 @@ public class SchoolServiceImpl implements ISchoolService {
 	}
 
 	@Override
-	public Iterable<String> getAllSchoolNames() {
-		return schoolRepository.getAllSchoolNames().stream().map((school) -> school.getName()).collect(Collectors.toList());
+	public Iterable<SchoolNameDTO> getAllSchoolNames() {
+		return schoolRepository.getAllSchoolNames()
+				.stream().map((school) -> new SchoolNameDTO(school.getId().toString(), school.getName())).collect(Collectors.toList());
 	}
 }

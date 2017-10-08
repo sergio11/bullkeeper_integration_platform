@@ -28,6 +28,7 @@ import es.bisite.usal.bulltect.persistence.constraints.ValidObjectId;
 import es.bisite.usal.bulltect.persistence.constraints.group.ICommonSequence;
 import es.bisite.usal.bulltect.web.dto.request.AddSchoolDTO;
 import es.bisite.usal.bulltect.web.dto.response.SchoolDTO;
+import es.bisite.usal.bulltect.web.dto.response.SchoolNameDTO;
 import es.bisite.usal.bulltect.web.dto.response.ValidationErrorDTO;
 import es.bisite.usal.bulltect.web.rest.ApiHelper;
 import es.bisite.usal.bulltect.web.rest.exception.NoSchoolsFoundException;
@@ -77,15 +78,15 @@ public class SchoolController extends BaseController implements ISchoolHAL {
     
     @RequestMapping(value = "/all/names", method = RequestMethod.GET)
     @ApiOperation(value = "GET_ALL_SCHOOL_NAMES", nickname = "GET_ALL_SCHOOL_NAMES", notes = "Get all School Names",
-            response = PagedResources.class)
-    public ResponseEntity<APIResponse<Iterable<String>>> getAllSchoolNames() throws Throwable {
+            response = SchoolNameDTO.class)
+    public ResponseEntity<APIResponse<Iterable<SchoolNameDTO>>> getAllSchoolNames() throws Throwable {
     	
-    	Iterable<String> schoolNames = schoolService.getAllSchoolNames();
+    	Iterable<SchoolNameDTO> schoolNames = schoolService.getAllSchoolNames();
 
     	if(Iterables.size(schoolNames) == 0)
     		throw new NoSchoolsFoundException();
     	
-    	return ApiHelper.<Iterable<String>>createAndSendResponse(SchoolResponseCode.ALL_SCHOOLS_NAMES, HttpStatus.OK, schoolNames);
+    	return ApiHelper.<Iterable<SchoolNameDTO>>createAndSendResponse(SchoolResponseCode.ALL_SCHOOLS_NAMES, HttpStatus.OK, schoolNames);
     	
     }
     
