@@ -472,13 +472,18 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     })
     public ResponseEntity<APIResponse<AlertsPageDTO>> getLastAlertsForSelfParent(
     		@RequestParam(value = "count", required=false, defaultValue="10") Integer count,
+    		@RequestParam(value = "only_news", required=false, defaultValue="false") Boolean onlyNews,
+    		@RequestParam(value="levels" , required=false) String[] levels,
     		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
     	
-        logger.debug("Get " + count + " Alerts For Self Parent");
+        logger.debug("Count -> " + count);
+        logger.debug("Only News -> " + onlyNews);
+        if(levels != null) logger.debug("Levels -> " + String.join(",", levels));
         
-        AlertsPageDTO alertsPageDTO = alertService.getLastAlerts(selfParent.getUserId(), selfParent.getLastAccessToAlerts(), count);
+        AlertsPageDTO alertsPageDTO = alertService.getLastAlerts(selfParent.getUserId(), selfParent.getLastAccessToAlerts(), count, levels);
         // Update Last Access To Alerts
-        parentsService.updateLastAccessToAlerts(selfParent.getUserId());
+        if(onlyNews)
+        	parentsService.updateLastAccessToAlerts(selfParent.getUserId());
         
         if(Iterables.size(alertsPageDTO.getAlerts()) == 0)
         	throw new NoNewAlertsFoundException();

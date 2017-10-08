@@ -100,12 +100,14 @@ public class AlertServiceImpl implements IAlertService {
 	}
     
     @Override
-	public AlertsPageDTO getLastAlerts(ObjectId parent, Date lastAccessToAlerts, Integer count) {
+	public AlertsPageDTO getLastAlerts(ObjectId parent, Date lastAccessToAlerts, Integer count, String[] levels) {
     	
     	AlertsPageDTO alertsPageDTO = new AlertsPageDTO();
 		
     	Pageable countAlerts = new PageRequest(0, count);
-		Iterable<AlertEntity> lastAlerts = alertRepository.findByParentIdAndCreateAtGreaterThanEqualOrderByCreateAtDesc(parent, lastAccessToAlerts, countAlerts);
+		Iterable<AlertEntity> lastAlerts = levels != null && levels.length > 0 ? 
+				alertRepository.findByParentIdAndCreateAtGreaterThanEqualAndLevelIsInOrderByCreateAtDesc(parent, lastAccessToAlerts, levels, countAlerts) :
+					alertRepository.findByParentIdAndCreateAtGreaterThanEqualOrderByCreateAtDesc(parent, lastAccessToAlerts, countAlerts);
 		Iterable<AlertDTO> lastAlertsDTO = alertMapper.alertEntitiesToAlertDTO(lastAlerts);
 		alertsPageDTO.setAlerts(lastAlertsDTO);
 		// total alerts count
