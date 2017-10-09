@@ -155,7 +155,7 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
     }
     
     @RequestMapping(value = "/{id}/image", method = RequestMethod.POST)
-    @OnlyAccessForParent
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     @ApiOperation(value = "UPLOAD_PROFILE_IMAGE_FOR_SON", nickname = "UPLOAD_PROFILE_IMAGE_FOR_SON", notes = "Upload Profile Image For Son")
     @ApiResponses(value = {
         @ApiResponse(code = 200, message= "Profile Image", response = ImageDTO.class),

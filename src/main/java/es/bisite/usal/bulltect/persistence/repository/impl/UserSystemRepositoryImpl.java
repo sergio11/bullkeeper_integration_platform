@@ -17,10 +17,10 @@ public class UserSystemRepositoryImpl implements UserSystemRepositoryCustom {
     private MongoTemplate mongoTemplate;
 
 	@Override
-	public void updateLastLoginAccess(ObjectId id, Date lastLoginAccess) {
+	public void updateLastLoginAccessAndLastAccessToAlerts(ObjectId id) {
 		mongoTemplate.updateFirst(
         		new Query(Criteria.where("id").is(id)),
-        		Update.update("last_login_access", lastLoginAccess), UserSystemEntity.class);
+        		new Update().set("last_login_access", new Date()).set("last_access_to_alerts", new Date()), UserSystemEntity.class);
 	}
 
 }

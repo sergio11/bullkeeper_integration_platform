@@ -9,6 +9,7 @@ import org.mapstruct.Named;
 import es.bisite.usal.bulltect.persistence.entity.SchoolEntity;
 import es.bisite.usal.bulltect.web.dto.request.AddSchoolDTO;
 import es.bisite.usal.bulltect.web.dto.response.SchoolDTO;
+import es.bisite.usal.bulltect.web.dto.response.SchoolNameDTO;
 
 /**
  * @author sergio
@@ -30,4 +31,12 @@ public interface ISchoolEntityMapper {
     
     @IterableMapping(qualifiedByName = "addSchoolDTOToSchoolEntity")
     Iterable<SchoolEntity> addSchoolDTOsToSchoolEntities(Iterable<AddSchoolDTO> addSchoolEntities);
+    
+    @Mappings({
+        @Mapping(expression="java(schoolEntity.getId().toString())", target = "identity" )
+    })
+    @Named("schoolEntityToSchoolNameDTO")
+    SchoolNameDTO schoolEntityToSchoolNameDTO(SchoolEntity schoolEntity); 
+    
+    
 }

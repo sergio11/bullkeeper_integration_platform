@@ -22,6 +22,7 @@ public class SchoolNameShouldNotExistsValidator implements ConstraintValidator<S
 
     @Override
     public boolean isValid(String name, ConstraintValidatorContext context) {
+    	logger.debug("School Name -> " + name);
     	return name != null &&  !name.isEmpty() && schoolRepository.countByName(name) == 0;
     }
 }

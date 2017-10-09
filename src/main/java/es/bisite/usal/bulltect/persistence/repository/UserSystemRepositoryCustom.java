@@ -1,6 +1,6 @@
 package es.bisite.usal.bulltect.persistence.repository;
 
-import java.util.Date;
+
 
 import org.bson.types.ObjectId;
 /**
@@ -8,5 +8,5 @@ import org.bson.types.ObjectId;
  */
 
 public interface UserSystemRepositoryCustom {
-	void updateLastLoginAccess(ObjectId id, Date lastLoginAccess);
+	void updateLastLoginAccessAndLastAccessToAlerts(ObjectId id);
 }

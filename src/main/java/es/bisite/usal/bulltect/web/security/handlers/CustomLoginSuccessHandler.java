@@ -43,7 +43,7 @@ public class CustomLoginSuccessHandler extends SavedRequestAwareAuthenticationSu
         this.setDefaultTargetUrl(absoluteDefaultSuccessUrl);
         logger.debug("LOGIN SUCCESS REDIRECT TO -> " + absoluteDefaultSuccessUrl);
         CommonUserDetailsAware<ObjectId> userDetails = authorizationService.getUserDetails();
-        userSystemRepository.updateLastLoginAccess(userDetails.getUserId(), new Date());
+        userSystemRepository.updateLastLoginAccessAndLastAccessToAlerts(userDetails.getUserId());
         HttpSession session = request.getSession();
         if (session != null) {
             String redirectUrl = (String) session.getAttribute("url_prior_login");

@@ -21,10 +21,13 @@ public abstract class SonEntityMapper {
 	
 	@Autowired
 	protected SchoolRepository schoolRepository;
+	
+	@Autowired
+	protected ISchoolEntityMapper schoolEntityMapper;
     
     @Mappings({
         @Mapping(expression="java(sonEntity.getId().toString())", target = "identity" ),
-        @Mapping(source="sonEntity.school.name", target = "school" ),
+        @Mapping(expression="java(schoolEntityMapper.schoolEntityToSchoolNameDTO(sonEntity.getSchool()))", target = "school" ),
         @Mapping(source = "sonEntity.birthdate", target = "birthdate", dateFormat = "yyyy/MM/dd"),
         @Mapping(source = "sonEntity.age", target = "age")
     })

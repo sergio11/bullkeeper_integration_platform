@@ -1,5 +1,6 @@
 package es.bisite.usal.bulltect.domain.service.impl;
 
+import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +15,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
 import es.bisite.usal.bulltect.domain.service.IAuthenticationService;
+import es.bisite.usal.bulltect.persistence.repository.ParentRepository;
 import es.bisite.usal.bulltect.web.dto.response.JwtAuthenticationResponseDTO;
 import es.bisite.usal.bulltect.web.security.jwt.JwtTokenUtil;
+import es.bisite.usal.bulltect.web.security.userdetails.CommonUserDetailsAware;
 
 @Service
 public class AuthenticationServiceImpl implements IAuthenticationService {
@@ -38,6 +41,9 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
 	@Qualifier("AdminAuthenticationManager")
 	private AuthenticationManager adminAuthenticationManager;
 	
+	@Autowired
+	private ParentRepository parentRepository;
+	
 
 	@Override
 	public JwtAuthenticationResponseDTO createAuthenticationTokenForParent(String username, String password,
@@ -47,9 +53,13 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
                 new UsernamePasswordAuthenticationToken(username,password)
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
+        
+        CommonUserDetailsAware<ObjectId> userDetails = (CommonUserDetailsAware<ObjectId>) authentication.getPrincipal();
 
-        UserDetails userDetails = parentDetails.loadUserByUsername(username);
 		final String token = jwtTokenUtil.generateToken(userDetails, device);
+		
+		logger.debug("Update Last login access and last access to alerts for user -> " + userDetails.getUserId().toString());
+		parentRepository.updateLastLoginAccessAndLastAccessToAlerts(userDetails.getUserId());
         
         return new JwtAuthenticationResponseDTO(token);
 	}

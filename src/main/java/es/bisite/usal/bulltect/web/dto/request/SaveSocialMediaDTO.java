@@ -12,17 +12,17 @@ import org.hibernate.validator.constraints.NotBlank;
 public class SaveSocialMediaDTO {
 	
 	@NotBlank(message = "{social.token.notnull}")
-        @JsonProperty("accessToken")
+	@JsonProperty("access_token")
 	private String accessToken;
 	@ValidSocialMediaType(message = "{social.type.invalid}")
-        @JsonProperty("type")
+	@JsonProperty("type")
 	private String type;
 	@ValidObjectId(message = "{son.id.notvalid}")
 	@SonShouldExists(message = "{social.son.not.exists}", groups = Extended.class)
-        @JsonProperty("son")
+	@JsonProperty("son")
 	private String son;
         
-        public SaveSocialMediaDTO(){}
+    public SaveSocialMediaDTO(){}
 	
 	public SaveSocialMediaDTO(String accessToken, String type, String son) {
 		super();

@@ -1,10 +1,14 @@
 package es.bisite.usal.bulltect.web.rest.controller;
 
 import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 
 import org.apache.commons.io.IOUtils;
 import org.bson.types.ObjectId;
@@ -34,6 +38,7 @@ import es.bisite.usal.bulltect.events.ParentRegistrationByFacebookSuccessEvent;
 import es.bisite.usal.bulltect.events.ParentRegistrationSuccessEvent;
 import es.bisite.usal.bulltect.events.PasswordResetEvent;
 import es.bisite.usal.bulltect.persistence.constraints.ParentShouldExists;
+import es.bisite.usal.bulltect.persistence.constraints.ValidAlertLevel;
 import es.bisite.usal.bulltect.persistence.constraints.ValidObjectId;
 import es.bisite.usal.bulltect.persistence.constraints.group.ICommonSequence;
 import es.bisite.usal.bulltect.persistence.constraints.group.IResendActivationEmailSequence;
@@ -471,19 +476,24 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     		@ApiResponse(code = 200, message= "Alerts", response = AlertsPageDTO.class)
     })
     public ResponseEntity<APIResponse<AlertsPageDTO>> getLastAlertsForSelfParent(
-    		@RequestParam(value = "count", required=false, defaultValue="10") Integer count,
-    		@RequestParam(value = "only_news", required=false, defaultValue="false") Boolean onlyNews,
-    		@RequestParam(value="levels" , required=false) String[] levels,
+    		@Valid @Min(value= 5, message = "{alerts.count.min}") @Max(value = 50, message = "{alerts.count.max}")
+    		@RequestParam(name="count", value = "count", required=false, defaultValue="5") Integer count,
+    		@Valid @Min(value= 15, message = "{alerts.count.last.minutes}")
+    		@RequestParam(name="last_minutes", value = "last_minutes", required=false, defaultValue="15") Integer lastMinutes,
+    		@RequestParam(name="levels", value="levels" , required=false) String[] levels,
     		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
     	
         logger.debug("Count -> " + count);
-        logger.debug("Only News -> " + onlyNews);
+        logger.debug("Only News -> " + lastMinutes);
         if(levels != null) logger.debug("Levels -> " + String.join(",", levels));
         
-        AlertsPageDTO alertsPageDTO = alertService.getLastAlerts(selfParent.getUserId(), selfParent.getLastAccessToAlerts(), count, levels);
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.MINUTE, -lastMinutes);
+        Date lastAccessToAlerts = calendar.getTime();
+       
+        AlertsPageDTO alertsPageDTO = alertService.getLastAlerts(selfParent.getUserId(), lastAccessToAlerts, count, levels);
         // Update Last Access To Alerts
-        if(onlyNews)
-        	parentsService.updateLastAccessToAlerts(selfParent.getUserId());
+        parentsService.updateLastAccessToAlerts(selfParent.getUserId());
         
         if(Iterables.size(alertsPageDTO.getAlerts()) == 0)
         	throw new NoNewAlertsFoundException();

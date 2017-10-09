@@ -13,6 +13,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.Assert;
 
 import es.bisite.usal.bulltect.persistence.entity.ParentEntity;
+import es.bisite.usal.bulltect.persistence.entity.UserSystemEntity;
 import es.bisite.usal.bulltect.persistence.repository.ParentRepositoryCustom;
 
 /**
@@ -129,5 +130,13 @@ public class ParentRepositoryImpl implements ParentRepositoryCustom {
 		mongoTemplate.updateFirst(
 				new Query(Criteria.where("_id").in(id)), 
 				new Update().set("last_access_to_alerts", new Date()), ParentEntity.class);
+	}
+
+	@Override
+	public void updateLastLoginAccessAndLastAccessToAlerts(ObjectId id) {
+		mongoTemplate.updateFirst(
+        		new Query(Criteria.where("_id").is(id)),
+        		new Update().set("last_login_access", new Date()).set("last_access_to_alerts", new Date()), ParentEntity.class);
+		
 	}
 }

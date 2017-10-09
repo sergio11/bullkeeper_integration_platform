@@ -21,4 +21,5 @@ public interface ParentRepositoryCustom {
     void setPendingDeletionAsTrueAndConfirmationTokenById(ObjectId id, String confirmationToken);
     void setProfileImageId(ObjectId id, String profileImageId);
     void setLastAccessToAlerts(ObjectId id);
+    void updateLastLoginAccessAndLastAccessToAlerts(ObjectId id);
 }
