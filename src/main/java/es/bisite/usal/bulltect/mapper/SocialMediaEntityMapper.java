@@ -37,13 +37,21 @@ public abstract class SocialMediaEntityMapper {
     @IterableMapping(qualifiedByName = "socialMediaEntityToSocialMediaDTO")
     public abstract List<SocialMediaDTO> socialMediaEntitiesToSocialMediaDTO(List<SocialMediaEntity> socialMediaEntities);
     
+    @IterableMapping(qualifiedByName = "socialMediaEntityToSocialMediaDTO")
+    public abstract List<SocialMediaDTO> socialMediaEntitiesToSocialMediaDTO(Iterable<SocialMediaEntity> socialMediaEntities);
+    
     @Mappings({
     	@Mapping(expression="java(es.bisite.usal.bulltect.persistence.entity.SocialMediaTypeEnum.valueOf(saveSocialMediaDTO.getType()))", target = "type" ),
     	@Mapping(expression="java(sonRepository.findOne(new org.bson.types.ObjectId(saveSocialMediaDTO.getSon())))", target = "sonEntity" ),
     	@Mapping(expression="java(itegrationFlowService.getDateForNextPoll().getTime())", target = "scheduledFor" )
     })
+    @Named("addSocialMediaDTOToSocialMediaEntity")
     public abstract SocialMediaEntity addSocialMediaDTOToSocialMediaEntity(SaveSocialMediaDTO saveSocialMediaDTO);
     
+    @IterableMapping(qualifiedByName = "addSocialMediaDTOToSocialMediaEntity")
+    public abstract List<SocialMediaEntity> addSocialMediaDTOToSocialMediaEntity(List<SaveSocialMediaDTO> saveSocialMediaEntities);
     
+    @IterableMapping(qualifiedByName = "addSocialMediaDTOToSocialMediaEntity")
+    public abstract List<SocialMediaEntity> addSocialMediaDTOToSocialMediaEntity(Iterable<SaveSocialMediaDTO> saveSocialMediaEntities);
     
 }

@@ -26,23 +26,23 @@ public final class ParentEntity extends UserSystemEntity {
     }
 
     @PersistenceConstructor
-    public ParentEntity(String email, String password, String passwordRequestedAt, Boolean active, Boolean locked,
-			Date lastLoginAccess, Boolean pendingDeletion, Locale locale, Date lastPasswordResetDate,
-			String confirmationToken, String profileImageId, Date lastAccessToAlerts, AuthorityEntity authority,
-			String telephone, String fbAccessToken, String fbId) {
-		super(email, password, passwordRequestedAt, active, locked, lastLoginAccess, pendingDeletion, locale,
-				lastPasswordResetDate, confirmationToken, profileImageId, lastAccessToAlerts, authority);
+    public ParentEntity(String firstName, String lastName, Date birthdate, String profileImageId, String email,
+			String password, String passwordRequestedAt, Boolean active, Boolean locked, Date lastLoginAccess,
+			Boolean pendingDeletion, Locale locale, Date lastPasswordResetDate, String confirmationToken,
+			Date lastAccessToAlerts, AuthorityEntity authority, String telephone, String fbAccessToken, String fbId) {
+		super(firstName, lastName, birthdate, profileImageId, email, password, passwordRequestedAt, active, locked,
+				lastLoginAccess, pendingDeletion, locale, lastPasswordResetDate, confirmationToken, lastAccessToAlerts,
+				authority);
 		this.telephone = telephone;
 		this.fbAccessToken = fbAccessToken;
 		this.fbId = fbId;
 	}
-    
-    
-    public ParentEntity(String firstName, String lastName, Date birthdate, String email, 
-    		String password, AuthorityEntity authority) {
-        super(firstName, lastName, birthdate, email, password, authority);
-    }
-	
+
+
+	public ParentEntity(String firstName, String lastName, Date birthdate, String email, String password,
+			AuthorityEntity authority) {
+		super(firstName, lastName, birthdate, email, password, authority);
+	}
 
 	public String getTelephone() {
 		return telephone;

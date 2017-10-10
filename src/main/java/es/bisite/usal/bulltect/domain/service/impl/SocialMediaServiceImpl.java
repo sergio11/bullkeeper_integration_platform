@@ -9,7 +9,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-
 import es.bisite.usal.bulltect.domain.service.ISocialMediaService;
 import es.bisite.usal.bulltect.integration.service.IItegrationFlowService;
 import es.bisite.usal.bulltect.mapper.SocialMediaEntityMapper;
@@ -95,7 +94,7 @@ public class SocialMediaServiceImpl implements ISocialMediaService {
 	}
 	
 	@Override
-	public SocialMediaDTO save(SaveSocialMediaDTO socialMedia) {
+	public SocialMediaDTO insertOrUpdate(SaveSocialMediaDTO socialMedia) {
 		Assert.notNull(socialMedia, "Social Media can not be null");
 		SocialMediaEntity socialMediaEntityToSave = socialMediaRepository.findByTypeAndSonEntityId(
 				SocialMediaTypeEnum.valueOf(socialMedia.getType()), new ObjectId(socialMedia.getSon()));
@@ -110,29 +109,36 @@ public class SocialMediaServiceImpl implements ISocialMediaService {
 	}
 	
 	@Override
-	public Iterable<SocialMediaDTO> save(Iterable<SaveSocialMediaDTO> socialMediaList) {
+	public Iterable<SocialMediaDTO> insertOrUpdate(Iterable<SaveSocialMediaDTO> socialMediaList) {
 		List<SocialMediaDTO> socialMediaDTOs = new ArrayList<>();
 		for(SaveSocialMediaDTO socialMedia: socialMediaList){
-			socialMediaDTOs.add(save(socialMedia));
+			socialMediaDTOs.add(insertOrUpdate(socialMedia));
 		}
 		return socialMediaDTOs;
 	}
+	
+	@Override
+	public Iterable<SocialMediaDTO> save(Iterable<SaveSocialMediaDTO> socialMediaList, String sonId) {
+		socialMediaRepository.deleteBySonEntityId(new ObjectId(sonId));
+		Iterable<SocialMediaEntity> socialMediaToSave = socialMediaMapper.addSocialMediaDTOToSocialMediaEntity(socialMediaList);
+		Iterable<SocialMediaEntity> socialMediaSaved = socialMediaRepository.save(socialMediaToSave);
+		return socialMediaMapper.socialMediaEntitiesToSocialMediaDTO(socialMediaSaved);
+		
+	}
         
     @Override
-    public List<SocialMediaDTO> deleteSocialMediaByUser(String id) {
+    public Long deleteSocialMediaByUser(String id) {
         Assert.notNull(id, "Id can not be null");
         Assert.hasLength(id, "Id can not be empty");
-        List<SocialMediaEntity> socialMediaEntities = socialMediaRepository.deleteBySonEntityId(new ObjectId(id));
-        return socialMediaMapper.socialMediaEntitiesToSocialMediaDTO(socialMediaEntities);
+        return socialMediaRepository.deleteBySonEntityId(new ObjectId(id));
     }
     
     
     @Override
-    public SocialMediaDTO deleteSocialMediaById(String id) {
+    public Boolean deleteSocialMediaById(String id) {
         Assert.notNull(id, "Id can not be null");
         Assert.hasLength(id, "Id can not be empty");
-        SocialMediaEntity socialMediaEntityDeleted = socialMediaRepository.deleteById(new ObjectId(id));
-        return socialMediaMapper.socialMediaEntityToSocialMediaDTO(socialMediaEntityDeleted);
+        return socialMediaRepository.deleteById(new ObjectId(id)) > 0; 
     }
     
     @Override

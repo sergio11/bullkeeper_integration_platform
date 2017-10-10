@@ -162,13 +162,16 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
     	@ApiResponse(code = 500, message= "Upload Failed")
     })
     public ResponseEntity<APIResponse<ImageDTO>> uploadProfileImageForSon(
+    		@ApiParam(name = "id", value = "Identificador del hijo", required = true)
+         	@Valid @ValidObjectId(message = "{son.id.notvalid}")
+          		@PathVariable String id,
             @RequestPart("profile_image") MultipartFile profileImage,
             @ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
         
         
         RequestUploadFile uploadProfileImage = new RequestUploadFile(profileImage.getBytes(), 
                 profileImage.getContentType() != null ? profileImage.getContentType() : MediaType.IMAGE_PNG_VALUE, profileImage.getOriginalFilename());
-        ImageDTO imageDto = uploadFilesService.uploadParentProfileImage(selfParent.getUserId(), uploadProfileImage);
+        ImageDTO imageDto = uploadFilesService.uploadSonProfileImage(new ObjectId(id), uploadProfileImage);
         return ApiHelper.<ImageDTO>createAndSendResponse(ChildrenResponseCode.PROFILE_IMAGE_UPLOAD_SUCCESSFULLY, 
         		HttpStatus.OK, addLinksToImage(imageDto));
 
@@ -190,7 +193,7 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
     		
     		SonDTO sonDTO = sonService.getSonById(id);
     		
-    		imageInfo = uploadFilesService.getProfileImage(sonDTO.getProfileImage());
+    		imageInfo = uploadFilesService.getProfileImage(sonDTO.getProfileImageId());
     		
     		if(imageInfo == null) {
     			
@@ -271,7 +274,7 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
             @ApiParam(value = "socialMedia", required = true) 
 				@Validated(ICommonSequence.class) @RequestBody SaveSocialMediaDTO socialMedia) throws Throwable {
     		
-        return Optional.ofNullable(socialMediaService.save(socialMedia))
+        return Optional.ofNullable(socialMediaService.insertOrUpdate(socialMedia))
         		.map(socialMediaResource -> addLinksToSocialMedia(socialMediaResource))
         		.map(socialMediaResource -> ApiHelper.<SocialMediaDTO>createAndSendResponse(SocialMediaResponseCode.SOCIAL_MEDIA_SAVED, 
         				HttpStatus.OK, socialMediaResource))
@@ -291,7 +294,7 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
 				@Validated(ICommonSequence.class) @RequestBody List<SaveSocialMediaDTO> socialMedias) throws Throwable {
     	
     	
-    	Iterable<SocialMediaDTO> socialMediaEntitiesSaved = socialMediaService.save(socialMedias);
+    	Iterable<SocialMediaDTO> socialMediaEntitiesSaved = socialMediaService.save(socialMedias, id);
     	
     	if(Iterables.size(socialMediaEntitiesSaved) == 0)
     		throw new SocialMediaNotFoundException();
@@ -305,22 +308,22 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
     @ApiOperation(value = "DELETE_ALL_SOCIAL_MEDIA", nickname = "DELETE_ALL_SOCIAL_MEDIA", notes = "Delete all social media of user",
             response = List.class)
     //@OnlyAccessForAdminOrParentOfTheSon(son = "#id")
-    public ResponseEntity<APIResponse<List<SocialMediaDTO>>> deleteAllSocialMedia(
+    public ResponseEntity<APIResponse<Long>> deleteAllSocialMedia(
     		@ApiParam(name = "id", value = "Identificador del hijo", required = true)
             	@Valid @ValidObjectId(message = "{son.id.notvalid}")
              		@PathVariable String id) throws Throwable {
         
-        List<SocialMediaDTO> socialMediaEntities = socialMediaService.deleteSocialMediaByUser(id);
+        Long socialMediaEntitiesDeleted = socialMediaService.deleteSocialMediaByUser(id);
         
-        return ApiHelper.<List<SocialMediaDTO>>createAndSendResponse(
-                SocialMediaResponseCode.ALL_USER_SOCIAL_MEDIA_DELETED, HttpStatus.OK, socialMediaEntities);
+        return ApiHelper.<Long>createAndSendResponse(
+                SocialMediaResponseCode.ALL_USER_SOCIAL_MEDIA_DELETED, HttpStatus.OK, socialMediaEntitiesDeleted);
     }
     
     @RequestMapping(value = "/{idson}/social/delete/{idsocial}", method = RequestMethod.DELETE)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#idson) )")
     @ApiOperation(value = "DELETE_SOCIAL_MEDIA", nickname = "DELETE_SOCIAL_MEDIA", notes = "Delete a single social media",
             response = SocialMediaDTO.class)
-    public ResponseEntity<APIResponse<SocialMediaDTO>> deleteSocialMedia(
+    public ResponseEntity<APIResponse<String>> deleteSocialMedia(
     		@ApiParam(name = "idson", value = "Identificador del hijo", required = true)
             	@Valid @ValidObjectId(message = "{son.id.notvalid}")
              		@PathVariable String idson,
@@ -329,9 +332,12 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
             		@SocialMediaShouldExists(message = "{social.not.exists}")
              			@PathVariable String idsocial) throws Throwable {
         
-        SocialMediaDTO socialMediaEntities = socialMediaService.deleteSocialMediaById(idsocial);
-        return ApiHelper.<SocialMediaDTO>createAndSendResponse(
-                SocialMediaResponseCode.USER_SOCIAL_MEDIA_DELETED, HttpStatus.OK, socialMediaEntities);
+        Boolean deleted = socialMediaService.deleteSocialMediaById(idsocial);
+        
+        return deleted ? ApiHelper.<String>createAndSendResponse(
+                SocialMediaResponseCode.USER_SOCIAL_MEDIA_DELETED, HttpStatus.OK, this.messageSourceResolver.resolver("social.media.deleted")) :
+                	ApiHelper.<String>createAndSendResponse(
+                            SocialMediaResponseCode.USER_SOCIAL_MEDIA_NOT_DELETED, HttpStatus.NOT_FOUND, this.messageSourceResolver.resolver("social.media.not.deleted"));
     }
     
    
@@ -412,7 +418,7 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
     }
     
     @RequestMapping(value = "/{son}/alerts/{alert}", method = RequestMethod.GET)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#son) )")
     @ApiOperation(value = "GET_ALERT_BY_ID", nickname = "GET_ALERT_BY_ID", notes = "Get alert by id",
             response = AlertDTO.class)
     public ResponseEntity<APIResponse<AlertDTO>> getAlertById(
@@ -433,7 +439,7 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
     
     
     @RequestMapping(value = "/{son}/alerts/{alert}", method = RequestMethod.DELETE)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#son) )")
     @ApiOperation(value = "GET_ALERT_BY_ID", nickname = "GET_ALERT_BY_ID", notes = "Get alert by id",
             response = AlertDTO.class)
     public ResponseEntity<APIResponse<String>> deleteAlertById(

@@ -21,6 +21,7 @@ import es.bisite.usal.bulltect.mapper.SonEntityMapper;
 import es.bisite.usal.bulltect.persistence.entity.ParentEntity;
 import es.bisite.usal.bulltect.persistence.entity.SonEntity;
 import es.bisite.usal.bulltect.persistence.repository.ParentRepository;
+import es.bisite.usal.bulltect.persistence.repository.SchoolRepository;
 import es.bisite.usal.bulltect.persistence.repository.SonRepository;
 import es.bisite.usal.bulltect.web.dto.request.RegisterParentByFacebookDTO;
 import es.bisite.usal.bulltect.web.dto.request.RegisterParentDTO;
@@ -41,16 +42,18 @@ public class ParentsServiceImpl implements IParentsService {
     private final SonEntityMapper sonEntityMapper;
     private final SonRepository sonRepository;
     private final PasswordEncoder passwordEncoder;
+    private final SchoolRepository schoolRepository;
 
     @Autowired
     public ParentsServiceImpl(ParentRepository parentRepository, ParentEntityMapper parentEntityMapper, SonEntityMapper sonEntityMapper, 
-    		SonRepository sonRepository, PasswordEncoder passwordEncoder) {
+    		SonRepository sonRepository, PasswordEncoder passwordEncoder, SchoolRepository schoolRepository) {
         super();
         this.parentRepository = parentRepository;
         this.parentEntityMapper = parentEntityMapper;
         this.sonEntityMapper = sonEntityMapper;
         this.sonRepository = sonRepository;
         this.passwordEncoder = passwordEncoder;
+        this.schoolRepository = schoolRepository;
     }
 
     @Override
@@ -114,9 +117,13 @@ public class ParentsServiceImpl implements IParentsService {
 
 	@Override
 	public SonDTO updateSon(String parentId, UpdateSonDTO updateSonDTO) {
-		SonEntity sonToUpdate = sonEntityMapper.updateSonDTOToSonEntity(updateSonDTO);
-		SonEntity sonUpdated = sonRepository.save(sonToUpdate);
-        return sonEntityMapper.sonEntityToSonDTO(sonUpdated);
+		SonEntity sonEntityToUpdate = sonRepository.findOne(new ObjectId(updateSonDTO.getIdentity()));
+		sonEntityToUpdate.setFirstName(updateSonDTO.getFirstName());
+		sonEntityToUpdate.setLastName(updateSonDTO.getLastName());
+		sonEntityToUpdate.setBirthdate(updateSonDTO.getBirthdate());
+		sonEntityToUpdate.setSchool(schoolRepository.findOne(new ObjectId(updateSonDTO.getSchool())));
+		SonEntity sonEntityUpdated = sonRepository.save(sonEntityToUpdate);
+        return sonEntityMapper.sonEntityToSonDTO(sonEntityUpdated);
 	}
 
     @Override
@@ -232,5 +239,6 @@ public class ParentsServiceImpl implements IParentsService {
 		Assert.notNull(sonEntityMapper, "Son Entity Mapper can not be null");
 		Assert.notNull(sonRepository, "Son Repository can not be null");
 		Assert.notNull(passwordEncoder, "Password Encoder can not be null");
+		Assert.notNull(schoolRepository, "School Repository can not be null");
 	}
 }

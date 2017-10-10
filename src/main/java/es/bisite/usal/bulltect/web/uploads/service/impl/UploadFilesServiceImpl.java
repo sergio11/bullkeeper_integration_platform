@@ -6,11 +6,11 @@ import javax.annotation.PostConstruct;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import es.bisite.usal.bulltect.persistence.repository.ParentRepository;
+import es.bisite.usal.bulltect.persistence.repository.SonRepository;
 import es.bisite.usal.bulltect.web.dto.response.ImageDTO;
 import es.bisite.usal.bulltect.web.uploads.models.RequestUploadFile;
 import es.bisite.usal.bulltect.web.uploads.models.UploadFileInfo;
@@ -24,13 +24,15 @@ public final class UploadFilesServiceImpl implements IUploadFilesService {
 
     private final IUploadStrategy<String, RequestUploadFile> uploadStrategy;
     private final ParentRepository parentRepository;
+    private final SonRepository sonRepository;
     private final ImageUploadMapper imageUploadMapper;
 
     public UploadFilesServiceImpl(IUploadStrategy<String, RequestUploadFile> uploadStrategy, 
-            ParentRepository parentRepository, ImageUploadMapper imageUploadMapper) {
+            ParentRepository parentRepository, ImageUploadMapper imageUploadMapper, SonRepository sonRepository) {
         this.uploadStrategy = uploadStrategy;
         this.parentRepository = parentRepository;
         this.imageUploadMapper = imageUploadMapper;
+        this.sonRepository = sonRepository;
     }
 
     @Override
@@ -40,6 +42,14 @@ public final class UploadFilesServiceImpl implements IUploadFilesService {
         UploadFileInfo fileInfo = uploadStrategy.get(profileImageId);
         return imageUploadMapper.uploadFileInfoToImageDTO(fileInfo);
     }
+    
+    @Override
+	public ImageDTO uploadSonProfileImage(ObjectId userId, RequestUploadFile requestUploadFile) {
+    	final String profileImageId = uploadStrategy.save(requestUploadFile);
+    	sonRepository.setProfileImageId(userId, profileImageId);
+        UploadFileInfo fileInfo = uploadStrategy.get(profileImageId);
+        return imageUploadMapper.uploadFileInfoToImageDTO(fileInfo);
+	}
     
     @Override
     public UploadFileInfo getProfileImage(String id) {
@@ -56,6 +66,5 @@ public final class UploadFilesServiceImpl implements IUploadFilesService {
     protected void init() {
         Assert.notNull(uploadStrategy, "Upload Strategy can not be null");
     }
-
     
 }

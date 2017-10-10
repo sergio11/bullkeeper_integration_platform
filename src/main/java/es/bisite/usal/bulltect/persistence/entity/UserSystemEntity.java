@@ -47,9 +47,6 @@ public class UserSystemEntity extends PersonEntity {
     @Field("confirmation_token")
     protected String confirmationToken;
     
-    @Field("profile_image_id")
-    protected String profileImageId;
-    
     @Field("last_access_to_alerts")
 	protected Date lastAccessToAlerts = new Date();
 
@@ -60,10 +57,11 @@ public class UserSystemEntity extends PersonEntity {
     }
 
     @PersistenceConstructor
-    public UserSystemEntity(String email, String password, String passwordRequestedAt, Boolean active, Boolean locked,
-			Date lastLoginAccess, Boolean pendingDeletion, Locale locale, Date lastPasswordResetDate,
-			String confirmationToken, String profileImageId, Date lastAccessToAlerts, AuthorityEntity authority) {
-		super();
+    public UserSystemEntity(String firstName, String lastName, Date birthdate, String profileImageId, String email,
+			String password, String passwordRequestedAt, Boolean active, Boolean locked, Date lastLoginAccess,
+			Boolean pendingDeletion, Locale locale, Date lastPasswordResetDate, String confirmationToken,
+			Date lastAccessToAlerts, AuthorityEntity authority) {
+		super(firstName, lastName, birthdate, profileImageId);
 		this.email = email;
 		this.password = password;
 		this.passwordRequestedAt = passwordRequestedAt;
@@ -74,10 +72,11 @@ public class UserSystemEntity extends PersonEntity {
 		this.locale = locale;
 		this.lastPasswordResetDate = lastPasswordResetDate;
 		this.confirmationToken = confirmationToken;
-		this.profileImageId = profileImageId;
 		this.lastAccessToAlerts = lastAccessToAlerts;
 		this.authority = authority;
 	}
+    
+    
     
     public UserSystemEntity(String firstName, String lastName, Date birthdate, String email, String password, AuthorityEntity authority) {
         super(firstName, lastName, birthdate);
@@ -85,6 +84,8 @@ public class UserSystemEntity extends PersonEntity {
         this.password = password;
         this.authority = authority;
     }
+	
+
 	
 
 	public String getEmail() {

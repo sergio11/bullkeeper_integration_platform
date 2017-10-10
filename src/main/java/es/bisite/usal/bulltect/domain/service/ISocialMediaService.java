@@ -18,11 +18,12 @@ public interface ISocialMediaService {
     SocialMediaDTO getSocialMediaByTypeAndSonId(String type, String sonId);
     SocialMediaDTO update(SaveSocialMediaDTO socialMedia);
     SocialMediaDTO create(SaveSocialMediaDTO socialMedia);
-    SocialMediaDTO save(SaveSocialMediaDTO socialMedia);
-    Iterable<SocialMediaDTO> save(Iterable<SaveSocialMediaDTO> socialMediaList);
+    SocialMediaDTO insertOrUpdate(SaveSocialMediaDTO socialMedia);
+    Iterable<SocialMediaDTO> insertOrUpdate(Iterable<SaveSocialMediaDTO> socialMediaList);
+    Iterable<SocialMediaDTO> save(Iterable<SaveSocialMediaDTO> socialMediaList, String sonId);
     List<SocialMediaDTO> getInvalidSocialMediaById(String id);
     List<SocialMediaDTO> getValidSocialMediaById(String id);
     Page<SocialMediaDTO> findPaginated(Pageable pageable);
-    List<SocialMediaDTO> deleteSocialMediaByUser(String id);
-    SocialMediaDTO deleteSocialMediaById(String id);
+    Long deleteSocialMediaByUser(String id);
+    Boolean deleteSocialMediaById(String id);
 }

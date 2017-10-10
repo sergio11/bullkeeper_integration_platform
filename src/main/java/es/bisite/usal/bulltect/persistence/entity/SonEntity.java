@@ -20,17 +20,27 @@ public final class SonEntity extends PersonEntity {
     }
 
     @PersistenceConstructor
-    public SonEntity(String firstName, String lastName, Date birthdate, SchoolEntity school, ParentEntity parent) {
-        super(firstName, lastName, birthdate);
-        this.school = school;
-        this.parent = parent;
-    }
+    public SonEntity(String firstName, String lastName, Date birthdate, String profileImageId, SchoolEntity school,
+			ParentEntity parent) {
+		super(firstName, lastName, birthdate, profileImageId);
+		this.school = school;
+		this.parent = parent;
+	}
+    
+    public SonEntity(String firstName, String lastName, Date birthdate, SchoolEntity school,
+			ParentEntity parent) {
+		super(firstName, lastName, birthdate);
+		this.school = school;
+		this.parent = parent;
+	}
 
     public SchoolEntity getSchool() {
         return school;
     }
 
-    public void setSchool(SchoolEntity school) {
+    
+
+	public void setSchool(SchoolEntity school) {
         this.school = school;
     }
 

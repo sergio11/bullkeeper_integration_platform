@@ -30,11 +30,22 @@ public abstract class PersonEntity {
     
     @Field("birthdate")
     protected Date birthdate;
-
     
+    @Field("profile_image_id")
+    protected String profileImageId;
+
+   
     public PersonEntity(){}
 
     @PersistenceConstructor
+    public PersonEntity(String firstName, String lastName, Date birthdate, String profileImageId) {
+		super();
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.birthdate = birthdate;
+		this.profileImageId = profileImageId;
+	}
+    
     public PersonEntity(String firstName, String lastName, Date birthdate) {
 		super();
 		this.firstName = firstName;
@@ -86,7 +97,15 @@ public abstract class PersonEntity {
         }
 		
 		return years;
-	    
+	}
+	
+
+	public String getProfileImageId() {
+		return profileImageId;
+	}
+
+	public void setProfileImageId(String profileImageId) {
+		this.profileImageId = profileImageId;
 	}
 
 	@Override

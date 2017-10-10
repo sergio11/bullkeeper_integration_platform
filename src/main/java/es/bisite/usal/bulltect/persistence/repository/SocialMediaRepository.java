@@ -21,8 +21,9 @@ public interface SocialMediaRepository extends MongoRepository<SocialMediaEntity
     List<SocialMediaEntity> findBySonEntityId(ObjectId id);
     List<SocialMediaEntity> findByIdAndInvalidTokenTrue(ObjectId id);
     List<SocialMediaEntity> findByIdAndInvalidTokenFalse(ObjectId id);
-    List<SocialMediaEntity> deleteBySonEntityId(ObjectId id);
-    SocialMediaEntity deleteById(ObjectId id);
+    Long deleteBySonEntityId(ObjectId id);
+    Long deleteById(ObjectId id);
     Long countById(ObjectId id);
     Long countByInvalidTokenFalse();
+    
 }

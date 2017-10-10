@@ -46,12 +46,23 @@ public final class UpdateSonDTO {
     
     public UpdateSonDTO(){}
 
-	public UpdateSonDTO(String firstName, String lastName, Date birthdate, String school) {
+	public UpdateSonDTO(String identity, String firstName, String lastName, Date birthdate, String school) {
 		super();
+		this.identity = identity;
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.birthdate = birthdate;
 		this.school = school;
+	}
+	
+	
+
+	public String getIdentity() {
+		return identity;
+	}
+
+	public void setIdentity(String identity) {
+		this.identity = identity;
 	}
 
 	public String getFirstName() {
