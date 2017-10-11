@@ -22,4 +22,5 @@ public interface ParentRepositoryCustom {
     void setProfileImageId(ObjectId id, String profileImageId);
     void setLastAccessToAlerts(ObjectId id);
     void updateLastLoginAccessAndLastAccessToAlerts(ObjectId id);
+    String getProfileImageIdByUserId(ObjectId id);
 }

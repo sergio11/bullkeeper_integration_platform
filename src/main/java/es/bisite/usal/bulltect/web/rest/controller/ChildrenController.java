@@ -2,13 +2,10 @@ package es.bisite.usal.bulltect.web.rest.controller;
 
 import java.util.Optional;
 import javax.validation.Valid;
-
-import org.apache.commons.io.IOUtils;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -43,7 +40,6 @@ import es.bisite.usal.bulltect.web.rest.exception.NoChildrenFoundException;
 import es.bisite.usal.bulltect.web.rest.exception.SocialMediaNotFoundException;
 import es.bisite.usal.bulltect.web.rest.exception.SonNotFoundException;
 import es.bisite.usal.bulltect.web.rest.hal.ICommentHAL;
-import es.bisite.usal.bulltect.web.rest.hal.IImageHAL;
 import es.bisite.usal.bulltect.web.rest.hal.ISocialMediaHAL;
 import es.bisite.usal.bulltect.web.rest.hal.ISonHAL;
 import es.bisite.usal.bulltect.web.rest.response.APIResponse;
@@ -53,9 +49,6 @@ import es.bisite.usal.bulltect.web.rest.response.SocialMediaResponseCode;
 import es.bisite.usal.bulltect.web.security.userdetails.CommonUserDetailsAware;
 import es.bisite.usal.bulltect.web.security.utils.CurrentUser;
 import es.bisite.usal.bulltect.web.security.utils.OnlyAccessForAdmin;
-import es.bisite.usal.bulltect.web.security.utils.OnlyAccessForParent;
-import es.bisite.usal.bulltect.web.uploads.models.RequestUploadFile;
-import es.bisite.usal.bulltect.web.uploads.models.UploadFileInfo;
 import es.bisite.usal.bulltect.web.uploads.service.IUploadFilesService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -80,7 +73,7 @@ import org.springframework.util.Assert;
 @Validated
 @RequestMapping("/api/v1/children/")
 @Api(tags = "children", value = "/children/", description = "Punto de Entrada para el manejo de usuarios analizados", produces = "application/json")
-public class ChildrenController extends BaseController implements ISonHAL, ICommentHAL, ISocialMediaHAL, IImageHAL {
+public class ChildrenController extends BaseController implements ISonHAL, ICommentHAL, ISocialMediaHAL {
 
     private static Logger logger = LoggerFactory.getLogger(ChildrenController.class);
     
@@ -168,12 +161,9 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
             @RequestPart("profile_image") MultipartFile profileImage,
             @ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
         
-        
-        RequestUploadFile uploadProfileImage = new RequestUploadFile(profileImage.getBytes(), 
-                profileImage.getContentType() != null ? profileImage.getContentType() : MediaType.IMAGE_PNG_VALUE, profileImage.getOriginalFilename());
-        ImageDTO imageDto = uploadFilesService.uploadSonProfileImage(new ObjectId(id), uploadProfileImage);
+        ImageDTO imageDTO = controllerHelper.uploadProfileImage(new ObjectId(id), profileImage);
         return ApiHelper.<ImageDTO>createAndSendResponse(ChildrenResponseCode.PROFILE_IMAGE_UPLOAD_SUCCESSFULLY, 
-        		HttpStatus.OK, addLinksToImage(imageDto));
+        		HttpStatus.OK, imageDTO);
 
     }
     
@@ -187,32 +177,8 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
         
     	
     	logger.debug("Download Son Profile Image");
-        
-    	UploadFileInfo imageInfo = null;
-    	try {
-    		
-    		SonDTO sonDTO = sonService.getSonById(id);
-    		
-    		imageInfo = uploadFilesService.getProfileImage(sonDTO.getProfileImageId());
-    		
-    		if(imageInfo == null) {
-    			
-    			final org.springframework.core.io.Resource userDefault = resourceLoader.getResource("classpath:user_default.png");
-        		imageInfo = new UploadFileInfo(userDefault.contentLength(), MediaType.IMAGE_PNG_VALUE, IOUtils.toByteArray(userDefault.getInputStream()));
-    		}
-    		
-    		
-    	} catch (Exception ex) {
-    		logger.debug("DOWNLOAD USER DEFAULT IMAGE");
-    		final org.springframework.core.io.Resource userDefault = resourceLoader.getResource("classpath:user_default.png");
-    		imageInfo = new UploadFileInfo(userDefault.contentLength(), MediaType.IMAGE_PNG_VALUE, IOUtils.toByteArray(userDefault.getInputStream()));
-
-    	}
-    	
-        return ResponseEntity.ok()
-                .contentLength(imageInfo.getSize())
-                .contentType( imageInfo.getContentType() != null ?  MediaType.parseMediaType(imageInfo.getContentType()) : MediaType.IMAGE_PNG)
-                .body(imageInfo.getContent());
+        SonDTO sonDTO = sonService.getSonById(id);
+        return controllerHelper.downloadProfileImage(sonDTO.getProfileImage());
         
     }
     

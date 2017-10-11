@@ -35,4 +35,6 @@ public interface ParentRepository extends MongoRepository<ParentEntity, ObjectId
 
     @Query(value = "{ 'email' : ?0 }", fields = "{ 'fb_id' : 1 }")
     String getFbIdByEmail(String email);
+    
+    ParentEntity findByProfileImage(String profileImageId);
 }

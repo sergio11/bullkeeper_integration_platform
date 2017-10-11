@@ -43,4 +43,5 @@ public interface IParentsService {
     Long deleteUnactivatedAccounts();
     void cancelAllAccountDeletionProcess();
     void updateLastAccessToAlerts(ObjectId id);
+    String getProfileImage(ObjectId id);
 }

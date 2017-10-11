@@ -24,7 +24,7 @@ import es.bisite.usal.bulltect.web.uploads.strategy.IUploadStrategy;
 import io.jsonwebtoken.lang.Assert;
 
 @Component
-@ConditionalOnProperty(prefix = "upload.strategy", name = "gridfs", matchIfMissing = false)
+@ConditionalOnProperty(name = "upload.strategy", havingValue = "gridfs", matchIfMissing = false)
 public class UserImagesGridFSUploadStrategy implements IUploadStrategy<String, RequestUploadFile> {
 
     private static Logger logger = LoggerFactory.getLogger(UserImagesGridFSUploadStrategy.class);

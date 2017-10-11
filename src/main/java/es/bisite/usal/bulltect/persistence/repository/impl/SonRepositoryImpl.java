@@ -17,22 +17,34 @@ import es.bisite.usal.bulltect.persistence.repository.SonRepositoryCustom;
  * @author sergio
  */
 public class SonRepositoryImpl implements SonRepositoryCustom {
-    
+
     private static Logger logger = LoggerFactory.getLogger(SonRepositoryImpl.class);
-    
+
     @Autowired
     private MongoTemplate mongoTemplate;
 
-	@Override
-	public void setProfileImageId(ObjectId id, String profileImageId) {
-		Assert.notNull(id, "id can not be null");
-		Assert.notNull(profileImageId, "profileImageId can not be null");
-		
-		logger.debug("Save Image id: " + profileImageId + " for user with id : " + id);
-		
-		mongoTemplate.updateFirst(
-				new Query(Criteria.where("_id").in(id)), 
-				new Update().set("profile_image_id", profileImageId), SonEntity.class);
-		
-	}
+    @Override
+    public void setProfileImageId(ObjectId id, String profileImageId) {
+        Assert.notNull(id, "id can not be null");
+        Assert.notNull(profileImageId, "profileImageId can not be null");
+
+        logger.debug("Save Image id: " + profileImageId + " for user with id : " + id);
+
+        mongoTemplate.updateFirst(
+                new Query(Criteria.where("_id").in(id)),
+                new Update().set("profile_image", profileImageId), SonEntity.class);
+
+    }
+
+    @Override
+    public String getProfileImageIdByUserId(ObjectId id) {
+        Assert.notNull(id, "Id can not be null");
+
+        Query query = new Query(Criteria.where("_id").is(id));
+        query.fields().include("profile_image");
+        
+        SonEntity sonEntity = mongoTemplate.findOne(query, SonEntity.class);
+        
+        return sonEntity.getProfileImage();
+    }
 }

@@ -5,6 +5,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.ResourceLoader;
 
 import es.bisite.usal.bulltect.i18n.service.IMessageSourceResolverService;
+import es.bisite.usal.bulltect.web.rest.ControllerHelper;
 
 /**
  *
@@ -20,5 +21,8 @@ public abstract class BaseController {
     
     @Autowired
     protected ResourceLoader resourceLoader;
+    
+    @Autowired
+    protected ControllerHelper controllerHelper;
     
 }

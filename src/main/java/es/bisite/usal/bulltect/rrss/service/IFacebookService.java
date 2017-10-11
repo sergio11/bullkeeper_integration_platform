@@ -14,4 +14,5 @@ public interface IFacebookService {
     List<CommentEntity> getCommentsLaterThan(Date startDate, String accessToken);
     RegisterParentByFacebookDTO getRegistrationInformationForTheParent(String fbId, String token);
     String getFbIdByAccessToken(String accessToken);
+    String fetchUserPicture(String accessToken);
 }

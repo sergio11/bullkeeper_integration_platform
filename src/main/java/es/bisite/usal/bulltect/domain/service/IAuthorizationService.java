@@ -21,4 +21,6 @@ public interface IAuthorizationService {
     void grantChangePasswordPrivilege(String id);
     
     Boolean isYourProfileImage(String id);
+    
+    Boolean itIsAProfileImageOfYourChild(String id);
 }

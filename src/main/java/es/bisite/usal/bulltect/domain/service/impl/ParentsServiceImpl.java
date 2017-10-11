@@ -34,8 +34,8 @@ import io.jsonwebtoken.lang.Assert;
 
 @Service
 public class ParentsServiceImpl implements IParentsService {
-	
-	private static Logger logger = LoggerFactory.getLogger(ParentsServiceImpl.class);
+
+    private static Logger logger = LoggerFactory.getLogger(ParentsServiceImpl.class);
 
     private final ParentRepository parentRepository;
     private final ParentEntityMapper parentEntityMapper;
@@ -45,8 +45,8 @@ public class ParentsServiceImpl implements IParentsService {
     private final SchoolRepository schoolRepository;
 
     @Autowired
-    public ParentsServiceImpl(ParentRepository parentRepository, ParentEntityMapper parentEntityMapper, SonEntityMapper sonEntityMapper, 
-    		SonRepository sonRepository, PasswordEncoder passwordEncoder, SchoolRepository schoolRepository) {
+    public ParentsServiceImpl(ParentRepository parentRepository, ParentEntityMapper parentEntityMapper, SonEntityMapper sonEntityMapper,
+            SonRepository sonRepository, PasswordEncoder passwordEncoder, SchoolRepository schoolRepository) {
         super();
         this.parentRepository = parentRepository;
         this.parentEntityMapper = parentEntityMapper;
@@ -97,13 +97,13 @@ public class ParentsServiceImpl implements IParentsService {
         final ParentEntity parentSaved = parentRepository.save(parentToSave);
         return parentEntityMapper.parentEntityToParentDTO(parentSaved);
     }
-    
+
     @Override
-	public ParentDTO save(RegisterParentByFacebookDTO registerParent) {
-    	final ParentEntity parentToSave = parentEntityMapper.registerParentByFacebookDTOToParentEntity(registerParent);
+    public ParentDTO save(RegisterParentByFacebookDTO registerParent) {
+        final ParentEntity parentToSave = parentEntityMapper.registerParentByFacebookDTOToParentEntity(registerParent);
         final ParentEntity parentSaved = parentRepository.save(parentToSave);
         return parentEntityMapper.parentEntityToParentDTO(parentSaved);
-	}
+    }
 
     @Override
     public SonDTO addSon(String parentId, RegisterSonDTO registerSonDTO) {
@@ -113,18 +113,17 @@ public class ParentsServiceImpl implements IParentsService {
         parentRepository.save(parentEntity);
         return sonEntityMapper.sonEntityToSonDTO(sonToAdd);
     }
-    
 
-	@Override
-	public SonDTO updateSon(String parentId, UpdateSonDTO updateSonDTO) {
-		SonEntity sonEntityToUpdate = sonRepository.findOne(new ObjectId(updateSonDTO.getIdentity()));
-		sonEntityToUpdate.setFirstName(updateSonDTO.getFirstName());
-		sonEntityToUpdate.setLastName(updateSonDTO.getLastName());
-		sonEntityToUpdate.setBirthdate(updateSonDTO.getBirthdate());
-		sonEntityToUpdate.setSchool(schoolRepository.findOne(new ObjectId(updateSonDTO.getSchool())));
-		SonEntity sonEntityUpdated = sonRepository.save(sonEntityToUpdate);
+    @Override
+    public SonDTO updateSon(String parentId, UpdateSonDTO updateSonDTO) {
+        SonEntity sonEntityToUpdate = sonRepository.findOne(new ObjectId(updateSonDTO.getIdentity()));
+        sonEntityToUpdate.setFirstName(updateSonDTO.getFirstName());
+        sonEntityToUpdate.setLastName(updateSonDTO.getLastName());
+        sonEntityToUpdate.setBirthdate(updateSonDTO.getBirthdate());
+        sonEntityToUpdate.setSchool(schoolRepository.findOne(new ObjectId(updateSonDTO.getSchool())));
+        SonEntity sonEntityUpdated = sonRepository.save(sonEntityToUpdate);
         return sonEntityMapper.sonEntityToSonDTO(sonEntityUpdated);
-	}
+    }
 
     @Override
     public ParentDTO getParentById(ObjectId id) {
@@ -137,108 +136,112 @@ public class ParentsServiceImpl implements IParentsService {
         parentRepository.setAsNotActiveAndConfirmationToken(new ObjectId(id), confirmationToken);
     }
 
-	@Override
-	public ParentDTO getParentByEmail(String email) {
-		ParentEntity parentEntity = (ParentEntity)parentRepository.findOneByEmail(email);
-		return parentEntityMapper.parentEntityToParentDTO(parentEntity);
-	}
+    @Override
+    public ParentDTO getParentByEmail(String email) {
+        ParentEntity parentEntity = (ParentEntity) parentRepository.findOneByEmail(email);
+        return parentEntityMapper.parentEntityToParentDTO(parentEntity);
+    }
 
-	@Override
-	public ParentDTO update(final ObjectId id, final UpdateParentDTO updateParentDTO) {
-		
-		final ParentEntity parentToUpdate =  parentRepository.findOne(id);
-		// update parent
-		parentToUpdate.setFirstName(updateParentDTO.getFirstName());
-		parentToUpdate.setLastName(updateParentDTO.getLastName());
-		parentToUpdate.setEmail(updateParentDTO.getEmail());
-		parentToUpdate.setBirthdate(updateParentDTO.getBirthdate());
-		parentToUpdate.setTelephone(PhoneNumberUtil.getInstance().format(updateParentDTO.getTelephone(), PhoneNumberFormat.E164));
+    @Override
+    public ParentDTO update(final ObjectId id, final UpdateParentDTO updateParentDTO) {
+
+        final ParentEntity parentToUpdate = parentRepository.findOne(id);
+        // update parent
+        parentToUpdate.setFirstName(updateParentDTO.getFirstName());
+        parentToUpdate.setLastName(updateParentDTO.getLastName());
+        parentToUpdate.setEmail(updateParentDTO.getEmail());
+        parentToUpdate.setBirthdate(updateParentDTO.getBirthdate());
+        parentToUpdate.setTelephone(PhoneNumberUtil.getInstance().format(updateParentDTO.getTelephone(), PhoneNumberFormat.E164));
 
         final ParentEntity parentUpdated = parentRepository.save(parentToUpdate);
         return parentEntityMapper.parentEntityToParentDTO(parentUpdated);
-	}
+    }
 
-	@Override
-	public void changeUserPassword(ObjectId id, String newPassword) {
-		parentRepository.setNewPassword(id, newPassword);
-	}
-	
-	@Override
-	public Boolean activateAccount(String token) {
-		Assert.notNull(token, "Token can not be null");
-		Assert.hasLength(token, "Token can not be empty");
-		
-		Boolean isActivated = Boolean.FALSE;
-		Boolean exists = parentRepository.countByConfirmationToken(token) == 1 
-				? Boolean.TRUE : Boolean.FALSE;
-		
-		if(exists) {
-			parentRepository.setActiveAsTrueAndDeleteConfirmationToken(token);
-			isActivated = Boolean.TRUE;
-		}
-		
-		return isActivated;
-	}
-	
-	@Override
-	public void lockAccount(String id) {
-		parentRepository.lockAccount(new ObjectId(id));
-	}
+    @Override
+    public void changeUserPassword(ObjectId id, String newPassword) {
+        parentRepository.setNewPassword(id, newPassword);
+    }
 
-	@Override
-	public void unlockAccount(String id) {
-		parentRepository.unlockAccount(new ObjectId(id));
-	}
-	
-	@Override
-	public ParentDTO getParentByFbId(String fbId) {
-		return parentEntityMapper.parentEntityToParentDTO(parentRepository.findByFbId(fbId));
-	}
-	
-	@Override
-	public void updateFbAccessToken(String fbId, String fbAccessToken) {
-		parentRepository.setFbAccessTokenByFbId(fbAccessToken, fbId);
-	}
-	
-	
-	@Override
-	public Long deleteAccount(String confirmationToken) {
-		return parentRepository.deleteByConfirmationToken(confirmationToken);
-	}
-	
-	@Override
-	public void cancelAccountDeletionProcess(String confirmationToken) {
-		parentRepository.setPendingDeletionAsFalseAndDeleteConfirmationToken(confirmationToken);
-	}
+    @Override
+    public Boolean activateAccount(String token) {
+        Assert.notNull(token, "Token can not be null");
+        Assert.hasLength(token, "Token can not be empty");
 
-	@Override
-	public void startAccountDeletionProcess(ObjectId id, String confirmationToken) {
-		parentRepository.setPendingDeletionAsTrueAndConfirmationTokenById(id, confirmationToken);
-	}
-	
-	@Override
-	public Long deleteUnactivatedAccounts() {
-		return parentRepository.deleteByActiveFalse();
-	}
-	
-	@Override
-	public void cancelAllAccountDeletionProcess() {
-		parentRepository.setPendingDeletionAsFalseAndDeleteConfirmationToken();
-	}
-	
-	@Override
-	public void updateLastAccessToAlerts(ObjectId id) {
-		parentRepository.setLastAccessToAlerts(id);
-	}
-	
-	
-	@PostConstruct
-	protected void init(){
-		Assert.notNull(parentRepository, "Parent Repository can not be null");
-		Assert.notNull(parentEntityMapper, "Parent Entity Mapper can not be null");
-		Assert.notNull(sonEntityMapper, "Son Entity Mapper can not be null");
-		Assert.notNull(sonRepository, "Son Repository can not be null");
-		Assert.notNull(passwordEncoder, "Password Encoder can not be null");
-		Assert.notNull(schoolRepository, "School Repository can not be null");
-	}
+        Boolean isActivated = Boolean.FALSE;
+        Boolean exists = parentRepository.countByConfirmationToken(token) == 1
+                ? Boolean.TRUE : Boolean.FALSE;
+
+        if (exists) {
+            parentRepository.setActiveAsTrueAndDeleteConfirmationToken(token);
+            isActivated = Boolean.TRUE;
+        }
+
+        return isActivated;
+    }
+
+    @Override
+    public void lockAccount(String id) {
+        parentRepository.lockAccount(new ObjectId(id));
+    }
+
+    @Override
+    public void unlockAccount(String id) {
+        parentRepository.unlockAccount(new ObjectId(id));
+    }
+
+    @Override
+    public ParentDTO getParentByFbId(String fbId) {
+        return parentEntityMapper.parentEntityToParentDTO(parentRepository.findByFbId(fbId));
+    }
+
+    @Override
+    public void updateFbAccessToken(String fbId, String fbAccessToken) {
+        parentRepository.setFbAccessTokenByFbId(fbAccessToken, fbId);
+    }
+
+    @Override
+    public Long deleteAccount(String confirmationToken) {
+        return parentRepository.deleteByConfirmationToken(confirmationToken);
+    }
+
+    @Override
+    public void cancelAccountDeletionProcess(String confirmationToken) {
+        parentRepository.setPendingDeletionAsFalseAndDeleteConfirmationToken(confirmationToken);
+    }
+
+    @Override
+    public void startAccountDeletionProcess(ObjectId id, String confirmationToken) {
+        parentRepository.setPendingDeletionAsTrueAndConfirmationTokenById(id, confirmationToken);
+    }
+
+    @Override
+    public Long deleteUnactivatedAccounts() {
+        return parentRepository.deleteByActiveFalse();
+    }
+
+    @Override
+    public void cancelAllAccountDeletionProcess() {
+        parentRepository.setPendingDeletionAsFalseAndDeleteConfirmationToken();
+    }
+
+    @Override
+    public void updateLastAccessToAlerts(ObjectId id) {
+        parentRepository.setLastAccessToAlerts(id);
+    }
+
+    @Override
+    public String getProfileImage(ObjectId id) {
+        return parentRepository.getProfileImageIdByUserId(id);
+    }
+
+    @PostConstruct
+    protected void init() {
+        Assert.notNull(parentRepository, "Parent Repository can not be null");
+        Assert.notNull(parentEntityMapper, "Parent Entity Mapper can not be null");
+        Assert.notNull(sonEntityMapper, "Son Entity Mapper can not be null");
+        Assert.notNull(sonRepository, "Son Repository can not be null");
+        Assert.notNull(passwordEncoder, "Password Encoder can not be null");
+        Assert.notNull(schoolRepository, "School Repository can not be null");
+    }
+
 }

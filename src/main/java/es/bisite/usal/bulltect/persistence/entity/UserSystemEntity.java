@@ -13,18 +13,18 @@ import org.springframework.data.mongodb.core.mapping.Field;
  */
 @Document(collection = UserSystemEntity.COLLECTION_NAME)
 public class UserSystemEntity extends PersonEntity {
-	
-	public final static String COLLECTION_NAME = "users";
+
+    public final static String COLLECTION_NAME = "users";
 
     @Field("email")
     protected String email;
 
     @Field("password")
     protected String password;
-    
+
     @Field("password_requested_at")
     protected String passwordRequestedAt;
-    
+
     @Field("is_active")
     protected Boolean active = Boolean.TRUE;
 
@@ -33,22 +33,22 @@ public class UserSystemEntity extends PersonEntity {
 
     @Field("last_login_access")
     protected Date lastLoginAccess;
-    
+
     @Field("pending_deletion")
     protected Boolean pendingDeletion = Boolean.FALSE;
-    
+
     @Field("locale")
     protected Locale locale = Locale.getDefault();
-    
+
     @Field("last_password_reset_date")
     protected Date lastPasswordResetDate;
-    
+
     /* Random string sent to the user email address in order to verify it */
     @Field("confirmation_token")
     protected String confirmationToken;
-    
+
     @Field("last_access_to_alerts")
-	protected Date lastAccessToAlerts = new Date();
+    protected Date lastAccessToAlerts = new Date();
 
     @DBRef
     protected AuthorityEntity authority;
@@ -57,38 +57,33 @@ public class UserSystemEntity extends PersonEntity {
     }
 
     @PersistenceConstructor
-    public UserSystemEntity(String firstName, String lastName, Date birthdate, String profileImageId, String email,
-			String password, String passwordRequestedAt, Boolean active, Boolean locked, Date lastLoginAccess,
-			Boolean pendingDeletion, Locale locale, Date lastPasswordResetDate, String confirmationToken,
-			Date lastAccessToAlerts, AuthorityEntity authority) {
-		super(firstName, lastName, birthdate, profileImageId);
-		this.email = email;
-		this.password = password;
-		this.passwordRequestedAt = passwordRequestedAt;
-		this.active = active;
-		this.locked = locked;
-		this.lastLoginAccess = lastLoginAccess;
-		this.pendingDeletion = pendingDeletion;
-		this.locale = locale;
-		this.lastPasswordResetDate = lastPasswordResetDate;
-		this.confirmationToken = confirmationToken;
-		this.lastAccessToAlerts = lastAccessToAlerts;
-		this.authority = authority;
-	}
-    
-    
-    
+    public UserSystemEntity(String firstName, String lastName, Date birthdate, String profileImage, String email,
+            String password, String passwordRequestedAt, Boolean active, Boolean locked, Date lastLoginAccess,
+            Boolean pendingDeletion, Locale locale, Date lastPasswordResetDate, String confirmationToken,
+            Date lastAccessToAlerts, AuthorityEntity authority) {
+        super(firstName, lastName, birthdate, profileImage);
+        this.email = email;
+        this.password = password;
+        this.passwordRequestedAt = passwordRequestedAt;
+        this.active = active;
+        this.locked = locked;
+        this.lastLoginAccess = lastLoginAccess;
+        this.pendingDeletion = pendingDeletion;
+        this.locale = locale;
+        this.lastPasswordResetDate = lastPasswordResetDate;
+        this.confirmationToken = confirmationToken;
+        this.lastAccessToAlerts = lastAccessToAlerts;
+        this.authority = authority;
+    }
+
     public UserSystemEntity(String firstName, String lastName, Date birthdate, String email, String password, AuthorityEntity authority) {
         super(firstName, lastName, birthdate);
         this.email = email;
         this.password = password;
         this.authority = authority;
     }
-	
 
-	
-
-	public String getEmail() {
+    public String getEmail() {
         return email;
     }
 
@@ -151,49 +146,41 @@ public class UserSystemEntity extends PersonEntity {
     public void setConfirmationToken(String confirmationToken) {
         this.confirmationToken = confirmationToken;
     }
-    
+
     public Boolean isPendingDeletion() {
-		return pendingDeletion;
-	}
+        return pendingDeletion;
+    }
 
-	public void setPendingDeletion(Boolean pendingDeletion) {
-		this.pendingDeletion = pendingDeletion;
-	}
-	public Locale getLocale() {
-		return locale;
-	}
+    public void setPendingDeletion(Boolean pendingDeletion) {
+        this.pendingDeletion = pendingDeletion;
+    }
 
-	public void setLocale(Locale locale) {
-		this.locale = locale;
-	}
+    public Locale getLocale() {
+        return locale;
+    }
 
-	public Date getLastPasswordResetDate() {
-		return lastPasswordResetDate;
-	}
+    public void setLocale(Locale locale) {
+        this.locale = locale;
+    }
 
-	public void setLastPasswordResetDate(Date lastPasswordResetDate) {
-		this.lastPasswordResetDate = lastPasswordResetDate;
-	}
+    public Date getLastPasswordResetDate() {
+        return lastPasswordResetDate;
+    }
 
-	public String getProfileImageId() {
-		return profileImageId;
-	}
+    public void setLastPasswordResetDate(Date lastPasswordResetDate) {
+        this.lastPasswordResetDate = lastPasswordResetDate;
+    }
 
-	public void setProfileImageId(String profileImageId) {
-		this.profileImageId = profileImageId;
-	}
-	
-	
 
-	public Date getLastAccessToAlerts() {
-		return lastAccessToAlerts;
-	}
+    public Date getLastAccessToAlerts() {
+        return lastAccessToAlerts;
+    }
 
-	public void setLastAccessToAlerts(Date lastAccessToAlerts) {
-		this.lastAccessToAlerts = lastAccessToAlerts;
-	}
+    public void setLastAccessToAlerts(Date lastAccessToAlerts) {
+        this.lastAccessToAlerts = lastAccessToAlerts;
+    }
 
-	@Override
+    @Override
     public String toString() {
         return "UserSystemEntity [email=" + email + ", password=" + password + ", locked=" + locked + ", authority="
                 + authority + "]";

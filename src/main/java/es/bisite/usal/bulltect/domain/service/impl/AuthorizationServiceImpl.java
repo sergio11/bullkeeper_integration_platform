@@ -102,11 +102,26 @@ public class AuthorizationServiceImpl implements IAuthorizationService {
     public Boolean isYourProfileImage(String id) {
         Boolean isYourProfileImage = Boolean.FALSE;
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (ObjectId.isValid(id) && !(auth instanceof AnonymousAuthenticationToken)) {
+        logger.debug("isYourProfileImage");
+        if (!(auth instanceof AnonymousAuthenticationToken)) {
             CommonUserDetailsAware<ObjectId> userDetails = (CommonUserDetailsAware<ObjectId>) auth.getPrincipal();
-            isYourProfileImage = userDetails.getProfileImageId().equals(id);
+            String profileImageId = parentRepository.getProfileImageIdByUserId(userDetails.getUserId());
+            logger.debug("profileImageId -> " + profileImageId);
+            logger.debug("check with  -> " + id);
+            isYourProfileImage = profileImageId != null &&  profileImageId.equals(id);
         }
         return isYourProfileImage;
+    }
+    
+    @Override
+    public Boolean itIsAProfileImageOfYourChild(String id) {
+        Boolean itIsAProfileImageOfYourChild = Boolean.FALSE;
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (!(auth instanceof AnonymousAuthenticationToken)) {
+            CommonUserDetailsAware<ObjectId> userDetails = (CommonUserDetailsAware<ObjectId>) auth.getPrincipal();
+            itIsAProfileImageOfYourChild = sonRepository.countByParentIdAndProfileImage(userDetails.getUserId(), id) > 0;
+        }
+        return itIsAProfileImageOfYourChild;
     }
 
     @PostConstruct

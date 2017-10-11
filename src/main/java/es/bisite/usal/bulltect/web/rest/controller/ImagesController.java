@@ -1,8 +1,9 @@
 package es.bisite.usal.bulltect.web.rest.controller;
 
+import es.bisite.usal.bulltect.persistence.constraints.ParentShouldExists;
+import es.bisite.usal.bulltect.persistence.constraints.ValidObjectId;
 import es.bisite.usal.bulltect.web.dto.response.ImageDTO;
 import es.bisite.usal.bulltect.web.rest.ApiHelper;
-import es.bisite.usal.bulltect.web.rest.hal.IImageHAL;
 import javax.annotation.PostConstruct;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
@@ -16,27 +17,22 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import es.bisite.usal.bulltect.web.rest.response.APIResponse;
 import es.bisite.usal.bulltect.web.rest.response.ImageResponseCode;
-import es.bisite.usal.bulltect.web.security.userdetails.CommonUserDetailsAware;
-import es.bisite.usal.bulltect.web.security.utils.CurrentUser;
-import es.bisite.usal.bulltect.web.uploads.models.RequestUploadFile;
-import es.bisite.usal.bulltect.web.uploads.models.UploadFileInfo;
 import es.bisite.usal.bulltect.web.uploads.service.IUploadFilesService;
 import io.jsonwebtoken.lang.Assert;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import java.io.IOException;
 import javax.validation.Valid;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
-import springfox.documentation.annotations.ApiIgnore;
 
 @RestController("ImagesController")
 @Validated
 @RequestMapping("/api/v1/images/")
 @Api(tags = "images", value = "/images/", description = "Manejo de las imagenes de los usuarios", produces = "application/json")
-public class ImagesController extends BaseController implements IImageHAL {
+public class ImagesController extends BaseController {
 
     private static Logger logger = LoggerFactory.getLogger(ImagesController.class);
     
@@ -46,38 +42,79 @@ public class ImagesController extends BaseController implements IImageHAL {
         this.uploadFilesService = uploadFilesService;
     }
 
-    @RequestMapping(value = "/upload", method = RequestMethod.POST)
-    @ApiOperation(value = "UPLOAD_PROFILE_IMAGE_FOR_SELF_USER", nickname = "UPLOAD_PROFILE_IMAGE_FOR_SELF_USER", notes = "Upload Profile Image For Self User")
-    public ResponseEntity<APIResponse<ImageDTO>> uploadProfileImageForSelfUser(
-            @RequestPart("profile_image") MultipartFile profileImage,
-            @ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
+    @RequestMapping(value = "/parents/{id}/upload", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isTheAuthenticatedUser(#id) )")
+    @ApiOperation(value = "UPLOAD_PARENT_PROFILE_IMAGE", nickname = "UPLOAD_PARENT_PROFILE_IMAGE", notes = "Upload Parent Profile Image")
+    public ResponseEntity<APIResponse<ImageDTO>> uploadParentProfileImage(
+            @ApiParam(name = "id", value = "Identificador del Padre", required = true) 
+    			@Valid @ValidObjectId(message = "{parent.id.notvalid}")
+    				@ParentShouldExists(message = "{parent.not.exists}")
+    				@PathVariable String id,
+            @RequestPart("profile_image") MultipartFile profileImage) throws Throwable {
         
         
-        RequestUploadFile uploadProfileImage = new RequestUploadFile(profileImage.getBytes(), 
-                profileImage.getContentType(), profileImage.getOriginalFilename());
-        ImageDTO imageDto = uploadFilesService.uploadParentProfileImage(selfParent.getUserId(), uploadProfileImage);
-        return ApiHelper.<ImageDTO>createAndSendResponse(ImageResponseCode.IMAGE_UPLOAD_SUCCESSFULLY, 
-        		HttpStatus.OK, addLinksToImage(imageDto));
+        ImageDTO imageDTO = controllerHelper.uploadProfileImage(new ObjectId(id), profileImage);
+       return ApiHelper.<ImageDTO>createAndSendResponse(ImageResponseCode.IMAGE_UPLOAD_SUCCESSFULLY, 
+        		HttpStatus.OK, imageDTO);
 
-    }
-
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    @ApiOperation(value = "DOWNLOAD_IMAGE", nickname = "DOWNLOAD_IMAGE", notes = "Download Image by id")
-    public ResponseEntity<byte[]> download(
-            @ApiParam(name = "id", value = "Identificador de la Imagen", required = true) 
-                @Valid @PathVariable String id) {
-        
-        UploadFileInfo imageInfo = uploadFilesService.getProfileImage(id);
-        return ResponseEntity.ok()
-                .contentLength(imageInfo.getSize())
-                .contentType(MediaType.parseMediaType(imageInfo.getContentType()))
-                .body(imageInfo.getContent());
     }
     
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    @PreAuthorize("@authorizationService.isYourProfileImage(#id)")
-    @ApiOperation(value = "DELETE_IMAGE", nickname = "DELETE_IMAGE", notes = "Delete Image")
-    public ResponseEntity<APIResponse<String>> delete(
+    
+    @RequestMapping(value = "/children/{id}/upload", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
+    @ApiOperation(value = "UPLOAD_CHILDREN_PROFILE_IMAGE", nickname = "UPLOAD_CHILDREN_PROFILE_IMAGE", 
+            notes = "Upload Children Profile Image")
+    public ResponseEntity<APIResponse<ImageDTO>> uploadSonProfileImage(
+           @ApiParam(name= "id", value = "Identificador del hijo", required = true)
+    			@Valid @ValidObjectId(message = "{son.id.notvalid}")
+    		 		@PathVariable String id,
+            @RequestPart("profile_image") MultipartFile profileImage) throws Throwable {
+        
+        
+        ImageDTO imageDTO = controllerHelper.uploadProfileImage(new ObjectId(id), profileImage);
+       return ApiHelper.<ImageDTO>createAndSendResponse(ImageResponseCode.IMAGE_UPLOAD_SUCCESSFULLY, 
+        		HttpStatus.OK, imageDTO);
+
+    }
+
+    @RequestMapping(value = "/parents/{id}", method = RequestMethod.GET)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourProfileImage(#id) )")
+    @ApiOperation(value = "DOWNLOAD_PARENT_PROFILE_IMAGE", nickname = "DOWNLOAD_PARENT_PROFILE_IMAGE", notes = "Download Parent Profile Image")
+    public ResponseEntity<byte[]> downloadParentsProfileImage(
+            @ApiParam(name = "id", value = "Identificador de la Imagen", required = true) 
+                @Valid @PathVariable String id) throws IOException {
+        
+        return controllerHelper.downloadProfileImage(id);
+    }
+    
+    @RequestMapping(value = "/children/{id}", method = RequestMethod.GET)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.itIsAProfileImageOfYourChild(#id) )")
+    @ApiOperation(value = "DOWNLOAD_CHILDREN_PROFILE_IMAGE", nickname = "DOWNLOAD_CHILDREN_PROFILE_IMAGE", notes = "Download Children Profile Image")
+    public ResponseEntity<byte[]> downloadChildrenProfileImage(
+            @ApiParam(name = "id", value = "Identificador de la Imagen", required = true) 
+                @Valid @PathVariable String id) throws IOException {
+        
+        return controllerHelper.downloadProfileImage(id);
+    }
+    
+    @RequestMapping(value = "/parents/{id}", method = RequestMethod.DELETE)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourProfileImage(#id) )")
+    @ApiOperation(value = "DELETE_PARENT_PROFILE_IMAGE", 
+            nickname = "DELETE_PARENT_PROFILE_IMAGE", notes = "Delete Parent Profile Image")
+    public ResponseEntity<APIResponse<String>> deleteParentProfileImage(
+            @ApiParam(name = "id", value = "Identificador de la Imagen", required = true) 
+                @Valid @PathVariable String id) {
+        uploadFilesService.deleteProfileImage(id);
+        return ApiHelper.<String>createAndSendResponse(ImageResponseCode.IMAGE_DELETED_SUCCESSFULLY, 
+        		HttpStatus.OK, messageSourceResolver.resolver("image.deleted.successfully"));
+    }
+    
+    
+    @RequestMapping(value = "/children/{id}", method = RequestMethod.DELETE)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.itIsAProfileImageOfYourChild(#id) )")
+    @ApiOperation(value = "DELETE_PARENT_PROFILE_IMAGE", 
+            nickname = "DELETE_PARENT_PROFILE_IMAGE", notes = "Delete Parent Profile Image")
+    public ResponseEntity<APIResponse<String>> deleteSonProfileImage(
             @ApiParam(name = "id", value = "Identificador de la Imagen", required = true) 
                 @Valid @PathVariable String id) {
         uploadFilesService.deleteProfileImage(id);

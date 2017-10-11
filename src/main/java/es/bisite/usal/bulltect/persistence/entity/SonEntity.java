@@ -8,8 +8,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = SonEntity.COLLECTION_NAME)
 public final class SonEntity extends PersonEntity {
-	
-	public final static String COLLECTION_NAME = "children";
+
+    public final static String COLLECTION_NAME = "children";
 
     @DBRef
     private SchoolEntity school;
@@ -20,27 +20,25 @@ public final class SonEntity extends PersonEntity {
     }
 
     @PersistenceConstructor
-    public SonEntity(String firstName, String lastName, Date birthdate, String profileImageId, SchoolEntity school,
-			ParentEntity parent) {
-		super(firstName, lastName, birthdate, profileImageId);
-		this.school = school;
-		this.parent = parent;
-	}
-    
+    public SonEntity(String firstName, String lastName, Date birthdate, String profileImage, SchoolEntity school,
+            ParentEntity parent) {
+        super(firstName, lastName, birthdate, profileImage);
+        this.school = school;
+        this.parent = parent;
+    }
+
     public SonEntity(String firstName, String lastName, Date birthdate, SchoolEntity school,
-			ParentEntity parent) {
-		super(firstName, lastName, birthdate);
-		this.school = school;
-		this.parent = parent;
-	}
+            ParentEntity parent) {
+        super(firstName, lastName, birthdate);
+        this.school = school;
+        this.parent = parent;
+    }
 
     public SchoolEntity getSchool() {
         return school;
     }
 
-    
-
-	public void setSchool(SchoolEntity school) {
+    public void setSchool(SchoolEntity school) {
         this.school = school;
     }
 

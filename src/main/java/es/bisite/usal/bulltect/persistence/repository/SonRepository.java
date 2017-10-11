@@ -16,4 +16,6 @@ public interface SonRepository extends MongoRepository<SonEntity, ObjectId>, Son
 	Long countByParentId(ObjectId id);
 	Long countById(ObjectId id);
 	Long countByParentIdAndId(ObjectId parentId, ObjectId id);
+        Long countByParentIdAndProfileImage(ObjectId parentId, String profileImageId);
+        SonEntity findByProfileImage(String profileImageId);
 }

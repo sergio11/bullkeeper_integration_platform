@@ -13,7 +13,6 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.Assert;
 
 import es.bisite.usal.bulltect.persistence.entity.ParentEntity;
-import es.bisite.usal.bulltect.persistence.entity.UserSystemEntity;
 import es.bisite.usal.bulltect.persistence.repository.ParentRepositoryCustom;
 
 /**
@@ -112,16 +111,6 @@ public class ParentRepositoryImpl implements ParentRepositoryCustom {
 				new Update().set("pending_deletion", Boolean.FALSE).set("confirmation_token", ""), ParentEntity.class);
 	}
 
-	@Override
-	public void setProfileImageId(ObjectId id, String profileImageId) {
-		Assert.notNull(id, "id can not be null");
-		Assert.notNull(profileImageId, "profileImageId can not be null");
-		
-		mongoTemplate.updateFirst(
-				new Query(Criteria.where("_id").in(id)), 
-				new Update().set("profile_image_id", profileImageId), ParentEntity.class);
-		
-	}
 
 	@Override
 	public void setLastAccessToAlerts(ObjectId id) {
@@ -139,4 +128,28 @@ public class ParentRepositoryImpl implements ParentRepositoryCustom {
         		new Update().set("last_login_access", new Date()).set("last_access_to_alerts", new Date()), ParentEntity.class);
 		
 	}
+        
+        @Override
+        public String getProfileImageIdByUserId(ObjectId id) {
+            Assert.notNull(id, "Id can not be null");
+
+            Query query = new Query(Criteria.where("_id").is(id));
+            query.fields().include("profile_image");
+
+            ParentEntity parentEntity = mongoTemplate.findOne(query, ParentEntity.class);
+
+            return parentEntity.getProfileImage();
+        }
+
+    @Override
+    public void setProfileImageId(ObjectId id, String profileImageId) {
+        Assert.notNull(id, "id can not be null");
+        Assert.notNull(profileImageId, "profileImageId can not be null");
+
+        logger.debug("Save Image id: " + profileImageId + " for user with id : " + id);
+
+        mongoTemplate.updateFirst(
+                new Query(Criteria.where("_id").in(id)),
+                new Update().set("profile_image", profileImageId), ParentEntity.class);
+    }
 }

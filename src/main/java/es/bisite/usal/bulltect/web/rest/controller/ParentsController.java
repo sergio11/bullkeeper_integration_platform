@@ -9,8 +9,6 @@ import java.util.Optional;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-
-import org.apache.commons.io.IOUtils;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +36,6 @@ import es.bisite.usal.bulltect.events.ParentRegistrationByFacebookSuccessEvent;
 import es.bisite.usal.bulltect.events.ParentRegistrationSuccessEvent;
 import es.bisite.usal.bulltect.events.PasswordResetEvent;
 import es.bisite.usal.bulltect.persistence.constraints.ParentShouldExists;
-import es.bisite.usal.bulltect.persistence.constraints.ValidAlertLevel;
 import es.bisite.usal.bulltect.persistence.constraints.ValidObjectId;
 import es.bisite.usal.bulltect.persistence.constraints.group.ICommonSequence;
 import es.bisite.usal.bulltect.persistence.constraints.group.IResendActivationEmailSequence;
@@ -73,7 +70,6 @@ import es.bisite.usal.bulltect.web.rest.exception.NoIterationsFoundForSelfParent
 import es.bisite.usal.bulltect.web.rest.exception.NoNewAlertsFoundException;
 import es.bisite.usal.bulltect.web.rest.exception.NoParentsFoundException;
 import es.bisite.usal.bulltect.web.rest.exception.ParentNotFoundException;
-import es.bisite.usal.bulltect.web.rest.hal.IImageHAL;
 import es.bisite.usal.bulltect.web.rest.hal.IParentHAL;
 import es.bisite.usal.bulltect.web.rest.hal.ISonHAL;
 import es.bisite.usal.bulltect.web.rest.response.APIResponse;
@@ -82,8 +78,6 @@ import es.bisite.usal.bulltect.web.security.userdetails.CommonUserDetailsAware;
 import es.bisite.usal.bulltect.web.security.utils.CurrentUser;
 import es.bisite.usal.bulltect.web.security.utils.OnlyAccessForAdmin;
 import es.bisite.usal.bulltect.web.security.utils.OnlyAccessForParent;
-import es.bisite.usal.bulltect.web.uploads.models.RequestUploadFile;
-import es.bisite.usal.bulltect.web.uploads.models.UploadFileInfo;
 import es.bisite.usal.bulltect.web.uploads.service.IUploadFilesService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -91,15 +85,12 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.ApiResponse;
 import javax.annotation.PostConstruct;
-
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.hateoas.Resource;
-import org.springframework.http.MediaType;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
@@ -110,7 +101,7 @@ import springfox.documentation.annotations.ApiIgnore;
 @Validated
 @RequestMapping("/api/v1/parents/")
 @Api(tags = "parents", value = "/parents/", description = "Manejo de la información del tutor", produces = "application/json")
-public class ParentsController extends BaseController implements IParentHAL, ISonHAL, IImageHAL {
+public class ParentsController extends BaseController implements IParentHAL, ISonHAL {
 
     private static Logger logger = LoggerFactory.getLogger(ParentsController.class);
     
@@ -185,7 +176,7 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
 			@Valid @RequestBody JwtFacebookAuthenticationRequestDTO facebookInfo, Device device) throws Throwable {
     	
     	final String fbId = facebookService.getFbIdByAccessToken(facebookInfo.getToken());
-    	
+        
     	JwtAuthenticationResponseDTO jwtResponseDTO =  Optional.ofNullable(parentsService.getParentByFbId(fbId))
     			.map(parent -> {
     				parentsService.updateFbAccessToken(parent.getFbId(), facebookInfo.getToken());
@@ -196,11 +187,14 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     						facebookService.getRegistrationInformationForTheParent(fbId, facebookInfo.getToken());
     				logger.debug(registerParent.toString());
     				ParentDTO parent = parentsService.save(registerParent);
+                                String profileImageUrl = facebookService.fetchUserPicture(facebookInfo.getToken());
+                                if(profileImageUrl != null && !profileImageUrl.isEmpty())
+                                    uploadFilesService.uploadParentProfileImageFromUrl(new ObjectId(parent.getIdentity()), profileImageUrl);
     				// notify event
     				applicationEventPublisher.publishEvent(new ParentRegistrationByFacebookSuccessEvent(parent.getIdentity(), this));
     				return authenticationService.createAuthenticationTokenForParent(parent.getEmail(), parent.getFbId(), device);
     			});
-    	
+       
     	
     	return ApiHelper.<JwtAuthenticationResponseDTO>createAndSendResponse(
 				ParentResponseCode.AUTHENTICATION_VIA_FACEBOOK_SUCCESS, HttpStatus.OK, jwtResponseDTO);
@@ -315,12 +309,9 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
             @RequestPart("profile_image") MultipartFile profileImage,
             @ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
         
-        
-        RequestUploadFile uploadProfileImage = new RequestUploadFile(profileImage.getBytes(), 
-                profileImage.getContentType() != null ? profileImage.getContentType() : MediaType.IMAGE_PNG_VALUE, profileImage.getOriginalFilename());
-        ImageDTO imageDto = uploadFilesService.uploadParentProfileImage(selfParent.getUserId(), uploadProfileImage);
+        ImageDTO imageDto = controllerHelper.uploadProfileImage(selfParent.getUserId(), profileImage);
         return ApiHelper.<ImageDTO>createAndSendResponse(ParentResponseCode.PROFILE_IMAGE_UPLOAD_SUCCESSFULLY, 
-        		HttpStatus.OK, addLinksToImage(imageDto));
+        		HttpStatus.OK, imageDto);
 
     }
 
@@ -331,30 +322,10 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
             @ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent
         ) throws IOException {
     	
-    	logger.debug("DOWNLOAD_SELF_PROFILE_IMAGE");
-        
-    	UploadFileInfo imageInfo = null;
-    	try {
-    		imageInfo = uploadFilesService.getProfileImage(selfParent.getProfileImageId());
-    		
-    		if(imageInfo == null) {
-    			
-    			final org.springframework.core.io.Resource userDefault = resourceLoader.getResource("classpath:user_default.png");
-        		imageInfo = new UploadFileInfo(userDefault.contentLength(), MediaType.IMAGE_PNG_VALUE, IOUtils.toByteArray(userDefault.getInputStream()));
-    		}
-    		
-    		
-    	} catch (Exception ex) {
-    		logger.debug("DOWNLOAD USER DEFAULT IMAGE");
-    		final org.springframework.core.io.Resource userDefault = resourceLoader.getResource("classpath:user_default.png");
-    		imageInfo = new UploadFileInfo(userDefault.contentLength(), MediaType.IMAGE_PNG_VALUE, IOUtils.toByteArray(userDefault.getInputStream()));
-
-    	}
     	
-        return ResponseEntity.ok()
-                .contentLength(imageInfo.getSize())
-                .contentType( imageInfo.getContentType() != null ?  MediaType.parseMediaType(imageInfo.getContentType()) : MediaType.IMAGE_PNG)
-                .body(imageInfo.getContent());
+        String profileImage = parentsService.getProfileImage(selfParent.getUserId());
+        logger.debug("Download self profile image image with id -> " + profileImage);
+        return controllerHelper.downloadProfileImage(profileImage);
     }
     
     @RequestMapping(value = "/self/image", method = RequestMethod.DELETE)
@@ -362,7 +333,8 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     @ApiOperation(value = "DELETE_SELF_PROFILE_IMAGE", nickname = "DELETE_SELF_PROFILE_IMAGE", notes = "Delete Self Profile Image")
     public ResponseEntity<APIResponse<String>> deleteProfileImage(
             @ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) {
-        uploadFilesService.deleteProfileImage(selfParent.getProfileImageId());
+        String profileImage = parentsService.getProfileImage(selfParent.getUserId());
+        uploadFilesService.deleteProfileImage(profileImage);
         return ApiHelper.<String>createAndSendResponse(ParentResponseCode.PROFILE_IMAGE_DELETED_SUCCESSFULLY, 
         		HttpStatus.OK, messageSourceResolver.resolver("image.deleted.successfully"));
     }

@@ -4,122 +4,134 @@ import org.springframework.hateoas.ResourceSupport;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ParentDTO extends ResourceSupport {
-	
-	@JsonProperty("identity")
-	private String identity;
-	@JsonProperty("first_name")
+
+    @JsonProperty("identity")
+    private String identity;
+    @JsonProperty("first_name")
     private String firstName;
-	@JsonProperty("last_name")
+    @JsonProperty("last_name")
     private String lastName;
-	@JsonProperty("birthdate")
+    @JsonProperty("birthdate")
     private String birthdate;
-	@JsonProperty("age")
+    @JsonProperty("age")
     private Integer age;
-	@JsonProperty("email")
+    @JsonProperty("email")
     private String email;
-	@JsonProperty("telephone")
-	private String telephone;
-	@JsonProperty("fb_id")
+    @JsonProperty("telephone")
+    private String telephone;
+    @JsonProperty("fb_id")
     private String fbId;
-	@JsonProperty("children")
+    @JsonProperty("children")
     private Long children;
-	@JsonProperty("locale")
+    @JsonProperty("locale")
     private String locale;
-    
-    public ParentDTO(){}
+    @JsonProperty("profile_image")
+    private String profileImage;
 
-	public ParentDTO(String identity, String firstName, String lastName, String birthdate, Integer age, String email,
-			String telephone, String fbId, Long children, String locale) {
-		super();
-		this.identity = identity;
-		this.firstName = firstName;
-		this.lastName = lastName;
-		this.birthdate = birthdate;
-		this.age = age;
-		this.email = email;
-		this.telephone = telephone;
-		this.fbId = fbId;
-		this.children = children;
-		this.locale = locale;
-	}
+    public ParentDTO() {
+    }
 
-	public String getTelephone() {
-		return telephone;
-	}
+    public ParentDTO(String identity, String firstName, String lastName, String birthdate, Integer age, String email,
+            String telephone, String fbId, Long children, String locale, String profileImage) {
+        super();
+        this.identity = identity;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.birthdate = birthdate;
+        this.age = age;
+        this.email = email;
+        this.telephone = telephone;
+        this.fbId = fbId;
+        this.children = children;
+        this.locale = locale;
+        this.profileImage = profileImage;
+    }
 
-	public void setTelephone(String telephone) {
-		this.telephone = telephone;
-	}
+    public String getTelephone() {
+        return telephone;
+    }
 
-	public String getBirthdate() {
-		return birthdate;
-	}
+    public void setTelephone(String telephone) {
+        this.telephone = telephone;
+    }
 
-	public void setBirthdate(String birthdate) {
-		this.birthdate = birthdate;
-	}
+    public String getBirthdate() {
+        return birthdate;
+    }
 
-	public String getIdentity() {
-		return identity;
-	}
+    public void setBirthdate(String birthdate) {
+        this.birthdate = birthdate;
+    }
 
-	public void setIdentity(String identity) {
-		this.identity = identity;
-	}
+    public String getIdentity() {
+        return identity;
+    }
 
-	public String getFirstName() {
-		return firstName;
-	}
+    public void setIdentity(String identity) {
+        this.identity = identity;
+    }
 
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
+    public String getFirstName() {
+        return firstName;
+    }
 
-	public String getLastName() {
-		return lastName;
-	}
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
 
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
+    public String getLastName() {
+        return lastName;
+    }
 
-	public Integer getAge() {
-		return age;
-	}
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
 
-	public void setAge(Integer age) {
-		this.age = age;
-	}
+    public Integer getAge() {
+        return age;
+    }
 
-	public String getEmail() {
-		return email;
-	}
+    public void setAge(Integer age) {
+        this.age = age;
+    }
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
+    public String getEmail() {
+        return email;
+    }
 
-	public String getFbId() {
-		return fbId;
-	}
-	
-	public void setFbId(String fbId) {
-		this.fbId = fbId;
-	}
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-	public Long getChildren() {
-		return children;
-	}
+    public String getFbId() {
+        return fbId;
+    }
 
-	public void setChildren(Long children) {
-		this.children = children;
-	}
+    public void setFbId(String fbId) {
+        this.fbId = fbId;
+    }
 
-	public String getLocale() {
-		return locale;
-	}
+    public Long getChildren() {
+        return children;
+    }
 
-	public void setLocale(String locale) {
-		this.locale = locale;
-	}
+    public void setChildren(Long children) {
+        this.children = children;
+    }
+
+    public String getLocale() {
+        return locale;
+    }
+
+    public void setLocale(String locale) {
+        this.locale = locale;
+    }
+
+    public String getProfileImage() {
+        return profileImage;
+    }
+
+    public void setProfileImage(String profileImage) {
+        this.profileImage = profileImage;
+    }
 }
