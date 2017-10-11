@@ -6,6 +6,7 @@ import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -49,6 +50,7 @@ import es.bisite.usal.bulltect.web.rest.response.SocialMediaResponseCode;
 import es.bisite.usal.bulltect.web.security.userdetails.CommonUserDetailsAware;
 import es.bisite.usal.bulltect.web.security.utils.CurrentUser;
 import es.bisite.usal.bulltect.web.security.utils.OnlyAccessForAdmin;
+import es.bisite.usal.bulltect.web.uploads.models.RequestUploadFile;
 import es.bisite.usal.bulltect.web.uploads.service.IUploadFilesService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -160,8 +162,10 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
           		@PathVariable String id,
             @RequestPart("profile_image") MultipartFile profileImage,
             @ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
-        
-        ImageDTO imageDTO = controllerHelper.uploadProfileImage(new ObjectId(id), profileImage);
+    	
+    	RequestUploadFile uploadProfileImage = new RequestUploadFile(profileImage.getBytes(), 
+                profileImage.getContentType() != null ? profileImage.getContentType() : MediaType.IMAGE_PNG_VALUE, profileImage.getOriginalFilename());
+    	ImageDTO imageDTO = uploadFilesService.uploadSonProfileImage(new ObjectId(id), uploadProfileImage);
         return ApiHelper.<ImageDTO>createAndSendResponse(ChildrenResponseCode.PROFILE_IMAGE_UPLOAD_SUCCESSFULLY, 
         		HttpStatus.OK, imageDTO);
 

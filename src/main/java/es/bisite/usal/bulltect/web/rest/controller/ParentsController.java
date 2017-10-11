@@ -13,6 +13,7 @@ import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mobile.device.Device;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -78,6 +79,7 @@ import es.bisite.usal.bulltect.web.security.userdetails.CommonUserDetailsAware;
 import es.bisite.usal.bulltect.web.security.utils.CurrentUser;
 import es.bisite.usal.bulltect.web.security.utils.OnlyAccessForAdmin;
 import es.bisite.usal.bulltect.web.security.utils.OnlyAccessForParent;
+import es.bisite.usal.bulltect.web.uploads.models.RequestUploadFile;
 import es.bisite.usal.bulltect.web.uploads.service.IUploadFilesService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -308,10 +310,12 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     public ResponseEntity<APIResponse<ImageDTO>> uploadProfileImageForSelfUser(
             @RequestPart("profile_image") MultipartFile profileImage,
             @ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
-        
-        ImageDTO imageDto = controllerHelper.uploadProfileImage(selfParent.getUserId(), profileImage);
+    	
+    	RequestUploadFile uploadProfileImage = new RequestUploadFile(profileImage.getBytes(), 
+                profileImage.getContentType() != null ? profileImage.getContentType() : MediaType.IMAGE_PNG_VALUE, profileImage.getOriginalFilename());
+    	ImageDTO imageDTO = uploadFilesService.uploadParentProfileImage(selfParent.getUserId(), uploadProfileImage);
         return ApiHelper.<ImageDTO>createAndSendResponse(ParentResponseCode.PROFILE_IMAGE_UPLOAD_SUCCESSFULLY, 
-        		HttpStatus.OK, imageDto);
+        		HttpStatus.OK, imageDTO);
 
     }
 

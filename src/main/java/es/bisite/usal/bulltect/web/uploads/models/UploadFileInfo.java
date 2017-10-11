@@ -6,17 +6,42 @@ public class UploadFileInfo implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
+	private String identity;
 	private Long size;
     private String contentType;
     private byte[] content;
 
-    public UploadFileInfo(Long size, String contentType, byte[] content) {
-        this.size = size;
-        this.contentType = contentType;
-        this.content = content;
-    }
     
-    public Long getSize() {
+    
+    public UploadFileInfo() {
+		super();
+	}
+    
+    public UploadFileInfo(Long size, String contentType, byte[] content) {
+		super();
+		this.size = size;
+		this.contentType = contentType;
+		this.content = content;
+	}
+
+	public UploadFileInfo(String identity, Long size, String contentType, byte[] content) {
+		super();
+		this.identity = identity;
+		this.size = size;
+		this.contentType = contentType;
+		this.content = content;
+	}
+	
+
+	public String getIdentity() {
+		return identity;
+	}
+
+	public void setIdentity(String identity) {
+		this.identity = identity;
+	}
+
+	public Long getSize() {
         return size;
     }
 
