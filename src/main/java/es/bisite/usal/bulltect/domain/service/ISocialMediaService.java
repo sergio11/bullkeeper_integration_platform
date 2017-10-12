@@ -20,7 +20,7 @@ public interface ISocialMediaService {
     SocialMediaDTO create(SaveSocialMediaDTO socialMedia);
     SocialMediaDTO insertOrUpdate(SaveSocialMediaDTO socialMedia);
     Iterable<SocialMediaDTO> insertOrUpdate(Iterable<SaveSocialMediaDTO> socialMediaList);
-    Iterable<SocialMediaDTO> save(Iterable<SaveSocialMediaDTO> socialMediaList, String sonId);
+    Iterable<SocialMediaDTO> save(List<SaveSocialMediaDTO> socialMediaList, String sonId);
     List<SocialMediaDTO> getInvalidSocialMediaById(String id);
     List<SocialMediaDTO> getValidSocialMediaById(String id);
     Page<SocialMediaDTO> findPaginated(Pageable pageable);

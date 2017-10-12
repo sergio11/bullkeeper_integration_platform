@@ -466,9 +466,6 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
         AlertsPageDTO alertsPageDTO = alertService.getLastAlerts(selfParent.getUserId(), lastAccessToAlerts, count, levels);
         // Update Last Access To Alerts
         parentsService.updateLastAccessToAlerts(selfParent.getUserId());
-        
-        if(Iterables.size(alertsPageDTO.getAlerts()) == 0)
-        	throw new NoNewAlertsFoundException();
   
         return ApiHelper.<AlertsPageDTO>createAndSendResponse(ParentResponseCode.ALERTS_FOR_SELF_PARENT, 
         		HttpStatus.OK, alertsPageDTO);
@@ -509,7 +506,7 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
         
         List<IterationDTO> iterations = iterationService.getLastIterationsByParent(selfParent.getUserId(), count);
         
-        if(iterations.size() == 0)
+        if(iterations.isEmpty())
         	throw new NoIterationsFoundForSelfParentException();
         
   
@@ -550,7 +547,7 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
         logger.debug("Get Comments By Son For Last Iteration");
         List<CommentsBySonDTO> commentsBySon = iterationService.getCommentsBySonForLastIteration(selfParent.getUserId());
         
-        if(commentsBySon.size() == 0) {
+        if(commentsBySon.isEmpty()) {
             throw new NoCommentsBySonFoundForLastIterationException();
         }
         
@@ -698,7 +695,7 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     		@ApiParam(hidden = true) 
     			@CurrentUser CommonUserDetailsAware<ObjectId> selfParent,
     		@ApiParam(value = "son", required = true) 
-    			@Valid @RequestBody UpdateSonDTO son) throws Throwable {
+    			@Validated(ICommonSequence.class) @RequestBody UpdateSonDTO son) throws Throwable {
     	
     	logger.debug("Save Son Information");
     	

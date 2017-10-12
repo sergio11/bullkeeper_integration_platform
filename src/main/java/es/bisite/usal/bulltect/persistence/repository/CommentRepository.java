@@ -16,4 +16,5 @@ import es.bisite.usal.bulltect.persistence.entity.CommentEntity;
 @Repository
 public interface CommentRepository extends MongoRepository<CommentEntity, ObjectId>, CommentRepositoryCustom {
     Page<CommentEntity> findAllBySonEntityId(ObjectId userId, Pageable pageable);
+    Long deleteBySonEntity(ObjectId id);
 }

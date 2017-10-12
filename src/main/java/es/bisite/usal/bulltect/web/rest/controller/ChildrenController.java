@@ -24,6 +24,7 @@ import es.bisite.usal.bulltect.domain.service.ICommentsService;
 import es.bisite.usal.bulltect.domain.service.ISocialMediaService;
 import es.bisite.usal.bulltect.domain.service.ISonService;
 import es.bisite.usal.bulltect.persistence.constraints.SocialMediaShouldExists;
+import es.bisite.usal.bulltect.persistence.constraints.SonShouldExists;
 import es.bisite.usal.bulltect.persistence.constraints.ValidObjectId;
 import es.bisite.usal.bulltect.persistence.constraints.group.ICommonSequence;
 import es.bisite.usal.bulltect.web.dto.request.SaveSocialMediaDTO;
@@ -121,6 +122,23 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
                 .map(sonResource -> addLinksToSon(sonResource))
                 .map(sonResource -> ApiHelper.<SonDTO>createAndSendResponse(ChildrenResponseCode.SINGLE_USER, HttpStatus.OK, sonResource))
                 .orElseThrow(() -> { throw new SonNotFoundException(); });
+    }
+    
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
+    @ApiOperation(value = "DELETE_SON_BY_ID", nickname = "DELETE_SON_BY_ID", notes = "Delete Son By Id", response = SonDTO.class)
+    public ResponseEntity<APIResponse<String>> deleteSonById(
+    		@ApiParam(name= "id", value = "Identificador del hijo", required = true)
+    			@Valid @ValidObjectId(message = "{son.id.notvalid}")
+                                @SonShouldExists(message = "{son.should.be.exists}")
+    		 		@PathVariable String id) throws Throwable {
+        
+        logger.debug("Delete User with id: " + id);
+        
+        sonService.deleteById(id);
+        
+        return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.CHILD_DELETED_SUCCESSFULLY,
+                HttpStatus.OK, messageSourceResolver.resolver("son.deleted.successfully"));
     }
     
   

@@ -18,6 +18,6 @@ public class SonShouldExistsValidator implements ConstraintValidator<SonShouldEx
 
     @Override
     public boolean isValid(String id, ConstraintValidatorContext context) {
-    	return sonRepository.countById(new ObjectId(id)) > 0 ? Boolean.TRUE : Boolean.FALSE;
+    	return !ObjectId.isValid(id) || sonRepository.countById(new ObjectId(id)) > 0 ? Boolean.TRUE : Boolean.FALSE;
     }
 }
