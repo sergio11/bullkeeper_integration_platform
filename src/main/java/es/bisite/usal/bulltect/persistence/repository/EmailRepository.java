@@ -15,5 +15,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface EmailRepository extends MongoRepository<EmailEntity, ObjectId> {
     EmailEntity findByMd5(String md5);
-    List<EmailEntity> findAllOrderByLastChanceAsc(PageRequest pageRequest);
+    List<EmailEntity> findAllByOrderByLastChanceAsc(PageRequest pageRequest);
 }

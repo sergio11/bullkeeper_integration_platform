@@ -97,7 +97,7 @@ public class ScheduledTasks {
     @Scheduled(cron = "${task.unsuccessful.mail.forwarding}")
     public void unsuccessfulMailForwarding() {
         logger.debug("Unsuccessful Mail Forwarding ...");
-        List<EmailEntity> emailsToForward = emailRepository.findAllOrderByLastChanceAsc(new PageRequest(0, numberOfEmailsToForwarding));
+        List<EmailEntity> emailsToForward = emailRepository.findAllByOrderByLastChanceAsc(new PageRequest(0, numberOfEmailsToForwarding));
         for(EmailEntity emailToForward: emailsToForward)
             mailClientService.sendEmail(emailToForward.getSendTo(), 
                     emailToForward.getSubject(), emailToForward.getContent());
