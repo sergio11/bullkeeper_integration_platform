@@ -63,7 +63,7 @@ public class UserImagesGridFSUploadStrategy implements IUploadStrategy<String, R
             // read file from MongoDB
             GridFSDBFile imageFile = gridOperations.findOne(new Query(Criteria.where("_id").is(id)));
             byte[] content = IOUtils.toByteArray(imageFile.getInputStream());
-            return new UploadFileInfo(imageFile.getLength(), imageFile.getContentType(), content);
+            return new UploadFileInfo(id, imageFile.getLength(), imageFile.getContentType(), content);
         } catch (IOException e) {
             logger.error(e.toString());
             throw new UploadFailException();

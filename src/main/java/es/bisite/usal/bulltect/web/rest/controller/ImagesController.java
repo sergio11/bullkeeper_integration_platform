@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import es.bisite.usal.bulltect.web.rest.response.APIResponse;
 import es.bisite.usal.bulltect.web.rest.response.ImageResponseCode;
+import es.bisite.usal.bulltect.web.uploads.models.RequestUploadFile;
 import es.bisite.usal.bulltect.web.uploads.service.IUploadFilesService;
 import io.jsonwebtoken.lang.Assert;
 import io.swagger.annotations.Api;
@@ -25,6 +26,7 @@ import io.swagger.annotations.ApiParam;
 import java.io.IOException;
 import javax.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -53,7 +55,9 @@ public class ImagesController extends BaseController {
             @RequestPart("profile_image") MultipartFile profileImage) throws Throwable {
         
         
-        ImageDTO imageDTO = controllerHelper.uploadProfileImage(new ObjectId(id), profileImage);
+    	RequestUploadFile uploadProfileImage = new RequestUploadFile(profileImage.getBytes(), 
+                profileImage.getContentType() != null ? profileImage.getContentType() : MediaType.IMAGE_PNG_VALUE, profileImage.getOriginalFilename());
+    	ImageDTO imageDTO = uploadFilesService.uploadParentProfileImage(new ObjectId(id), uploadProfileImage);
        return ApiHelper.<ImageDTO>createAndSendResponse(ImageResponseCode.IMAGE_UPLOAD_SUCCESSFULLY, 
         		HttpStatus.OK, imageDTO);
 
@@ -70,8 +74,9 @@ public class ImagesController extends BaseController {
     		 		@PathVariable String id,
             @RequestPart("profile_image") MultipartFile profileImage) throws Throwable {
         
-        
-        ImageDTO imageDTO = controllerHelper.uploadProfileImage(new ObjectId(id), profileImage);
+    	RequestUploadFile uploadProfileImage = new RequestUploadFile(profileImage.getBytes(), 
+                profileImage.getContentType() != null ? profileImage.getContentType() : MediaType.IMAGE_PNG_VALUE, profileImage.getOriginalFilename());
+    	ImageDTO imageDTO = uploadFilesService.uploadSonProfileImage(new ObjectId(id), uploadProfileImage);
        return ApiHelper.<ImageDTO>createAndSendResponse(ImageResponseCode.IMAGE_UPLOAD_SUCCESSFULLY, 
         		HttpStatus.OK, imageDTO);
 

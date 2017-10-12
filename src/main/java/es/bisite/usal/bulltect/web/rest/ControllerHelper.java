@@ -60,16 +60,6 @@ public class ControllerHelper {
                 .body(imageInfo.getContent());
     }
     
-    public ImageDTO uploadProfileImage(ObjectId userId, MultipartFile profileImage) throws IOException {
-        
-        RequestUploadFile uploadProfileImage = new RequestUploadFile(profileImage.getBytes(), 
-                profileImage.getContentType() != null ? profileImage.getContentType() : MediaType.IMAGE_PNG_VALUE, profileImage.getOriginalFilename());
-        return uploadFilesService.uploadParentProfileImage(userId, uploadProfileImage);
-    
-    }
-    
-    
-    
     
     
 }

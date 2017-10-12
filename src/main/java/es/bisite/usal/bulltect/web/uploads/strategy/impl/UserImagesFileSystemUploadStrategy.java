@@ -105,7 +105,7 @@ public class UserImagesFileSystemUploadStrategy implements IUploadStrategy<Strin
             if (file.exists() && file.canRead()) {
                 String contentType = Files.probeContentType(file.toPath());
                 byte[] content = Files.readAllBytes(file.toPath());
-                info = new UploadFileInfo(file.length(), contentType, content);
+                info = new UploadFileInfo(id, file.length(), contentType, content);
             } else {
                 if(!file.canRead())
                     file.delete();

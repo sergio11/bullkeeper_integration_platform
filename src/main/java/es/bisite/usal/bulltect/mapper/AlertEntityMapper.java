@@ -26,7 +26,8 @@ public abstract class AlertEntityMapper {
     
     @Mappings({
         @Mapping(expression="java(alertEntity.getId().toString())", target = "identity" ),
-        @Mapping(expression="java(sonEntityMapper.sonEntityToSonDTO(alertEntity.getSon()))", target = "son" )
+        @Mapping(expression="java(sonEntityMapper.sonEntityToSonDTO(alertEntity.getSon()))", target = "son" ),
+        @Mapping(source = "alertEntity.createAt", target = "createAt", dateFormat = "yyyy/MM/dd HH:mm:ss")
     })
     @Named("alertEntityToSonDTO")
     public abstract AlertDTO alertEntityToAlertDTO(AlertEntity alertEntity); 

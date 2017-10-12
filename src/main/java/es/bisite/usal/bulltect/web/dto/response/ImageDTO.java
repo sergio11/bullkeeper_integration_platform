@@ -1,7 +1,6 @@
 package es.bisite.usal.bulltect.web.dto.response;
 
 import org.springframework.hateoas.ResourceSupport;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ImageDTO extends ResourceSupport {

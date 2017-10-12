@@ -110,8 +110,8 @@ public class ParentsServiceImpl implements IParentsService {
         SonEntity sonToAdd = sonEntityMapper.registerSonDTOToSonEntity(registerSonDTO);
         ParentEntity parentEntity = parentRepository.findOne(new ObjectId(parentId));
         sonToAdd.setParent(parentEntity);
-        parentRepository.save(parentEntity);
-        return sonEntityMapper.sonEntityToSonDTO(sonToAdd);
+        SonEntity sonSaved = sonRepository.save(sonToAdd);
+        return sonEntityMapper.sonEntityToSonDTO(sonSaved);
     }
 
     @Override
