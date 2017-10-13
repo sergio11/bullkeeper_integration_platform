@@ -7,75 +7,53 @@ import es.bisite.usal.bulltect.persistence.constraints.ValidObjectId;
 import es.bisite.usal.bulltect.persistence.constraints.ValidSocialMediaType;
 import es.bisite.usal.bulltect.persistence.constraints.group.Extended;
 
-import org.bson.types.ObjectId;
 import org.hibernate.validator.constraints.NotBlank;
 
 public class SaveSocialMediaDTO {
-	
-	@JsonProperty("identity")
-	private String identity;
-	
-	@NotBlank(message = "{social.token.notnull}")
-	@JsonProperty("access_token")
-	private String accessToken;
-	@ValidSocialMediaType(message = "{social.type.invalid}")
-	@JsonProperty("type")
-	private String type;
-	@ValidObjectId(message = "{son.id.notvalid}")
-	@SonShouldExists(message = "{social.son.not.exists}", groups = Extended.class)
-	@JsonProperty("son")
-	private String son;
-        
-    public SaveSocialMediaDTO(){}
-	
-	public SaveSocialMediaDTO(String accessToken, String type, String son) {
-		super();
-		this.accessToken = accessToken;
-		this.type = type;
-		this.son = son;
-	}
-	
 
-	public String getIdentity() {
-		return identity;
-	}
+    @NotBlank(message = "{social.token.notnull}")
+    @JsonProperty("access_token")
+    private String accessToken;
+    @ValidSocialMediaType(message = "{social.type.invalid}")
+    @JsonProperty("type")
+    private String type;
+    @ValidObjectId(message = "{son.id.notvalid}")
+    @SonShouldExists(message = "{social.son.not.exists}", groups = Extended.class)
+    @JsonProperty("son")
+    private String son;
 
-	public void setIdentity(String identity) {
-		this.identity = identity;
-	}
-	
-	public ObjectId getObjectId() {
-		return identity != null && !identity.isEmpty() ? new ObjectId(identity) : null;
-	}
+    public SaveSocialMediaDTO() {
+    }
 
-	public String getAccessToken() {
-		return accessToken;
-	}
+    public SaveSocialMediaDTO(String accessToken, String type, String son) {
+        super();
+        this.accessToken = accessToken;
+        this.type = type;
+        this.son = son;
+    }
 
+    public String getAccessToken() {
+        return accessToken;
+    }
 
-	public void setAccessToken(String accessToken) {
-		this.accessToken = accessToken;
-	}
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
+    }
 
+    public String getType() {
+        return type;
+    }
 
-	public String getType() {
-		return type;
-	}
+    public void setType(String type) {
+        this.type = type;
+    }
 
+    public String getSon() {
+        return son;
+    }
 
-	public void setType(String type) {
-		this.type = type;
-	}
+    public void setSon(String son) {
+        this.son = son;
+    }
 
-
-	public String getSon() {
-		return son;
-	}
-
-
-	public void setSon(String son) {
-		this.son = son;
-	}
-	
-	
 }

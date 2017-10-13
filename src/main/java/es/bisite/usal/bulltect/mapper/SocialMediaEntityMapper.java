@@ -41,7 +41,6 @@ public abstract class SocialMediaEntityMapper {
     public abstract List<SocialMediaDTO> socialMediaEntitiesToSocialMediaDTO(Iterable<SocialMediaEntity> socialMediaEntities);
     
     @Mappings({
-    	@Mapping(source="saveSocialMediaDTO.objectId", target = "id" ),
     	@Mapping(expression="java(es.bisite.usal.bulltect.persistence.entity.SocialMediaTypeEnum.valueOf(saveSocialMediaDTO.getType()))", target = "type" ),
     	@Mapping(expression="java(sonRepository.findOne(new org.bson.types.ObjectId(saveSocialMediaDTO.getSon())))", target = "sonEntity" ),
     	@Mapping(expression="java(itegrationFlowService.getDateForNextPoll().getTime())", target = "scheduledFor" )

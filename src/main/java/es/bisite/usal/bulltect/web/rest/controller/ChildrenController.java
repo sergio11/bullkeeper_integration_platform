@@ -28,6 +28,7 @@ import es.bisite.usal.bulltect.persistence.constraints.SocialMediaShouldExists;
 import es.bisite.usal.bulltect.persistence.constraints.SonShouldExists;
 import es.bisite.usal.bulltect.persistence.constraints.ValidObjectId;
 import es.bisite.usal.bulltect.persistence.constraints.group.ICommonSequence;
+import es.bisite.usal.bulltect.util.ValidList;
 import es.bisite.usal.bulltect.web.dto.request.SaveSocialMediaDTO;
 import es.bisite.usal.bulltect.web.dto.response.AlertDTO;
 import es.bisite.usal.bulltect.web.dto.response.CommentDTO;
@@ -279,10 +280,10 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
         	@Valid @ValidObjectId(message = "{son.id.notvalid}")
          		@PathVariable String id,
             @ApiParam(value = "socialMedias", required = true) 
-				@Validated(ICommonSequence.class) @RequestBody List<SaveSocialMediaDTO> socialMedias) throws Throwable {
+				@Validated(ICommonSequence.class) @RequestBody ValidList<SaveSocialMediaDTO> socialMedias) throws Throwable {
     	
     	
-    	Iterable<SocialMediaDTO> socialMediaEntitiesSaved = socialMediaService.save(socialMedias, id);
+    	Iterable<SocialMediaDTO> socialMediaEntitiesSaved = socialMediaService.save(socialMedias.getList(), id);
     	
     	if(Iterables.size(socialMediaEntitiesSaved) == 0)
     		throw new SocialMediaNotFoundException();
