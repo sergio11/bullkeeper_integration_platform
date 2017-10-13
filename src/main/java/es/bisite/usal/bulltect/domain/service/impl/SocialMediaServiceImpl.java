@@ -1,8 +1,11 @@
 package es.bisite.usal.bulltect.domain.service.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import javax.annotation.PostConstruct;
+
+import org.apache.commons.collections.CollectionUtils;
 import org.bson.types.ObjectId;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.domain.Page;
@@ -119,32 +122,26 @@ public class SocialMediaServiceImpl implements ISocialMediaService {
 
     @Override
     public Iterable<SocialMediaDTO> save(List<SaveSocialMediaDTO> socialMediaList, String sonId) {
-
-        List<SocialMediaEntity> socialMediaEntities = socialMediaRepository.findBySonEntityId(new ObjectId(sonId));
-        ListIterator<SocialMediaEntity> iter = socialMediaEntities.listIterator();
-        while (iter.hasNext()) {
-            final SocialMediaEntity socialMedia = iter.next();
-            int i;
-            for (i = 0; i < socialMediaList.size() && !socialMediaList.get(i)
-                    .getType().equals(socialMedia.getType().toString()); i++);
-
-            if (i < socialMediaList.size()) {
-
-                final SaveSocialMediaDTO saveSocialMedia = socialMediaList.get(i);
-                if (!saveSocialMedia.getAccessToken().equals(socialMedia.getAccessToken())) {
-                    socialMedia.setAccessToken(saveSocialMedia.getAccessToken());
-                    socialMedia.setInvalidToken(Boolean.FALSE);
-                    socialMedia.setScheduledFor(itegrationFlowService.getDateForNextPoll().getTime());
-                }
-
-            } else {
-                iter.remove();
-                socialMediaRepository.delete(socialMedia);
-            }
-
-        }
-
-        return socialMediaMapper.socialMediaEntitiesToSocialMediaDTO(socialMediaRepository.save(socialMediaEntities));
+    	List<SocialMediaEntity> socialMediaEntitiesOld = socialMediaRepository.findBySonEntityId(new ObjectId(sonId));
+    	List<SocialMediaEntity> socialMediaEntitiesNew = socialMediaMapper.addSocialMediaDTOToSocialMediaEntity(socialMediaList);
+        
+        
+    	@SuppressWarnings("unchecked")
+		Collection<SocialMediaEntity> socialMediaToDelete = CollectionUtils.subtract(socialMediaEntitiesOld, socialMediaEntitiesNew);
+    	
+    	socialMediaRepository.delete(socialMediaToDelete);
+    	
+   
+    	@SuppressWarnings("unchecked")
+    	Collection<SocialMediaEntity> socialMediaMediaToAdd = CollectionUtils.subtract(socialMediaEntitiesNew, socialMediaEntitiesOld);
+    	@SuppressWarnings("unchecked")
+    	Collection<SocialMediaEntity> socialMediaToUpdate = CollectionUtils.intersection(socialMediaEntitiesOld, socialMediaEntitiesNew);
+    	
+    	socialMediaMediaToAdd.addAll(socialMediaToUpdate);
+    	
+    	return socialMediaMapper.socialMediaEntitiesToSocialMediaDTO(socialMediaRepository.save(socialMediaMediaToAdd));
+    	
+ 
 
     }
 

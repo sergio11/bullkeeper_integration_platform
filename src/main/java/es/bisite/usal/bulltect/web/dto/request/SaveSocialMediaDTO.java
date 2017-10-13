@@ -7,9 +7,13 @@ import es.bisite.usal.bulltect.persistence.constraints.ValidObjectId;
 import es.bisite.usal.bulltect.persistence.constraints.ValidSocialMediaType;
 import es.bisite.usal.bulltect.persistence.constraints.group.Extended;
 
+import org.bson.types.ObjectId;
 import org.hibernate.validator.constraints.NotBlank;
 
 public class SaveSocialMediaDTO {
+	
+	@JsonProperty("identity")
+	private String identity;
 	
 	@NotBlank(message = "{social.token.notnull}")
 	@JsonProperty("access_token")
@@ -30,7 +34,19 @@ public class SaveSocialMediaDTO {
 		this.type = type;
 		this.son = son;
 	}
+	
 
+	public String getIdentity() {
+		return identity;
+	}
+
+	public void setIdentity(String identity) {
+		this.identity = identity;
+	}
+	
+	public ObjectId getObjectId() {
+		return identity != null && !identity.isEmpty() ? new ObjectId(identity) : null;
+	}
 
 	public String getAccessToken() {
 		return accessToken;
@@ -60,4 +76,6 @@ public class SaveSocialMediaDTO {
 	public void setSon(String son) {
 		this.son = son;
 	}
+	
+	
 }
