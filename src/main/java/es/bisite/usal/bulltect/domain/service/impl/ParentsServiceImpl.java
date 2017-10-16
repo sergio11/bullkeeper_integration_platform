@@ -159,7 +159,7 @@ public class ParentsServiceImpl implements IParentsService {
 
     @Override
     public void changeUserPassword(ObjectId id, String newPassword) {
-        parentRepository.setNewPassword(id, newPassword);
+        parentRepository.setNewPassword(id, passwordEncoder.encode(newPassword));
     }
 
     @Override

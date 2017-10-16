@@ -18,6 +18,7 @@ import es.bisite.usal.bulltect.mail.properties.MailProperties;
 import es.bisite.usal.bulltect.mail.service.IMailClientService;
 import es.bisite.usal.bulltect.mail.service.IMailContentBuilderService;
 import es.bisite.usal.bulltect.persistence.entity.EmailEntity;
+import es.bisite.usal.bulltect.persistence.entity.EmailTypeEnum;
 import es.bisite.usal.bulltect.persistence.repository.EmailRepository;
 import io.jsonwebtoken.lang.Assert;
 import java.util.Date;
@@ -47,9 +48,10 @@ public class MailClientServiceImpl implements IMailClientService {
     }
 
     @Override
-    public void sendEmail(String email, String subject, String content) {
+    public void sendEmail(String email, EmailTypeEnum type, String subject, String content) {
         Assert.notNull(email, "Email can not be null");
         Assert.hasLength(email, "Email can be empty");
+        Assert.notNull(type, "Type can not be null");
         Assert.notNull(subject, "Subject can not be null");
         Assert.hasLength(subject, "Subject can not be empty");
         Assert.notNull(content, "Content can not be null");
@@ -75,7 +77,7 @@ public class MailClientServiceImpl implements IMailClientService {
                         emailEntitySaved.setError(e.getMessage());
                         return emailEntitySaved;
                     })
-                    .orElse(new EmailEntity(email, subject, content, md5String, new Date(), e.getMessage()));
+                    .orElse(new EmailEntity(email, subject, content, md5String, new Date(), e.getMessage(), type));
             emailRepository.save(emailEntity);
         }
     }
@@ -95,7 +97,7 @@ public class MailClientServiceImpl implements IMailClientService {
         logger.debug("Send Mail for Activate Account");
         String subject = messageSourceResolver.resolver("mail.registration.success.subject.title", new Object[]{firstname, lastname});
         String content = mailContentBuilderService.buildRegistrationSuccessTemplate(firstname, lastname, confirmationToken, locale);
-        sendEmail(email, subject, content);
+        sendEmail(email, EmailTypeEnum.ACTIVATE_ACCOUNT, subject, content);
     }
 
     @Override
@@ -115,7 +117,7 @@ public class MailClientServiceImpl implements IMailClientService {
         logger.debug("Send Mail for Reset Password");
         String subject = messageSourceResolver.resolver("mail.password.reset.subject.title");
         String content = mailContentBuilderService.buildPasswordResetTemplate(id, firstname, lastname, token, locale);
-        sendEmail(email, subject, content);
+        sendEmail(email, EmailTypeEnum.RESET_PASSWORD, subject, content);
     }
 
     @Override
@@ -131,7 +133,7 @@ public class MailClientServiceImpl implements IMailClientService {
         logger.debug("Send Mail for Confirm Password Change");
         String subject = messageSourceResolver.resolver("mail.confirm.password.change.subject.title", new Object[]{firstname + lastname});
         String content = mailContentBuilderService.buildConfirmPasswordChangeTemplate(firstname, lastname, locale);
-        sendEmail(email, subject, content);
+        sendEmail(email, EmailTypeEnum.CONFIRM_PASSWORD_CHANGE, subject, content);
     }
 
     @Override
@@ -147,7 +149,7 @@ public class MailClientServiceImpl implements IMailClientService {
         logger.debug("Send Mail for Confirm Account Activation");
         String subject = messageSourceResolver.resolver("mail.confirm.account.activation.subject.title", new Object[]{firstname, lastname});
         String content = mailContentBuilderService.buildConfirmAccountActivationTemplate(firstname, lastname, locale);
-        sendEmail(email, subject, content);
+        sendEmail(email, EmailTypeEnum.CONFIRM_ACCOUNT_ACTIVATION ,subject, content);
     }
 
     @Override
@@ -163,7 +165,7 @@ public class MailClientServiceImpl implements IMailClientService {
         logger.debug("Send Mail for Confirm Registration via Facebook");
         String subject = messageSourceResolver.resolver("mail.registration.success.subject.title", new Object[]{firstname, lastname});
         String content = mailContentBuilderService.buildConfirmRegistrationViaFacebookTemplate(firstname, lastname, locale);
-        sendEmail(email, subject, content);
+        sendEmail(email, EmailTypeEnum.CONFIRM_REGISTRATION_VIA_FACEBOOK , subject, content);
     }
 
     @Override
@@ -179,7 +181,7 @@ public class MailClientServiceImpl implements IMailClientService {
         logger.debug("Send Mail for Complete Account Deletion Process");
         String subject = messageSourceResolver.resolver("mail.complete.account.deletion.process.subject.title", new Object[]{firstname, lastname});
         String content = mailContentBuilderService.buildCompleteAccountDeletionProcessTemplate(firstname, lastname, confirmationToken, locale);
-        sendEmail(email, subject, content);
+        sendEmail(email, EmailTypeEnum.COMPLETE_ACCOUNT_DELETION, subject, content);
     }
 
     @PostConstruct

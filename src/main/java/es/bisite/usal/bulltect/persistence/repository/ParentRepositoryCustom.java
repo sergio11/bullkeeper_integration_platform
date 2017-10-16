@@ -23,4 +23,5 @@ public interface ParentRepositoryCustom {
     void setLastAccessToAlerts(ObjectId id);
     void updateLastLoginAccessAndLastAccessToAlerts(ObjectId id);
     String getProfileImageIdByUserId(ObjectId id);
+    String getFbIdByEmail(String email);
 }

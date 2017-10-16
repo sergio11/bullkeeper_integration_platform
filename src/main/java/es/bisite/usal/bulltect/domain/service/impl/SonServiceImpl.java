@@ -18,6 +18,7 @@ import es.bisite.usal.bulltect.persistence.repository.SocialMediaRepository;
 import es.bisite.usal.bulltect.persistence.repository.SonRepository;
 import es.bisite.usal.bulltect.persistence.repository.TaskRepository;
 import es.bisite.usal.bulltect.web.dto.response.SonDTO;
+import es.bisite.usal.bulltect.web.uploads.service.IUploadFilesService;
 import io.jsonwebtoken.lang.Assert;
 import javax.annotation.PostConstruct;
 
@@ -32,11 +33,12 @@ public class SonServiceImpl implements ISonService {
     private final CommentRepository commentRepository;
     private final SocialMediaRepository socialMediaRepository;
     private final TaskRepository taskRepository;
+    private final IUploadFilesService uploadFilesService;
 
     public SonServiceImpl(SonRepository sonRepository, 
             SonEntityMapper sonEntityMapper, AlertRepository alertRepository,
             CommentRepository commentRepository, SocialMediaRepository socialMediaRepository, 
-            TaskRepository taskRepository) {
+            TaskRepository taskRepository, IUploadFilesService uploadFilesService) {
         super();
         this.sonRepository = sonRepository;
         this.sonEntityMapper = sonEntityMapper;
@@ -44,6 +46,7 @@ public class SonServiceImpl implements ISonService {
         this.commentRepository = commentRepository;
         this.socialMediaRepository = socialMediaRepository;
         this.taskRepository = taskRepository;
+        this.uploadFilesService = uploadFilesService;
     }
 
     @Override
@@ -94,6 +97,7 @@ public class SonServiceImpl implements ISonService {
         socialMediaRepository.deleteBySonEntityId(new ObjectId(id));
         taskRepository.deleteBySonEntity(new ObjectId(id));
         sonRepository.delete(new ObjectId(id));
+        uploadFilesService.deleteProfileImage(getProfileImage(new ObjectId(id)));
     }
     
     @PostConstruct
@@ -104,5 +108,6 @@ public class SonServiceImpl implements ISonService {
         Assert.notNull(commentRepository, "Comment Repository can not be null");
         Assert.notNull(socialMediaRepository, "Social Media Repository can not be null");
         Assert.notNull(taskRepository, "Task Repository can not be null");
+        Assert.notNull(uploadFilesService, "Upload File Service can not be null");
     }
 }

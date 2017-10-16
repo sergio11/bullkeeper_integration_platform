@@ -6,7 +6,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 import es.bisite.usal.bulltect.persistence.entity.ParentEntity;
-import org.springframework.data.mongodb.repository.Query;
 
 /**
  *
@@ -32,9 +31,6 @@ public interface ParentRepository extends MongoRepository<ParentEntity, ObjectId
     Long deleteByConfirmationToken(String confirmationToken);
 
     Long deleteByActiveFalse();
-
-    @Query(value = "{ 'email' : ?0 }", fields = "{ 'fb_id' : 1 }")
-    String getFbIdByEmail(String email);
     
     ParentEntity findByProfileImage(String profileImageId);
 }

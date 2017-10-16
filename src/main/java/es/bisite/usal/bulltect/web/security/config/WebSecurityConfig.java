@@ -73,7 +73,10 @@ public class WebSecurityConfig  {
         protected void configure(HttpSecurity http) throws Exception {
             http
                 .requestMatchers()
-                    .antMatchers("/backend/admin/**")
+                    .antMatchers("/backend/**")
+                .and()
+                .antMatcher("/backend/accounts/**")
+                	.anonymous()
                 .and()
                 .authorizeRequests()
                 .antMatchers("/backend/admin/users/self/**")

@@ -28,6 +28,7 @@ import com.google.common.collect.Iterables;
 
 import es.bisite.usal.bulltect.domain.service.IAlertService;
 import es.bisite.usal.bulltect.domain.service.IAuthenticationService;
+import es.bisite.usal.bulltect.domain.service.IDeletePendingEmailService;
 import es.bisite.usal.bulltect.domain.service.IIterationService;
 import es.bisite.usal.bulltect.domain.service.IParentsService;
 import es.bisite.usal.bulltect.domain.service.IPasswordResetTokenService;
@@ -41,6 +42,7 @@ import es.bisite.usal.bulltect.persistence.constraints.ValidObjectId;
 import es.bisite.usal.bulltect.persistence.constraints.group.ICommonSequence;
 import es.bisite.usal.bulltect.persistence.constraints.group.IResendActivationEmailSequence;
 import es.bisite.usal.bulltect.persistence.constraints.group.IResetPasswordSequence;
+import es.bisite.usal.bulltect.persistence.entity.EmailTypeEnum;
 import es.bisite.usal.bulltect.rrss.service.IFacebookService;
 import es.bisite.usal.bulltect.web.dto.request.JwtAuthenticationRequestDTO;
 import es.bisite.usal.bulltect.web.dto.request.JwtFacebookAuthenticationRequestDTO;
@@ -68,7 +70,6 @@ import es.bisite.usal.bulltect.web.rest.exception.NoChildrenFoundForParentExcept
 import es.bisite.usal.bulltect.web.rest.exception.NoChildrenFoundForSelfParentException;
 import es.bisite.usal.bulltect.web.rest.exception.NoCommentsBySonFoundForLastIterationException;
 import es.bisite.usal.bulltect.web.rest.exception.NoIterationsFoundForSelfParentException;
-import es.bisite.usal.bulltect.web.rest.exception.NoNewAlertsFoundException;
 import es.bisite.usal.bulltect.web.rest.exception.NoParentsFoundException;
 import es.bisite.usal.bulltect.web.rest.exception.ParentNotFoundException;
 import es.bisite.usal.bulltect.web.rest.hal.IParentHAL;
@@ -115,11 +116,12 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     private final IUploadFilesService uploadFilesService;
     private final IAlertService alertService;
     private final IIterationService iterationService;
+    private final IDeletePendingEmailService deletePendingEmailService;
  
     public ParentsController(IParentsService parentsService, IPasswordResetTokenService passwordResetTokenService, 
     		IAuthenticationService authenticationService, IFacebookService facebookService, 
                 ITokenGeneratorService tokenGeneratorService, IUploadFilesService uploadFilesService, IAlertService alertService,
-                IIterationService iterationService) {
+                IIterationService iterationService, IDeletePendingEmailService deletePendingEmailService) {
         this.parentsService = parentsService;
         this.passwordResetTokenService = passwordResetTokenService;
         this.authenticationService = authenticationService;
@@ -128,6 +130,7 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
         this.uploadFilesService = uploadFilesService;
         this.alertService = alertService;
         this.iterationService = iterationService;
+        this.deletePendingEmailService = deletePendingEmailService;
     }
    
     
@@ -370,9 +373,9 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     		@ApiParam(value = "parent", required = true) 
     			@Validated(IResendActivationEmailSequence.class) @RequestBody ResendActivationEmailDTO resendActivation) throws Throwable {
     	logger.debug("Resend Activation Email");
-        
+    	
+    	deletePendingEmailService.deleteBySendToAndType(resendActivation.getEmail(), EmailTypeEnum.ACTIVATE_ACCOUNT);
         ParentDTO parentDTO = parentsService.getParentByEmail(resendActivation.getEmail());
-        
         applicationEventPublisher.publishEvent(new ParentRegistrationSuccessEvent(parentDTO.getIdentity(), this));
         
         return ApiHelper.<String>createAndSendResponse(
@@ -720,6 +723,7 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
         Assert.notNull(uploadFilesService, "UploadFilesService can not be null");
         Assert.notNull(alertService, "Alert Service can not be null");
         Assert.notNull(iterationService, "Iteration Service can not be null");
+        Assert.notNull(deletePendingEmailService, "Delete Pending Email Service can not be null");
 
     }
     

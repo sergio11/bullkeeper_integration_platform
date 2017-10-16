@@ -392,7 +392,7 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     @ApiOperation(value = "CLEAR_CHILD_ALERTS", nickname = "CLEAR_CHILD_ALERTS", notes = "Clear Child Alerts",
             response = Long.class)
-    public ResponseEntity<APIResponse<Long>> clearChildAlerts(
+    public ResponseEntity<APIResponse<String>> clearChildAlerts(
             @ApiParam(name = "id", value = "Identificador del hijo", required = true)
             	@Valid @ValidObjectId(message = "{son.id.notvalid}")
              		@PathVariable String id) throws Throwable {
@@ -401,8 +401,8 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
         
         Long alertsDeleted = alertService.clearChildAlerts(new ObjectId(id));
        
-        return ApiHelper.<Long>createAndSendResponse(ChildrenResponseCode.CHILD_ALERTS_CLEANED, 
-        		HttpStatus.OK, alertsDeleted);
+        return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.CHILD_ALERTS_CLEANED, 
+        		HttpStatus.OK, alertsDeleted.toString());
         
     }
     

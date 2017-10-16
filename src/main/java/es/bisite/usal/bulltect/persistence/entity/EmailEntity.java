@@ -38,17 +38,21 @@ public class EmailEntity {
     @Field("error")
     private String error;
     
+    @Field("type")
+    private EmailTypeEnum type;
+    
     public EmailEntity(){}
 
     @PersistenceConstructor
     public EmailEntity(String sendTo, String subject, 
-            String content, String md5, Date lastChance, String error) {
+            String content, String md5, Date lastChance, String error, EmailTypeEnum type) {
         this.sendTo = sendTo;
         this.subject = subject;
         this.content = content;
         this.md5 = md5;
         this.lastChance = lastChance;
         this.error = error;
+        this.type = type;
     }
 
     public ObjectId getId() {
@@ -107,4 +111,12 @@ public class EmailEntity {
     public void setError(String error) {
         this.error = error;
     }
+
+	public EmailTypeEnum getType() {
+		return type;
+	}
+
+	public void setType(EmailTypeEnum type) {
+		this.type = type;
+	}
 }

@@ -17,10 +17,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.google.common.collect.Iterables;
 import es.bisite.usal.bulltect.domain.service.IAlertService;
+import es.bisite.usal.bulltect.persistence.constraints.ValidObjectId;
 import es.bisite.usal.bulltect.persistence.constraints.group.ICommonSequence;
 import es.bisite.usal.bulltect.persistence.entity.AlertLevelEnum;
+import es.bisite.usal.bulltect.util.ValidList;
 import es.bisite.usal.bulltect.web.dto.request.AddAlertDTO;
+import es.bisite.usal.bulltect.web.dto.request.SaveSocialMediaDTO;
 import es.bisite.usal.bulltect.web.dto.response.AlertDTO;
+import es.bisite.usal.bulltect.web.dto.response.AlertsBySonDTO;
 import es.bisite.usal.bulltect.web.rest.ApiHelper;
 import es.bisite.usal.bulltect.web.rest.exception.NoAlertsFoundException;
 import es.bisite.usal.bulltect.web.rest.exception.SocialMediaNotFoundException;
@@ -30,8 +34,12 @@ import es.bisite.usal.bulltect.web.security.userdetails.CommonUserDetailsAware;
 import es.bisite.usal.bulltect.web.security.utils.CurrentUser;
 import es.bisite.usal.bulltect.web.security.utils.OnlyAccessForAdmin;
 import es.bisite.usal.bulltect.web.security.utils.OnlyAccessForParent;
+
+import java.util.List;
 import java.util.Optional;
 import javax.annotation.PostConstruct;
+import javax.validation.Valid;
+
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -212,6 +220,22 @@ public class AlertController extends BaseController {
 
         return ApiHelper.<PagedResources<Resource<AlertDTO>>>createAndSendResponse(AlertResponseCode.ALL_DANGER_ALERTS,
                 HttpStatus.OK, pagedAssembler.toResource(alertsPage));
+    }
+    
+    @RequestMapping(value = {"/alerts-by-son"}, method = RequestMethod.GET)
+    @OnlyAccessForParent
+    @ApiOperation(value = "GET_ALERTS_BY_SON", nickname = "GET_ALERTS_BY_SON", notes = "Get Alerts By Son",
+            response = PagedResources.class)
+    public ResponseEntity<APIResponse<Iterable<AlertsBySonDTO>>> getAlertsBySon(
+            @ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent,
+            @RequestParam(name="identities", value="identities" , required=true)
+            	ValidList<String> identities) throws Throwable {
+
+    	
+        List<AlertsBySonDTO> alertsBySonDTO = alertService.getAlertsBySon(identities);
+
+        return ApiHelper.<Iterable<AlertsBySonDTO>>createAndSendResponse(AlertResponseCode.ALERTS_BY_SON,
+                HttpStatus.OK, alertsBySonDTO);
     }
     
     

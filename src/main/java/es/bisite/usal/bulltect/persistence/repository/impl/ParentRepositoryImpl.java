@@ -152,4 +152,17 @@ public class ParentRepositoryImpl implements ParentRepositoryCustom {
                 new Query(Criteria.where("_id").in(id)),
                 new Update().set("profile_image", profileImageId), ParentEntity.class);
     }
+
+	@Override
+	public String getFbIdByEmail(String email) {
+		
+		Assert.notNull(email, "email can not be null");
+
+        Query query = new Query(Criteria.where("email").is(email));
+        query.fields().include("fb_id");
+
+        ParentEntity parentEntity = mongoTemplate.findOne(query, ParentEntity.class);
+
+        return parentEntity.getFbId();
+	}
 }

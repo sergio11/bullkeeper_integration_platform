@@ -25,6 +25,7 @@ import es.bisite.usal.bulltect.persistence.entity.SonEntity;
 import es.bisite.usal.bulltect.persistence.repository.AlertRepository;
 import es.bisite.usal.bulltect.web.dto.request.AddAlertDTO;
 import es.bisite.usal.bulltect.web.dto.response.AlertDTO;
+import es.bisite.usal.bulltect.web.dto.response.AlertsBySonDTO;
 import es.bisite.usal.bulltect.web.dto.response.AlertsPageDTO;
 import java.util.Locale;
 
@@ -159,6 +160,11 @@ public class AlertServiceImpl implements IAlertService {
     @Override
 	public Iterable<AlertDTO> findByParent(ObjectId id) {
     	return alertMapper.alertEntitiesToAlertDTO(alertRepository.findByParentIdOrderByCreateAtDesc(id));
+	}
+    
+    @Override
+	public List<AlertsBySonDTO> getAlertsBySon(List<String> sonIds) {
+		return alertRepository.getAlertsBySon(sonIds);
 	}
 
     @PostConstruct

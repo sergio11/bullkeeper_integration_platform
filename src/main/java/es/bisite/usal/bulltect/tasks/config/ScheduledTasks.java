@@ -99,7 +99,7 @@ public class ScheduledTasks {
         logger.debug("Unsuccessful Mail Forwarding ...");
         List<EmailEntity> emailsToForward = emailRepository.findAllByOrderByLastChanceAsc(new PageRequest(0, numberOfEmailsToForwarding));
         for(EmailEntity emailToForward: emailsToForward)
-            mailClientService.sendEmail(emailToForward.getSendTo(), 
+            mailClientService.sendEmail(emailToForward.getSendTo(), emailToForward.getType(),
                     emailToForward.getSubject(), emailToForward.getContent());
     }
 

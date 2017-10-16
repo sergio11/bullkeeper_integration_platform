@@ -53,9 +53,9 @@ public class MailContentBuilderServiceImpl implements IMailContentBuilderService
         Context context = new Context(locale);
         context.setVariable("firstname", firstname);
         context.setVariable("lastname", lastname);
-        context.setVariable("token", 
-        		ServletUriComponentsBuilder.fromCurrentContextPath().path("/backend/accounts/resetting?id={id}&token={token}").buildAndExpand(id, token));
-        return templateEngine.process(mailContentProperties.getRegistrationSuccessTemplate(), context);
+        context.setVariable("resetUrl", 
+        		ServletUriComponentsBuilder.fromCurrentContextPath().path("/backend/accounts/resetting/?id={id}&token={token}").buildAndExpand(id, token));
+        return templateEngine.process(mailContentProperties.getPassWordResetTemplate(), context);
 	}
 
 	@Override

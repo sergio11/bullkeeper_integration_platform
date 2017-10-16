@@ -1,5 +1,7 @@
 package es.bisite.usal.bulltect.web.backend.controller;
 
+import javax.validation.Valid;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -69,7 +71,7 @@ public class ResettingController extends BaseController {
 	@RequestMapping(value = "/", method = RequestMethod.POST)
 	@OnlyAccessWithChangePasswordPrivilege
 	public String changePassword(
-			@ModelAttribute(ATTRIBUTE_NAME) UpdatePasswordDTO updatePassword,
+			@Valid @ModelAttribute(ATTRIBUTE_NAME) UpdatePasswordDTO updatePassword,
 			BindingResult bindingResult,
             RedirectAttributes redirectAttributes,
             // SessionStatus lets you clear your SessionAttributes
@@ -85,9 +87,11 @@ public class ResettingController extends BaseController {
 	      (ParentEntity) SecurityContextHolder.getContext()
 	                                  .getAuthentication().getPrincipal();
 	    
+		logger.debug("Parent id: " + parent.getId() + " Confirm Password " +  updatePassword.getConfirmPassword());
 		parentService.changeUserPassword(parent.getId(), updatePassword.getConfirmPassword());
 		applicationEventPublisher.publishEvent(new PasswordChangedEvent(this, parent.getId().toString()));
 		sessionStatus.setComplete();
+		 SecurityContextHolder.clearContext();
 		return "redirect:/backend/accounts/resetting/password-changed";
 	}
 	
