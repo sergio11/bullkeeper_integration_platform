@@ -103,9 +103,7 @@ public class DeviceGroupsController extends BaseController {
     		.handle((groupKey, ex)
                 -> Optional.ofNullable(deviceGroupsService.addDeviceToGroup(device.getDeviceId(), device.getRegistrationToken(), deviceGroup.getIdentity()))
                 .map(deviceCreated -> ApiHelper.<DeviceDTO>createAndSendResponse(DeviceGroupResponseCode.DEVICE_ADDED_TO_GROUP, HttpStatus.OK, deviceCreated))
-                .<DeviceAddToGroupFailedException>orElseThrow(() -> {
-                    throw new DeviceAddToGroupFailedException();
-                })).get();
+                .<DeviceAddToGroupFailedException>orElseThrow(() -> new DeviceAddToGroupFailedException())).get();
     	
  
     }
@@ -123,54 +121,85 @@ public class DeviceGroupsController extends BaseController {
         .map(device -> pushNotificationsService.updateDeviceToken(selfParent.getUserId().toString(), 
         		device.getNotificationKey(), device.getRegistrationToken(), updateDevice.getRegistrationToken())
         		.handle((result, ex) -> {
+                            
         			deviceGroupsService.updateDeviceToken(device.getDeviceId(), updateDevice.getRegistrationToken());
         			device.setRegistrationToken( updateDevice.getRegistrationToken());
         			return ApiHelper.<DeviceDTO>createAndSendResponse(DeviceGroupResponseCode.DEVICE_TOKEN_UPDATED, 
         					HttpStatus.OK, device);
         		}))
         .map(completableFuture -> Unthrow.wrap(() -> completableFuture.get()))
-        .<UpdateDeviceFailedException>orElseThrow(() -> {
-            throw new UpdateDeviceFailedException();
-        });
+        .orElseThrow(() -> new UpdateDeviceFailedException());
     	
     }
     
     
     @RequestMapping(value = "/devices/save", method = RequestMethod.POST)
     @OnlyAccessForParent
-    @ApiOperation(value = "SAVE_DEVICE", nickname = "SAVE_DEVICE", notes = "Save Device",
+    @ApiOperation(value = "SAVE_DEVICE", nickname = "SAVE_DEVICE", notes = "Save Device into group",
             response = DeviceDTO.class)
     public ResponseEntity<APIResponse<DeviceDTO>> saveDevice(
     		@ApiParam(name = "device", value = "Save Device", required = true) 
 				@Valid @RequestBody final SaveDeviceDTO deviceToSave,
 			@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws InterruptedException, ExecutionException {
 
+        logger.debug("Save Device with Id " + deviceToSave.getDeviceId() + " And Registration Token " + deviceToSave.getRegistrationToken());
+        
      DeviceDTO device = Optional.ofNullable(deviceGroupsService.getDeviceByDeviceId(deviceToSave.getDeviceId()))
-        .map((deviceResource) -> Unthrow.wrap(() -> pushNotificationsService.updateDeviceToken(selfParent.getUserId().toString(), 
-        		deviceResource.getNotificationKey(), deviceResource.getRegistrationToken(), deviceToSave.getRegistrationToken())
+             // Device already exists, update registration token if it has changed
+            .map((deviceSaved) ->  deviceSaved.getRegistrationToken() != null && 
+                        !deviceSaved.getRegistrationToken().isEmpty() &&
+                        deviceSaved.getRegistrationToken().equals(deviceToSave.getRegistrationToken()) ? 
+                        deviceSaved : Unthrow.wrap(() -> pushNotificationsService.updateDeviceToken(selfParent.getUserId().toString(), 
+                                deviceSaved.getNotificationKey(), deviceSaved.getRegistrationToken(), deviceSaved.getRegistrationToken())
         		.handle((result, ex) -> {
-        			deviceGroupsService.updateDeviceToken(deviceResource.getDeviceId(), deviceToSave.getRegistrationToken());
-        			deviceResource.setRegistrationToken( deviceToSave.getRegistrationToken());
-        			return deviceResource;
+                            if(ex != null) {
+                                logger.error(ex.getMessage());
+                                throw new DeviceAddToGroupFailedException();
+                            }
+                            logger.debug("Registration Token for device " + deviceSaved.getDeviceId() + " updated");
+                            deviceGroupsService.updateDeviceToken(deviceSaved.getDeviceId(), deviceToSave.getRegistrationToken());
+                            deviceSaved.setRegistrationToken( deviceToSave.getRegistrationToken());
+                            return deviceSaved;
         		}).get()))
+             // Device not Exists. First check if device group already exists
         .orElseGet(() ->  Optional.ofNullable(deviceGroupsService.getDeviceGroupByName(selfParent.getUserId().toString()))
         		.map(deviceGroup -> Unthrow.wrap(() -> {
-        			
-        			return pushNotificationsService.addDeviceToGroup(deviceGroup.getNotificationKeyName(), 
-                			deviceGroup.getNotificationKey(), deviceToSave.getRegistrationToken())
-                		.handle((groupKey, ex)
-                            -> Optional.ofNullable(deviceGroupsService.addDeviceToGroup(deviceToSave.getDeviceId(), deviceToSave.getRegistrationToken(), deviceGroup.getIdentity()))
-                            .<DeviceAddToGroupFailedException>orElseThrow(() -> {
-                                throw new DeviceAddToGroupFailedException();
-                            })).get();
-        		}))
+        			// Device Group exists. Add Device to this group
+        			return pushNotificationsService.addDeviceToGroup(
+                                        deviceGroup.getNotificationKeyName(), 
+                			deviceGroup.getNotificationKey(),
+                                        deviceToSave.getRegistrationToken())
+                                        .handle((groupKey, ex)  -> {
+                                            
+                                            if(ex != null){
+                                                logger.error(ex.getMessage());
+                                                throw new DeviceAddToGroupFailedException();
+                                            }
+                                            logger.debug("Device Group exists. Add Device to this group");
+                                            return Optional
+                                                        .ofNullable(deviceGroupsService.addDeviceToGroup(
+                                                                deviceToSave.getDeviceId(), 
+                                                                deviceToSave.getRegistrationToken(), 
+                                                                deviceGroup.getIdentity()))
+                                                        .<DeviceAddToGroupFailedException>orElseThrow(() -> new DeviceAddToGroupFailedException());
+                                        }).get();
+                            }))
+                // Device Group not exists. Create new Device Group with this device
         		.orElseGet(() -> Unthrow.wrap(() -> pushNotificationsService.createNotificationGroup(selfParent.getUserId().toString(), 
-        				Collections.singletonList(deviceToSave.getRegistrationToken())).handle((groupKey, ex) -> {
-        					
-        			if (ex != null) {
-        				logger.error(ex.getMessage());
-                        throw new DeviceGroupCreateFailedException();
-                    }
+        				Collections.singletonList(deviceToSave.getRegistrationToken()))
+                                .handle((response, ex) -> {
+                                    
+        			if (
+                                        ex != null || 
+                                        response == null || 
+                                        response.getBody() == null || 
+                                        ( !response.getBody().containsKey("notification_key") 
+                                        || response.getBody().get("notification_key").isEmpty())) {
+                                    throw new DeviceGroupCreateFailedException();
+                                }
+                                
+                                String groupKey = response.getBody().get("notification_key");
+                                logger.debug("Group Key -> " + 	groupKey);
         			logger.debug("Device Group Created With Key -> " + groupKey);
         			DeviceGroupDTO deviceGroup = deviceGroupsService.createDeviceGroup(groupKey, new ObjectId(selfParent.getUserId().toString()));
         			logger.debug("Device Group -> " + deviceGroup.toString());
@@ -179,30 +208,30 @@ public class DeviceGroupsController extends BaseController {
        
      
      
-     return ApiHelper.<DeviceDTO>createAndSendResponse(DeviceGroupResponseCode.DEVICE_TOKEN_SAVED, HttpStatus.OK, device);
+     return ApiHelper.<DeviceDTO>createAndSendResponse(
+             DeviceGroupResponseCode.DEVICE_TOKEN_SAVED, HttpStatus.OK, device);
     	
     }
     
-    
 
-    @RequestMapping(value = "/devices/{device}/delete", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/devices/{id}/delete", method = RequestMethod.DELETE)
     @OnlyAccessForParent
     @ApiOperation(value = "DELETE_DEVICE_FROM_GROUP", nickname = "DELETE_DEVICE_FROM_GROUP", notes = "Delete Device From Group",
             response = DeviceDTO.class)
-    public ResponseEntity<APIResponse<DeviceDTO>> deleteDeviceFromGroup(
-    		@ApiParam(name = "device_id", value = "Device Id", required = true)
+    public ResponseEntity<APIResponse<String>> deleteDeviceFromGroup(
+    		@ApiParam(name = "id", value = "Device Id", required = true)
             	@Valid @DeviceShouldExists(message = "{device.should.exists}")
-             		@PathVariable String deviceId,
+             		@PathVariable String id,
             @ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent
     ) {
     	
-        return Optional.ofNullable(deviceGroupsService.getDeviceByDeviceId(deviceId))
+        return Optional.ofNullable(deviceGroupsService.getDeviceByDeviceId(id))
                 .map(device -> pushNotificationsService.removeDeviceFromGroup(device.getNotificationKeyName(), 
                 		device.getNotificationKey(), device.getRegistrationToken())
                 		.handle((groupKey, ex)
                 				-> Optional.ofNullable(deviceGroupsService.removeDevice(device.getDeviceId()))
-                					.map(deviceRemoved -> ApiHelper.<DeviceDTO>createAndSendResponse(DeviceGroupResponseCode.DEVICE_REMOVED_FROM_GROUP,
-                									HttpStatus.OK, deviceRemoved))
+                					.map(deviceRemoved -> ApiHelper.<String>createAndSendResponse(DeviceGroupResponseCode.DEVICE_REMOVED_FROM_GROUP,
+                									HttpStatus.OK, "Device Removed"))
 		                        .<RemoveDeviceFromGroupFailedException>orElseThrow(() -> {
 		                            throw new RemoveDeviceFromGroupFailedException();
 		                        })))

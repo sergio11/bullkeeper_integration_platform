@@ -17,7 +17,14 @@ import es.bisite.usal.bulltect.fcm.operations.FCMNotificationOperation;
 import es.bisite.usal.bulltect.fcm.properties.FCMCustomProperties;
 import es.bisite.usal.bulltect.fcm.response.FirebaseResponse;
 import es.bisite.usal.bulltect.fcm.service.IPushNotificationsService;
+import es.bisite.usal.bulltect.util.Unthrow;
 import io.jsonwebtoken.lang.Assert;
+import java.net.URI;
+import java.util.Map;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 
 @Service
 public class PushNotificationsServiceImpl implements IPushNotificationsService {
@@ -36,7 +43,7 @@ public class PushNotificationsServiceImpl implements IPushNotificationsService {
 
 	@Async
     @Override
-    public CompletableFuture<String> createNotificationGroup(String userid, List<String> deviceTokens) {
+    public CompletableFuture<ResponseEntity<Map<String, String>>> createNotificationGroup(String userid, List<String> deviceTokens) {
 		Assert.notNull(userid, "User id can not be null");
 		Assert.notEmpty(deviceTokens, "Device Tokens can not be null");
 		Assert.notNull(firebaseCustomProperties.getGroupPrefix(), "Group Prefix can not be null");
@@ -47,24 +54,11 @@ public class PushNotificationsServiceImpl implements IPushNotificationsService {
 		
 		logger.debug("createNotificationGroup with user_id -> " + userid + " device tokens -> " + deviceTokens.toString());
 		logger.debug("Notification Group Name -> " + notificationGroupName);
+                
+                ParameterizedTypeReference<Map<String, String>> typeRef = new ParameterizedTypeReference<Map<String, String>>() {};
 		
-        return CompletableFuture.supplyAsync(() -> restTemplate.postForObject(firebaseCustomProperties.getNotificationGroupsUrl(), 
-				new DevicesGroupOperation(notificationGroupName, deviceTokens), String.class));
-    }
-
-    @Async
-    @Override
-    public CompletableFuture<String> createNotificationGroup(String userid) {
-    	Assert.notNull(userid, "User id can not be null");
-    	Assert.notNull(firebaseCustomProperties.getGroupPrefix(), "Group Prefix can not be null");
-    	Assert.notNull(firebaseCustomProperties.getNotificationGroupsUrl(), "Notification Group Url can not be null");
-    	Assert.hasLength(firebaseCustomProperties.getNotificationGroupsUrl(), "Notification Group Url can not be empty");
-    	
-    	logger.debug("createNotificationGroup with user_id -> " + userid);
-    	
-    	String notificationGroupName = String.format("%s_%s", firebaseCustomProperties.getGroupPrefix(), userid);
-        return CompletableFuture.supplyAsync(() -> restTemplate.postForObject(firebaseCustomProperties.getNotificationGroupsUrl(), 
-				new DevicesGroupOperation(notificationGroupName), String.class));
+        return CompletableFuture.supplyAsync(() ->  Unthrow.wrap(() -> restTemplate.exchange(new URI(firebaseCustomProperties.getNotificationGroupsUrl()), HttpMethod.POST, 
+				new HttpEntity<DevicesGroupOperation>(new DevicesGroupOperation(notificationGroupName, deviceTokens)), typeRef)));
     }
 
     @Async

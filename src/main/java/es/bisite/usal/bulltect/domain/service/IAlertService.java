@@ -1,13 +1,13 @@
 package es.bisite.usal.bulltect.domain.service;
 
 
+import es.bisite.usal.bulltect.persistence.entity.AlertLevelEnum;
 import java.util.Date;
 import java.util.List;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import es.bisite.usal.bulltect.persistence.entity.AlertLevelEnum;
 import es.bisite.usal.bulltect.persistence.entity.ParentEntity;
 import es.bisite.usal.bulltect.persistence.entity.SonEntity;
 import es.bisite.usal.bulltect.web.dto.request.AddAlertDTO;

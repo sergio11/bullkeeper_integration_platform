@@ -14,9 +14,9 @@ public interface DeviceRepository extends MongoRepository<DeviceEntity, ObjectId
 
     DeviceEntity findByRegistrationToken(String registrationToken);
 
-    DeviceEntity deleteByRegistrationToken(String registrationToken);
+    Long deleteByRegistrationToken(String registrationToken);
     
-    DeviceEntity deleteByDeviceId(String deviceId);
+    Long deleteByDeviceId(String deviceId);
     
     Long countByRegistrationToken(String registrationToken);
     

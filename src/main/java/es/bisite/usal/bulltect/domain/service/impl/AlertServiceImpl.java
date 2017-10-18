@@ -27,7 +27,6 @@ import es.bisite.usal.bulltect.web.dto.request.AddAlertDTO;
 import es.bisite.usal.bulltect.web.dto.response.AlertDTO;
 import es.bisite.usal.bulltect.web.dto.response.AlertsBySonDTO;
 import es.bisite.usal.bulltect.web.dto.response.AlertsPageDTO;
-import java.util.Locale;
 
 @Service
 public class AlertServiceImpl implements IAlertService {

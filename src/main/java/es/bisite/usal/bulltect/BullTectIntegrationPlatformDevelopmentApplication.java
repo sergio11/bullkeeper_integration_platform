@@ -13,8 +13,6 @@ import org.springframework.hateoas.config.EnableHypermediaSupport;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 
 import es.bisite.usal.bulltect.web.rest.interceptor.LoggingRequestInterceptor;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
 @SpringBootApplication
 @Profile("dev")

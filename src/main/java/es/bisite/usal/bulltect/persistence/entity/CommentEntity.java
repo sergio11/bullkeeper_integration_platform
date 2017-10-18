@@ -14,52 +14,55 @@ import org.springframework.data.mongodb.core.mapping.Field;
  */
 @Document(collection = CommentEntity.COLLECTION_NAME)
 public class CommentEntity {
-    
+
     public final static String COLLECTION_NAME = "comments";
-    
+
     @Id
     private ObjectId id;
-    
+
     @Field("message")
     private String message;
-    
+
     @Field("likes")
     private Long likes = 0l;
-    
+
     @Field("created_time")
     private Date createdTime;
-    
+
     @Field("social_media")
     private SocialMediaTypeEnum socialMedia;
-    
+
+    @Field("status")
+    private CommentStatusEnum status = CommentStatusEnum.PENDING;
+
     @Field("from")
     private String from;
-    
-    
+
     @Field("target")
     @DBRef
     private SonEntity sonEntity;
-    
-    public CommentEntity(){}
+
+    public CommentEntity() {
+    }
 
     @PersistenceConstructor
-    public CommentEntity(String message, Long likes, Date createdTime, SocialMediaTypeEnum socialMedia, String from, SonEntity sonEntity) {
-		super();
-		this.message = message;
-		this.likes = likes;
-		this.createdTime = createdTime;
-		this.socialMedia = socialMedia;
-		this.from = from;
-		this.sonEntity = sonEntity;
-	}
-    
-    
+    public CommentEntity(String message, Long likes, Date createdTime,
+            SocialMediaTypeEnum socialMedia, CommentStatusEnum status, String from, SonEntity sonEntity) {
+        super();
+        this.message = message;
+        this.likes = likes;
+        this.createdTime = createdTime;
+        this.socialMedia = socialMedia;
+        this.status = status;
+        this.from = from;
+        this.sonEntity = sonEntity;
+    }
+
     public ObjectId getId() {
         return id;
     }
 
-   
-	public void setId(ObjectId id) {
+    public void setId(ObjectId id) {
         this.id = id;
     }
 
@@ -80,42 +83,49 @@ public class CommentEntity {
     }
 
     public SonEntity getSonEntity() {
-		return sonEntity;
-	}
+        return sonEntity;
+    }
 
-	public void setSonEntity(SonEntity sonEntity) {
-		this.sonEntity = sonEntity;
-	}
+    public void setSonEntity(SonEntity sonEntity) {
+        this.sonEntity = sonEntity;
+    }
 
-	public Date getCreatedTime() {
+    public Date getCreatedTime() {
         return createdTime;
     }
 
     public void setCreatedTime(Date createdTime) {
         this.createdTime = createdTime;
     }
-    
+
     public SocialMediaTypeEnum getSocialMedia() {
-		return socialMedia;
-	}
+        return socialMedia;
+    }
 
-	public void setSocialMedia(SocialMediaTypeEnum socialMedia) {
-		this.socialMedia = socialMedia;
-	}
+    public void setSocialMedia(SocialMediaTypeEnum socialMedia) {
+        this.socialMedia = socialMedia;
+    }
 
+    public CommentStatusEnum getStatus() {
+        return status;
+    }
 
-	public String getFrom() {
-		return from;
-	}
+    public void setStatus(CommentStatusEnum status) {
+        this.status = status;
+    }
 
-	public void setFrom(String from) {
-		this.from = from;
-	}
+    public String getFrom() {
+        return from;
+    }
 
-	@Override
-	public String toString() {
-		return "CommentEntity [id=" + id + ", message=" + message + ", likes=" + likes + ", createdTime=" + createdTime
-				+ ", socialMedia=" + socialMedia + ", from=" + from + ", sonEntity=" + sonEntity + "]";
-	}
+    public void setFrom(String from) {
+        this.from = from;
+    }
+
+    @Override
+    public String toString() {
+        return "CommentEntity [id=" + id + ", message=" + message + ", likes=" + likes + ", createdTime=" + createdTime
+                + ", socialMedia=" + socialMedia + ", from=" + from + ", sonEntity=" + sonEntity + "]";
+    }
 
 }

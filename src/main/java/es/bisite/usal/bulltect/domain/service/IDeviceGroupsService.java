@@ -14,7 +14,7 @@ public interface IDeviceGroupsService {
 	DeviceGroupDTO createDeviceGroup(String key, ObjectId owner);
 	DeviceGroupDTO createDeviceGroup(String key, ObjectId owner, Set<DeviceEntity> devices);
     DeviceDTO addDeviceToGroup(String deviceId, String token, String deviceGroupId);
-    DeviceDTO removeDevice(String deviceId);
+    Long removeDevice(String deviceId);
     Iterable<DeviceDTO> getDevicesFromGroup(String groupName);
     String getNotificationKey(String groupName);
     DeviceDTO getDeviceByDeviceId(String deviceId);

@@ -76,9 +76,8 @@ public class DeviceGroupsServiceImpl implements IDeviceGroupsService {
 	}
 
 	@Override
-	public DeviceDTO removeDevice(String deviceId) {
-		DeviceEntity deviceRemoved = deviceRepository.deleteByDeviceId(deviceId);
-		return deviceEntityMapper.deviceEntityToDeviceDTO(deviceRemoved);
+	public Long removeDevice(String deviceId) {
+            return deviceRepository.deleteByDeviceId(deviceId);
 	}
 
 	@Override

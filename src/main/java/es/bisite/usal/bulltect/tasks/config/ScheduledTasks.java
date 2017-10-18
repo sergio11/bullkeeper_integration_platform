@@ -102,6 +102,17 @@ public class ScheduledTasks {
             mailClientService.sendEmail(emailToForward.getSendTo(), emailToForward.getType(),
                     emailToForward.getSubject(), emailToForward.getContent());
     }
+    
+    @Scheduled(cron = "${task.unsuccessful.mail.forwarding}")
+    public void scheduledUnanalyzedComments() {
+        logger.debug("scheduled Unanalyzed Comments ...");
+    }
+    
+    @Scheduled(cron = "${task.unsuccessful.mail.forwarding}")
+    public void cancelCommentAnalysis() {
+        logger.debug("cancel comment analysis ...");
+    }
+    
 
     @PostConstruct
     protected void init() {

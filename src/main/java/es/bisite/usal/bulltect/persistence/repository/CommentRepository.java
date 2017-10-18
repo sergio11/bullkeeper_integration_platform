@@ -7,6 +7,8 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 import es.bisite.usal.bulltect.persistence.entity.CommentEntity;
+import es.bisite.usal.bulltect.persistence.entity.CommentStatusEnum;
+import java.util.List;
 
 
 /**
@@ -17,4 +19,5 @@ import es.bisite.usal.bulltect.persistence.entity.CommentEntity;
 public interface CommentRepository extends MongoRepository<CommentEntity, ObjectId>, CommentRepositoryCustom {
     Page<CommentEntity> findAllBySonEntityId(ObjectId userId, Pageable pageable);
     Long deleteBySonEntity(ObjectId id);
+    List<CommentEntity> findAllByStatus(CommentStatusEnum status);
 }

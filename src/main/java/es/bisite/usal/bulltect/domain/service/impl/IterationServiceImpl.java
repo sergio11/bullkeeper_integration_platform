@@ -101,9 +101,12 @@ public class IterationServiceImpl implements IIterationService {
 		.map(comment -> comment.getId())
 		.collect(Collectors.toList());
         
-        logger.debug("COMMENTS TO ANALYSIS -> " + commentsId.toString());
+        if(!commentsId.isEmpty()) {
+            logger.debug("COMMENTS TO ANALYSIS -> " + commentsId.toString());
+            itegrationFlowService.startSentimentAnalysisFor(commentsId);
+        }
         
-        itegrationFlowService.startSentimentAnalysisFor(commentsId);
+        
         
         logger.debug("TOTAL TASK ->" + iterationSave.getTotalTasks());
         logger.debug("TOTAL TASK FAILED -> " + iterationSave.getTotalFailedTasks());
