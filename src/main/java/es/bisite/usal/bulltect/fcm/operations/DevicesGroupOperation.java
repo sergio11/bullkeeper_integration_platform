@@ -26,6 +26,7 @@ public class DevicesGroupOperation implements Serializable {
     
     public DevicesGroupOperation(String groupName, List<String> deviceTokens) {
         this.operation = DevicesGroupOperationType.CREATE;
+        this.groupName = groupName;
         this.deviceTokens = deviceTokens;
     }
     

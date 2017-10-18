@@ -32,6 +32,9 @@ public class CommentEntity {
     @Field("social_media")
     private SocialMediaTypeEnum socialMedia;
     
+    @Field("from")
+    private String from;
+    
     
     @Field("target")
     @DBRef
@@ -40,12 +43,13 @@ public class CommentEntity {
     public CommentEntity(){}
 
     @PersistenceConstructor
-    public CommentEntity(String message, Long likes, Date createdTime, SocialMediaTypeEnum socialMedia, SonEntity sonEntity) {
+    public CommentEntity(String message, Long likes, Date createdTime, SocialMediaTypeEnum socialMedia, String from, SonEntity sonEntity) {
 		super();
 		this.message = message;
 		this.likes = likes;
 		this.createdTime = createdTime;
 		this.socialMedia = socialMedia;
+		this.from = from;
 		this.sonEntity = sonEntity;
 	}
     
@@ -100,9 +104,18 @@ public class CommentEntity {
 	}
 
 
+	public String getFrom() {
+		return from;
+	}
+
+	public void setFrom(String from) {
+		this.from = from;
+	}
+
 	@Override
 	public String toString() {
 		return "CommentEntity [id=" + id + ", message=" + message + ", likes=" + likes + ", createdTime=" + createdTime
-				+ ", socialMedia=" + socialMedia + "]";
+				+ ", socialMedia=" + socialMedia + ", from=" + from + ", sonEntity=" + sonEntity + "]";
 	}
+
 }

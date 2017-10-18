@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 
@@ -19,8 +20,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.springframework.web.client.RestTemplate;
 
 import es.bisite.usal.bulltect.domain.service.IIterationService;
+import es.bisite.usal.bulltect.integration.properties.IntegrationFlowProperties;
 import es.bisite.usal.bulltect.integration.service.IItegrationFlowService;
 import es.bisite.usal.bulltect.mapper.IterationEntityMapper;
 import es.bisite.usal.bulltect.persistence.entity.IterationEntity;
@@ -44,6 +47,7 @@ public class IterationServiceImpl implements IIterationService {
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final SocialMediaRepository socialMediaRepository;
     private final IItegrationFlowService itegrationFlowService;
+    
 
     public IterationServiceImpl(IterationRepository iterationRepository, 
             IterationEntityMapper iterationEntityMapper, SimpMessagingTemplate simpMessagingTemplate,
@@ -73,29 +77,42 @@ public class IterationServiceImpl implements IIterationService {
     @Override
     public void save(IterationEntity iterationEntity) {
     	
-    	
     	logger.debug("Save Iteration ...");
         
-        IterationEntity iterationToSend = iterationRepository.save(iterationEntity);
+        IterationEntity iterationSave = iterationRepository.save(iterationEntity);
         
-        List<ObjectId> socialMediaIds = iterationToSend.getTasks().stream().map(task -> task.getSocialMediaId()).collect(Collectors.toList());
+        List<ObjectId> socialMediaIds = iterationSave.getTasks().stream().map(task -> task.getSocialMediaId()).collect(Collectors.toList());
+        
         
         Date scheduledFor = itegrationFlowService.getDateForNextPoll();
         
-        socialMediaRepository.setScheduledForAndLastProbing(socialMediaIds, scheduledFor, iterationToSend.getFinishDate());
+        socialMediaRepository.setScheduledForAndLastProbing(socialMediaIds, scheduledFor, iterationSave.getFinishDate());
         
         simpMessagingTemplate.convertAndSend(WebSocketConstants.NEW_ITERATION_TOPIC, 
-                iterationEntityMapper.iterationEntityToIterationDTO(iterationToSend));
+                iterationEntityMapper.iterationEntityToIterationDTO(iterationSave));
         
   
         simpMessagingTemplate.convertAndSend(WebSocketConstants.LAST_ITERATION_COMMENTS_BY_SON_TOPIC,
-        		getCommentsBySonForIteration(iterationToSend));
+        		getCommentsBySonForIteration(iterationSave));
         
-        logger.debug("TOTAL TASK ->" + iterationToSend.getTotalTasks());
-        logger.debug("TOTAL TASK FAILED -> " + iterationToSend.getTotalFailedTasks());
+        List<ObjectId> commentsId = iterationSave.getTasks().stream()
+		.filter(task -> task.getComments().size() > 0)
+		.flatMap(task -> task.getComments().stream())
+		.map(comment -> comment.getId())
+		.collect(Collectors.toList());
+        
+        logger.debug("COMMENTS TO ANALYSIS -> " + commentsId.toString());
+        
+        itegrationFlowService.startSentimentAnalysisFor(commentsId);
+        
+        logger.debug("TOTAL TASK ->" + iterationSave.getTotalTasks());
+        logger.debug("TOTAL TASK FAILED -> " + iterationSave.getTotalFailedTasks());
         logger.debug("AVG DURATION -> " + iterationRepository.getAvgDuration().getAvgDuration());
         logger.debug("ITERATION FINISH AT -> " + scheduledFor.toString());
         logger.debug("SCHEDULED FOR -> " + scheduledFor.toString());
+        
+        
+        
         
     }
     

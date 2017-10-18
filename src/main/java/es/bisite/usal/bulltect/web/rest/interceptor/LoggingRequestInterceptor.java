@@ -1,7 +1,10 @@
 package es.bisite.usal.bulltect.web.rest.interceptor;
 
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpRequest;
@@ -16,6 +19,8 @@ public class LoggingRequestInterceptor implements ClientHttpRequestInterceptor {
     @Override
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
         traceRequest(request, body);
+        ClientHttpResponse response = execution.execute(request, body);
+        traceResponse(response);
         return execution.execute(request, body);
     }
 
@@ -26,6 +31,23 @@ public class LoggingRequestInterceptor implements ClientHttpRequestInterceptor {
         log.debug("Headers     : {}", request.getHeaders() );
         log.debug("Request body: {}", new String(body, "UTF-8"));
         log.debug("==========================request end================================================");
+    }
+    
+    private void traceResponse(ClientHttpResponse response) throws IOException {
+        StringBuilder inputStringBuilder = new StringBuilder();
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(response.getBody(), "UTF-8"));
+        String line = bufferedReader.readLine();
+        while (line != null) {
+            inputStringBuilder.append(line);
+            inputStringBuilder.append('\n');
+            line = bufferedReader.readLine();
+        }
+        log.debug("============================response begin==========================================");
+        log.debug("Status code  : {}", response.getStatusCode());
+        log.debug("Status text  : {}", response.getStatusText());
+        log.debug("Headers      : {}", response.getHeaders());
+        log.debug("Response body: {}", inputStringBuilder.toString());
+        log.debug("=======================response end=================================================");
     }
 
 }

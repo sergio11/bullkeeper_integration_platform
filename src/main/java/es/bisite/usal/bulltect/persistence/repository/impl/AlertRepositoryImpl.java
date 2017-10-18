@@ -15,11 +15,11 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 
+import com.mongodb.BasicDBObject;
+
 import es.bisite.usal.bulltect.persistence.entity.AlertEntity;
-import es.bisite.usal.bulltect.persistence.entity.CommentEntity;
 import es.bisite.usal.bulltect.persistence.repository.AlertRepositoryCustom;
 import es.bisite.usal.bulltect.web.dto.response.AlertsBySonDTO;
-import es.bisite.usal.bulltect.web.dto.response.CommentsBySonDTO;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
 /**
@@ -53,10 +53,10 @@ public class AlertRepositoryImpl implements AlertRepositoryCustom {
 		
 		TypedAggregation<AlertEntity> alertsAggregation = 
 				Aggregation.newAggregation(AlertEntity.class,
-	                Aggregation.group("son.id", "level").count().as("count"),
-	                Aggregation.project().and("son.id").as("id")
-	                	.and("alerts").nested(
-	                			bind("level", "level").and("count")));
+						unwind("$son"),
+						Aggregation.group("$son", "$level").count().as("count"),
+						Aggregation.group("$_id.son")
+							.addToSet(new BasicDBObject("level", "$_id.level").append("count", "$count")).as("alerts"));
 		
 		// Aggregation.match(Criteria.where("_id").in(sonIds)
 	        

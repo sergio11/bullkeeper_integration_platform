@@ -45,7 +45,7 @@ public class DeviceGroupsServiceImpl implements IDeviceGroupsService {
 
 	@Override
 	public DeviceGroupDTO getDeviceGroupByName(String name) {
-		String notificationKeyName = String.format("%s_%d", fcmCustomProperties.getGroupPrefix(), name);
+		String notificationKeyName = String.format("%s_%s", fcmCustomProperties.getGroupPrefix(), name);
 		DeviceGroupEntity deviceGroup = deviceGroupRepository.findByNotificationKeyName(notificationKeyName);
 		return deviceGroupEntityMapper.deviceGroupEntityToDeviceGroupDTO(deviceGroup);
 	}

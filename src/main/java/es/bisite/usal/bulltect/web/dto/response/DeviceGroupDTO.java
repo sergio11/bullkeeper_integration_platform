@@ -57,4 +57,10 @@ public class DeviceGroupDTO extends ResourceSupport {
 		this.createAt = createAt;
 	}
 
+	@Override
+	public String toString() {
+		return "DeviceGroupDTO [identity=" + identity + ", notificationKeyName=" + notificationKeyName
+				+ ", notificationKey=" + notificationKey + ", createAt=" + createAt + "]";
+	}
+
 }

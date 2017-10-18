@@ -1,10 +1,20 @@
 package es.bisite.usal.bulltect.integration.service.impl;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import javax.annotation.PostConstruct;
+
+import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
+import org.springframework.web.client.RestTemplate;
 
 import es.bisite.usal.bulltect.domain.service.impl.IterationServiceImpl;
 import es.bisite.usal.bulltect.integration.properties.IntegrationFlowProperties;
@@ -20,14 +30,16 @@ public final class ItegrationFlowServiceImpl implements IItegrationFlowService {
 	private final IntegrationFlowProperties integrationFlowProperties;
 	private final SocialMediaRepository socialMediaRepository;
 	private final IterationRepository iterationRepository;
+	private final RestTemplate restTemplate;
 	
 
 	public ItegrationFlowServiceImpl(IntegrationFlowProperties integrationFlowProperties,
-			SocialMediaRepository socialMediaRepository, IterationRepository iterationRepository) {
+			SocialMediaRepository socialMediaRepository, IterationRepository iterationRepository, RestTemplate restTemplate) {
 		super();
 		this.integrationFlowProperties = integrationFlowProperties;
 		this.socialMediaRepository = socialMediaRepository;
 		this.iterationRepository = iterationRepository;
+		this.restTemplate = restTemplate;
 	}
 
 
@@ -57,5 +69,28 @@ public final class ItegrationFlowServiceImpl implements IItegrationFlowService {
     
     	return scheduledFor;
 	}
+
+
+	@Override
+	public void startSentimentAnalysisFor(List<ObjectId> commentsId) {
+		
+		logger.debug("Piar URL -> " + integrationFlowProperties.getPiarUrl());
+		String result = this.restTemplate.getForObject(integrationFlowProperties.getPiarUrl(), String.class);
+		logger.debug("Result For Get -> " + result);
+		Map<String, Integer> numbers = new HashMap<String, Integer>();
+		numbers.put("x", 1);
+		numbers.put("y", 1);
+		HttpEntity<Map<String, Integer>> request = new HttpEntity<>(numbers);
+		String resultPost = restTemplate.postForObject(integrationFlowProperties.getPiarUrl(), request, String.class);
+		logger.debug("Result For Post -> " + resultPost);
+	}
+	
+	@PostConstruct
+    protected void init() {
+        Assert.notNull(integrationFlowProperties, "Integration Flow Properties cannot be null");
+        Assert.notNull(socialMediaRepository, "Social Media Repository cannot be null");
+        Assert.notNull(iterationRepository, "IterationRepository cannot be null");
+        Assert.notNull(restTemplate, "RestTemplate cannot be null");
+    }
 
 }

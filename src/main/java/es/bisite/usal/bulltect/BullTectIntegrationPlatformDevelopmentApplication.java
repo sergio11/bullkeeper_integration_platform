@@ -6,6 +6,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.hateoas.config.EnableHypermediaSupport;
@@ -22,7 +23,7 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 public class BullTectIntegrationPlatformDevelopmentApplication {
 	
 	@Bean
-	@Order(3)
+	@Order(Ordered.LOWEST_PRECEDENCE)
 	public ClientHttpRequestInterceptor provideLoggingRequestInterceptor(){
 		return new LoggingRequestInterceptor();
 	}

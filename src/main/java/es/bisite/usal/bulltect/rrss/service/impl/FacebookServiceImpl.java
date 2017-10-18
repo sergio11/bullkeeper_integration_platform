@@ -6,10 +6,8 @@ import com.restfb.FacebookClient;
 import com.restfb.Parameter;
 import com.restfb.Version;
 import com.restfb.exception.FacebookOAuthException;
-import com.restfb.json.JsonObject;
 import com.restfb.types.Album;
 import com.restfb.types.Comment;
-import com.restfb.types.Photo;
 import com.restfb.types.Post;
 import com.restfb.types.User;
 
@@ -76,6 +74,7 @@ public class FacebookServiceImpl implements IFacebookService {
                         -> {
 
                     logger.debug("Comment -> " + comment.getMessage() + " Created Time : " + comment.getCreatedTime());
+                    logger.debug("From -> " + comment.getFrom());
 
                     return comment.getCommentCount() > 0 ? StreamUtils.concat(
                             getCommentsByObjectAfterThan(facebookClient, comment.getId(), startDate, user), comment)

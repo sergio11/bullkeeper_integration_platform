@@ -14,4 +14,11 @@ public class FCMOperationException extends RuntimeException {
 	public void setProperties(Map<String, Object> properties) {
 		this.properties = properties;
 	}
+
+	@Override
+	public String toString() {
+		return "FCMOperationException [properties=" + properties + "]";
+	}
+	
+	
 }

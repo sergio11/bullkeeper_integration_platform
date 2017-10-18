@@ -16,7 +16,9 @@ import org.springframework.data.web.HateoasPageableHandlerMethodArgumentResolver
 import org.springframework.data.web.HateoasSortHandlerMethodArgumentResolver;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.data.web.PagedResourcesAssemblerArgumentResolver;
+import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
@@ -109,13 +111,21 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     	return new HeaderRequestInterceptor("project_id", fcmProperties.getSenderId());
     }
     
+    @Bean
+    public ClientHttpRequestFactory provideClientHttpRequestFactory() {
+        int timeout = 5000;
+        HttpComponentsClientHttpRequestFactory clientHttpRequestFactory
+          = new HttpComponentsClientHttpRequestFactory();
+        clientHttpRequestFactory.setConnectTimeout(timeout);
+        return clientHttpRequestFactory;
+    }
     
     @Bean
 	public DefaultResponseErrorHandler provideResponseErrorHandler(){
 		return new FCMErrorHandler();
 	}
 
-    @Bean
+    @Bean("FCMRestTemplate")
     public RestTemplate restTemplate(ObjectMapper objectMapper, List<ClientHttpRequestInterceptor> interceptors,
     		MappingJackson2HttpMessageConverter converter, DefaultResponseErrorHandler responseErrorHandler) {
     	logger.debug("Total interceptors: " + interceptors.size());
@@ -123,6 +133,13 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         restTemplate.setInterceptors(interceptors);
         restTemplate.setErrorHandler(responseErrorHandler);
         return restTemplate;
+    }
+    
+    @Bean
+    public RestTemplate restTemplate(ObjectMapper objectMapper, MappingJackson2HttpMessageConverter converter, ClientHttpRequestFactory clientHttpRequestFactory) {
+    	RestTemplate rest =  new RestTemplate(Collections.singletonList(converter));
+    	rest.setRequestFactory(clientHttpRequestFactory);
+    	return rest;
     }
     
     @PostConstruct

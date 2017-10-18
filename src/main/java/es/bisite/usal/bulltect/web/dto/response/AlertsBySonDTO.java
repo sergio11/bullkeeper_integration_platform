@@ -7,6 +7,8 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import es.bisite.usal.bulltect.persistence.entity.SonEntity;
+
 public final class AlertsBySonDTO implements Serializable {
 
 	private static final long serialVersionUID = 1L;
