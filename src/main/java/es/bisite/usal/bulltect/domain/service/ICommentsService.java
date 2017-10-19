@@ -16,5 +16,4 @@ public interface ICommentsService {
     Page<CommentDTO> findPaginated(Integer page, Integer size);
     Page<CommentDTO> findPaginated(Pageable pageable);
     Page<CommentDTO> getCommentBySonId(Pageable pageable, String userId);
-    
 }

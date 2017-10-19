@@ -20,6 +20,7 @@ import es.bisite.usal.bulltect.web.rest.exception.AlertNotFoundException;
 import es.bisite.usal.bulltect.web.rest.exception.CommentsBySonNotFoundException;
 import es.bisite.usal.bulltect.web.rest.exception.NoAlertsBySonFoundException;
 import es.bisite.usal.bulltect.web.rest.exception.NoChildrenFoundException;
+import es.bisite.usal.bulltect.web.rest.exception.SocialMediaActivityStatisticsNotFoundException;
 import es.bisite.usal.bulltect.web.rest.exception.SonNotFoundException;
 import es.bisite.usal.bulltect.web.rest.response.APIResponse;
 import es.bisite.usal.bulltect.web.rest.response.ChildrenResponseCode;
@@ -71,6 +72,17 @@ public class ChildrenErrorController extends BaseController {
         return ApiHelper.<String>createAndSendErrorResponseWithHeader(ChildrenResponseCode.ALERT_NOT_FOUND, HttpStatus.NOT_FOUND,
         		messageSourceResolver.resolver("alert.not.found"));
     }
+    
+    
+    @ExceptionHandler(SocialMediaActivityStatisticsNotFoundException.class)
+    @ResponseBody
+    protected ResponseEntity<APIResponse<String>> handleSocialMediaActivityStatisticsNotFoundException(AlertNotFoundException alertNotFoundException, HttpServletRequest request){
+        return ApiHelper.<String>createAndSendErrorResponseWithHeader(ChildrenResponseCode.SOCIAL_MEDIA_ACTIVITY_STATISTICS_NOT_FOUND, HttpStatus.NOT_FOUND,
+        		messageSourceResolver.resolver("children.social.media.activity.statistics.not.found"));
+    }
+    
+    
+    
     
     @PostConstruct
     protected void init(){

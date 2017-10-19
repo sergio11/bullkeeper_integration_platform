@@ -24,6 +24,7 @@ import es.bisite.usal.bulltect.domain.service.IAlertService;
 import es.bisite.usal.bulltect.domain.service.ICommentsService;
 import es.bisite.usal.bulltect.domain.service.ISocialMediaService;
 import es.bisite.usal.bulltect.domain.service.ISonService;
+import es.bisite.usal.bulltect.domain.service.IStatisticsService;
 import es.bisite.usal.bulltect.persistence.constraints.SocialMediaShouldExists;
 import es.bisite.usal.bulltect.persistence.constraints.SonShouldExists;
 import es.bisite.usal.bulltect.persistence.constraints.ValidObjectId;
@@ -33,6 +34,8 @@ import es.bisite.usal.bulltect.web.dto.request.SaveSocialMediaDTO;
 import es.bisite.usal.bulltect.web.dto.response.AlertDTO;
 import es.bisite.usal.bulltect.web.dto.response.CommentDTO;
 import es.bisite.usal.bulltect.web.dto.response.ImageDTO;
+import es.bisite.usal.bulltect.web.dto.response.SentimentAnalysisStatisticsDTO;
+import es.bisite.usal.bulltect.web.dto.response.SocialMediaActivityStatisticsDTO;
 import es.bisite.usal.bulltect.web.dto.response.SocialMediaDTO;
 import es.bisite.usal.bulltect.web.dto.response.SonDTO;
 import es.bisite.usal.bulltect.web.rest.ApiHelper;
@@ -40,6 +43,7 @@ import es.bisite.usal.bulltect.web.rest.exception.AlertNotFoundException;
 import es.bisite.usal.bulltect.web.rest.exception.CommentsBySonNotFoundException;
 import es.bisite.usal.bulltect.web.rest.exception.NoAlertsBySonFoundException;
 import es.bisite.usal.bulltect.web.rest.exception.NoChildrenFoundException;
+import es.bisite.usal.bulltect.web.rest.exception.SocialMediaActivityStatisticsNotFoundException;
 import es.bisite.usal.bulltect.web.rest.exception.SocialMediaNotFoundException;
 import es.bisite.usal.bulltect.web.rest.exception.SonNotFoundException;
 import es.bisite.usal.bulltect.web.rest.hal.ICommentHAL;
@@ -52,6 +56,7 @@ import es.bisite.usal.bulltect.web.rest.response.SocialMediaResponseCode;
 import es.bisite.usal.bulltect.web.security.userdetails.CommonUserDetailsAware;
 import es.bisite.usal.bulltect.web.security.utils.CurrentUser;
 import es.bisite.usal.bulltect.web.security.utils.OnlyAccessForAdmin;
+import es.bisite.usal.bulltect.web.security.utils.OnlyAccessForParent;
 import es.bisite.usal.bulltect.web.uploads.models.RequestUploadFile;
 import es.bisite.usal.bulltect.web.uploads.service.IUploadFilesService;
 import io.swagger.annotations.Api;
@@ -71,6 +76,7 @@ import org.springframework.hateoas.Resource;
 import springfox.documentation.annotations.ApiIgnore;
 import org.springframework.data.domain.Page;
 import org.springframework.util.Assert;
+import org.springframework.web.bind.annotation.RequestParam;
 
 
 @RestController("RestUserController")
@@ -86,14 +92,16 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
     private final ISocialMediaService socialMediaService;
     private final IUploadFilesService uploadFilesService;
     private final IAlertService alertService;
+    private final IStatisticsService statisticsService;
     
     public ChildrenController(ISonService sonService, ICommentsService commentService, ISocialMediaService socialMediaService,
-    		IUploadFilesService uploadFilesService, IAlertService alertService) {
+    		IUploadFilesService uploadFilesService, IAlertService alertService, IStatisticsService statisticsService) {
         this.sonService = sonService;
         this.commentService = commentService;
         this.socialMediaService = socialMediaService;
         this.uploadFilesService = uploadFilesService;
         this.alertService = alertService;
+        this.statisticsService = statisticsService;
     }
     
     @RequestMapping(value = {"/", "/all"}, method = RequestMethod.GET)
@@ -270,6 +278,47 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
         		.orElseThrow(() -> { throw new SocialMediaNotFoundException(); });        
     }
     
+    @RequestMapping(value = "/{id}/statistics/social-activity", method = RequestMethod.GET)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
+    @ApiOperation(value = "SOCIAL_MEDIA_ACTIVITY_STATISTICS", nickname = "SOCIAL_MEDIA_ACTIVITY_STATISTICS", 
+            notes = "Social Media Activity Statistics", response = SocialMediaActivityStatisticsDTO.class)
+    public ResponseEntity<APIResponse<List<SocialMediaActivityStatisticsDTO>>> getSocialMediaStatisticsActivity(
+            @ApiParam(name = "id", value = "Identificador del hijo", required = true)
+    			@Valid @ValidObjectId(message = "{son.id.notvalid}")
+    				@PathVariable String id) throws Throwable {
+        
+        logger.debug("Get Social Media Activity Statistics");
+        
+        List<SocialMediaActivityStatisticsDTO> socialMediaActivities = statisticsService.getSocialMediaActivityStatistics(id);
+        
+        if(socialMediaActivities.isEmpty())
+            throw new SocialMediaActivityStatisticsNotFoundException();
+       
+        return ApiHelper.<List<SocialMediaActivityStatisticsDTO>>createAndSendResponse(ChildrenResponseCode.SOCIAL_MEDIA_ACTIVITY_STATISTICS, 
+				HttpStatus.OK, socialMediaActivities);  
+    }
+    
+    
+    @RequestMapping(value = "/{id}/statistics/sentiment-analysis", method = RequestMethod.GET)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
+    @ApiOperation(value = "SENTIMENT_ANALYSIS_STATISTICS", nickname = "SENTIMENT_ANALYSIS_STATISTICS", 
+            notes = "Sentiment Analysis Statistics", response = PagedResources.class)
+    public ResponseEntity<APIResponse<SentimentAnalysisStatisticsDTO>> getSentimentAnalysisStatistics(
+            @ApiParam(name = "id", value = "Identificador del hijo", required = true)
+    			@Valid @ValidObjectId(message = "{son.id.notvalid}")
+    				@PathVariable String id) throws Throwable {
+        
+        logger.debug("Get Social Media Activity Statistics");
+        
+        List<SocialMediaActivityStatisticsDTO> socialMediaActivities = statisticsService.getSocialMediaActivityStatistics(id);
+        
+        if(socialMediaActivities.isEmpty())
+            throw new SocialMediaActivityStatisticsNotFoundException();
+       
+        return ApiHelper.<List<SocialMediaActivityStatisticsDTO>>createAndSendResponse(ChildrenResponseCode.SOCIAL_MEDIA_ACTIVITY_STATISTICS, 
+				HttpStatus.OK, socialMediaActivities);  
+    }
+   
     
     @RequestMapping(value = "/{id}/social/save/all", method = RequestMethod.POST)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
