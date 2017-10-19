@@ -24,6 +24,7 @@ public interface IYoutubeCommentMapper {
         @Mapping(expression="java(new java.util.Date(youtubeComment.getSnippet().getPublishedAt().getValue()))", target = "createdTime"),
         @Mapping(expression="java(es.bisite.usal.bulltect.persistence.entity.SocialMediaTypeEnum.YOUTUBE)", target = "socialMedia"),
         @Mapping(expression="java(youtubeComment.getSnippet().getAuthorDisplayName())", target = "from"),
+        @Mapping(expression="java(youtubeComment.getSnippet().getAuthorChannelId().toString())", target = "fromId")
     })
     @Named("youtubeCommentToCommentEntity")
     CommentEntity youtubeCommentToCommentEntity(Comment youtubeComment); 

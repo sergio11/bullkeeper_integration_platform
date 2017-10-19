@@ -37,6 +37,9 @@ public class CommentEntity {
 
     @Field("from")
     private String from;
+    
+    @Field("from_id")
+    private String fromId;
 
     @Field("target")
     @DBRef
@@ -47,7 +50,7 @@ public class CommentEntity {
 
     @PersistenceConstructor
     public CommentEntity(String message, Long likes, Date createdTime,
-            SocialMediaTypeEnum socialMedia, CommentStatusEnum status, String from, SonEntity sonEntity) {
+            SocialMediaTypeEnum socialMedia, CommentStatusEnum status, String from, String fromId, SonEntity sonEntity) {
         super();
         this.message = message;
         this.likes = likes;
@@ -55,6 +58,7 @@ public class CommentEntity {
         this.socialMedia = socialMedia;
         this.status = status;
         this.from = from;
+        this.fromId = fromId;
         this.sonEntity = sonEntity;
     }
 
@@ -121,11 +125,19 @@ public class CommentEntity {
     public void setFrom(String from) {
         this.from = from;
     }
+    
+    public String getFromId() {
+		return fromId;
+	}
 
-    @Override
-    public String toString() {
-        return "CommentEntity [id=" + id + ", message=" + message + ", likes=" + likes + ", createdTime=" + createdTime
-                + ", socialMedia=" + socialMedia + ", from=" + from + ", sonEntity=" + sonEntity + "]";
-    }
+	public void setFromId(String fromId) {
+		this.fromId = fromId;
+	}
 
+	@Override
+	public String toString() {
+		return "CommentEntity [id=" + id + ", message=" + message + ", likes=" + likes + ", createdTime=" + createdTime
+				+ ", socialMedia=" + socialMedia + ", status=" + status + ", from=" + from + ", fromId=" + fromId
+				+ ", sonEntity=" + sonEntity + "]";
+	}
 }

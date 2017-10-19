@@ -75,6 +75,7 @@ public class FacebookServiceImpl implements IFacebookService {
 
                     logger.debug("Comment -> " + comment.getMessage() + " Created Time : " + comment.getCreatedTime());
                     logger.debug("From -> " + comment.getFrom());
+                    
 
                     return comment.getCommentCount() > 0 ? StreamUtils.concat(
                             getCommentsByObjectAfterThan(facebookClient, comment.getId(), startDate, user), comment)

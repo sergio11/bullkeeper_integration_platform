@@ -15,20 +15,20 @@ public final class IntegrationFlowProperties implements Serializable {
 	private Long percentageSocialMedia;
 	@Value("${integration.flow.poller.min.social.media.per.cycle}")
 	private Long minSocialMediaPerCycle;
-	@Value("${integration.flow.piar.url}")
-	private String piarUrl;
+	@Value("${integration.flow.sentiment.service.url}")
+	private String sentimentServiceUrl;
 	
 	
 	public IntegrationFlowProperties() {
 		super();
 	}
 
-	public IntegrationFlowProperties(Long flowFixedDelay, Long percentageSocialMedia, Long minSocialMediaPerCycle, String piarUrl) {
+	public IntegrationFlowProperties(Long flowFixedDelay, Long percentageSocialMedia, Long minSocialMediaPerCycle, String sentimentServiceUrl) {
 		super();
 		this.flowFixedDelay = flowFixedDelay;
 		this.percentageSocialMedia = percentageSocialMedia;
 		this.minSocialMediaPerCycle = minSocialMediaPerCycle;
-		this.piarUrl = piarUrl;
+		this.sentimentServiceUrl = sentimentServiceUrl;
 	}
 
 	public Long getFlowFixedDelay() {
@@ -59,11 +59,12 @@ public final class IntegrationFlowProperties implements Serializable {
 		this.minSocialMediaPerCycle = minSocialMediaPerCycle;
 	}
 
-	public String getPiarUrl() {
-		return piarUrl;
+	public String getSentimentServiceUrl() {
+		return sentimentServiceUrl;
 	}
 
-	public void setPiarUrl(String piarUrl) {
-		this.piarUrl = piarUrl;
+	public void setSentimentServiceUrl(String sentimentServiceUrl) {
+		this.sentimentServiceUrl = sentimentServiceUrl;
 	}
+
 }

@@ -1,17 +1,18 @@
 package es.bisite.usal.bulltect.integration.service.impl;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
 import org.bson.types.ObjectId;
+import org.jinstagram.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpEntity;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
@@ -19,6 +20,8 @@ import org.springframework.web.client.RestTemplate;
 import es.bisite.usal.bulltect.domain.service.impl.IterationServiceImpl;
 import es.bisite.usal.bulltect.integration.properties.IntegrationFlowProperties;
 import es.bisite.usal.bulltect.integration.service.IItegrationFlowService;
+import es.bisite.usal.bulltect.persistence.entity.CommentStatusEnum;
+import es.bisite.usal.bulltect.persistence.repository.CommentRepository;
 import es.bisite.usal.bulltect.persistence.repository.IterationRepository;
 import es.bisite.usal.bulltect.persistence.repository.SocialMediaRepository;
 
@@ -31,15 +34,18 @@ public final class ItegrationFlowServiceImpl implements IItegrationFlowService {
 	private final SocialMediaRepository socialMediaRepository;
 	private final IterationRepository iterationRepository;
 	private final RestTemplate restTemplate;
+	private final CommentRepository commentRepository;
 	
-
+	@Autowired
 	public ItegrationFlowServiceImpl(IntegrationFlowProperties integrationFlowProperties,
-			SocialMediaRepository socialMediaRepository, IterationRepository iterationRepository, RestTemplate restTemplate) {
+			SocialMediaRepository socialMediaRepository, IterationRepository iterationRepository,
+			@Qualifier("BasicRestTemplate") RestTemplate restTemplate, CommentRepository commentRepository) {
 		super();
 		this.integrationFlowProperties = integrationFlowProperties;
 		this.socialMediaRepository = socialMediaRepository;
 		this.iterationRepository = iterationRepository;
 		this.restTemplate = restTemplate;
+		this.commentRepository = commentRepository;
 	}
 
 
@@ -74,15 +80,18 @@ public final class ItegrationFlowServiceImpl implements IItegrationFlowService {
 	@Override
 	public void startSentimentAnalysisFor(List<ObjectId> commentsId) {
 		
-		logger.debug("Piar URL -> " + integrationFlowProperties.getPiarUrl());
-		String result = this.restTemplate.getForObject(integrationFlowProperties.getPiarUrl(), String.class);
-		logger.debug("Result For Get -> " + result);
-		Map<String, Integer> numbers = new HashMap<String, Integer>();
-		numbers.put("x", 1);
-		numbers.put("y", 1);
-		HttpEntity<Map<String, Integer>> request = new HttpEntity<>(numbers);
-		String resultPost = restTemplate.postForObject(integrationFlowProperties.getPiarUrl(), request, String.class);
-		logger.debug("Result For Post -> " + resultPost);
+		try {
+			logger.debug("Sentiment Service URL -> " + integrationFlowProperties.getSentimentServiceUrl());
+			ResponseEntity<Void> response = restTemplate.postForEntity(integrationFlowProperties.getSentimentServiceUrl(), 
+					String.join(",", commentsId.stream().map((commentObjectId) -> commentObjectId.toString()).collect(Collectors.toList())),  Void.class);
+			if(response.getStatusCode().equals(HttpStatus.OK)) {
+				logger.debug("Sentiment Analysis in progress");
+				commentRepository.updateCommentStatus(commentsId, CommentStatusEnum.IN_PROGRESS);
+			} 
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
+		
 	}
 	
 	@PostConstruct
@@ -91,6 +100,7 @@ public final class ItegrationFlowServiceImpl implements IItegrationFlowService {
         Assert.notNull(socialMediaRepository, "Social Media Repository cannot be null");
         Assert.notNull(iterationRepository, "IterationRepository cannot be null");
         Assert.notNull(restTemplate, "RestTemplate cannot be null");
+        Assert.notNull(commentRepository, "Comment Repository can not be null");
     }
 
 }

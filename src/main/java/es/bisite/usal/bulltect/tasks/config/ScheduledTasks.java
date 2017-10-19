@@ -19,11 +19,17 @@ import org.springframework.scheduling.annotation.Scheduled;
 import es.bisite.usal.bulltect.batch.config.BatchConfiguration;
 import es.bisite.usal.bulltect.domain.service.IParentsService;
 import es.bisite.usal.bulltect.domain.service.IPasswordResetTokenService;
+import es.bisite.usal.bulltect.integration.service.IItegrationFlowService;
 import es.bisite.usal.bulltect.mail.service.IMailClientService;
+import es.bisite.usal.bulltect.persistence.entity.CommentEntity;
+import es.bisite.usal.bulltect.persistence.entity.CommentStatusEnum;
 import es.bisite.usal.bulltect.persistence.entity.EmailEntity;
+import es.bisite.usal.bulltect.persistence.repository.CommentRepository;
 import es.bisite.usal.bulltect.persistence.repository.EmailRepository;
 import io.jsonwebtoken.lang.Assert;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 
@@ -51,7 +57,13 @@ public class ScheduledTasks {
     private EmailRepository emailRepository;
     
     @Autowired
+    private CommentRepository commentRepository;
+    
+    @Autowired
     private IMailClientService mailClientService;
+    
+    @Autowired
+    private IItegrationFlowService itegrationFlowService;
     
     @Value("${number.of.emails.to.forward}")
     private Integer numberOfEmailsToForwarding;
@@ -103,14 +115,19 @@ public class ScheduledTasks {
                     emailToForward.getSubject(), emailToForward.getContent());
     }
     
-    @Scheduled(cron = "${task.unsuccessful.mail.forwarding}")
+    @Scheduled(cron = "${task.scheduled.unanalyzed.comments}")
     public void scheduledUnanalyzedComments() {
         logger.debug("scheduled Unanalyzed Comments ...");
+        List<CommentEntity> pendingComments = commentRepository.findAllByStatus(CommentStatusEnum.PENDING);
+        if(!pendingComments.isEmpty())
+        	itegrationFlowService.startSentimentAnalysisFor(
+        			pendingComments.stream().map((comment) -> comment.getId()).collect(Collectors.toList()));
     }
     
-    @Scheduled(cron = "${task.unsuccessful.mail.forwarding}")
+    @Scheduled(cron = "${task.cancel.comment.analysis}")
     public void cancelCommentAnalysis() {
         logger.debug("cancel comment analysis ...");
+        commentRepository.cancelCommentsInprogress();
     }
     
 
@@ -121,6 +138,8 @@ public class ScheduledTasks {
         Assert.notNull(passwordResetTokenService, "Password Reset Token Service can not be null");
         Assert.notNull(emailRepository, "Email Repository can not be null");
         Assert.notNull(mailClientService, "Mail Client Service can not be null");
+        Assert.notNull(commentRepository, "Comment Repository can not be null");
+        Assert.notNull(itegrationFlowService, "ItegrationFlowService can not be null");
     }
 
 }

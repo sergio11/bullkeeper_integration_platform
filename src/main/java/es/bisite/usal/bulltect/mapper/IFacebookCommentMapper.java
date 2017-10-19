@@ -21,7 +21,8 @@ public interface IFacebookCommentMapper {
         @Mapping(target = "id", ignore=true),
         @Mapping(source = "facebookComment.likeCount", target = "likes"),
         @Mapping(expression="java(es.bisite.usal.bulltect.persistence.entity.SocialMediaTypeEnum.FACEBOOK)", target = "socialMedia"),
-        @Mapping(source = "facebookComment.from.name", target = "from")
+        @Mapping(source = "facebookComment.from.name", target = "from"),
+        @Mapping(source = "facebookComment.from.id", target = "fromId")
     })
     @Named("facebookCommentToCommentEntity")
     CommentEntity facebookCommentToCommentEntity(Comment facebookComment); 

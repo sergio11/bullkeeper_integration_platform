@@ -106,8 +106,6 @@ public class IterationServiceImpl implements IIterationService {
             itegrationFlowService.startSentimentAnalysisFor(commentsId);
         }
         
-        
-        
         logger.debug("TOTAL TASK ->" + iterationSave.getTotalTasks());
         logger.debug("TOTAL TASK FAILED -> " + iterationSave.getTotalFailedTasks());
         logger.debug("AVG DURATION -> " + iterationRepository.getAvgDuration().getAvgDuration());

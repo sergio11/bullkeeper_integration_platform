@@ -6,6 +6,7 @@ import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -135,7 +136,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         return restTemplate;
     }
     
-    @Bean
+    @Bean("BasicRestTemplate")
     public RestTemplate restTemplate(ObjectMapper objectMapper, MappingJackson2HttpMessageConverter converter, ClientHttpRequestFactory clientHttpRequestFactory) {
     	RestTemplate rest =  new RestTemplate(Collections.singletonList(converter));
     	rest.setRequestFactory(clientHttpRequestFactory);
