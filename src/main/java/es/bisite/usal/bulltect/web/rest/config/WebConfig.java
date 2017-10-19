@@ -136,12 +136,12 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         return restTemplate;
     }
     
-    @Bean("BasicRestTemplate")
+    /*@Bean("BasicRestTemplate")
     public RestTemplate restTemplate(ObjectMapper objectMapper, MappingJackson2HttpMessageConverter converter, ClientHttpRequestFactory clientHttpRequestFactory) {
     	RestTemplate rest =  new RestTemplate(Collections.singletonList(converter));
     	rest.setRequestFactory(clientHttpRequestFactory);
     	return rest;
-    }
+    }*/
     
     @PostConstruct
     protected void init(){

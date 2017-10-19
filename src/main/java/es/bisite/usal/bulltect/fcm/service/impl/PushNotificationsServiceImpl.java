@@ -133,7 +133,7 @@ public class PushNotificationsServiceImpl implements IPushNotificationsService {
     }
     
     @Override
-	public CompletableFuture<FirebaseResponse> send(FCMNotificationOperation fcmNotificationOperation) {
+	public CompletableFuture<ResponseEntity<FirebaseResponse>> send(FCMNotificationOperation fcmNotificationOperation) {
     	Assert.notNull(fcmNotificationOperation, "FCM Notification operation can not be null");
     	Assert.notNull(firebaseCustomProperties.getGroupPrefix(), "Group Prefix can not be null");
     	Assert.notNull(firebaseCustomProperties.getNotificationGroupsUrl(), "Notification Group Url can not be null");
@@ -141,8 +141,7 @@ public class PushNotificationsServiceImpl implements IPushNotificationsService {
     	
     	logger.debug(" send Firebase Notification " + fcmNotificationOperation.toString());
     	
-    	
-    	return CompletableFuture.supplyAsync(() -> restTemplate.postForObject(firebaseCustomProperties.getNotificationSendUrl(), 
+    	return CompletableFuture.supplyAsync(() -> restTemplate.postForEntity(firebaseCustomProperties.getNotificationSendUrl(), 
     			fcmNotificationOperation, FirebaseResponse.class));
 	}
     

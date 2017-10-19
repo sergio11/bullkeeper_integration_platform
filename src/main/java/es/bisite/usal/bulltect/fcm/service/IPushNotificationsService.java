@@ -20,7 +20,7 @@ public interface IPushNotificationsService {
 
     CompletableFuture<String> removeDeviceFromGroup(String userid, String notificationGroupKey, String deviceToken);
 
-    CompletableFuture<FirebaseResponse> send(FCMNotificationOperation fcmNotificationOperation);
+    CompletableFuture<ResponseEntity<FirebaseResponse>> send(FCMNotificationOperation fcmNotificationOperation);
 
     CompletableFuture<Void> updateDeviceToken(String userid, String notificationGroupKey, String oldDeviceToken, String newDeviceToken);
 }

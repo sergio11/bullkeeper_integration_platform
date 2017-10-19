@@ -39,7 +39,7 @@ public final class ItegrationFlowServiceImpl implements IItegrationFlowService {
 	@Autowired
 	public ItegrationFlowServiceImpl(IntegrationFlowProperties integrationFlowProperties,
 			SocialMediaRepository socialMediaRepository, IterationRepository iterationRepository,
-			@Qualifier("BasicRestTemplate") RestTemplate restTemplate, CommentRepository commentRepository) {
+			RestTemplate restTemplate, CommentRepository commentRepository) {
 		super();
 		this.integrationFlowProperties = integrationFlowProperties;
 		this.socialMediaRepository = socialMediaRepository;
