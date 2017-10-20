@@ -8,62 +8,52 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * @author sergio
  */
-public class SocialMediaActivityStatisticsDTO {
-    
-    
-    
+public class DimensionsStatisticsDTO {
+	
 	@JsonProperty("title")
 	private String title;
 	
-	@JsonProperty("activities")
-	private List<ActivityDTO> data;
+	@JsonProperty("dimensions")
+	private List<DimensionDTO> data;
+    
+	public DimensionsStatisticsDTO(){}
 	
-	public SocialMediaActivityStatisticsDTO(){}
-
-	
-	
-	public SocialMediaActivityStatisticsDTO(String title, List<ActivityDTO> data) {
+    public DimensionsStatisticsDTO(String title, List<DimensionDTO> data) {
 		super();
 		this.title = title;
 		this.data = data;
 	}
 
 
-
 	public String getTitle() {
 		return title;
 	}
-
-
 
 	public void setTitle(String title) {
 		this.title = title;
 	}
 
-
-
-	public List<ActivityDTO> getData() {
+	public List<DimensionDTO> getData() {
 		return data;
 	}
 
-
-
-	public void setData(List<ActivityDTO> data) {
+	public void setData(List<DimensionDTO> data) {
 		this.data = data;
 	}
 
 
-
-	public static class ActivityDTO {
+	public static class DimensionDTO {
 
 		@JsonProperty("type")
-        public String type;
+        private String type;
 		@JsonProperty("value")
-        public int value;
+		private int value;
 		@JsonProperty("label")
-		public String label;
+		private String label;
 		
-		public ActivityDTO(String type, int value, String label) {
+		public DimensionDTO(){}
+		
+		public DimensionDTO(String type, int value, String label) {
 			super();
 			this.type = type;
 			this.value = value;
@@ -94,20 +84,11 @@ public class SocialMediaActivityStatisticsDTO {
 			this.label = label;
 		}
 
-		@Override
-		public String toString() {
-			return "ActivityDTO [type=" + type + ", value=" + value + ", label=" + label + "]";
-		}
-		
-		
     }
 	
 
 	@Override
 	public String toString() {
-		return "SocialMediaActivityStatisticsDTO [title=" + title + ", data=" + data + "]";
+		return "DimensionsStatisticsDTO [title=" + title + ", data=" + data + "]";
 	}
-
-    
-    
 }

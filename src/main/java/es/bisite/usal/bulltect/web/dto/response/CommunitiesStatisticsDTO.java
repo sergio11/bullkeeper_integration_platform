@@ -1,6 +1,5 @@
 package es.bisite.usal.bulltect.web.dto.response;
 
-
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -8,106 +7,94 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * @author sergio
  */
-public class SocialMediaActivityStatisticsDTO {
-    
-    
-    
+public class CommunitiesStatisticsDTO {
+	
 	@JsonProperty("title")
 	private String title;
 	
-	@JsonProperty("activities")
-	private List<ActivityDTO> data;
+	@JsonProperty("communities")
+	private List<CommunityDTO> data;
+    
+	public CommunitiesStatisticsDTO(){}
 	
-	public SocialMediaActivityStatisticsDTO(){}
-
-	
-	
-	public SocialMediaActivityStatisticsDTO(String title, List<ActivityDTO> data) {
+	public CommunitiesStatisticsDTO(String title, List<CommunityDTO> data) {
 		super();
 		this.title = title;
 		this.data = data;
 	}
 
 
-
 	public String getTitle() {
 		return title;
 	}
-
-
 
 	public void setTitle(String title) {
 		this.title = title;
 	}
 
-
-
-	public List<ActivityDTO> getData() {
+	public List<CommunityDTO> getData() {
 		return data;
 	}
 
-
-
-	public void setData(List<ActivityDTO> data) {
+	public void setData(List<CommunityDTO> data) {
 		this.data = data;
 	}
 
-
-
-	public static class ActivityDTO {
+	public static class CommunityDTO {
 
 		@JsonProperty("type")
-        public String type;
+        private String type;
 		@JsonProperty("value")
-        public int value;
+		private int value;
 		@JsonProperty("label")
-		public String label;
+		private String label;
 		
-		public ActivityDTO(String type, int value, String label) {
+		public CommunityDTO(){}
+		
+		
+		public CommunityDTO(String type, int value, String label) {
 			super();
 			this.type = type;
 			this.value = value;
 			this.label = label;
 		}
 
+
+
+
 		public String getType() {
 			return type;
 		}
-
+		
 		public void setType(String type) {
 			this.type = type;
 		}
-
+		
 		public int getValue() {
 			return value;
 		}
-
+		
 		public void setValue(int value) {
 			this.value = value;
 		}
-
+		
 		public String getLabel() {
 			return label;
 		}
-
+		
 		public void setLabel(String label) {
 			this.label = label;
 		}
-
+		
 		@Override
 		public String toString() {
-			return "ActivityDTO [type=" + type + ", value=" + value + ", label=" + label + "]";
+			return "CommunityDTO [type=" + type + ", value=" + value + ", label=" + label + "]";
 		}
-		
-		
     }
-	
+
 
 	@Override
 	public String toString() {
-		return "SocialMediaActivityStatisticsDTO [title=" + title + ", data=" + data + "]";
+		return "SentimentAnalysisStatisticsDTO [title=" + title + ", data=" + data + "]";
 	}
-
-    
-    
 }

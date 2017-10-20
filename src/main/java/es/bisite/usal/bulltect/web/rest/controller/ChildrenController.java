@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,6 +34,8 @@ import es.bisite.usal.bulltect.util.ValidList;
 import es.bisite.usal.bulltect.web.dto.request.SaveSocialMediaDTO;
 import es.bisite.usal.bulltect.web.dto.response.AlertDTO;
 import es.bisite.usal.bulltect.web.dto.response.CommentDTO;
+import es.bisite.usal.bulltect.web.dto.response.CommunitiesStatisticsDTO;
+import es.bisite.usal.bulltect.web.dto.response.DimensionsStatisticsDTO;
 import es.bisite.usal.bulltect.web.dto.response.ImageDTO;
 import es.bisite.usal.bulltect.web.dto.response.SentimentAnalysisStatisticsDTO;
 import es.bisite.usal.bulltect.web.dto.response.SocialMediaActivityStatisticsDTO;
@@ -76,7 +79,6 @@ import org.springframework.hateoas.Resource;
 import springfox.documentation.annotations.ApiIgnore;
 import org.springframework.data.domain.Page;
 import org.springframework.util.Assert;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 @RestController("RestUserController")
@@ -282,42 +284,87 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     @ApiOperation(value = "SOCIAL_MEDIA_ACTIVITY_STATISTICS", nickname = "SOCIAL_MEDIA_ACTIVITY_STATISTICS", 
             notes = "Social Media Activity Statistics", response = SocialMediaActivityStatisticsDTO.class)
-    public ResponseEntity<APIResponse<List<SocialMediaActivityStatisticsDTO>>> getSocialMediaStatisticsActivity(
+    public ResponseEntity<APIResponse<SocialMediaActivityStatisticsDTO>> getSocialMediaStatisticsActivity(
             @ApiParam(name = "id", value = "Identificador del hijo", required = true)
     			@Valid @ValidObjectId(message = "{son.id.notvalid}")
-    				@PathVariable String id) throws Throwable {
+            		@SonShouldExists(message = "{son.should.be.exists}")
+    						@PathVariable String id,
+    		@ApiParam(name = "days_limit", value = "Days limit", required = false)
+            	@RequestParam(name = "days-limit", defaultValue = "1", required = false) Integer daysLimit) throws Throwable {
         
-        logger.debug("Get Social Media Activity Statistics");
+        logger.debug("Get Social Media Activity Statistics for Son -> " + id + " Days Limit -> " + daysLimit);
         
-        List<SocialMediaActivityStatisticsDTO> socialMediaActivities = statisticsService.getSocialMediaActivityStatistics(id);
-        
-        if(socialMediaActivities.isEmpty())
-            throw new SocialMediaActivityStatisticsNotFoundException();
+        SocialMediaActivityStatisticsDTO socialMediaActivityStatistics = statisticsService.getSocialMediaActivityStatistics(id, daysLimit);
        
-        return ApiHelper.<List<SocialMediaActivityStatisticsDTO>>createAndSendResponse(ChildrenResponseCode.SOCIAL_MEDIA_ACTIVITY_STATISTICS, 
-				HttpStatus.OK, socialMediaActivities);  
+        return ApiHelper.<SocialMediaActivityStatisticsDTO>createAndSendResponse(ChildrenResponseCode.SOCIAL_MEDIA_ACTIVITY_STATISTICS, 
+				HttpStatus.OK, socialMediaActivityStatistics);  
     }
     
     
     @RequestMapping(value = "/{id}/statistics/sentiment-analysis", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     @ApiOperation(value = "SENTIMENT_ANALYSIS_STATISTICS", nickname = "SENTIMENT_ANALYSIS_STATISTICS", 
-            notes = "Sentiment Analysis Statistics", response = PagedResources.class)
+            notes = "Sentiment Analysis Statistics", response = SentimentAnalysisStatisticsDTO.class)
     public ResponseEntity<APIResponse<SentimentAnalysisStatisticsDTO>> getSentimentAnalysisStatistics(
             @ApiParam(name = "id", value = "Identificador del hijo", required = true)
     			@Valid @ValidObjectId(message = "{son.id.notvalid}")
-    				@PathVariable String id) throws Throwable {
+            		@SonShouldExists(message = "{son.should.be.exists}")
+    					@PathVariable String id,
+    		@ApiParam(name = "days_limit", value = "Days limit", required = false)
+        		@RequestParam(name = "days-limit", defaultValue = "1", required = false) Integer daysLimit) throws Throwable {
         
-        logger.debug("Get Social Media Activity Statistics");
+        logger.debug("Get Sentiment Analysis Statistics for -> " + id + " Days Limit -> " + daysLimit);
         
-        List<SocialMediaActivityStatisticsDTO> socialMediaActivities = statisticsService.getSocialMediaActivityStatistics(id);
-        
-        if(socialMediaActivities.isEmpty())
-            throw new SocialMediaActivityStatisticsNotFoundException();
+        SentimentAnalysisStatisticsDTO sentimentAnalysisStatistics = statisticsService.getSentimentAnalysisStatistics(id, daysLimit);
+      
        
-        return ApiHelper.<List<SocialMediaActivityStatisticsDTO>>createAndSendResponse(ChildrenResponseCode.SOCIAL_MEDIA_ACTIVITY_STATISTICS, 
-				HttpStatus.OK, socialMediaActivities);  
+        return ApiHelper.<SentimentAnalysisStatisticsDTO>createAndSendResponse(ChildrenResponseCode.SENTIMENT_ANALYSIS_STATISTICS, 
+				HttpStatus.OK, sentimentAnalysisStatistics);  
     }
+    
+    @RequestMapping(value = "/{id}/statistics/communities", method = RequestMethod.GET)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
+    @ApiOperation(value = "COMMUNITIES_STATISTICS", nickname = "COMMUNITIES_STATISTICS", 
+            notes = "Communities Statistics", response = CommunitiesStatisticsDTO.class)
+    public ResponseEntity<APIResponse<CommunitiesStatisticsDTO>> getCommunitiesStatistics(
+            @ApiParam(name = "id", value = "Identificador del hijo", required = true)
+    			@Valid @ValidObjectId(message = "{son.id.notvalid}")
+            		@SonShouldExists(message = "{son.should.be.exists}")
+    					@PathVariable String id,
+    		@ApiParam(name = "days_limit", value = "Days limit", required = false)
+    			@RequestParam(name = "days-limit", defaultValue = "1", required = false) Integer daysLimit) throws Throwable {
+        
+        logger.debug("Get Communities Statistics for -> " + id + " Days Limit " + daysLimit);
+        
+        CommunitiesStatisticsDTO communitiesStatistics = statisticsService.getCommunitiesStatistics(id, daysLimit);
+     
+       
+        return ApiHelper.<CommunitiesStatisticsDTO>createAndSendResponse(ChildrenResponseCode.COMMUNITIES_STATISTICS, 
+				HttpStatus.OK, communitiesStatistics);  
+    }
+    
+    
+    @RequestMapping(value = "/{id}/statistics/dimensions", method = RequestMethod.GET)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
+    @ApiOperation(value = "FOUR_DIMENSIONS_STATISTICS", nickname = "FOUR_DIMENSIONS_STATISTICS", 
+            notes = "Four Dimensions Statistics", response = CommunitiesStatisticsDTO.class)
+    public ResponseEntity<APIResponse<DimensionsStatisticsDTO>> getFourDimensionsStatistics(
+            @ApiParam(name = "id", value = "Identificador del hijo", required = true)
+    			@Valid @ValidObjectId(message = "{son.id.notvalid}")
+            		@SonShouldExists(message = "{son.should.be.exists}")
+    					@PathVariable String id,
+    		@ApiParam(name = "days_limit", value = "Days limit", required = false)
+				@RequestParam(name = "days-limit", defaultValue = "1", required = false) Integer daysLimit) throws Throwable {
+        
+        logger.debug("Get Four Dimensions Statistics for -> " + id + " Days Limit " + daysLimit);
+        
+        DimensionsStatisticsDTO fourDimensionsStatistics = statisticsService.getDimensionsStatistics(id, daysLimit);
+     
+        return ApiHelper.<DimensionsStatisticsDTO>createAndSendResponse(ChildrenResponseCode.FOUR_DIMENSIONS_STATISTICS, 
+				HttpStatus.OK, fourDimensionsStatistics);  
+    }
+    
+   
    
     
     @RequestMapping(value = "/{id}/social/save/all", method = RequestMethod.POST)

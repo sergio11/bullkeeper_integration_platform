@@ -1,41 +1,98 @@
 package es.bisite.usal.bulltect.web.dto.response;
 
+
+import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author sergio
  */
 public class SentimentAnalysisStatisticsDTO {
+	
+	@JsonProperty("title")
+	private String title;
+	
+	@JsonProperty("sentiment_data")
+	private List<SentimentDTO> data;
     
-    @JsonProperty("social_media")
-    private String socialMedia;
-    @JsonProperty("value")
-    private String value;
+	public SentimentAnalysisStatisticsDTO(){}
+	
+    public SentimentAnalysisStatisticsDTO(String title, List<SentimentDTO> data) {
+		super();
+		this.title = title;
+		this.data = data;
+	}
 
-    public SentimentAnalysisStatisticsDTO(String socialMedia, String value) {
-        this.socialMedia = socialMedia;
-        this.value = value;
-    }
 
-    public String getSocialMedia() {
-        return socialMedia;
-    }
+	public String getTitle() {
+		return title;
+	}
 
-    public void setSocialMedia(String socialMedia) {
-        this.socialMedia = socialMedia;
-    }
+	public void setTitle(String title) {
+		this.title = title;
+	}
 
-    public String getValue() {
-        return value;
-    }
+	public List<SentimentDTO> getData() {
+		return data;
+	}
 
-    public void setValue(String value) {
-        this.value = value;
-    }
+	public void setData(List<SentimentDTO> data) {
+		this.data = data;
+	}
 
-    @Override
-    public String toString() {
-        return "SocialMediaActivityDTO{" + "socialMedia=" + socialMedia + ", value=" + value + '}';
-    }
-    
+	public static class SentimentDTO {
+		
+		@JsonProperty("type")
+		private String type;
+		
+		@JsonProperty("score")
+		private float score;
+		
+		@JsonProperty("label")
+		private String label;
+
+		public SentimentDTO(String type, float score, String label) {
+			super();
+			this.type = type;
+			this.score = score;
+			this.label = label;
+		}
+
+		public String getType() {
+			return type;
+		}
+
+		public void setType(String type) {
+			this.type = type;
+		}
+
+		public float getScore() {
+			return score;
+		}
+
+		public void setScore(float score) {
+			this.score = score;
+		}
+
+		public String getLabel() {
+			return label;
+		}
+
+		public void setLabel(String label) {
+			this.label = label;
+		}
+
+		@Override
+		public String toString() {
+			return "SentimentDTO [type=" + type + ", score=" + score + ", label=" + label + "]";
+		}
+
+		
+	}
+
+
+	@Override
+	public String toString() {
+		return "SentimentAnalysisStatisticsDTO [title=" + title + ", data=" + data + "]";
+	}
 }
