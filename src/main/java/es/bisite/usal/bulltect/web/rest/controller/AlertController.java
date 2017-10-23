@@ -22,7 +22,7 @@ import es.bisite.usal.bulltect.persistence.entity.AlertLevelEnum;
 import es.bisite.usal.bulltect.util.ValidList;
 import es.bisite.usal.bulltect.web.dto.request.AddAlertDTO;
 import es.bisite.usal.bulltect.web.dto.response.AlertDTO;
-import es.bisite.usal.bulltect.web.dto.response.AlertsBySonDTO;
+import es.bisite.usal.bulltect.web.dto.response.AlertsStatisticsDTO;
 import es.bisite.usal.bulltect.web.rest.ApiHelper;
 import es.bisite.usal.bulltect.web.rest.exception.NoAlertsFoundException;
 import es.bisite.usal.bulltect.web.rest.exception.SocialMediaNotFoundException;
@@ -219,23 +219,25 @@ public class AlertController extends BaseController {
                 HttpStatus.OK, pagedAssembler.toResource(alertsPage));
     }
     
-    @RequestMapping(value = {"/alerts-by-son"}, method = RequestMethod.GET)
+    @RequestMapping(value = {"/statistics/alerts"}, method = RequestMethod.GET)
     @OnlyAccessForParent
-    @ApiOperation(value = "GET_ALERTS_BY_SON", nickname = "GET_ALERTS_BY_SON", notes = "Get Alerts By Son",
-            response = PagedResources.class)
-    public ResponseEntity<APIResponse<Iterable<AlertsBySonDTO>>> getAlertsBySon(
+    @ApiOperation(value = "GET_ALERTS_STATISTICS", nickname = "GET_ALERTS_STATISTICS", notes = "Get Alerts Statistics",
+            response = AlertsStatisticsDTO.class)
+    public ResponseEntity<APIResponse<AlertsStatisticsDTO>> getAlertsStatistics(
             @ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent,
-            @RequestParam(name="identities", value="identities" , required=true)
-            	ValidList<String> identities) throws Throwable {
+            @ApiParam(name = "identities", value = "Children's Identifiers", required = false)
+            	@RequestParam(name="identities" , required=false)
+            		ValidList<String> identities,
+            @ApiParam(name = "days_limit", value = "Days limit", required = false)
+    			@RequestParam(name = "days-limit", defaultValue = "1", required = false) 
+            	Integer daysLimit) throws Throwable {
 
     	
-        List<AlertsBySonDTO> alertsBySonDTO = alertService.getAlertsBySon(identities);
+    	AlertsStatisticsDTO alertsStatisticsDTO = alertService.getAlertsStatistics(identities, daysLimit);
 
-        return ApiHelper.<Iterable<AlertsBySonDTO>>createAndSendResponse(AlertResponseCode.ALERTS_BY_SON,
-                HttpStatus.OK, alertsBySonDTO);
+        return ApiHelper.<AlertsStatisticsDTO>createAndSendResponse(AlertResponseCode.ALERTS_STATISTICS,
+                HttpStatus.OK, alertsStatisticsDTO);
     }
-    
-    
     
 
     @PostConstruct

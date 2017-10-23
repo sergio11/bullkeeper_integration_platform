@@ -1,6 +1,8 @@
 package es.bisite.usal.bulltect.domain.service.impl;
 
 import es.bisite.usal.bulltect.domain.service.IStatisticsService;
+import es.bisite.usal.bulltect.web.dto.response.CommentsAnalyzedStatisticsDTO;
+import es.bisite.usal.bulltect.web.dto.response.CommentsAnalyzedStatisticsDTO.CommentAnalyzedDTO;
 import es.bisite.usal.bulltect.web.dto.response.CommunitiesStatisticsDTO;
 import es.bisite.usal.bulltect.web.dto.response.CommunitiesStatisticsDTO.CommunityDTO;
 import es.bisite.usal.bulltect.web.dto.response.DimensionsStatisticsDTO;
@@ -9,12 +11,14 @@ import es.bisite.usal.bulltect.web.dto.response.SentimentAnalysisStatisticsDTO;
 import es.bisite.usal.bulltect.web.dto.response.SentimentAnalysisStatisticsDTO.SentimentDTO;
 import es.bisite.usal.bulltect.web.dto.response.SocialMediaActivityStatisticsDTO;
 import es.bisite.usal.bulltect.web.dto.response.SocialMediaActivityStatisticsDTO.ActivityDTO;
+import es.bisite.usal.bulltect.web.dto.response.SocialMediaLikesStatisticsDTO;
+import es.bisite.usal.bulltect.web.dto.response.SocialMediaLikesStatisticsDTO.SocialMediaLikesDTO;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
@@ -73,6 +77,39 @@ public class StatisticsServiceImpl implements IStatisticsService {
 		);
 		
 		return new DimensionsStatisticsDTO("Dimensions Data", dimensionsData);
+		
+	}
+
+	@Override
+	public CommentsAnalyzedStatisticsDTO getCommentsStatistics(List<String> identities, Integer daysLimit) {
+		
+		
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		
+		List<CommentAnalyzedDTO> commentsData = Arrays.asList(
+				new CommentAnalyzedDTO(dateFormat.format(new Date()), 45, "45"),
+				new CommentAnalyzedDTO(dateFormat.format(new Date()), 36, "36"),
+				new CommentAnalyzedDTO(dateFormat.format(new Date()), 67, "67"),
+				new CommentAnalyzedDTO(dateFormat.format(new Date()), 45, "45")
+		);
+		
+		return new CommentsAnalyzedStatisticsDTO("Comments Analyzed", commentsData);
+		
+		
+	}
+
+	@Override
+	public SocialMediaLikesStatisticsDTO getSocialMediaLikesStatistics(List<String> identities, Integer daysLimit) {
+		
+		
+		List<SocialMediaLikesDTO> socialMediaData = Arrays.asList(
+				new SocialMediaLikesDTO("FACEBOOK", 34, "34 Likes"),
+				new SocialMediaLikesDTO("INSTAGRAM", 21, "21 Likes"),
+				new SocialMediaLikesDTO("YOUTUBE", 67, "67 Likes")
+		);
+		
+		
+		return new SocialMediaLikesStatisticsDTO("Social Media Likes", socialMediaData);
 		
 	}
     

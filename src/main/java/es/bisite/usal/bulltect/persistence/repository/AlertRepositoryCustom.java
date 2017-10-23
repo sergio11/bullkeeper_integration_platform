@@ -3,7 +3,7 @@ package es.bisite.usal.bulltect.persistence.repository;
 import java.util.List;
 import org.bson.types.ObjectId;
 
-import es.bisite.usal.bulltect.web.dto.response.AlertsBySonDTO;
+import es.bisite.usal.bulltect.web.dto.response.AlertsStatisticsDTO;
 
 /**
  * @author sergio
@@ -11,5 +11,5 @@ import es.bisite.usal.bulltect.web.dto.response.AlertsBySonDTO;
 public interface AlertRepositoryCustom {
 	void setAsDelivered(List<ObjectId> alertIds);
 	void setAsDelivered(ObjectId alertId);
-	List<AlertsBySonDTO> getAlertsBySon(List<String> sonIds);
+	List<AlertsStatisticsDTO> getAlertsBySon(List<String> sonIds);
 }

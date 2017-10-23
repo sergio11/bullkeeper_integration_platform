@@ -1,6 +1,7 @@
 package es.bisite.usal.bulltect.domain.service.impl;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -25,7 +26,8 @@ import es.bisite.usal.bulltect.persistence.entity.SonEntity;
 import es.bisite.usal.bulltect.persistence.repository.AlertRepository;
 import es.bisite.usal.bulltect.web.dto.request.AddAlertDTO;
 import es.bisite.usal.bulltect.web.dto.response.AlertDTO;
-import es.bisite.usal.bulltect.web.dto.response.AlertsBySonDTO;
+import es.bisite.usal.bulltect.web.dto.response.AlertsStatisticsDTO;
+import es.bisite.usal.bulltect.web.dto.response.AlertsStatisticsDTO.AlertLevelDTO;
 import es.bisite.usal.bulltect.web.dto.response.AlertsPageDTO;
 
 @Service
@@ -162,8 +164,17 @@ public class AlertServiceImpl implements IAlertService {
 	}
     
     @Override
-	public List<AlertsBySonDTO> getAlertsBySon(List<String> sonIds) {
-		return alertRepository.getAlertsBySon(sonIds);
+	public AlertsStatisticsDTO getAlertsStatistics(List<String> sonIds, int daysLimit) {
+		//return alertRepository.getAlertsBySon(sonIds);
+    	
+    	List<AlertLevelDTO> alertsData = Arrays.asList(
+				new AlertLevelDTO("INFO", 34, "33%"),
+				new AlertLevelDTO("WARNING", 34, "33%"),
+				new AlertLevelDTO("DANGER", 34, "33%")
+		);
+		
+		return new AlertsStatisticsDTO("Alerts", alertsData);
+    	
 	}
 
     @PostConstruct

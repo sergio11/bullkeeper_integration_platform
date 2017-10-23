@@ -47,10 +47,8 @@ public class i18nConfig {
     }
     
     @Bean(name = "localeResolver")
-    public LocaleResolver getLocaleResolver(){
-        CookieLocaleResolver localeResolver = new CookieLocaleResolver();
-        localeResolver.setDefaultLocale(Locale.ENGLISH);
-        return localeResolver;
+    public LocaleResolver localeResolver() {
+        return new SmartLocaleResolver();
     }
     
     @PostConstruct

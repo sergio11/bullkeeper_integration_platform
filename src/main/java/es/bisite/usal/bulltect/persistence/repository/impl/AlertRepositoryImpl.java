@@ -19,7 +19,7 @@ import com.mongodb.BasicDBObject;
 
 import es.bisite.usal.bulltect.persistence.entity.AlertEntity;
 import es.bisite.usal.bulltect.persistence.repository.AlertRepositoryCustom;
-import es.bisite.usal.bulltect.web.dto.response.AlertsBySonDTO;
+import es.bisite.usal.bulltect.web.dto.response.AlertsStatisticsDTO;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
 /**
@@ -48,7 +48,7 @@ public class AlertRepositoryImpl implements AlertRepositoryCustom {
 	}
 
 	@Override
-	public List<AlertsBySonDTO> getAlertsBySon(List<String> sonIds) {
+	public List<AlertsStatisticsDTO> getAlertsBySon(List<String> sonIds) {
 
 		
 		TypedAggregation<AlertEntity> alertsAggregation = 
@@ -60,10 +60,10 @@ public class AlertRepositoryImpl implements AlertRepositoryCustom {
 		
 		// Aggregation.match(Criteria.where("_id").in(sonIds)
 	        
-	        AggregationResults<AlertsBySonDTO> results = mongoTemplate.
-	             aggregate(alertsAggregation, AlertsBySonDTO.class);
+	        AggregationResults<AlertsStatisticsDTO> results = mongoTemplate.
+	             aggregate(alertsAggregation, AlertsStatisticsDTO.class);
 
-	        List<AlertsBySonDTO> alertsBySonResultsList = results.getMappedResults();
+	        List<AlertsStatisticsDTO> alertsBySonResultsList = results.getMappedResults();
 
 	        return alertsBySonResultsList;
 	}   

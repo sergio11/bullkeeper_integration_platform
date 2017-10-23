@@ -1,6 +1,6 @@
 package es.bisite.usal.bulltect.persistence.constraints;
 
-import java.util.regex.Pattern;
+
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -14,8 +14,7 @@ import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
 public final class ValidPhoneNumberValidator implements ConstraintValidator<ValidPhoneNumber, PhoneNumber> {
 	
 	private static Logger logger = LoggerFactory.getLogger(ValidPhoneNumberValidator.class);
-	
-	private static final String PHONE_PATTERN = "/\\(?([0-9]{3})\\)?([ .-]?)([0-9]{3})\2([0-9]{4})/";
+
 
 	@Override
 	public void initialize(ValidPhoneNumber validPhoneNumber) {}

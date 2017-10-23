@@ -40,7 +40,9 @@ public abstract class ParentEntityMapper {
         @Mapping(expression="java(sonRepository.countByParentId(parentEntity.getId()))", target = "children" ),
         @Mapping(source = "parentEntity.birthdate", target = "birthdate", dateFormat = "yyyy/MM/dd"),
         @Mapping(source = "parentEntity.age", target = "age"),
-        @Mapping(expression="java(parentEntity.getLocale().toString())", target = "locale" )
+        @Mapping(expression="java(parentEntity.getLocale().toString())", target = "locale" ),
+        @Mapping(expression="java(es.bisite.usal.bulltect.util.Utils.getPhonePrefix(parentEntity.getTelephone()))", target = "phonePrefix" ),
+        @Mapping(expression="java(es.bisite.usal.bulltect.util.Utils.getPhoneNumber(parentEntity.getTelephone()))", target = "phoneNumber" )
     })
     @Named("parentEntityToParentDTO")
     public abstract ParentDTO parentEntityToParentDTO(ParentEntity parentEntity); 

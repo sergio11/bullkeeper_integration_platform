@@ -17,8 +17,10 @@ public class ParentDTO extends ResourceSupport {
     private Integer age;
     @JsonProperty("email")
     private String email;
-    @JsonProperty("telephone")
-    private String telephone;
+    @JsonProperty("phone_prefix")
+    private String phonePrefix;
+    @JsonProperty("phone_number")
+    private Long phoneNumber;
     @JsonProperty("fb_id")
     private String fbId;
     @JsonProperty("children")
@@ -32,7 +34,7 @@ public class ParentDTO extends ResourceSupport {
     }
 
     public ParentDTO(String identity, String firstName, String lastName, String birthdate, Integer age, String email,
-            String telephone, String fbId, Long children, String locale, String profileImage) {
+            String phonePrefix, Long phoneNumber, String fbId, Long children, String locale, String profileImage) {
         super();
         this.identity = identity;
         this.firstName = firstName;
@@ -40,22 +42,33 @@ public class ParentDTO extends ResourceSupport {
         this.birthdate = birthdate;
         this.age = age;
         this.email = email;
-        this.telephone = telephone;
+        this.phonePrefix = phonePrefix;
+        this.phoneNumber = phoneNumber;
         this.fbId = fbId;
         this.children = children;
         this.locale = locale;
         this.profileImage = profileImage;
     }
 
-    public String getTelephone() {
-        return telephone;
-    }
+    
 
-    public void setTelephone(String telephone) {
-        this.telephone = telephone;
-    }
+    public String getPhonePrefix() {
+		return phonePrefix;
+	}
 
-    public String getBirthdate() {
+	public void setPhonePrefix(String phonePrefix) {
+		this.phonePrefix = phonePrefix;
+	}
+
+	public Long getPhoneNumber() {
+		return phoneNumber;
+	}
+
+	public void setPhoneNumber(Long phoneNumber) {
+		this.phoneNumber = phoneNumber;
+	}
+
+	public String getBirthdate() {
         return birthdate;
     }
 

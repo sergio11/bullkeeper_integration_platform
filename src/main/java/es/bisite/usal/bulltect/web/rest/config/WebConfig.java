@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
@@ -30,6 +31,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.bisite.usal.bulltect.fcm.properties.FCMCustomProperties;
 import es.bisite.usal.bulltect.fcm.utils.FCMErrorHandler;
+import es.bisite.usal.bulltect.i18n.config.SmartLocaleResolver;
 import es.bisite.usal.bulltect.web.rest.interceptor.HeaderRequestInterceptor;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -79,7 +81,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         argumentResolvers.add(pagedResourcesAssemblerArgumentResolver());
     }
     
-    
+   
     @Bean
     public HateoasSortHandlerMethodArgumentResolver sortResolver() {
         return new HateoasSortHandlerMethodArgumentResolver();

@@ -12,7 +12,7 @@ import es.bisite.usal.bulltect.persistence.entity.ParentEntity;
 import es.bisite.usal.bulltect.persistence.entity.SonEntity;
 import es.bisite.usal.bulltect.web.dto.request.AddAlertDTO;
 import es.bisite.usal.bulltect.web.dto.response.AlertDTO;
-import es.bisite.usal.bulltect.web.dto.response.AlertsBySonDTO;
+import es.bisite.usal.bulltect.web.dto.response.AlertsStatisticsDTO;
 import es.bisite.usal.bulltect.web.dto.response.AlertsPageDTO;
 
 /**
@@ -48,5 +48,5 @@ public interface IAlertService {
     
     void createInvalidAccessTokenAlert(String payload, ParentEntity parent, SonEntity son);
     
-    List<AlertsBySonDTO> getAlertsBySon(List<String> sonIds);
+    AlertsStatisticsDTO getAlertsStatistics(List<String> sonIds, int dayLimit);
 }
