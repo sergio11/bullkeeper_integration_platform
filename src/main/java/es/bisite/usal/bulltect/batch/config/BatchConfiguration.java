@@ -1,20 +1,11 @@
 package es.bisite.usal.bulltect.batch.config;
 
-import com.mongodb.DBObject;
-import com.mongodb.DBRef;
-import com.mongodb.Mongo;
-
 import es.bisite.usal.bulltect.batch.AlertItemProcessor;
-import es.bisite.usal.bulltect.batch.MongoDBItemReader;
+import es.bisite.usal.bulltect.batch.AlertItemReader;
 import es.bisite.usal.bulltect.batch.SendNotificationsWriter;
+import es.bisite.usal.bulltect.batch.models.AlertsByParent;
+import es.bisite.usal.bulltect.batch.models.FCMNotificationWrapper;
 import es.bisite.usal.bulltect.exception.NoDeviceGroupForUserException;
-import es.bisite.usal.bulltect.fcm.operations.FCMNotificationOperation;
-import es.bisite.usal.bulltect.persistence.entity.AlertEntity;
-
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
@@ -31,11 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.util.Assert;
 
 /**
- *
  * @author sergio
  */
 @Configuration
@@ -57,14 +45,15 @@ public class BatchConfiguration {
     @Autowired
     public StepBuilderFactory stepBuilderFactory;
     
-    @Autowired
-    public Mongo mongod;
     
     @Autowired
     private AlertItemProcessor itemProcessor;
     
     @Autowired
     private SendNotificationsWriter sendNotificationsWriter;
+    
+    @Autowired
+    private AlertItemReader alertItemReader;
     
     @Bean
     public ResourcelessTransactionManager transactionManager() {
@@ -96,39 +85,12 @@ public class BatchConfiguration {
         return launcher;
     }
     
-    
-    @Bean
-    public MongoDBItemReader provideItemReader() {
-        Assert.notNull(mongod, "Mongod can not be null");
-        MongoDBItemReader reader = new MongoDBItemReader();
-        reader.setMongo(mongod);
-        reader.setDb(dbName);
-        reader.setCollection(AlertEntity.COLLECTION_NAME);
-        reader.setQuery("{ delivered: { $ne: true }, delivery_mode: { $eq: 'PUSH_NOTIFICATION' } }");
-        reader.setConverter(new Converter<DBObject, Map<String, String>>() {
-			@Override
-			public Map<String, String> convert(DBObject source) {
-				Map<String, String> result = new HashMap<String, String>();
-				result.put("id", ((ObjectId)source.get("_id")).toString());
-				result.put("level", (String)source.get("level"));
-				result.put("payload", (String)source.get("payload"));
-				Date createAt = (Date)source.get("create_at");
-				if(createAt != null)
-					result.put("create_at", createAt.toString());
-				result.put("parent", ((DBRef)source.get("parent")).getId().toString());
-				return result;
-			}
-        });
-        return reader;
-    }
-    
-
     @SuppressWarnings("unchecked")
 	@Bean
     public Step provideJobStep1() {
         return stepBuilderFactory.get("jobStep")
-                .<Object, FCMNotificationOperation>chunk(10)
-                .reader(provideItemReader())
+                .<AlertsByParent, FCMNotificationWrapper>chunk(1)
+                .reader(alertItemReader)
                 .processor(itemProcessor)
                 .writer(sendNotificationsWriter)
                 .faultTolerant()

@@ -2,6 +2,9 @@ package es.bisite.usal.bulltect.persistence.repository.impl;
 
 
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -164,5 +167,15 @@ public class ParentRepositoryImpl implements ParentRepositoryCustom {
         ParentEntity parentEntity = mongoTemplate.findOne(query, ParentEntity.class);
 
         return parentEntity.getFbId();
+	}
+
+	@Override
+	public List<ObjectId> getParentIds() {
+		Query query = new Query();
+        query.fields().include("_id");
+        return mongoTemplate.find(query, ParentEntity.class)
+        		.stream()
+        		.map((parent) -> parent.getId())
+        		.collect(Collectors.toList());
 	}
 }

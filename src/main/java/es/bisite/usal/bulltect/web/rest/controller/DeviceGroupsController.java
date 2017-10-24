@@ -217,7 +217,7 @@ public class DeviceGroupsController extends BaseController {
     @RequestMapping(value = "/devices/{id}/delete", method = RequestMethod.DELETE)
     @OnlyAccessForParent
     @ApiOperation(value = "DELETE_DEVICE_FROM_GROUP", nickname = "DELETE_DEVICE_FROM_GROUP", notes = "Delete Device From Group",
-            response = DeviceDTO.class)
+            response = String.class)
     public ResponseEntity<APIResponse<String>> deleteDeviceFromGroup(
     		@ApiParam(name = "id", value = "Device Id", required = true)
             	@Valid @DeviceShouldExists(message = "{device.should.exists}")

@@ -8,6 +8,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
+
+import es.bisite.usal.bulltect.persistence.entity.AlertDeliveryModeEnum;
 import es.bisite.usal.bulltect.persistence.entity.AlertEntity;
 import es.bisite.usal.bulltect.persistence.entity.AlertLevelEnum;
 
@@ -40,6 +42,8 @@ public interface AlertRepository extends MongoRepository<AlertEntity, ObjectId>,
     Long deleteBySonId(ObjectId son);
 
     List<AlertEntity> findByParentIdOrderByCreateAtDesc(ObjectId id);
+    
+    List<AlertEntity> findByParentIdAndDeliveredFalseAndDeliveryMode(ObjectId id, AlertDeliveryModeEnum deliveryMode);
     
     
 

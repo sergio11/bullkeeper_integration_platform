@@ -1,6 +1,8 @@
 package es.bisite.usal.bulltect.persistence.repository;
 
 
+import java.util.List;
+
 import org.bson.types.ObjectId;
 
 
@@ -24,4 +26,5 @@ public interface ParentRepositoryCustom {
     void updateLastLoginAccessAndLastAccessToAlerts(ObjectId id);
     String getProfileImageIdByUserId(ObjectId id);
     String getFbIdByEmail(String email);
+    List<ObjectId> getParentIds();
 }

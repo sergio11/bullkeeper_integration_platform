@@ -7,6 +7,8 @@ import es.bisite.usal.bulltect.web.dto.response.CommunitiesStatisticsDTO;
 import es.bisite.usal.bulltect.web.dto.response.CommunitiesStatisticsDTO.CommunityDTO;
 import es.bisite.usal.bulltect.web.dto.response.DimensionsStatisticsDTO;
 import es.bisite.usal.bulltect.web.dto.response.DimensionsStatisticsDTO.DimensionDTO;
+import es.bisite.usal.bulltect.web.dto.response.MostActiveFriendsDTO;
+import es.bisite.usal.bulltect.web.dto.response.NewFriendsDTO;
 import es.bisite.usal.bulltect.web.dto.response.SentimentAnalysisStatisticsDTO;
 import es.bisite.usal.bulltect.web.dto.response.SentimentAnalysisStatisticsDTO.SentimentDTO;
 import es.bisite.usal.bulltect.web.dto.response.SocialMediaActivityStatisticsDTO;
@@ -21,6 +23,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import es.bisite.usal.bulltect.web.dto.response.MostActiveFriendsDTO;
 
 /**
  *
@@ -111,6 +114,35 @@ public class StatisticsServiceImpl implements IStatisticsService {
 		
 		return new SocialMediaLikesStatisticsDTO("Social Media Likes", socialMediaData);
 		
+	}
+
+	@Override
+	public MostActiveFriendsDTO getMostActiveFriends(List<String> identities, Integer daysLimit) {
+		
+		
+		List<MostActiveFriendsDTO.UserDTO> mostActiveFriends = Arrays.asList(
+				new MostActiveFriendsDTO.UserDTO("Usuario 1", 34),
+				new MostActiveFriendsDTO.UserDTO("Usuario 1", 35),
+				new MostActiveFriendsDTO.UserDTO("Usuario 1", 78)
+		);
+		
+		
+		return new MostActiveFriendsDTO("Most Active Friends", mostActiveFriends);
+		
+	
+	}
+
+	@Override
+	public NewFriendsDTO getNewFriends(List<String> identities, Integer daysLimit) {
+		
+		List<NewFriendsDTO.UserDTO> newFriends = Arrays.asList(
+				new NewFriendsDTO.UserDTO("Usuario 1", 34),
+				new NewFriendsDTO.UserDTO("Usuario 1", 35),
+				new NewFriendsDTO.UserDTO("Usuario 1", 78)
+		);
+		
+		
+		return new NewFriendsDTO("New Friends", newFriends);
 	}
     
 }

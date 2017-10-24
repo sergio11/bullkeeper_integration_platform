@@ -1,8 +1,8 @@
 package es.bisite.usal.bulltect.batch;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,13 +10,14 @@ import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.stereotype.Component;
 
+import es.bisite.usal.bulltect.batch.models.FCMNotificationWrapper;
 import es.bisite.usal.bulltect.fcm.operations.FCMNotificationOperation;
 import es.bisite.usal.bulltect.fcm.service.IPushNotificationsService;
 import es.bisite.usal.bulltect.persistence.repository.AlertRepository;
 
 @Component
 @StepScope
-public class SendNotificationsWriter implements ItemWriter<FCMNotificationOperation> {
+public class SendNotificationsWriter implements ItemWriter<FCMNotificationWrapper> {
 	
 	private static Logger logger = LoggerFactory.getLogger(SendNotificationsWriter.class);
 	
@@ -30,16 +31,23 @@ public class SendNotificationsWriter implements ItemWriter<FCMNotificationOperat
 	}
 
 	@Override
-	public void write(List<? extends FCMNotificationOperation> items) throws Exception {
-		logger.debug("Notifications To Send -> " + items.toString());
-
-		List<ObjectId> ids = items.stream().filter(fcmNotification -> fcmNotification.getData().containsKey("id") 
-				&& fcmNotification.getData().get("id") != null)
-					.map(fcmNotification -> new ObjectId(fcmNotification.getData().get("id")))
-					.collect(Collectors.toList());
+	public void write(List<? extends FCMNotificationWrapper> items) throws Exception {
 		
-		logger.debug("Total Ids -> " + ids.size());
-		alertRepository.setAsDelivered(ids);
+		logger.debug("Notifications To Send -> " + items.toString());
+		
+		List<ObjectId> idsDelivered = items.stream().parallel()
+			.map((FCMNotificationWrapper notificationWrapper) -> 
+				pushNotificationsService.send(notificationWrapper.getFcmNotificationOperation())
+					.thenApply(r -> notificationWrapper.getAlertIds()).join())
+			.flatMap(Collection::stream)
+			.collect(Collectors.toList());
+	
+		logger.debug("Ids Delivered -> " + idsDelivered.size());
+		alertRepository.setAsDelivered(idsDelivered);
+		
 	}
+	
+
+	
 
 }

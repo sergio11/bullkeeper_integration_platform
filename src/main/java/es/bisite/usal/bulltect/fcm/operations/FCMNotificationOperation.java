@@ -1,8 +1,6 @@
 package es.bisite.usal.bulltect.fcm.operations;
 
 import java.io.Serializable;
-import java.util.Map;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class FCMNotificationOperation implements Serializable {
@@ -11,16 +9,19 @@ public class FCMNotificationOperation implements Serializable {
 	
 	@JsonProperty("to")
     private String notificationKey;
-	@JsonProperty("data")
-	private Map<String, String> data;
+	@JsonProperty("notification")
+	private FCMNotification notification;
 	
+
 	public FCMNotificationOperation(){}
 	
-	public FCMNotificationOperation(String notificationKey, Map<String, String> data) {
+	
+	public FCMNotificationOperation(String notificationKey, FCMNotification notification) {
 		super();
 		this.notificationKey = notificationKey;
-		this.data = data;
+		this.notification = notification;
 	}
+
 
 	public String getNotificationKey() {
 		return notificationKey;
@@ -30,11 +31,47 @@ public class FCMNotificationOperation implements Serializable {
 		this.notificationKey = notificationKey;
 	}
 
-	public Map<String, String> getData() {
-		return data;
-	}
 	
-	public void setData(Map<String, String> data) {
-		this.data = data;
+	public FCMNotification getNotification() {
+		return notification;
+	}
+
+
+	public void setNotification(FCMNotification notification) {
+		this.notification = notification;
+	}
+
+
+	public static class FCMNotification {
+		
+		@JsonProperty("title")
+		private String title;
+		@JsonProperty("body")
+		private String body;
+		
+		public FCMNotification(){}
+		
+		public FCMNotification(String title, String body) {
+			super();
+			this.title = title;
+			this.body = body;
+		}
+
+		public String getTitle() {
+			return title;
+		}
+		
+		public void setTitle(String title) {
+			this.title = title;
+		}
+		
+		public String getBody() {
+			return body;
+		}
+		
+		public void setBody(String body) {
+			this.body = body;
+		}
+		
 	}
 }

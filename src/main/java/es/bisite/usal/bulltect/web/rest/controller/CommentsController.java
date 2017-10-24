@@ -24,6 +24,8 @@ import es.bisite.usal.bulltect.persistence.constraints.ValidObjectId;
 import es.bisite.usal.bulltect.util.ValidList;
 import es.bisite.usal.bulltect.web.dto.response.CommentDTO;
 import es.bisite.usal.bulltect.web.dto.response.CommentsAnalyzedStatisticsDTO;
+import es.bisite.usal.bulltect.web.dto.response.MostActiveFriendsDTO;
+import es.bisite.usal.bulltect.web.dto.response.NewFriendsDTO;
 import es.bisite.usal.bulltect.web.dto.response.SocialMediaLikesStatisticsDTO;
 import es.bisite.usal.bulltect.web.rest.ApiHelper;
 import es.bisite.usal.bulltect.web.rest.exception.CommentNotFoundException;
@@ -139,7 +141,44 @@ public class CommentsController extends BaseController implements ICommentHAL {
     }
     
     
+    @RequestMapping(value = {"/most-active-friends"}, method = RequestMethod.GET)
+    @OnlyAccessForParent
+    @ApiOperation(value = "MOST_ACTIVE_FRIENDS", nickname = "MOST_ACTIVE_FRIENDS", notes = "Most Active Friends",
+            response = MostActiveFriendsDTO.class)
+    public ResponseEntity<APIResponse<MostActiveFriendsDTO>> getMostActiveFriends(
+            @ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent,
+            @ApiParam(name = "identities", value = "Children's Identifiers", required = false)
+            	@RequestParam(name="identities" , required=false)
+            		ValidList<String> identities,
+            @ApiParam(name = "days_limit", value = "Days limit", required = false)
+        		@RequestParam(name = "days-limit", defaultValue = "1", required = false) Integer daysLimit) throws Throwable {
+
+    	
+    	MostActiveFriendsDTO mostActiveFriends = statisticsService.getMostActiveFriends(identities, daysLimit);
+
+        return ApiHelper.<MostActiveFriendsDTO>createAndSendResponse(CommentResponseCode.MOST_ACTIVE_FRIENDS,
+                HttpStatus.OK, mostActiveFriends);
+    }
     
+    
+    @RequestMapping(value = {"/new-friends"}, method = RequestMethod.GET)
+    @OnlyAccessForParent
+    @ApiOperation(value = "NEW_FRIENDS", nickname = "NEW_FRIENDS", notes = "New Friends",
+            response = NewFriendsDTO.class)
+    public ResponseEntity<APIResponse<NewFriendsDTO>> getNewFriends(
+            @ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent,
+            @ApiParam(name = "identities", value = "Children's Identifiers", required = false)
+            	@RequestParam(name="identities" , required=false)
+            		ValidList<String> identities,
+            @ApiParam(name = "days_limit", value = "Days limit", required = false)
+        		@RequestParam(name = "days-limit", defaultValue = "1", required = false) Integer daysLimit) throws Throwable {
+
+    	
+    	NewFriendsDTO newFriends = statisticsService.getNewFriends(identities, daysLimit);
+
+        return ApiHelper.<NewFriendsDTO>createAndSendResponse(CommentResponseCode.NEW_FRIENDS,
+                HttpStatus.OK, newFriends);
+    }
     
     
 }

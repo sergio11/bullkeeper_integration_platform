@@ -13,5 +13,5 @@ public interface DeviceGroupRepository extends MongoRepository<DeviceGroupEntity
     String getNotificationKey(String notificationKeyName);
     DeviceGroupEntity findByNotificationKeyName(String notificationKeyName);
     Long countByNotificationKeyName(String notificationKeyName);
-    DeviceGroupEntity findByOwner(ObjectId owner);
+    DeviceGroupEntity findByOwnerId(ObjectId id);
 }

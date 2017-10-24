@@ -185,10 +185,7 @@ public class LoadInitialDataForDevelopmentEnvironment implements CommandLineRunn
         
         alertList.add(alertInfo);
         
-        // Device Groups
-        DeviceGroupEntity deviceGroup = new DeviceGroupEntity("notification-group-name", "notification-key", federico);
-        
-        deviceGroupsList.add(deviceGroup);
+       
     
     }
 
