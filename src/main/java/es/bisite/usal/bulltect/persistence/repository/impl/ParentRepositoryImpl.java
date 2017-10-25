@@ -16,6 +16,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.Assert;
 
 import es.bisite.usal.bulltect.persistence.entity.ParentEntity;
+import es.bisite.usal.bulltect.persistence.entity.PreferencesEntity;
 import es.bisite.usal.bulltect.persistence.repository.ParentRepositoryCustom;
 
 /**
@@ -177,5 +178,17 @@ public class ParentRepositoryImpl implements ParentRepositoryCustom {
         		.stream()
         		.map((parent) -> parent.getId())
         		.collect(Collectors.toList());
+	}
+
+	@Override
+	public PreferencesEntity getPreferences(ObjectId id) {
+		Assert.notNull(id, "id can not be null");
+		
+		Query query = new Query(Criteria.where("_id").is(id));
+        query.fields().include("preferences");
+     
+        ParentEntity parent =  mongoTemplate.findOne(query, ParentEntity.class);
+        return parent.getPreferences();
+        
 	}
 }

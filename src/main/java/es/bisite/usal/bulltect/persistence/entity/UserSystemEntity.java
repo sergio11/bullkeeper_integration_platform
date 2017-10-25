@@ -49,6 +49,9 @@ public class UserSystemEntity extends PersonEntity {
 
     @Field("last_access_to_alerts")
     protected Date lastAccessToAlerts = new Date();
+    
+    @Field("preferences")
+    protected PreferencesEntity preferences = new PreferencesEntity();
 
     @DBRef
     protected AuthorityEntity authority;
@@ -60,7 +63,7 @@ public class UserSystemEntity extends PersonEntity {
     public UserSystemEntity(String firstName, String lastName, Date birthdate, String profileImage, String email,
             String password, String passwordRequestedAt, Boolean active, Boolean locked, Date lastLoginAccess,
             Boolean pendingDeletion, Locale locale, Date lastPasswordResetDate, String confirmationToken,
-            Date lastAccessToAlerts, AuthorityEntity authority) {
+            Date lastAccessToAlerts, PreferencesEntity preferences, AuthorityEntity authority) {
         super(firstName, lastName, birthdate, profileImage);
         this.email = email;
         this.password = password;
@@ -73,6 +76,7 @@ public class UserSystemEntity extends PersonEntity {
         this.lastPasswordResetDate = lastPasswordResetDate;
         this.confirmationToken = confirmationToken;
         this.lastAccessToAlerts = lastAccessToAlerts;
+        this.preferences = preferences;
         this.authority = authority;
     }
 
@@ -179,8 +183,17 @@ public class UserSystemEntity extends PersonEntity {
     public void setLastAccessToAlerts(Date lastAccessToAlerts) {
         this.lastAccessToAlerts = lastAccessToAlerts;
     }
+    
 
-    @Override
+	public PreferencesEntity getPreferences() {
+		return preferences;
+	}
+
+	public void setPreferences(PreferencesEntity preferences) {
+		this.preferences = preferences;
+	}
+
+	@Override
     public String toString() {
         return "UserSystemEntity [email=" + email + ", password=" + password + ", locked=" + locked + ", authority="
                 + authority + "]";

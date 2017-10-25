@@ -94,6 +94,7 @@ public class BatchConfiguration {
                 .processor(itemProcessor)
                 .writer(sendNotificationsWriter)
                 .faultTolerant()
+                .skip(IllegalArgumentException.class)
                 .skip(NoDeviceGroupForUserException.class)
                 .skipLimit(100000)
                 .allowStartIfComplete(Boolean.TRUE)

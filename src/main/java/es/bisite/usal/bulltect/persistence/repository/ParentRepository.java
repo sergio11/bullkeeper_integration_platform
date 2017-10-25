@@ -1,6 +1,8 @@
 package es.bisite.usal.bulltect.persistence.repository;
 
 
+import java.util.List;
+
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
@@ -33,4 +35,9 @@ public interface ParentRepository extends MongoRepository<ParentEntity, ObjectId
     Long deleteByActiveFalse();
     
     ParentEntity findByProfileImage(String profileImageId);
+    
+    List<ParentEntity> findByPreferencesPushNotificationsEnabled(Boolean value);
+    
+    
+    
 }

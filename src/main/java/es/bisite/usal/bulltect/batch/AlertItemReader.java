@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import es.bisite.usal.bulltect.batch.models.AlertsByParent;
 import es.bisite.usal.bulltect.persistence.entity.AlertDeliveryModeEnum;
 import es.bisite.usal.bulltect.persistence.entity.AlertEntity;
+import es.bisite.usal.bulltect.persistence.entity.ParentEntity;
 import es.bisite.usal.bulltect.persistence.repository.AlertRepository;
 import es.bisite.usal.bulltect.persistence.repository.ParentRepository;
 
@@ -25,7 +26,7 @@ public class AlertItemReader extends AbstractItemCountingItemStreamItemReader<Al
 	private final ParentRepository parentRepository;
 	private final AlertRepository alertRepository;
 	
-	private List<ObjectId> parentIds;
+	private List<ParentEntity> parents;
 	
 	public AlertItemReader(ParentRepository parentRepository, AlertRepository alertRepository) {
 		super();
@@ -39,28 +40,28 @@ public class AlertItemReader extends AbstractItemCountingItemStreamItemReader<Al
 
 	@Override
 	protected AlertsByParent doRead() throws Exception {
-		if (parentIds == null) {
+		if (parents == null) {
             throw new ReaderNotOpenException("Reader must be open before it can be read.");
         }
 		logger.debug("AlertItemReader doRead called ...");
-		ObjectId currentParent = parentIds.get(getCurrentItemCount() - 1);
-		List<AlertEntity> alerts = alertRepository.findByParentIdAndDeliveredFalseAndDeliveryMode(currentParent, AlertDeliveryModeEnum.PUSH_NOTIFICATION);
-		return new AlertsByParent(currentParent, alerts);
+		ParentEntity currentParent = parents.get(getCurrentItemCount() - 1);
+		List<AlertEntity> alerts = alertRepository
+				.findByParentIdAndDeliveredFalseAndDeliveryModeAndCreateAtGreaterThan(currentParent.getId(), AlertDeliveryModeEnum.PUSH_NOTIFICATION, currentParent.getLastAccessToAlerts());
+		return new AlertsByParent(currentParent.getId(), alerts);
 	}
 
 	@Override
 	protected void doOpen() throws Exception {
 		logger.debug("AlertItemReader doOpen called ...");
-		parentIds = parentRepository.getParentIds();
-		setMaxItemCount(parentIds.size());
-		logger.debug("Total Parent Ids -> " + parentIds.size()); 
+		parents = parentRepository.findByPreferencesPushNotificationsEnabled(Boolean.TRUE);
+		setMaxItemCount(parents.size()); 
 		
 	}
 
 	@Override
 	protected void doClose() throws Exception {
 		logger.debug("AlertItemReader doClose called ...");
-		parentIds.clear();
+		parents.clear();
 	    setMaxItemCount(0);
 	    setCurrentItemCount(0);
 	}

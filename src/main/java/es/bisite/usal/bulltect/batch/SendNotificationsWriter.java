@@ -43,7 +43,8 @@ public class SendNotificationsWriter implements ItemWriter<FCMNotificationWrappe
 			.collect(Collectors.toList());
 	
 		logger.debug("Ids Delivered -> " + idsDelivered.size());
-		alertRepository.setAsDelivered(idsDelivered);
+		if(!idsDelivered.isEmpty())
+			alertRepository.setAsDelivered(idsDelivered);
 		
 	}
 	

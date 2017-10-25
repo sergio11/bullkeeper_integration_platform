@@ -51,6 +51,7 @@ import es.bisite.usal.bulltect.web.dto.request.RegisterParentDTO;
 import es.bisite.usal.bulltect.web.dto.request.RegisterSonDTO;
 import es.bisite.usal.bulltect.web.dto.request.ResendActivationEmailDTO;
 import es.bisite.usal.bulltect.web.dto.request.ResetPasswordRequestDTO;
+import es.bisite.usal.bulltect.web.dto.request.SaveUserSystemPreferencesDTO;
 import es.bisite.usal.bulltect.web.dto.request.UpdateParentDTO;
 import es.bisite.usal.bulltect.web.dto.request.UpdateSonDTO;
 import es.bisite.usal.bulltect.web.dto.response.AlertDTO;
@@ -63,6 +64,7 @@ import es.bisite.usal.bulltect.web.dto.response.JwtAuthenticationResponseDTO;
 import es.bisite.usal.bulltect.web.dto.response.ParentDTO;
 import es.bisite.usal.bulltect.web.dto.response.PasswordResetTokenDTO;
 import es.bisite.usal.bulltect.web.dto.response.SonDTO;
+import es.bisite.usal.bulltect.web.dto.response.UserSystemPreferencesDTO;
 import es.bisite.usal.bulltect.web.dto.response.ValidationErrorDTO;
 import es.bisite.usal.bulltect.web.rest.ApiHelper;
 import es.bisite.usal.bulltect.web.rest.exception.NoAlertsFoundException;
@@ -711,6 +713,49 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     	return ApiHelper.<SonDTO>createAndSendResponse(ParentResponseCode.SAVE_SON_INFORMATION, 
 				HttpStatus.OK, addLinksToSon(sonDTO));
     }
+    
+    
+    @RequestMapping(value = "/self/preferences", method = RequestMethod.POST)
+    @OnlyAccessForParent
+    @ApiOperation(value = "SAVE_PREFERENCES", nickname = "SAVE_PREFERENCES", 
+    	notes="Save Preferences")
+    @ApiResponses(value = { 
+    		@ApiResponse(code = 200, message= "Parent's Preferences", response = UserSystemPreferencesDTO.class),
+    		@ApiResponse(code = 403, message = "Validation Errors", response = ValidationErrorDTO.class)
+    })
+    public ResponseEntity<APIResponse<UserSystemPreferencesDTO>> savePreferences(
+    		@ApiParam(hidden = true) 
+    			@CurrentUser CommonUserDetailsAware<ObjectId> selfParent,
+    		@ApiParam(value = "preferences", required = true) 
+    			@RequestBody SaveUserSystemPreferencesDTO preferences) throws Throwable {
+    	
+    	logger.debug("Save User System Preferences");
+    
+    	UserSystemPreferencesDTO preferencesSaved = parentsService.savePreferences(preferences, selfParent.getUserId());
+    	
+    	return ApiHelper.<UserSystemPreferencesDTO>createAndSendResponse(ParentResponseCode.USER_SYSTEM_PREFERENCES_SAVED, 
+				HttpStatus.OK, preferencesSaved);
+    }
+    
+    @RequestMapping(value = "/self/preferences", method = RequestMethod.GET)
+    @OnlyAccessForParent
+    @ApiOperation(value = "GET_SELF_PREFERENCES", nickname = "GET_SELF_PREFERENCES", 
+    	notes="Get self preferences")
+    @ApiResponses(value = { 
+    		@ApiResponse(code = 200, message= "Parent's Preferences", response = UserSystemPreferencesDTO.class)
+    })
+    public ResponseEntity<APIResponse<UserSystemPreferencesDTO>> getPreferences(
+    		@ApiParam(hidden = true) 
+    			@CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
+    	
+    	logger.debug("Get User System Preferences");
+    
+    	UserSystemPreferencesDTO preferences = parentsService.getPreferences(selfParent.getUserId());
+    	
+    	return ApiHelper.<UserSystemPreferencesDTO>createAndSendResponse(ParentResponseCode.USER_SYSTEM_PREFERENCES, 
+				HttpStatus.OK, preferences);
+    }
+    
     
     @PostConstruct
     protected void init(){

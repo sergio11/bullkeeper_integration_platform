@@ -40,6 +40,11 @@ public class AlertItemProcessor  implements ItemProcessor<AlertsByParent, FCMNot
 		Assert.notNull(alerts, "Alerts can not be null");
 		Assert.notNull(alerts.getParentId(), "Parent Id can not be null");
 		Assert.notNull(alerts.getAlerts(), "Alerts can not be null");
+		Assert.notEmpty(alerts.getAlerts(), "Alerts can not be empty");
+		
+		
+		logger.debug("Count Alerts "+ alerts.getAlerts().size() +  " for user ->  " + alerts.getParentId());
+		
 		
 		DeviceGroupEntity deviceGroupEntity = deviceGroupRepository.findByOwnerId(alerts.getParentId());
 		if(deviceGroupEntity == null) {

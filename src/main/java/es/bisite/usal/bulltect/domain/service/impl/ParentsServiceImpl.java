@@ -17,6 +17,7 @@ import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.PhoneNumberUtil.PhoneNumberFormat;
 import es.bisite.usal.bulltect.domain.service.IParentsService;
 import es.bisite.usal.bulltect.mapper.ParentEntityMapper;
+import es.bisite.usal.bulltect.mapper.PreferencesEntityMapper;
 import es.bisite.usal.bulltect.mapper.SonEntityMapper;
 import es.bisite.usal.bulltect.persistence.entity.ParentEntity;
 import es.bisite.usal.bulltect.persistence.entity.SonEntity;
@@ -26,10 +27,12 @@ import es.bisite.usal.bulltect.persistence.repository.SonRepository;
 import es.bisite.usal.bulltect.web.dto.request.RegisterParentByFacebookDTO;
 import es.bisite.usal.bulltect.web.dto.request.RegisterParentDTO;
 import es.bisite.usal.bulltect.web.dto.request.RegisterSonDTO;
+import es.bisite.usal.bulltect.web.dto.request.SaveUserSystemPreferencesDTO;
 import es.bisite.usal.bulltect.web.dto.request.UpdateParentDTO;
 import es.bisite.usal.bulltect.web.dto.request.UpdateSonDTO;
 import es.bisite.usal.bulltect.web.dto.response.ParentDTO;
 import es.bisite.usal.bulltect.web.dto.response.SonDTO;
+import es.bisite.usal.bulltect.web.dto.response.UserSystemPreferencesDTO;
 import io.jsonwebtoken.lang.Assert;
 
 @Service
@@ -43,10 +46,11 @@ public class ParentsServiceImpl implements IParentsService {
     private final SonRepository sonRepository;
     private final PasswordEncoder passwordEncoder;
     private final SchoolRepository schoolRepository;
+    private final PreferencesEntityMapper preferencesEntityMapper;
 
     @Autowired
     public ParentsServiceImpl(ParentRepository parentRepository, ParentEntityMapper parentEntityMapper, SonEntityMapper sonEntityMapper,
-            SonRepository sonRepository, PasswordEncoder passwordEncoder, SchoolRepository schoolRepository) {
+            SonRepository sonRepository, PasswordEncoder passwordEncoder, SchoolRepository schoolRepository, PreferencesEntityMapper preferencesEntityMapper) {
         super();
         this.parentRepository = parentRepository;
         this.parentEntityMapper = parentEntityMapper;
@@ -54,6 +58,7 @@ public class ParentsServiceImpl implements IParentsService {
         this.sonRepository = sonRepository;
         this.passwordEncoder = passwordEncoder;
         this.schoolRepository = schoolRepository;
+        this.preferencesEntityMapper = preferencesEntityMapper;
     }
 
     @Override
@@ -233,6 +238,23 @@ public class ParentsServiceImpl implements IParentsService {
     public String getProfileImage(ObjectId id) {
         return parentRepository.getProfileImageIdByUserId(id);
     }
+    
+    @Override
+	public UserSystemPreferencesDTO savePreferences(SaveUserSystemPreferencesDTO preferences, ObjectId idParent) {
+    	Assert.notNull(preferences, "Preferences can not be null");
+    	
+    	ParentEntity parent = parentRepository.findOne(idParent);
+    	parent.getPreferences().setPushNotificationsEnabled(preferences.isPushNotificationsEnabled());
+    	parentRepository.save(parent);
+    	return preferencesEntityMapper.preferencesEntityToUserSystemPreferencesDTO(parent.getPreferences());
+    	
+	}
+    
+    @Override
+	public UserSystemPreferencesDTO getPreferences(ObjectId idParent) {
+    	Assert.notNull(idParent, "Id Parent can not be null");
+    	return preferencesEntityMapper.preferencesEntityToUserSystemPreferencesDTO(parentRepository.getPreferences(idParent));
+	}
 
     @PostConstruct
     protected void init() {
@@ -242,6 +264,7 @@ public class ParentsServiceImpl implements IParentsService {
         Assert.notNull(sonRepository, "Son Repository can not be null");
         Assert.notNull(passwordEncoder, "Password Encoder can not be null");
         Assert.notNull(schoolRepository, "School Repository can not be null");
+        Assert.notNull(preferencesEntityMapper, "Preferences Entity Mapper can not be null");
+        
     }
-
 }

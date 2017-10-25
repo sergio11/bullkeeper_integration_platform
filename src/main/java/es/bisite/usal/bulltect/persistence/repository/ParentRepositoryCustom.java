@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.bson.types.ObjectId;
 
+import es.bisite.usal.bulltect.persistence.entity.PreferencesEntity;
+
 
 
 /**
@@ -27,4 +29,5 @@ public interface ParentRepositoryCustom {
     String getProfileImageIdByUserId(ObjectId id);
     String getFbIdByEmail(String email);
     List<ObjectId> getParentIds();
+    PreferencesEntity getPreferences(ObjectId id);
 }

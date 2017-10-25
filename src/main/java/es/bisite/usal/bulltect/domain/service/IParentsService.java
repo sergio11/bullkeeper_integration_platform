@@ -1,6 +1,5 @@
 package es.bisite.usal.bulltect.domain.service;
 
-import java.util.Date;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
@@ -9,10 +8,12 @@ import org.springframework.data.domain.Pageable;
 import es.bisite.usal.bulltect.web.dto.request.RegisterParentByFacebookDTO;
 import es.bisite.usal.bulltect.web.dto.request.RegisterParentDTO;
 import es.bisite.usal.bulltect.web.dto.request.RegisterSonDTO;
+import es.bisite.usal.bulltect.web.dto.request.SaveUserSystemPreferencesDTO;
 import es.bisite.usal.bulltect.web.dto.request.UpdateParentDTO;
 import es.bisite.usal.bulltect.web.dto.request.UpdateSonDTO;
 import es.bisite.usal.bulltect.web.dto.response.ParentDTO;
 import es.bisite.usal.bulltect.web.dto.response.SonDTO;
+import es.bisite.usal.bulltect.web.dto.response.UserSystemPreferencesDTO;
 
 /**
  *
@@ -44,4 +45,6 @@ public interface IParentsService {
     void cancelAllAccountDeletionProcess();
     void updateLastAccessToAlerts(ObjectId id);
     String getProfileImage(ObjectId id);
+    UserSystemPreferencesDTO savePreferences(SaveUserSystemPreferencesDTO preferences, ObjectId idParent);
+    UserSystemPreferencesDTO getPreferences(ObjectId idParent);
 }

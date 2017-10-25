@@ -28,10 +28,10 @@ public final class ParentEntity extends UserSystemEntity {
     public ParentEntity(String firstName, String lastName, Date birthdate, String profileImage, String email,
             String password, String passwordRequestedAt, Boolean active, Boolean locked, Date lastLoginAccess,
             Boolean pendingDeletion, Locale locale, Date lastPasswordResetDate, String confirmationToken,
-            Date lastAccessToAlerts, AuthorityEntity authority, String telephone, String fbAccessToken, String fbId) {
+            Date lastAccessToAlerts, PreferencesEntity preferences, AuthorityEntity authority, String telephone, String fbAccessToken, String fbId) {
         super(firstName, lastName, birthdate, profileImage, email, password, passwordRequestedAt, active, locked,
                 lastLoginAccess, pendingDeletion, locale, lastPasswordResetDate, confirmationToken, lastAccessToAlerts,
-                authority);
+                preferences, authority);
         this.telephone = telephone;
         this.fbAccessToken = fbAccessToken;
         this.fbId = fbId;
