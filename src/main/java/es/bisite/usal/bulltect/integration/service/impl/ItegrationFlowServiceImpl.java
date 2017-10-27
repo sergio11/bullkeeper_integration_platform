@@ -36,6 +36,7 @@ public final class ItegrationFlowServiceImpl implements IItegrationFlowService {
 	private final RestTemplate restTemplate;
 	private final CommentRepository commentRepository;
 	
+	
 	@Autowired
 	public ItegrationFlowServiceImpl(IntegrationFlowProperties integrationFlowProperties,
 			SocialMediaRepository socialMediaRepository, IterationRepository iterationRepository,

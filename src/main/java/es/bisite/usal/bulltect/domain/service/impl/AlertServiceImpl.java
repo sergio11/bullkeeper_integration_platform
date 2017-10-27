@@ -24,6 +24,7 @@ import es.bisite.usal.bulltect.persistence.entity.AlertLevelEnum;
 import es.bisite.usal.bulltect.persistence.entity.ParentEntity;
 import es.bisite.usal.bulltect.persistence.entity.SonEntity;
 import es.bisite.usal.bulltect.persistence.repository.AlertRepository;
+import es.bisite.usal.bulltect.persistence.repository.SonRepository;
 import es.bisite.usal.bulltect.web.dto.request.AddAlertDTO;
 import es.bisite.usal.bulltect.web.dto.response.AlertDTO;
 import es.bisite.usal.bulltect.web.dto.response.AlertsStatisticsDTO;
@@ -36,13 +37,15 @@ public class AlertServiceImpl implements IAlertService {
     private final AlertRepository alertRepository;
     private final AlertEntityMapper alertMapper;
     private final IMessageSourceResolverService messageSourceResolverService;
+    private final SonRepository sonRepository;
 
     public AlertServiceImpl(AlertRepository alertRepository, AlertEntityMapper alertMapper,
-            IMessageSourceResolverService messageSourceResolverService) {
+            IMessageSourceResolverService messageSourceResolverService, SonRepository sonRepository) {
         super();
         this.alertRepository = alertRepository;
         this.alertMapper = alertMapper;
         this.messageSourceResolverService = messageSourceResolverService;
+        this.sonRepository = sonRepository;
     }
     
     @Override
@@ -175,6 +178,22 @@ public class AlertServiceImpl implements IAlertService {
 		
 		return new AlertsStatisticsDTO("Alerts", alertsData);
     	
+	}
+    
+    @Override
+	public AlertDTO save(AlertLevelEnum level, String title, String payload, ObjectId sonId) {
+    	Assert.notNull(level, "Level can not be null");
+    	Assert.notNull(title, "Title can not be null");
+    	Assert.hasLength(title, "Title can not be empty");
+    	Assert.notNull(payload, "Payload can not be null");
+    	Assert.hasLength(payload, "Payload can not be empty");
+    	Assert.notNull(sonId, "Son can not be null");
+    	
+    	
+    	final SonEntity target = sonRepository.findOne(sonId);
+    	final AlertEntity alertToSave = new AlertEntity(level, title, payload, target.getParent(), target);
+    	final AlertEntity alertSaved = alertRepository.save(alertToSave);
+        return alertMapper.alertEntityToAlertDTO(alertSaved);
 	}
 
     @PostConstruct

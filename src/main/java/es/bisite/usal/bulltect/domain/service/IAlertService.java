@@ -29,7 +29,9 @@ public interface IAlertService {
     Page<AlertDTO> findPaginated(Boolean delivered, Pageable pageable);
 
     AlertDTO save(AddAlertDTO alert);
-
+    
+    AlertDTO save(AlertLevelEnum level, String title, String payload, ObjectId sonId);
+    
     Long getTotalAlerts();
 
     Iterable<AlertDTO> findByParent(ObjectId id, Boolean delivered);

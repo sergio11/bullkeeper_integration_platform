@@ -5,10 +5,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
+
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.collections.ListUtils;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,15 +21,19 @@ import org.springframework.data.domain.Sort;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-import org.springframework.web.client.RestTemplate;
 
+import es.bisite.usal.bulltect.domain.service.IAlertService;
 import es.bisite.usal.bulltect.domain.service.IIterationService;
-import es.bisite.usal.bulltect.integration.properties.IntegrationFlowProperties;
+import es.bisite.usal.bulltect.i18n.service.IMessageSourceResolverService;
 import es.bisite.usal.bulltect.integration.service.IItegrationFlowService;
 import es.bisite.usal.bulltect.mapper.IterationEntityMapper;
+import es.bisite.usal.bulltect.persistence.entity.AlertLevelEnum;
+import es.bisite.usal.bulltect.persistence.entity.CommentEntity;
 import es.bisite.usal.bulltect.persistence.entity.IterationEntity;
+import es.bisite.usal.bulltect.persistence.entity.SonEntity;
 import es.bisite.usal.bulltect.persistence.repository.IterationRepository;
 import es.bisite.usal.bulltect.persistence.repository.SocialMediaRepository;
+import es.bisite.usal.bulltect.persistence.repository.SonRepository;
 import es.bisite.usal.bulltect.web.dto.response.CommentsBySonDTO;
 import es.bisite.usal.bulltect.web.dto.response.IterationDTO;
 import es.bisite.usal.bulltect.web.dto.response.IterationWithTasksDTO;
@@ -47,16 +52,23 @@ public class IterationServiceImpl implements IIterationService {
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final SocialMediaRepository socialMediaRepository;
     private final IItegrationFlowService itegrationFlowService;
+    private final IAlertService alertService;
+    private final IMessageSourceResolverService messageSourceResolver;
+    private final SonRepository sonRepository;
     
 
     public IterationServiceImpl(IterationRepository iterationRepository, 
             IterationEntityMapper iterationEntityMapper, SimpMessagingTemplate simpMessagingTemplate,
-            SocialMediaRepository socialMediaRepository, IItegrationFlowService itegrationFlowService) {
+            SocialMediaRepository socialMediaRepository, IItegrationFlowService itegrationFlowService,
+            IAlertService alertService, IMessageSourceResolverService messageSourceResolver, SonRepository sonRepository) {
         this.iterationRepository = iterationRepository;
         this.iterationEntityMapper = iterationEntityMapper;
         this.simpMessagingTemplate = simpMessagingTemplate;
         this.socialMediaRepository = socialMediaRepository;
         this.itegrationFlowService = itegrationFlowService;
+        this.alertService = alertService;
+        this.messageSourceResolver = messageSourceResolver;
+        this.sonRepository = sonRepository;
     }
     
     
@@ -77,43 +89,59 @@ public class IterationServiceImpl implements IIterationService {
     @Override
     public void save(IterationEntity iterationEntity) {
     	
-    	logger.debug("Save Iteration ...");
         
+    	//Save Iteration
         IterationEntity iterationSave = iterationRepository.save(iterationEntity);
         
-        List<ObjectId> socialMediaIds = iterationSave.getTasks().stream().map(task -> task.getSocialMediaId()).collect(Collectors.toList());
-        
-        
+        // plan the next review of these social media
         Date scheduledFor = itegrationFlowService.getDateForNextPoll();
+        socialMediaRepository.setScheduledForAndLastProbing(iterationSave.getTasks().stream().map(task -> task.getSocialMediaId()).collect(Collectors.toList()), 
+        		scheduledFor, iterationSave.getFinishDate());
         
-        socialMediaRepository.setScheduledForAndLastProbing(socialMediaIds, scheduledFor, iterationSave.getFinishDate());
         
+        // Generate informative alerts for the users for whom comments have been obtained, check those users for review.
+        @SuppressWarnings("unchecked")
+		Map<SonEntity, List<CommentEntity>> commentsBySonForIteration = iterationEntity.getTasks().parallelStream()
+        		.filter(task -> task.isSuccess() && task.getComments().size() > 0)
+        		.collect(Collectors.toMap(
+        				task -> task.getSonEntity(), 
+        				task -> task.getComments(),
+        				(comments1, comments2) -> ListUtils.union(comments1, comments2)));
+        
+        
+        for (Map.Entry<SonEntity, List<CommentEntity>> entry : commentsBySonForIteration.entrySet())
+        {
+        	
+        	final ObjectId sonId = entry.getKey().getId();
+        	final List<CommentEntity> comments = entry.getValue();
+        	
+        	sonRepository.setRequireReview(sonId, Boolean.TRUE);
+        	
+        	// save alert
+        	alertService.save(AlertLevelEnum.INFO, 
+        			messageSourceResolver.resolver("alerts.iteration.comments.title"),
+        			messageSourceResolver.resolver("alerts.iteration.comments.payload", new Object[] { comments.size() }), 
+        			sonId);
+        	
+        	// start analysis for these comments
+        	itegrationFlowService.startSentimentAnalysisFor(comments.parallelStream().map(comment -> comment.getId()).collect(Collectors.toList()));
+        }
+        
+        
+        //notify information about the last iteration
         simpMessagingTemplate.convertAndSend(WebSocketConstants.NEW_ITERATION_TOPIC, 
                 iterationEntityMapper.iterationEntityToIterationDTO(iterationSave));
         
   
         simpMessagingTemplate.convertAndSend(WebSocketConstants.LAST_ITERATION_COMMENTS_BY_SON_TOPIC,
         		getCommentsBySonForIteration(iterationSave));
-        
-        List<ObjectId> commentsId = iterationSave.getTasks().stream()
-		.filter(task -> task.getComments().size() > 0)
-		.flatMap(task -> task.getComments().stream())
-		.map(comment -> comment.getId())
-		.collect(Collectors.toList());
-        
-        if(!commentsId.isEmpty()) {
-            logger.debug("COMMENTS TO ANALYSIS -> " + commentsId.toString());
-            itegrationFlowService.startSentimentAnalysisFor(commentsId);
-        }
+
         
         logger.debug("TOTAL TASK ->" + iterationSave.getTotalTasks());
         logger.debug("TOTAL TASK FAILED -> " + iterationSave.getTotalFailedTasks());
         logger.debug("AVG DURATION -> " + iterationRepository.getAvgDuration().getAvgDuration());
         logger.debug("ITERATION FINISH AT -> " + scheduledFor.toString());
         logger.debug("SCHEDULED FOR -> " + scheduledFor.toString());
-        
-        
-        
         
     }
     
@@ -190,6 +218,7 @@ public class IterationServiceImpl implements IIterationService {
         Assert.notNull(iterationRepository, "IterationRepository cannot be null");
         Assert.notNull(iterationEntityMapper, "IIterationEntityMapper cannot be null");
         Assert.notNull(simpMessagingTemplate, "SimpMessagingTemplate cannot be null");
+        Assert.notNull(sonRepository, "Son Repository cannot be null");
     }
 	
 }
