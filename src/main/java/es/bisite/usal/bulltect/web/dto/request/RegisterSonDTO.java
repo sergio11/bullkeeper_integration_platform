@@ -16,13 +16,13 @@ import javax.validation.constraints.NotNull;
 public final class RegisterSonDTO {
 
     @NotBlank(message = "{user.firstname.notnull}")
-    @Size(min = 5, max = 15, message = "{user.firstname.size}", groups = Extended.class)
+    @Size(min = 3, max = 15, message = "{user.firstname.size}", groups = Extended.class)
     @JsonProperty("first_name")
     @JsonDeserialize(using = ClearStringDeserializer.class)
     private String firstName;
 
     @NotBlank(message = "{user.lastname.notnull}")
-    @Size(min = 5, max = 15, message = "{user.lastname.size}", groups = Extended.class)
+    @Size(min = 3, max = 15, message = "{user.lastname.size}", groups = Extended.class)
     @JsonProperty("last_name")
     @JsonDeserialize(using = ClearStringDeserializer.class)
     private String lastName;

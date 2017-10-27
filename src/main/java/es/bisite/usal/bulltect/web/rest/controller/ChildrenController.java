@@ -70,6 +70,8 @@ import io.swagger.annotations.ApiResponses;
 
 import java.util.List;
 import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -542,6 +544,12 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
         return ApiHelper.<String>createAndSendResponse(
                 ChildrenResponseCode.ALERT_BY_ID_DELETED, HttpStatus.OK, messageSourceResolver.resolver("alert.deleted"));
         
+    }
+    
+    
+    @RequestMapping(value = "/redirect", method = RequestMethod.GET)
+    public void method(HttpServletResponse httpServletResponse) {
+        httpServletResponse.setHeader("Location", "ig08a463d96c5149a8beaf00c1d911fb67://authorize");
     }
     
     @PostConstruct

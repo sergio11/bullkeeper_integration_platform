@@ -2,7 +2,6 @@ package es.bisite.usal.bulltect.batch;
 
 import java.util.List;
 
-import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
@@ -32,7 +31,7 @@ public class AlertItemReader extends AbstractItemCountingItemStreamItemReader<Al
 		super();
 		this.parentRepository = parentRepository;
 		this.alertRepository = alertRepository;
-		
+		logger.error("Esto es un error");
 		this.setName("alertItemReader");
 		this.setExecutionContextName("alertItemReader");
 	}

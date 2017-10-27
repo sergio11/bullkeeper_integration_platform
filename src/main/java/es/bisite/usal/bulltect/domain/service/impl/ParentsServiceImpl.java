@@ -33,6 +33,7 @@ import es.bisite.usal.bulltect.web.dto.request.UpdateSonDTO;
 import es.bisite.usal.bulltect.web.dto.response.ParentDTO;
 import es.bisite.usal.bulltect.web.dto.response.SonDTO;
 import es.bisite.usal.bulltect.web.dto.response.UserSystemPreferencesDTO;
+import es.bisite.usal.bulltect.web.rest.exception.EmailAlreadyExistsException;
 import io.jsonwebtoken.lang.Assert;
 
 @Service
@@ -99,6 +100,9 @@ public class ParentsServiceImpl implements IParentsService {
     @Override
     public ParentDTO save(RegisterParentDTO registerParent) {
         final ParentEntity parentToSave = parentEntityMapper.registerParentDTOToParentEntity(registerParent);
+        if(parentRepository.countByEmail(parentToSave.getEmail()) > 0)
+        	throw new EmailAlreadyExistsException();
+        
         final ParentEntity parentSaved = parentRepository.save(parentToSave);
         return parentEntityMapper.parentEntityToParentDTO(parentSaved);
     }
@@ -106,6 +110,8 @@ public class ParentsServiceImpl implements IParentsService {
     @Override
     public ParentDTO save(RegisterParentByFacebookDTO registerParent) {
         final ParentEntity parentToSave = parentEntityMapper.registerParentByFacebookDTOToParentEntity(registerParent);
+        if(parentRepository.countByEmail(parentToSave.getEmail()) > 0)
+        	throw new EmailAlreadyExistsException();
         final ParentEntity parentSaved = parentRepository.save(parentToSave);
         return parentEntityMapper.parentEntityToParentDTO(parentSaved);
     }

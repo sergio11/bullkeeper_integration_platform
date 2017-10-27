@@ -141,11 +141,16 @@ public class YoutubeServiceImpl implements IYoutubeService {
             logger.debug("·Total Youtube Comments: " + userComments.size());
         
         } catch (Throwable e) {
-        	if(e.getCause() instanceof GoogleJsonResponseException && ((GoogleJsonResponseException)e.getCause()).getDetails().getCode() == 401) {
-        		logger.debug("InvalidAccessTokenException FOR YOUTUBE");
-        		throw new InvalidAccessTokenException(
-                		messageSourceResolver.resolver("invalid.access.token", new Object[]{ SocialMediaTypeEnum.YOUTUBE.name() }),
-                		SocialMediaTypeEnum.YOUTUBE, accessToken);
+        	if(e.getCause() instanceof GoogleJsonResponseException) {
+        		int code = ((GoogleJsonResponseException)e.getCause()).getDetails().getCode();
+        		
+        		if(code == 401 || code == 403) {
+        			logger.debug("InvalidAccessTokenException FOR YOUTUBE");
+            		throw new InvalidAccessTokenException(
+                    		messageSourceResolver.resolver("invalid.access.token", new Object[]{ SocialMediaTypeEnum.YOUTUBE.name() }),
+                    		SocialMediaTypeEnum.YOUTUBE, accessToken);
+        		}
+        		
         	}
             throw new GetCommentsProcessException(e.toString());
         }

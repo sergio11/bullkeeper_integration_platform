@@ -11,7 +11,6 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.stereotype.Component;
 
 import es.bisite.usal.bulltect.batch.models.FCMNotificationWrapper;
-import es.bisite.usal.bulltect.fcm.operations.FCMNotificationOperation;
 import es.bisite.usal.bulltect.fcm.service.IPushNotificationsService;
 import es.bisite.usal.bulltect.persistence.repository.AlertRepository;
 
@@ -43,8 +42,8 @@ public class SendNotificationsWriter implements ItemWriter<FCMNotificationWrappe
 			.collect(Collectors.toList());
 	
 		logger.debug("Ids Delivered -> " + idsDelivered.size());
-		if(!idsDelivered.isEmpty())
-			alertRepository.setAsDelivered(idsDelivered);
+		/*if(!idsDelivered.isEmpty())
+			alertRepository.setAsDelivered(idsDelivered);*/
 		
 	}
 	

@@ -112,11 +112,11 @@ public class FacebookServiceImpl implements IFacebookService {
 
         List<CommentEntity> comments = new ArrayList<CommentEntity>();
         try {
-            logger.debug("Call Facebook API for accessToken : " + accessToken + " on thread: " + Thread.currentThread().getName());
+            logger.debug("Call Facebook API for accessToken : " + accessToken + " on thread: " + Thread.currentThread().getName());            
             FacebookClient facebookClient = new DefaultFacebookClient(accessToken, Version.VERSION_2_8);
             // Get Information about access token owner
             User user = facebookClient.fetchObject("me", User.class);
-
+            logger.debug("Get Comments For User : " + user.getName() + " after than " + startDate);
             comments = StreamUtils.concat(
                     getAllCommentsFromPostsAfterThan(facebookClient, startDate, user),
                     getAllCommentsFromAlbumsAfterThan(facebookClient, startDate, user)

@@ -145,10 +145,11 @@ public class SocialMediaServiceImpl implements ISocialMediaService {
                     .indexOf(SocialMediaType.name());
             
             if(i >= 0 && j >= 0) {
-                
+                // already exists
                 final SocialMediaEntity currentSocialMedia = currentSocialMedias.get(i);
                 final SaveSocialMediaDTO newSocialMedia = socialMediaList.get(j);
                 
+                // check if it is necessary to update the token
                 if(!currentSocialMedia.getAccessToken().equals(newSocialMedia.getAccessToken())) {
                     currentSocialMedia.setAccessToken(newSocialMedia.getAccessToken());
                     currentSocialMedia.setInvalidToken(Boolean.FALSE);
@@ -158,10 +159,12 @@ public class SocialMediaServiceImpl implements ISocialMediaService {
                 result.add(currentSocialMedia);
             
             } else if(i == -1 && j >= 0) {
+            	// Add New Social Media
                 final SocialMediaEntity newSocialMedia = socialMediaMapper.addSocialMediaDTOToSocialMediaEntity(socialMediaList.get(j));
                 logger.debug(newSocialMedia.toString());
                 result.add(newSocialMedia);
             } else if ( i >= 0 && j == -1) {
+            	// delete social media
                 final SocialMediaEntity currentSocialMedia = currentSocialMedias.get(i);
                 socialMediaRepository.delete(currentSocialMedia);
             } 

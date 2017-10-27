@@ -183,20 +183,27 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
 			@Valid @RequestBody JwtFacebookAuthenticationRequestDTO facebookInfo, Device device) throws Throwable {
     	
     	final String fbId = facebookService.getFbIdByAccessToken(facebookInfo.getToken());
+    	
+    	logger.debug("Facebook ID -> " + fbId);
         
     	JwtAuthenticationResponseDTO jwtResponseDTO =  Optional.ofNullable(parentsService.getParentByFbId(fbId))
     			.map(parent -> {
+    				logger.debug("User Already Registered, update token with  -> " + facebookInfo.getToken());
     				parentsService.updateFbAccessToken(parent.getFbId(), facebookInfo.getToken());
     				return authenticationService.createAuthenticationTokenForParent(parent.getEmail(), parent.getFbId(), device);
     			})
     			.orElseGet(() -> {
+    				
+    				logger.debug("Register user with facebook information ");
     				RegisterParentByFacebookDTO registerParent = 
     						facebookService.getRegistrationInformationForTheParent(fbId, facebookInfo.getToken());
+    			
     				logger.debug(registerParent.toString());
+    				
     				ParentDTO parent = parentsService.save(registerParent);
-                                String profileImageUrl = facebookService.fetchUserPicture(facebookInfo.getToken());
-                                if(profileImageUrl != null && !profileImageUrl.isEmpty())
-                                    uploadFilesService.uploadParentProfileImageFromUrl(new ObjectId(parent.getIdentity()), profileImageUrl);
+                    String profileImageUrl = facebookService.fetchUserPicture(facebookInfo.getToken());
+                    if(profileImageUrl != null && !profileImageUrl.isEmpty())
+                            uploadFilesService.uploadParentProfileImageFromUrl(new ObjectId(parent.getIdentity()), profileImageUrl);
     				// notify event
     				applicationEventPublisher.publishEvent(new ParentRegistrationByFacebookSuccessEvent(parent.getIdentity(), this));
     				return authenticationService.createAuthenticationTokenForParent(parent.getEmail(), parent.getFbId(), device);
@@ -439,7 +446,7 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
         Iterable<AlertDTO> alerts = alertService.findByParent(selfParent.getUserId());
         
         // Update Last Access To Alerts
-        parentsService.updateLastAccessToAlerts(selfParent.getUserId());
+        //parentsService.updateLastAccessToAlerts(selfParent.getUserId());
         
         if(Iterables.size(alerts) == 0)
         	throw new NoAlertsFoundException();

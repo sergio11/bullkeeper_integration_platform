@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.Locale;
 
 import javax.validation.constraints.Size;
-import javax.validation.groups.Default;
 
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
@@ -27,13 +26,13 @@ import es.bisite.usal.bulltect.web.rest.deserializers.ClearStringDeserializer;
 public  class RegisterParentDTO {
 	
 	@NotBlank(message = "{user.firstname.notnull}")
-    @Size(min = 5, max = 15, message = "{user.firstname.size}", groups = Extended.class)
+    @Size(min = 3, max = 15, message = "{user.firstname.size}", groups = Extended.class)
 	@JsonProperty("first_name")
 	@JsonDeserialize(using = ClearStringDeserializer.class)
 	protected String firstName;
 	
 	@NotBlank(message = "{user.lastname.notnull}")
-    @Size(min = 5, max = 15, message = "{user.lastname.size}")
+    @Size(min = 3, max = 15, message = "{user.lastname.size}")
 	@JsonProperty("last_name")
 	@JsonDeserialize(using = ClearStringDeserializer.class)
 	protected String lastName;

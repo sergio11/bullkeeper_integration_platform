@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import es.bisite.usal.bulltect.web.rest.ApiHelper;
 import es.bisite.usal.bulltect.web.rest.controller.BaseController;
+import es.bisite.usal.bulltect.web.rest.exception.EmailAlreadyExistsException;
 import es.bisite.usal.bulltect.web.rest.exception.GetInformationFromFacebookException;
 import es.bisite.usal.bulltect.web.rest.exception.InvalidFacebookIdException;
 import es.bisite.usal.bulltect.web.rest.exception.NoChildrenFoundForParentException;
@@ -117,6 +118,15 @@ public class ParentErrorController extends BaseController{
     	return ApiHelper.<String>createAndSendErrorResponseWithHeader(ParentResponseCode.NO_COMMENTS_BY_SON_FOUND_FOR_LAST_ITERATION, HttpStatus.NOT_FOUND,
     			messageSourceResolver.resolver("no.comments.by.son.found.for.last.iteration"));
     }
+    
+    
+    @ExceptionHandler(EmailAlreadyExistsException.class)
+    @ResponseBody
+    protected ResponseEntity<APIResponse<String>> handleEmailAlreadyExistsException(EmailAlreadyExistsException emailAlreadyExistsException, HttpServletRequest request) {
+    	return ApiHelper.<String>createAndSendErrorResponseWithHeader(ParentResponseCode.EMAIL_ALREADY_EXISTS, HttpStatus.NOT_FOUND,
+    			messageSourceResolver.resolver("parent.email.already.exists"));
+    }
+    
     
     
     
