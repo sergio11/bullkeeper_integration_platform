@@ -48,13 +48,4 @@ public class SonRepositoryImpl implements SonRepositoryCustom {
         return sonEntity.getProfileImage();
     }
 
-	@Override
-	public void setRequireReview(ObjectId id, Boolean requireReview) {
-		Assert.notNull(id, "Id can not be null");
-		Assert.notNull(requireReview, "requireReview can not be null");
-		
-		mongoTemplate.updateFirst(
-                new Query(Criteria.where("_id").in(id)),
-                new Update().set("requires_review", requireReview), SonEntity.class);
-	}
 }

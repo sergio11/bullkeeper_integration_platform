@@ -1,10 +1,10 @@
 package es.bisite.usal.bulltect.persistence.repository;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.bson.types.ObjectId;
 
-import es.bisite.usal.bulltect.persistence.entity.CommentStatusEnum;
 import es.bisite.usal.bulltect.web.dto.response.CommentsBySonDTO;
 
 
@@ -15,6 +15,7 @@ import es.bisite.usal.bulltect.web.dto.response.CommentsBySonDTO;
  */
 public interface CommentRepositoryCustom {
     List<CommentsBySonDTO> getCommentsBySon();
-    void updateCommentStatus(List<ObjectId> ids, CommentStatusEnum status);
-    void cancelCommentsInprogress();
+    void startSentimentAnalysisFor(Collection<ObjectId> ids);
+    /*void updateCommentStatus(List<ObjectId> ids, AnalysisStatusEnum status);
+    void cancelCommentsInprogress();*/
 }

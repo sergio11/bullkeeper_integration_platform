@@ -45,6 +45,9 @@ public interface AlertRepository extends MongoRepository<AlertEntity, ObjectId>,
     
     List<AlertEntity> findByParentIdAndDeliveredFalseAndDeliveryModeAndCreateAtGreaterThan(ObjectId id, AlertDeliveryModeEnum deliveryMode, Date lastAccess);
     
+    List<AlertEntity> findByCreateAtGreaterThanEqual(Date from);
+    
+    List<AlertEntity> findBySonIdInAndCreateAtGreaterThanEqual(List<ObjectId> ids, Date from);
     
 
 }

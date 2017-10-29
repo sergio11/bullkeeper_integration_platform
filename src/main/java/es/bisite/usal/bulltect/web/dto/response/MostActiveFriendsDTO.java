@@ -4,6 +4,8 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import es.bisite.usal.bulltect.persistence.entity.SocialMediaTypeEnum;
+
 
 public class MostActiveFriendsDTO {
 	
@@ -46,15 +48,24 @@ public class MostActiveFriendsDTO {
 
 		@JsonProperty("name")
         private String name;
+		@JsonProperty("profile_image")
+        private String profileImage;
+		@JsonProperty("social_media")
+		private SocialMediaTypeEnum socialMedia;
 		@JsonProperty("value")
-		private int value;
+		private Long value;
+		@JsonProperty("value_label")
+		private String valueLabel;
 		
 		public UserDTO(){}
 	
-		public UserDTO(String name, int value) {
+		public UserDTO(String name, String profileImage, SocialMediaTypeEnum socialMedia, Long value, String valueLabel) {
 			super();
 			this.name = name;
+			this.profileImage = profileImage;
+			this.socialMedia = socialMedia;
 			this.value = value;
+			this.valueLabel = valueLabel;
 		}
 		
 		public String getName() {
@@ -65,18 +76,45 @@ public class MostActiveFriendsDTO {
 			this.name = name;
 		}
 		
-		public int getValue() {
+		public String getProfileImage() {
+			return profileImage;
+		}
+
+		public void setProfileImage(String profileImage) {
+			this.profileImage = profileImage;
+		}
+
+		public Long getValue() {
 			return value;
 		}
 		
-		public void setValue(int value) {
+		public void setValue(Long value) {
 			this.value = value;
+		}
+		
+
+		public SocialMediaTypeEnum getSocialMedia() {
+			return socialMedia;
+		}
+
+		public void setSocialMedia(SocialMediaTypeEnum socialMedia) {
+			this.socialMedia = socialMedia;
+		}
+
+		public String getValueLabel() {
+			return valueLabel;
+		}
+
+		public void setValueLabel(String valueLabel) {
+			this.valueLabel = valueLabel;
 		}
 
 		@Override
 		public String toString() {
-			return "UserDTO [name=" + name + ", value=" + value + "]";
+			return "UserDTO [name=" + name + ", profileImage=" + profileImage + ", socialMedia=" + socialMedia
+					+ ", value=" + value + ", valueLabel=" + valueLabel + "]";
 		}
+
 		
     }
 	

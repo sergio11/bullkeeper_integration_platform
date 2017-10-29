@@ -18,19 +18,20 @@ public final class SonEntity extends PersonEntity {
     @DBRef
     private ParentEntity parent;
     
-    @Field("requires_review")
-    private Boolean requiresReview = Boolean.FALSE;
+    
+    @Field("results")
+    private SonResultsEntity results = new SonResultsEntity();
 
     public SonEntity() {
     }
 
     @PersistenceConstructor
     public SonEntity(String firstName, String lastName, Date birthdate, String profileImage, SchoolEntity school,
-            ParentEntity parent, Boolean requiresReview) {
+            ParentEntity parent, SonResultsEntity results) {
         super(firstName, lastName, birthdate, profileImage);
         this.school = school;
         this.parent = parent;
-        this.requiresReview = requiresReview;
+        this.results = results;
     }
 
     public SonEntity(String firstName, String lastName, Date birthdate, SchoolEntity school,
@@ -56,12 +57,12 @@ public final class SonEntity extends PersonEntity {
         this.parent = parent;
     }
 
-	public Boolean getRequiresReview() {
-		return requiresReview;
+	public SonResultsEntity getResults() {
+		return results;
 	}
 
-	public void setRequiresReview(Boolean requiresReview) {
-		this.requiresReview = requiresReview;
+	public void setResults(SonResultsEntity results) {
+		this.results = results;
 	}
-
+    
 }

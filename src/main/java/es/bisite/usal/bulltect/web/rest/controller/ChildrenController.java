@@ -292,7 +292,7 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
             		@SonShouldExists(message = "{son.should.be.exists}")
     						@PathVariable String id,
     		@ApiParam(name = "days_limit", value = "Days limit", required = false)
-            	@RequestParam(name = "days-limit", defaultValue = "1", required = false) Integer daysLimit) throws Throwable {
+            	@RequestParam(name = "days_limit", defaultValue = "1", required = false) Integer daysLimit) throws Throwable {
         
         logger.debug("Get Social Media Activity Statistics for Son -> " + id + " Days Limit -> " + daysLimit);
         
@@ -313,7 +313,7 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
             		@SonShouldExists(message = "{son.should.be.exists}")
     					@PathVariable String id,
     		@ApiParam(name = "days_limit", value = "Days limit", required = false)
-        		@RequestParam(name = "days-limit", defaultValue = "1", required = false) Integer daysLimit) throws Throwable {
+        		@RequestParam(name = "days_limit", defaultValue = "1", required = false) Integer daysLimit) throws Throwable {
         
         logger.debug("Get Sentiment Analysis Statistics for -> " + id + " Days Limit -> " + daysLimit);
         
@@ -334,7 +334,7 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
             		@SonShouldExists(message = "{son.should.be.exists}")
     					@PathVariable String id,
     		@ApiParam(name = "days_limit", value = "Days limit", required = false)
-    			@RequestParam(name = "days-limit", defaultValue = "1", required = false) Integer daysLimit) throws Throwable {
+    			@RequestParam(name = "days_limit", defaultValue = "1", required = false) Integer daysLimit) throws Throwable {
         
         logger.debug("Get Communities Statistics for -> " + id + " Days Limit " + daysLimit);
         
@@ -356,7 +356,7 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
             		@SonShouldExists(message = "{son.should.be.exists}")
     					@PathVariable String id,
     		@ApiParam(name = "days_limit", value = "Days limit", required = false)
-				@RequestParam(name = "days-limit", defaultValue = "1", required = false) Integer daysLimit) throws Throwable {
+				@RequestParam(name = "days_limit", defaultValue = "1", required = false) Integer daysLimit) throws Throwable {
         
         logger.debug("Get Four Dimensions Statistics for -> " + id + " Days Limit " + daysLimit);
         

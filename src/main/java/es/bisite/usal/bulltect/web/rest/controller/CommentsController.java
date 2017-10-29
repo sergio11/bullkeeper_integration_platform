@@ -17,13 +17,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 import es.bisite.usal.bulltect.domain.service.ICommentsService;
 import es.bisite.usal.bulltect.domain.service.IStatisticsService;
 import es.bisite.usal.bulltect.persistence.constraints.ValidObjectId;
 import es.bisite.usal.bulltect.util.ValidList;
 import es.bisite.usal.bulltect.web.dto.response.CommentDTO;
-import es.bisite.usal.bulltect.web.dto.response.CommentsAnalyzedStatisticsDTO;
+import es.bisite.usal.bulltect.web.dto.response.CommentsStatisticsDTO;
 import es.bisite.usal.bulltect.web.dto.response.MostActiveFriendsDTO;
 import es.bisite.usal.bulltect.web.dto.response.NewFriendsDTO;
 import es.bisite.usal.bulltect.web.dto.response.SocialMediaLikesStatisticsDTO;
@@ -46,7 +45,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.hateoas.Resource;
-
 import springfox.documentation.annotations.ApiIgnore;
 
 
@@ -102,22 +100,22 @@ public class CommentsController extends BaseController implements ICommentHAL {
     }
     
     
-    @RequestMapping(value = {"/analyzed"}, method = RequestMethod.GET)
+    @RequestMapping(value = {"/comments-extracted"}, method = RequestMethod.GET)
     @OnlyAccessForParent
-    @ApiOperation(value = "GET_COMMENTS_ANALYZED", nickname = "GET_COMMENTS_ANALYZED", notes = "Get Comments Analyzed",
-            response = CommentsAnalyzedStatisticsDTO.class)
-    public ResponseEntity<APIResponse<CommentsAnalyzedStatisticsDTO>> getCommentsAnalyzed(
+    @ApiOperation(value = "GET_COMMENTS_EXTRACTED", nickname = "GET_COMMENTS_EXTRACTED", notes = "Get Comments Extracted",
+            response = CommentsStatisticsDTO.class)
+    public ResponseEntity<APIResponse<CommentsStatisticsDTO>> getCommentsAnalyzed(
             @ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent,
             @ApiParam(name = "identities", value = "Children's Identifiers", required = false)
             	@RequestParam(name="identities" , required=false)
             		ValidList<String> identities,
             @ApiParam(name = "days_limit", value = "Days limit", required = false)
-        		@RequestParam(name = "days-limit", defaultValue = "1", required = false) Integer daysLimit) throws Throwable {
+        		@RequestParam(name = "days_limit", defaultValue = "1", required = false) Integer daysLimit) throws Throwable {
 
     	
-    	CommentsAnalyzedStatisticsDTO commentsAnalyzed = statisticsService.getCommentsStatistics(identities, daysLimit);
+    	CommentsStatisticsDTO commentsAnalyzed = statisticsService.getCommentsStatistics(identities, daysLimit);
 
-        return ApiHelper.<CommentsAnalyzedStatisticsDTO>createAndSendResponse(CommentResponseCode.COMMENTS_ANALYZED_BY_SON,
+        return ApiHelper.<CommentsStatisticsDTO>createAndSendResponse(CommentResponseCode.COMMENTS_EXTRACTED_BY_SON,
                 HttpStatus.OK, commentsAnalyzed);
     }
     
@@ -131,7 +129,7 @@ public class CommentsController extends BaseController implements ICommentHAL {
             	@RequestParam(name="identities" , required=false)
             		ValidList<String> identities,
             @ApiParam(name = "days_limit", value = "Days limit", required = false)
-        		@RequestParam(name = "days-limit", defaultValue = "1", required = false) Integer daysLimit) throws Throwable {
+        		@RequestParam(name = "days_limit", defaultValue = "1", required = false) Integer daysLimit) throws Throwable {
 
     	
     	SocialMediaLikesStatisticsDTO socialMediaLikes = statisticsService.getSocialMediaLikesStatistics(identities, daysLimit);
@@ -151,7 +149,7 @@ public class CommentsController extends BaseController implements ICommentHAL {
             	@RequestParam(name="identities" , required=false)
             		ValidList<String> identities,
             @ApiParam(name = "days_limit", value = "Days limit", required = false)
-        		@RequestParam(name = "days-limit", defaultValue = "1", required = false) Integer daysLimit) throws Throwable {
+        		@RequestParam(name = "days_limit", defaultValue = "1", required = false) Integer daysLimit) throws Throwable {
 
     	
     	MostActiveFriendsDTO mostActiveFriends = statisticsService.getMostActiveFriends(identities, daysLimit);
@@ -171,7 +169,7 @@ public class CommentsController extends BaseController implements ICommentHAL {
             	@RequestParam(name="identities" , required=false)
             		ValidList<String> identities,
             @ApiParam(name = "days_limit", value = "Days limit", required = false)
-        		@RequestParam(name = "days-limit", defaultValue = "1", required = false) Integer daysLimit) throws Throwable {
+        		@RequestParam(name = "days_limit", defaultValue = "1", required = false) Integer daysLimit) throws Throwable {
 
     	
     	NewFriendsDTO newFriends = statisticsService.getNewFriends(identities, daysLimit);

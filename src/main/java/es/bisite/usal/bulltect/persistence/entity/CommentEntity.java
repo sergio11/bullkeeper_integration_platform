@@ -28,38 +28,38 @@ public class CommentEntity {
 
     @Field("created_time")
     private Date createdTime;
+    
+    @Field("extracted_at")
+    private Date extractedAt = new Date();
 
     @Field("social_media")
     private SocialMediaTypeEnum socialMedia;
-
-    @Field("status")
-    private CommentStatusEnum status = CommentStatusEnum.PENDING;
-
-    @Field("from")
-    private String from;
     
-    @Field("from_id")
-    private String fromId;
+    @Field("author")
+    private CommentAuthorEntity author = new CommentAuthorEntity();
 
     @Field("target")
     @DBRef
     private SonEntity sonEntity;
+    
+    @Field("analysis_results")
+    private CommentAnalysisResultsEntity analysisResults = new CommentAnalysisResultsEntity();
 
     public CommentEntity() {
     }
 
     @PersistenceConstructor
-    public CommentEntity(String message, Long likes, Date createdTime,
-            SocialMediaTypeEnum socialMedia, CommentStatusEnum status, String from, String fromId, SonEntity sonEntity) {
+    public CommentEntity(String message, Long likes, Date createdTime, Date extractedAt,
+            SocialMediaTypeEnum socialMedia, CommentAuthorEntity author, SonEntity sonEntity, CommentAnalysisResultsEntity analysisResults) {
         super();
         this.message = message;
         this.likes = likes;
         this.createdTime = createdTime;
+        this.extractedAt = extractedAt;
         this.socialMedia = socialMedia;
-        this.status = status;
-        this.from = from;
-        this.fromId = fromId;
+        this.author = author;
         this.sonEntity = sonEntity;
+        this.analysisResults = analysisResults;
     }
 
     public ObjectId getId() {
@@ -101,8 +101,17 @@ public class CommentEntity {
     public void setCreatedTime(Date createdTime) {
         this.createdTime = createdTime;
     }
+    
 
-    public SocialMediaTypeEnum getSocialMedia() {
+    public Date getExtractedAt() {
+		return extractedAt;
+	}
+
+	public void setExtractedAt(Date extractedAt) {
+		this.extractedAt = extractedAt;
+	}
+
+	public SocialMediaTypeEnum getSocialMedia() {
         return socialMedia;
     }
 
@@ -110,34 +119,28 @@ public class CommentEntity {
         this.socialMedia = socialMedia;
     }
 
-    public CommentStatusEnum getStatus() {
-        return status;
-    }
-
-    public void setStatus(CommentStatusEnum status) {
-        this.status = status;
-    }
-
-    public String getFrom() {
-        return from;
-    }
-
-    public void setFrom(String from) {
-        this.from = from;
-    }
-    
-    public String getFromId() {
-		return fromId;
+	public CommentAuthorEntity getAuthor() {
+		return author;
 	}
 
-	public void setFromId(String fromId) {
-		this.fromId = fromId;
+	public void setAuthor(CommentAuthorEntity author) {
+		this.author = author;
+	}
+
+	public CommentAnalysisResultsEntity getAnalysisResults() {
+		return analysisResults;
+	}
+
+	public void setAnalysisResults(CommentAnalysisResultsEntity analysisResults) {
+		this.analysisResults = analysisResults;
 	}
 
 	@Override
 	public String toString() {
 		return "CommentEntity [id=" + id + ", message=" + message + ", likes=" + likes + ", createdTime=" + createdTime
-				+ ", socialMedia=" + socialMedia + ", status=" + status + ", from=" + from + ", fromId=" + fromId
-				+ ", sonEntity=" + sonEntity + "]";
+				+ ", socialMedia=" + socialMedia + ", author=" + author + ", sonEntity=" + sonEntity
+				+ ", analysisResults=" + analysisResults + "]";
 	}
+	
+	
 }

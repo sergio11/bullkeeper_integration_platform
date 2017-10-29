@@ -1,9 +1,11 @@
 package es.bisite.usal.bulltect.integration.transformer;
 
+
 import java.util.Date;
 import java.util.List;
-
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.integration.transformer.GenericTransformer;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
@@ -14,9 +16,13 @@ import es.bisite.usal.bulltect.persistence.entity.SonEntity;
 import es.bisite.usal.bulltect.persistence.entity.TaskEntity;
 
 public class TaskEntityTransformer implements GenericTransformer<Message<List<CommentEntity>>, TaskEntity> {
+	
+	private Logger logger = LoggerFactory.getLogger(TaskEntityTransformer.class);
 
 	@Override
 	public TaskEntity transform(Message<List<CommentEntity>> message) {
+		
+		logger.debug("TaskEntityTransformer called");
 		
 		MessageHeaders headers = message.getHeaders();
 		// Get son entity from headers
@@ -35,7 +41,9 @@ public class TaskEntityTransformer implements GenericTransformer<Message<List<Co
         for(CommentEntity comment: comments) {
             comment.setSonEntity(sonEntity);
         }
+        
         return new TaskEntity(taskStart, taskFinish, duration, isSuccess, comments, sonEntity, socialMediaId);
+   
 	}
 
 }

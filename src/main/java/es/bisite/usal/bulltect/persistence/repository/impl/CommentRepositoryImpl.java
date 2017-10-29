@@ -1,5 +1,6 @@
 package es.bisite.usal.bulltect.persistence.repository.impl;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -14,9 +15,8 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.Assert;
 
-import es.bisite.usal.bulltect.persistence.entity.AlertEntity;
 import es.bisite.usal.bulltect.persistence.entity.CommentEntity;
-import es.bisite.usal.bulltect.persistence.entity.CommentStatusEnum;
+import es.bisite.usal.bulltect.persistence.entity.AnalysisStatusEnum;
 import es.bisite.usal.bulltect.persistence.repository.CommentRepositoryCustom;
 import es.bisite.usal.bulltect.web.dto.response.CommentsBySonDTO;
 
@@ -46,7 +46,19 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
     }
 
 	@Override
-	public void updateCommentStatus(List<ObjectId> ids, CommentStatusEnum status) {
+	public void startSentimentAnalysisFor(Collection<ObjectId> ids) {
+		Assert.notNull(ids, "Ids can not be null");
+		Assert.notEmpty(ids, "Ids can not be empty");
+		
+		mongoTemplate.updateMulti(
+        		new Query(Criteria.where("_id").in(ids)),
+        		new Update().set("analysis_results.sentiment.status", AnalysisStatusEnum.IN_PROGRESS)
+        		.set("analysis_results.sentiment.start_at", new Date()), CommentEntity.class);
+		
+	}
+
+	/*@Override
+	public void updateCommentStatus(List<ObjectId> ids, AnalysisStatusEnum status) {
 		Assert.notNull(ids, "Ids can not be null");
 		Assert.notNull(status, "Status can not be null");
 		
@@ -59,9 +71,9 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
 	@Override
 	public void cancelCommentsInprogress() {
 		mongoTemplate.updateMulti(
-        		new Query(Criteria.where("status").in(CommentStatusEnum.IN_PROGRESS)),
-        		new Update().set("status", CommentStatusEnum.PENDING), CommentEntity.class);
+        		new Query(Criteria.where("status").in(AnalysisStatusEnum.IN_PROGRESS)),
+        		new Update().set("status", AnalysisStatusEnum.PENDING), CommentEntity.class);
 		
-	}
+	}*/
     
 }

@@ -8,7 +8,7 @@ import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import es.bisite.usal.bulltect.integration.service.IItegrationFlowService;
+import es.bisite.usal.bulltect.integration.service.IIntegrationFlowService;
 import es.bisite.usal.bulltect.persistence.entity.SocialMediaEntity;
 import es.bisite.usal.bulltect.persistence.repository.SonRepository;
 import es.bisite.usal.bulltect.web.dto.request.SaveSocialMediaDTO;
@@ -24,7 +24,7 @@ public abstract class SocialMediaEntityMapper {
 	protected SonRepository sonRepository;
 	
 	@Autowired
-	protected IItegrationFlowService itegrationFlowService;
+	protected IIntegrationFlowService itegrationFlowService;
     
     @Mappings({
         @Mapping(expression="java(socialMediaEntity.getId().toString())", target = "identity" ),

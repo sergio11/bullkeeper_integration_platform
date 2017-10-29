@@ -7,7 +7,6 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import es.bisite.usal.bulltect.persistence.entity.IterationEntity;
 import es.bisite.usal.bulltect.web.dto.response.IterationDTO;
 import es.bisite.usal.bulltect.web.dto.response.IterationWithTasksDTO;
@@ -22,8 +21,7 @@ public abstract class IterationEntityMapper {
 	protected TaskEntityMapper taskEntityMapper;
     
     @Mappings({
-        @Mapping(source = "iterationEntity.startDate", target = "startDate", dateFormat = "yyyy/MM/dd HH:mm:ss"),
-        @Mapping(source = "iterationEntity.finishDate", target = "finishDate", dateFormat = "yyyy/MM/dd HH:mm:ss")
+        @Mapping(source = "iterationEntity.startDate", target = "startDate", dateFormat = "yyyy/MM/dd HH:mm:ss")
     })
     @Named("iterationEntityToIterationDTO")
     public abstract IterationDTO iterationEntityToIterationDTO(IterationEntity iterationEntity); 

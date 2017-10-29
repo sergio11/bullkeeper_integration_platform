@@ -17,16 +17,22 @@ public abstract class TaskEntityMapper {
 	
 	@Autowired
 	protected SonEntityMapper sonEntityMapper;
+	
 	@Autowired
 	protected SocialMediaRepository socialMediaRepository;
+	
+	@Autowired
+	protected ICommentEntityMapper commentEntityMapper;
 	
 	@Mappings({
 		@Mapping(expression="java(taskEntity.getId().toString())", target = "identity" ),
         @Mapping(source = "taskEntity.startDate", target = "startDate", dateFormat = "yyyy/MM/dd HH:mm:ss"),
         @Mapping(source = "taskEntity.finishDate", target = "finishDate", dateFormat = "yyyy/MM/dd HH:mm:ss"),
+        @Mapping(expression="java(commentEntityMapper.commentEntitiesToCommentDTOs(taskEntity.getComments()))", target = "comments"),
         @Mapping(expression="java(taskEntity.getComments().size())", target = "totalComments"),
         @Mapping(expression="java(sonEntityMapper.sonEntityToSonDTO(taskEntity.getSonEntity()))", target = "son"),
-        @Mapping(expression="java(socialMediaRepository.getSocialMediaTypeById(taskEntity.getSocialMediaId()))", target = "socialMediaType")
+        @Mapping(expression="java(taskEntity.getSocialMediaId().toString())", target = "socialMediaId")
+        //@Mapping(expression="java(socialMediaRepository.getSocialMediaTypeById(taskEntity.getSocialMediaId()))", target = "socialMediaType")
     })
     @Named("taskEntityToTaskDTO")
     public abstract TaskDTO taskEntityToTaskDTO(TaskEntity taskEntity); 

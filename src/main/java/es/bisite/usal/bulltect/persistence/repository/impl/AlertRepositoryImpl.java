@@ -42,7 +42,7 @@ public class AlertRepositoryImpl implements AlertRepositoryCustom {
 	@Override
 	public void setAsDelivered(ObjectId alertId) {
 		mongoTemplate.updateFirst(
-        		new Query(Criteria.where("_id").in(alertId)),
+        		new Query(Criteria.where("_id").is(alertId)),
         		new Update().set("delivered", Boolean.TRUE).set("delivered_at", new Date()), AlertEntity.class);
 		
 	}

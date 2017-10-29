@@ -70,8 +70,6 @@ import es.bisite.usal.bulltect.web.rest.ApiHelper;
 import es.bisite.usal.bulltect.web.rest.exception.NoAlertsFoundException;
 import es.bisite.usal.bulltect.web.rest.exception.NoChildrenFoundForParentException;
 import es.bisite.usal.bulltect.web.rest.exception.NoChildrenFoundForSelfParentException;
-import es.bisite.usal.bulltect.web.rest.exception.NoCommentsBySonFoundForLastIterationException;
-import es.bisite.usal.bulltect.web.rest.exception.NoIterationsFoundForSelfParentException;
 import es.bisite.usal.bulltect.web.rest.exception.NoParentsFoundException;
 import es.bisite.usal.bulltect.web.rest.exception.ParentNotFoundException;
 import es.bisite.usal.bulltect.web.rest.hal.IParentHAL;
@@ -117,13 +115,12 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     private final ITokenGeneratorService tokenGeneratorService;
     private final IUploadFilesService uploadFilesService;
     private final IAlertService alertService;
-    private final IIterationService iterationService;
     private final IDeletePendingEmailService deletePendingEmailService;
  
     public ParentsController(IParentsService parentsService, IPasswordResetTokenService passwordResetTokenService, 
     		IAuthenticationService authenticationService, IFacebookService facebookService, 
                 ITokenGeneratorService tokenGeneratorService, IUploadFilesService uploadFilesService, IAlertService alertService,
-                IIterationService iterationService, IDeletePendingEmailService deletePendingEmailService) {
+                 IDeletePendingEmailService deletePendingEmailService) {
         this.parentsService = parentsService;
         this.passwordResetTokenService = passwordResetTokenService;
         this.authenticationService = authenticationService;
@@ -131,7 +128,6 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
         this.tokenGeneratorService = tokenGeneratorService;
         this.uploadFilesService = uploadFilesService;
         this.alertService = alertService;
-        this.iterationService = iterationService;
         this.deletePendingEmailService = deletePendingEmailService;
     }
    
@@ -506,72 +502,6 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
    
     }
     
-    @RequestMapping(value = "/self/iterations", method = RequestMethod.GET)
-    @OnlyAccessForParent
-    @ApiOperation(value = "GET_LAST_ITERATIONS_FOR_SELF_PARENT", nickname = "GET_LAST_ITERATIONS_FOR_SELF_PARENT", 
-            notes = "Get Last Iteration For Self Parent")
-    @ApiResponses(value = { 
-    		@ApiResponse(code = 200, message= "Iterations List", response = IterationDTO.class)
-    })
-    public ResponseEntity<APIResponse<List<IterationDTO>>> getIterationsForSelfParent(
-    		@RequestParam(value = "count", required=false, defaultValue="10") Integer count,
-    		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
-    	
-    	
-        logger.debug("Get " + count + " Iterations For Self Parent");
-        
-        List<IterationDTO> iterations = iterationService.getLastIterationsByParent(selfParent.getUserId(), count);
-        
-        if(iterations.isEmpty())
-        	throw new NoIterationsFoundForSelfParentException();
-        
-  
-        return ApiHelper.<List<IterationDTO>>createAndSendResponse(ParentResponseCode.LAST_ITERATIONS_FOR_SELF_PARENT, 
-        		HttpStatus.OK, iterations);
-   
-    }
-    
-    @RequestMapping(value = "/self/iterations/last", method = RequestMethod.GET)
-    @OnlyAccessForParent
-    @ApiOperation(value = "GET_LAST_ITERATION_FOR_SELF_PARENT", nickname = "GET_LAST_ITERATION_FOR_SELF_PARENT", 
-            notes = "Get Last Iteration For Self Parent")
-    @ApiResponses(value = { 
-    		@ApiResponse(code = 200, message= "Get Last Iteration", response = IterationDTO.class)
-    })
-    public ResponseEntity<APIResponse<IterationWithTasksDTO>> getLastIterationForSelfParent(
-    		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
-    	
-        logger.debug("Get Last Iteration");
-        
-        return Optional.ofNullable(iterationService.getLastIterationByParent(selfParent.getUserId()))
-                .map(lastIteration -> ApiHelper.<IterationWithTasksDTO>createAndSendResponse(ParentResponseCode.LAST_ITERATION_FOR_SELF_PARENT, 
-                		HttpStatus.OK, lastIteration))
-                .orElseThrow(() -> { throw new NoIterationsFoundForSelfParentException(); });
-   
-    }
-    
-    @RequestMapping(value = "/self/iterations/last/comments-by-son", method = RequestMethod.GET)
-    @OnlyAccessForParent
-    @ApiOperation(value = "GET_COMMENTS_BY_SON_FOR_LAST_ITERATION", nickname = "GET_COMMENTS_BY_SON_FOR_LAST_ITERATION", 
-            notes = "Get Comments By Son For last iteration")
-    @ApiResponses(value = { 
-    		@ApiResponse(code = 200, message= "Comments By Son for last iteration", response = CommentsBySonDTO.class)
-    })
-    public ResponseEntity<APIResponse<List<CommentsBySonDTO>>> getCommentsBySonForLastIteration(
-    		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
-    	
-        logger.debug("Get Comments By Son For Last Iteration");
-        List<CommentsBySonDTO> commentsBySon = iterationService.getCommentsBySonForLastIteration(selfParent.getUserId());
-        
-        if(commentsBySon.isEmpty()) {
-            throw new NoCommentsBySonFoundForLastIterationException();
-        }
-        
-        return ApiHelper.<List<CommentsBySonDTO>>createAndSendResponse(
-                ParentResponseCode.COMMENTS_BY_SON_FOR_LAST_ITERATION, HttpStatus.OK, commentsBySon);
-   
-    }
-    
     
     
     @RequestMapping(value = "/self/reset-password",  method = RequestMethod.POST)
@@ -774,7 +704,6 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
         Assert.notNull(tokenGeneratorService, "TokenGeneratorService can not be null");
         Assert.notNull(uploadFilesService, "UploadFilesService can not be null");
         Assert.notNull(alertService, "Alert Service can not be null");
-        Assert.notNull(iterationService, "Iteration Service can not be null");
         Assert.notNull(deletePendingEmailService, "Delete Pending Email Service can not be null");
 
     }

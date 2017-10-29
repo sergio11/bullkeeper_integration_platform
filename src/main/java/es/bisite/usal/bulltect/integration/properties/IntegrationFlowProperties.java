@@ -15,8 +15,6 @@ public final class IntegrationFlowProperties implements Serializable {
 	private Long percentageSocialMedia;
 	@Value("${integration.flow.poller.min.social.media.per.cycle}")
 	private Long minSocialMediaPerCycle;
-	@Value("${integration.flow.sentiment.service.url}")
-	private String sentimentServiceUrl;
 	
 	
 	public IntegrationFlowProperties() {
@@ -28,7 +26,6 @@ public final class IntegrationFlowProperties implements Serializable {
 		this.flowFixedDelay = flowFixedDelay;
 		this.percentageSocialMedia = percentageSocialMedia;
 		this.minSocialMediaPerCycle = minSocialMediaPerCycle;
-		this.sentimentServiceUrl = sentimentServiceUrl;
 	}
 
 	public Long getFlowFixedDelay() {
@@ -59,12 +56,5 @@ public final class IntegrationFlowProperties implements Serializable {
 		this.minSocialMediaPerCycle = minSocialMediaPerCycle;
 	}
 
-	public String getSentimentServiceUrl() {
-		return sentimentServiceUrl;
-	}
-
-	public void setSentimentServiceUrl(String sentimentServiceUrl) {
-		this.sentimentServiceUrl = sentimentServiceUrl;
-	}
 
 }

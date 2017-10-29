@@ -11,7 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import es.bisite.usal.bulltect.domain.service.ISocialMediaService;
-import es.bisite.usal.bulltect.integration.service.IItegrationFlowService;
+import es.bisite.usal.bulltect.integration.service.IIntegrationFlowService;
 import es.bisite.usal.bulltect.mapper.SocialMediaEntityMapper;
 import es.bisite.usal.bulltect.persistence.entity.SocialMediaEntity;
 import es.bisite.usal.bulltect.persistence.entity.SocialMediaTypeEnum;
@@ -33,10 +33,10 @@ public class SocialMediaServiceImpl implements ISocialMediaService {
 
     private final SocialMediaRepository socialMediaRepository;
     private final SocialMediaEntityMapper socialMediaMapper;
-    private final IItegrationFlowService itegrationFlowService;
+    private final IIntegrationFlowService itegrationFlowService;
 
     public SocialMediaServiceImpl(SocialMediaRepository socialMediaRepository,
-            SocialMediaEntityMapper socialMediaMapper, IItegrationFlowService itegrationFlowService) {
+            SocialMediaEntityMapper socialMediaMapper, IIntegrationFlowService itegrationFlowService) {
         this.socialMediaRepository = socialMediaRepository;
         this.socialMediaMapper = socialMediaMapper;
         this.itegrationFlowService = itegrationFlowService;

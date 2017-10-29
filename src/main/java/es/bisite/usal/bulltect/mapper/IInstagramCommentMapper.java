@@ -22,8 +22,9 @@ public interface IInstagramCommentMapper {
         @Mapping(source = "instagramComment.text", target = "message"),
         @Mapping(expression="java(new java.util.Date(Long.parseLong(instagramComment.getCreatedTime())))", target = "createdTime"),
         @Mapping(expression="java(es.bisite.usal.bulltect.persistence.entity.SocialMediaTypeEnum.INSTAGRAM)", target = "socialMedia"),
-        @Mapping(source = "instagramComment.commentFrom.fullName", target = "from"),
-        @Mapping(source = "instagramComment.commentFrom.id", target = "fromId"),
+        @Mapping(source = "instagramComment.commentFrom.fullName", target = "author.name"),
+        @Mapping(source = "instagramComment.commentFrom.id", target = "author.externalId"),
+        @Mapping(source = "instagramComment.commentFrom.profilePicture", target = "author.image")
         
     })
     @Named("instagramCommentToCommentEntity")

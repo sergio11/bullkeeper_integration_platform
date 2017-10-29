@@ -1,6 +1,7 @@
 package es.bisite.usal.bulltect.web.dto.response;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -17,7 +18,7 @@ public class IterationWithTasksDTO implements Serializable {
 	@JsonProperty("start_date")
     private String startDate;
 	@JsonProperty("finish_date")
-    private String finishDate;
+    private Date finishDate;
 	@JsonProperty("total_tasks")
     private Integer totalTasks;
 	@JsonProperty("total_failed_tasks")
@@ -31,7 +32,7 @@ public class IterationWithTasksDTO implements Serializable {
     public IterationWithTasksDTO(){}
 
 
-	public IterationWithTasksDTO(String startDate, String finishDate, Integer totalTasks, Integer totalFailedTasks,
+	public IterationWithTasksDTO(String startDate, Date finishDate, Integer totalTasks, Integer totalFailedTasks,
 			Integer totalComments, Set<TaskDTO> tasks) {
 		super();
 		this.startDate = startDate;
@@ -53,12 +54,12 @@ public class IterationWithTasksDTO implements Serializable {
 	}
 
 
-	public String getFinishDate() {
+	public Date getFinishDate() {
 		return finishDate;
 	}
 
 
-	public void setFinishDate(String finishDate) {
+	public void setFinishDate(Date finishDate) {
 		this.finishDate = finishDate;
 	}
 

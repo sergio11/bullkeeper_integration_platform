@@ -32,8 +32,6 @@ import es.bisite.usal.bulltect.web.security.userdetails.CommonUserDetailsAware;
 import es.bisite.usal.bulltect.web.security.utils.CurrentUser;
 import es.bisite.usal.bulltect.web.security.utils.OnlyAccessForAdmin;
 import es.bisite.usal.bulltect.web.security.utils.OnlyAccessForParent;
-
-import java.util.List;
 import java.util.Optional;
 import javax.annotation.PostConstruct;
 
@@ -227,12 +225,11 @@ public class AlertController extends BaseController {
             @ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent,
             @ApiParam(name = "identities", value = "Children's Identifiers", required = false)
             	@RequestParam(name="identities" , required=false)
-            		ValidList<String> identities,
+            		ValidList<ObjectId> identities,
             @ApiParam(name = "days_limit", value = "Days limit", required = false)
-    			@RequestParam(name = "days-limit", defaultValue = "1", required = false) 
+    			@RequestParam(name = "days_limit", defaultValue = "1", required = false) 
             	Integer daysLimit) throws Throwable {
 
-    	
     	AlertsStatisticsDTO alertsStatisticsDTO = alertService.getAlertsStatistics(identities, daysLimit);
 
         return ApiHelper.<AlertsStatisticsDTO>createAndSendResponse(AlertResponseCode.ALERTS_STATISTICS,

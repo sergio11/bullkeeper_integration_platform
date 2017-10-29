@@ -7,18 +7,18 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * @author sergio
  */
-public class CommentsAnalyzedStatisticsDTO {
+public class CommentsStatisticsDTO {
 	
 	@JsonProperty("title")
 	private String title;
 	
 	@JsonProperty("comments")
-	private List<CommentAnalyzedDTO> data;
+	private List<CommentsPerDateDTO> data;
     
-	public CommentsAnalyzedStatisticsDTO(){}
+	public CommentsStatisticsDTO(){}
 	
 
-	public CommentsAnalyzedStatisticsDTO(String title, List<CommentAnalyzedDTO> data) {
+	public CommentsStatisticsDTO(String title, List<CommentsPerDateDTO> data) {
 		super();
 		this.title = title;
 		this.data = data;
@@ -34,28 +34,28 @@ public class CommentsAnalyzedStatisticsDTO {
 	}
 
 
-	public List<CommentAnalyzedDTO> getData() {
+	public List<CommentsPerDateDTO> getData() {
 		return data;
 	}
 
 
-	public void setData(List<CommentAnalyzedDTO> data) {
+	public void setData(List<CommentsPerDateDTO> data) {
 		this.data = data;
 	}
 
 
-	public static class CommentAnalyzedDTO {
+	public static class CommentsPerDateDTO {
 
 		@JsonProperty("date")
         private String date;
 		@JsonProperty("total")
-		private int value;
+		private Long value;
 		@JsonProperty("label")
 		private String label;
 		
-		public CommentAnalyzedDTO(){}
+		public CommentsPerDateDTO(){}
 
-		public CommentAnalyzedDTO(String date, int value, String label) {
+		public CommentsPerDateDTO(String date, Long value, String label) {
 			super();
 			this.date = date;
 			this.value = value;
@@ -71,11 +71,11 @@ public class CommentsAnalyzedStatisticsDTO {
 			this.date = date;
 		}
 
-		public int getValue() {
+		public Long getValue() {
 			return value;
 		}
 
-		public void setValue(int value) {
+		public void setValue(Long value) {
 			this.value = value;
 		}
 

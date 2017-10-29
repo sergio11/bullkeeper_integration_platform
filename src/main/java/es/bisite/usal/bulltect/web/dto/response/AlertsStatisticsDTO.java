@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import es.bisite.usal.bulltect.persistence.entity.AlertLevelEnum;
+
 public final class AlertsStatisticsDTO implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -47,15 +49,15 @@ public final class AlertsStatisticsDTO implements Serializable {
 	public static class AlertLevelDTO {
 		
 		@JsonProperty("level")
-        private String level;
+        private AlertLevelEnum level;
 		@JsonProperty("total")
-		private int total;
+		private long total;
 		@JsonProperty("label")
 		private String label;
 		
 		public AlertLevelDTO(){}
 		
-		public AlertLevelDTO(String level, int total, String label) {
+		public AlertLevelDTO(AlertLevelEnum level, long total, String label) {
 			super();
 			this.level = level;
 			this.total = total;
@@ -63,19 +65,19 @@ public final class AlertsStatisticsDTO implements Serializable {
 		}
 		
 		
-		public String getLevel() {
+		public AlertLevelEnum getLevel() {
 			return level;
 		}
 		
-		public void setLevel(String level) {
+		public void setLevel(AlertLevelEnum level) {
 			this.level = level;
 		}
 		
-		public int getTotal() {
+		public long getTotal() {
 			return total;
 		}
 		
-		public void setTotal(int total) {
+		public void setTotal(long total) {
 			this.total = total;
 		}
 		

@@ -1,8 +1,12 @@
 package es.bisite.usal.bulltect.domain.service.impl;
 
 import es.bisite.usal.bulltect.domain.service.IStatisticsService;
-import es.bisite.usal.bulltect.web.dto.response.CommentsAnalyzedStatisticsDTO;
-import es.bisite.usal.bulltect.web.dto.response.CommentsAnalyzedStatisticsDTO.CommentAnalyzedDTO;
+import es.bisite.usal.bulltect.i18n.service.IMessageSourceResolverService;
+import es.bisite.usal.bulltect.persistence.entity.CommentEntity;
+import es.bisite.usal.bulltect.persistence.entity.SentimentLevelEnum;
+import es.bisite.usal.bulltect.persistence.entity.SocialMediaTypeEnum;
+import es.bisite.usal.bulltect.persistence.repository.CommentRepository;
+import es.bisite.usal.bulltect.web.dto.response.CommentsStatisticsDTO;
 import es.bisite.usal.bulltect.web.dto.response.CommunitiesStatisticsDTO;
 import es.bisite.usal.bulltect.web.dto.response.CommunitiesStatisticsDTO.CommunityDTO;
 import es.bisite.usal.bulltect.web.dto.response.DimensionsStatisticsDTO;
@@ -17,43 +21,132 @@ import es.bisite.usal.bulltect.web.dto.response.SocialMediaLikesStatisticsDTO;
 import es.bisite.usal.bulltect.web.dto.response.SocialMediaLikesStatisticsDTO.SocialMediaLikesDTO;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
+import javax.annotation.PostConstruct;
+
+import org.bson.types.ObjectId;
+import org.ocpsoft.prettytime.PrettyTime;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
-import es.bisite.usal.bulltect.web.dto.response.MostActiveFriendsDTO;
+import org.springframework.util.Assert;
 
 /**
- *
  * @author sergio
  */
 @Service
 public class StatisticsServiceImpl implements IStatisticsService {
+	
+	private final CommentRepository commentRepository;
+	private final IMessageSourceResolverService messageSourceResolverService;
+	private final PrettyTime pt = new PrettyTime(LocaleContextHolder.getLocale());
+	
 
+	@Autowired
+	public StatisticsServiceImpl(CommentRepository commentRepository, IMessageSourceResolverService messageSourceResolverService){
+		this.commentRepository = commentRepository;
+		this.messageSourceResolverService = messageSourceResolverService;
+	}
+
+	
+	private List<CommentEntity> getCommentsByCreateAtFor(List<String> identities, Date from){
+		
+		return (identities == null || identities.isEmpty() ? 
+    			commentRepository.findByCreatedTimeGreaterThanEqual(from) :
+    				commentRepository.findBySonEntityIdInAndCreatedTimeGreaterThanEqual(identities.stream()
+    						.map(id -> new ObjectId(id)).collect(Collectors.toList()), from));
+	}
+	
+	private List<CommentEntity> getCommentsByExtractedAtFor(List<String> identities, Date from){
+		
+		return (identities == null || identities.isEmpty() ? 
+    			commentRepository.findByExtractedAtGreaterThanEqual(from) :
+    				commentRepository.findBySonEntityIdInAndExtractedAtGreaterThanEqual(identities.stream()
+    						.map(id -> new ObjectId(id)).collect(Collectors.toList()), from));
+	}
 
 	@Override
 	public SocialMediaActivityStatisticsDTO getSocialMediaActivityStatistics(String idSon, Integer daysLimit) {
+		Assert.notNull(idSon, "Id Son can not be null");
+		Assert.isTrue(ObjectId.isValid(idSon), "Id Son is not valid ObjectId");
 		
-		List<ActivityDTO> socialData = Arrays.asList(
-				new ActivityDTO("FACEBOOK", 34, "34%"),
-				new ActivityDTO("INSTAGRAM", 34, "34%"),
-				new ActivityDTO("YOUTUBE", 34, "34%")
-		);
+		Calendar calendar = Calendar.getInstance(); 
+    	calendar.add(Calendar.DATE, -daysLimit); 
+    	final Date from = calendar.getTime();
+    	
+    	Map<SocialMediaTypeEnum, Long> socialActivity = commentRepository
+    			.findBySonEntityIdAndCreatedTimeGreaterThanEqual(new ObjectId(idSon), from)
+    			.parallelStream()
+    			.collect(Collectors.groupingBy(CommentEntity::getSocialMedia, Collectors.counting()));
+    	
+    	final Integer totalComments = socialActivity.values().stream().mapToInt(Number::intValue).sum();
+    	
+    	List<ActivityDTO> socialData = socialActivity
+    			.entrySet().stream()
+    			.map(socialActivityEntry -> new ActivityDTO(
+    					socialActivityEntry.getKey(),
+    					Math.round(socialActivityEntry.getValue().floatValue()/totalComments.floatValue()*100),
+        				String.format("%.0f%%", Math.round(socialActivityEntry.getValue().floatValue()/totalComments.floatValue()*100)
+    			)))
+    			.collect(Collectors.toList());
 		
-		return new SocialMediaActivityStatisticsDTO("Social Media Activity", socialData);
+		
+		return new SocialMediaActivityStatisticsDTO(
+				messageSourceResolverService.resolver("statistics.social.activity.title", new Object[] { pt.format(from) }), 
+				socialData);
 	}
 
 	@Override
 	public SentimentAnalysisStatisticsDTO getSentimentAnalysisStatistics(String idSon, Integer daysLimit) {
+		Assert.notNull(idSon, "Id Son can not be null");
+		Assert.isTrue(ObjectId.isValid(idSon), "Id Son is not valid ObjectId");
 		
-		List<SentimentDTO> sentimentData = new ArrayList<>();
-		sentimentData.add(new SentimentDTO("POSITIVE", 50.0f, "50%"));
-		sentimentData.add(new SentimentDTO("NEGATIVE", 45.0f, "45%"));
-		sentimentData.add(new SentimentDTO("NEUTRO", 5.0f, "5%"));
+		Calendar calendar = Calendar.getInstance(); 
+    	calendar.add(Calendar.DATE, -daysLimit); 
+    	final Date from = calendar.getTime();
+    	
+    	Map<SentimentLevelEnum, Long> sentimentResults = commentRepository.findBySonEntityIdAndAnalysisResultsSentimentFinishAtGreaterThanEqual(new ObjectId(idSon), from)
+    		.parallelStream()
+    		.map(comment -> comment.getAnalysisResults().getSentiment())
+			.collect(Collectors.groupingBy(
+				sentiment -> {
+					
+					SentimentLevelEnum sentimentLevel; 
+					
+					if(sentiment.getResult() >= -10 && sentiment.getResult() <= -5) {
+						sentimentLevel = SentimentLevelEnum.NEGATIVE;
+					} else if(sentiment.getResult() > -5 && sentiment.getResult() <= 5) {
+						sentimentLevel = SentimentLevelEnum.NEUTRO;
+					} else {
+						sentimentLevel = SentimentLevelEnum.POSITIVE;
+					}
+					
+					return sentimentLevel;
+					
+				},
+				Collectors.counting()
+			));
+    	
+    	final Integer totalComments = sentimentResults.values().stream().mapToInt(Number::intValue).sum();
+    	
+    	List<SentimentDTO> sentimentData = sentimentResults.entrySet()
+        		.stream()
+        		.map(sentimentEntry -> new SentimentDTO(
+        				sentimentEntry.getKey(),
+        				(long)Math.round(sentimentEntry.getValue().floatValue()/totalComments.floatValue()*100),
+        				String.format("%.0f%%", Math.round(sentimentEntry.getValue().floatValue()/totalComments.floatValue()*100))))
+        		.collect(Collectors.toList());
+        
 		
-		return new SentimentAnalysisStatisticsDTO("Sentiment Analysis", sentimentData);
+        	return new SentimentAnalysisStatisticsDTO(
+        			messageSourceResolverService.resolver("statistics.comments.sentiment.title", new Object[] { pt.format(from) }), 
+        			sentimentData);
 	}
 
 	@Override
@@ -84,51 +177,80 @@ public class StatisticsServiceImpl implements IStatisticsService {
 	}
 
 	@Override
-	public CommentsAnalyzedStatisticsDTO getCommentsStatistics(List<String> identities, Integer daysLimit) {
+	public CommentsStatisticsDTO getCommentsStatistics(List<String> identities, Integer daysLimit) {
 		
-		
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		
-		List<CommentAnalyzedDTO> commentsData = Arrays.asList(
-				new CommentAnalyzedDTO(dateFormat.format(new Date()), 45, "45"),
-				new CommentAnalyzedDTO(dateFormat.format(new Date()), 36, "36"),
-				new CommentAnalyzedDTO(dateFormat.format(new Date()), 67, "67"),
-				new CommentAnalyzedDTO(dateFormat.format(new Date()), 45, "45")
-		);
-		
-		return new CommentsAnalyzedStatisticsDTO("Comments Analyzed", commentsData);
-		
-		
+		Calendar calendar = Calendar.getInstance(); 
+    	calendar.add(Calendar.DATE, -daysLimit); 
+    	final Date from = calendar.getTime();
+    	
+    	final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    	List<CommentsStatisticsDTO.CommentsPerDateDTO> commentsData = getCommentsByExtractedAtFor(identities, from)
+    		.parallelStream()
+    		.collect(Collectors.groupingBy(
+    				comment -> dateFormat.format(comment.getExtractedAt()), 
+    				Collectors.counting()))
+    		.entrySet()
+    		.stream()
+    		.map(comment -> new CommentsStatisticsDTO.CommentsPerDateDTO(comment.getKey(), comment.getValue(), comment.getValue().toString()))
+    		.collect(Collectors.toList());
+    	
+    	return new CommentsStatisticsDTO(
+    			messageSourceResolverService.resolver("statistics.comments.obtained.title", new Object[] { pt.format(from) }), 
+    			commentsData);
+    	
 	}
 
 	@Override
 	public SocialMediaLikesStatisticsDTO getSocialMediaLikesStatistics(List<String> identities, Integer daysLimit) {
+
+	
+		Calendar calendar = Calendar.getInstance(); 
+    	calendar.add(Calendar.DATE, -daysLimit); 
+    	final Date from = calendar.getTime();
+    	
+    	List<SocialMediaLikesDTO> socialMediaData = getCommentsByCreateAtFor(identities, from).parallelStream()
+        		.collect(Collectors.groupingBy(CommentEntity::getSocialMedia, 
+        				Collectors.summingLong(CommentEntity::getLikes)))
+        		.entrySet()
+        		.stream()
+        		.map(socialEntry -> new SocialMediaLikesDTO(socialEntry.getKey(), 
+        				socialEntry.getValue(), String.format("%d likes", socialEntry.getValue())))
+        		.collect(Collectors.toList());
+    	
+    
 		
-		
-		List<SocialMediaLikesDTO> socialMediaData = Arrays.asList(
-				new SocialMediaLikesDTO("FACEBOOK", 34, "34 Likes"),
-				new SocialMediaLikesDTO("INSTAGRAM", 21, "21 Likes"),
-				new SocialMediaLikesDTO("YOUTUBE", 67, "67 Likes")
-		);
-		
-		
-		return new SocialMediaLikesStatisticsDTO("Social Media Likes", socialMediaData);
+		return new SocialMediaLikesStatisticsDTO(
+				messageSourceResolverService.resolver("statistics.social.likes.title", new Object[] { pt.format(from) }), 
+				socialMediaData);
 		
 	}
 
 	@Override
 	public MostActiveFriendsDTO getMostActiveFriends(List<String> identities, Integer daysLimit) {
 		
-		
-		List<MostActiveFriendsDTO.UserDTO> mostActiveFriends = Arrays.asList(
-				new MostActiveFriendsDTO.UserDTO("Usuario 1", 34),
-				new MostActiveFriendsDTO.UserDTO("Usuario 1", 35),
-				new MostActiveFriendsDTO.UserDTO("Usuario 1", 78)
-		);
-		
-		
-		return new MostActiveFriendsDTO("Most Active Friends", mostActiveFriends);
-		
+		Calendar calendar = Calendar.getInstance(); 
+    	calendar.add(Calendar.DATE, -daysLimit); 
+    	final Date from = calendar.getTime();
+    	
+    	List<MostActiveFriendsDTO.UserDTO> mostActiveFriends = getCommentsByCreateAtFor(identities, from).parallelStream()
+        		.collect(Collectors.groupingBy(CommentEntity::getSocialMedia,
+        				Collectors.groupingBy(CommentEntity::getAuthor, 
+        						Collectors.counting())))
+        		.entrySet()
+        		.stream()
+        		.flatMap(mostActiveFriendEntry -> {
+        			final Integer totalComments = mostActiveFriendEntry.getValue().values().stream().mapToInt(Number::intValue).sum();
+        			return mostActiveFriendEntry.getValue()
+        					.entrySet().parallelStream().map(activeFriend -> new MostActiveFriendsDTO.UserDTO(
+        							activeFriend.getKey().getName(), activeFriend.getKey().getImage(), mostActiveFriendEntry.getKey(), (long)Math.round(activeFriend.getValue().floatValue()/totalComments.floatValue()*100) ,
+        							Math.round(activeFriend.getValue().floatValue()/totalComments.floatValue()*100) + "%"));
+        		}).collect(Collectors.toList());
+    	
+    	
+    	
+    	return new MostActiveFriendsDTO(
+    			messageSourceResolverService.resolver("statistics.most.active.friends", new Object[] { pt.format(from) })
+    			, mostActiveFriends);
 	
 	}
 
@@ -144,5 +266,11 @@ public class StatisticsServiceImpl implements IStatisticsService {
 		
 		return new NewFriendsDTO("New Friends", newFriends);
 	}
+	
+	@PostConstruct
+    protected void init() {
+        Assert.notNull(commentRepository, "Comment Repository cannot be null");
+        Assert.notNull(messageSourceResolverService, "Message Source Resolver Service cannot be null");
+    }
     
 }

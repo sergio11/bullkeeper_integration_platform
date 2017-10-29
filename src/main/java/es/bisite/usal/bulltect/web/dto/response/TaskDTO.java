@@ -1,6 +1,7 @@
 package es.bisite.usal.bulltect.web.dto.response;
 
 import java.io.Serializable;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -20,25 +21,31 @@ public class TaskDTO implements Serializable {
     private Long duration;
 	@JsonProperty("is_success")
     private Boolean success = Boolean.TRUE;
+	@JsonProperty("comments")
+	private List<CommentDTO> comments;
 	@JsonProperty("total_comments")
 	private Integer totalComments;
 	@JsonProperty("target")
 	private SonDTO son;
+	@JsonProperty("social_media_id")
+	private String socialMediaId;
 	@JsonProperty("social_media_type")
 	private SocialMediaTypeEnum socialMediaType;
 	
 	public TaskDTO(){}
 	
 	public TaskDTO(String identity, String startDate, String finishDate, Long duration, Boolean success,
-			Integer totalComments, SonDTO son, SocialMediaTypeEnum  socialMediaType) {
+			List<CommentDTO> comments, Integer totalComments, SonDTO son, String socialMediaId, SocialMediaTypeEnum  socialMediaType) {
 		super();
 		this.identity = identity;
 		this.startDate = startDate;
 		this.finishDate = finishDate;
 		this.duration = duration;
 		this.success = success;
+		this.comments = comments;
 		this.totalComments = totalComments;
 		this.son = son;
+		this.socialMediaId = socialMediaId;
 		this.socialMediaType = socialMediaType;
 	}
 
@@ -81,6 +88,14 @@ public class TaskDTO implements Serializable {
 	public void setSuccess(Boolean success) {
 		this.success = success;
 	}
+	
+	public List<CommentDTO> getComments() {
+		return comments;
+	}
+
+	public void setComments(List<CommentDTO> comments) {
+		this.comments = comments;
+	}
 
 	public Integer getTotalComments() {
 		return totalComments;
@@ -96,6 +111,14 @@ public class TaskDTO implements Serializable {
 
 	public void setSon(SonDTO son) {
 		this.son = son;
+	}
+
+	public String getSocialMediaId() {
+		return socialMediaId;
+	}
+
+	public void setSocialMediaId(String socialMediaId) {
+		this.socialMediaId = socialMediaId;
 	}
 
 	public SocialMediaTypeEnum  getSocialMediaType() {

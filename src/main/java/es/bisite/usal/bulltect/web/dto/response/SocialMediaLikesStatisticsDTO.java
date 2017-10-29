@@ -4,6 +4,8 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import es.bisite.usal.bulltect.persistence.entity.SocialMediaTypeEnum;
+
 /**
  * @author sergio
  */
@@ -49,34 +51,34 @@ public class SocialMediaLikesStatisticsDTO {
 	public static class SocialMediaLikesDTO {
 
 		@JsonProperty("type")
-        private String type;
+        private SocialMediaTypeEnum type;
 		@JsonProperty("likes")
-		private int likes;
+		private long likes;
 		@JsonProperty("label")
 		private String label;
 		
 		public SocialMediaLikesDTO(){}
 		
-		public SocialMediaLikesDTO(String type, int likes, String label) {
+		public SocialMediaLikesDTO(SocialMediaTypeEnum type, long likes, String label) {
 			super();
 			this.type = type;
 			this.likes = likes;
 			this.label = label;
 		}
 		
-		public String getType() {
+		public SocialMediaTypeEnum getType() {
 			return type;
 		}
 		
-		public void setType(String type) {
+		public void setType(SocialMediaTypeEnum type) {
 			this.type = type;
 		}
 		
-		public int getLikes() {
+		public long getLikes() {
 			return likes;
 		}
 		
-		public void setLikes(int likes) {
+		public void setLikes(long likes) {
 			this.likes = likes;
 		}
 		

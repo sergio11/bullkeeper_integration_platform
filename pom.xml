@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>sanchez.sanchez.sergio</groupId>
     <artifactId>bulltect-integration-platform</artifactId>
-    <version>0.0.38-SNAPSHOT</version>
+    <version>0.0.50-SNAPSHOT</version>
     <packaging>${packaging.type}</packaging>
     <name>BullTect Integration Platform</name>
     <description>BullTect Integration Platform. EIPs patterns with Spring Integration.</description>
@@ -489,6 +489,13 @@
 		    <groupId>com.googlecode.libphonenumber</groupId>
 		    <artifactId>libphonenumber</artifactId>
 		    <version>8.8.0</version>
+		</dependency>
+		
+		<!-- PrettyTime is an OpenSource time formatting library. Completely customizable, it creates human readable, relative timestamps like those seen on Digg, Twitter, and Facebook. Get started “right now!” and in over 33 languages! -->
+		<dependency>
+		   <groupId>org.ocpsoft.prettytime</groupId>
+		   <artifactId>prettytime</artifactId>
+		   <version>3.2.7.Final</version>
 		</dependency>
         
     </dependencies>

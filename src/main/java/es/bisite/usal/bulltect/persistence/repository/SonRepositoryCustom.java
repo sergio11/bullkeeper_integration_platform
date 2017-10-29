@@ -7,6 +7,4 @@ public interface SonRepositoryCustom {
     void setProfileImageId(ObjectId id, String profileImageId);
 
     String getProfileImageIdByUserId(ObjectId id);
-    
-    void setRequireReview(ObjectId id, Boolean requireReview);
 }

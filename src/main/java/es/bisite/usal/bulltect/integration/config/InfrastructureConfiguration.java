@@ -29,12 +29,14 @@ import org.springframework.integration.dsl.channel.MessageChannels;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.MessagingException;
+import org.springframework.messaging.SubscribableChannel;
 import org.springframework.util.Assert;
 
 import es.bisite.usal.bulltect.exception.IntegrationFlowException;
 import es.bisite.usal.bulltect.integration.aggregation.IterationGroupProcessor;
 import es.bisite.usal.bulltect.integration.constants.IntegrationConstants;
 import es.bisite.usal.bulltect.integration.properties.IntegrationFlowProperties;
+import es.bisite.usal.bulltect.integration.transformer.IterationEntityTransformer;
 import es.bisite.usal.bulltect.integration.transformer.TaskEntityTransformer;
 import es.bisite.usal.bulltect.persistence.entity.CommentEntity;
 import es.bisite.usal.bulltect.persistence.entity.SocialMediaEntity;
@@ -67,6 +69,9 @@ public class InfrastructureConfiguration {
     
     @Autowired
     private IntegrationFlowProperties integrationFlowProperties;
+    
+    @Autowired
+    private IterationEntityTransformer iterationEntityTransformer;
     
    
     /**
@@ -103,6 +108,19 @@ public class InfrastructureConfiguration {
         return messageSource;
     }
     
+    
+    @Bean
+    public SubscribableChannel iterationFinishedPubSubChannel()
+    {
+        return MessageChannels
+        		.publishSubscribe("iterationFinishedPubSubChannel")
+        		.get();
+    }
+    
+    /**
+     * Flow to handle errors produced when getting comments
+     * @return
+     */
     @Bean
     public IntegrationFlow socialMediaErrorFlow() {
         return IntegrationFlows.from("socialMediaErrorChannel")
@@ -122,6 +140,46 @@ public class InfrastructureConfiguration {
                 .get();
     }
     
+    /**
+     * social media planning for the next iteration
+     * @return
+     */
+    @Bean
+    public IntegrationFlow scheduleSocialMediaForNextIteration() {
+        return IntegrationFlows.from(iterationFinishedPubSubChannel())
+           .handle("integrationFlowService", "scheduleSocialMediaForNextIteration")
+           .get();
+    }
+    
+    
+    /**
+     *  Generating alerts for the current iteration
+     * @return
+     */
+    @Bean
+    public IntegrationFlow generateAlertsForIteration() {
+        return IntegrationFlows.from(iterationFinishedPubSubChannel())
+           .handle("integrationFlowService", "generateAlertsForIteration")
+           .get();
+    }
+    
+    /**
+     *  Analysis of iteration comments
+     * @return
+     */
+    @Bean
+    public IntegrationFlow startAnalysis() {
+        return IntegrationFlows.from(iterationFinishedPubSubChannel())
+           .handle("analysisService", "startAnalysisFor")
+           .get();
+    }
+    
+    /**
+     * Mainstream, obtains valid social media and proceeds to obtain comments using the access token
+     * @param mongo
+     * @param poller
+     * @return
+     */
     @Bean
     @Autowired
     public IntegrationFlow processUsers(MongoDbFactory mongo, PollerMetadata poller) {
@@ -132,7 +190,6 @@ public class InfrastructureConfiguration {
                     s.headerExpressions(h -> 
                     	h.put(IntegrationConstants.USER_HEADER, "payload.sonEntity")
                     		.put(IntegrationConstants.SOCIAL_MEDIA_ID_HEADER, "payload.id")
-                    		.put(IntegrationConstants.PARENT_HEADER, "payload.sonEntity.parent")
                     )
                     .header(MessageHeaders.ERROR_CHANNEL, "socialMediaErrorChannel")
                     .header(IntegrationConstants.TASK_START_HEADER, new Date())
@@ -151,7 +208,8 @@ public class InfrastructureConfiguration {
                 .transform(new TaskEntityTransformer())
                 .aggregate(a -> a.outputProcessor(new IterationGroupProcessor()))
                 .channel("directChannel_2")
-                .handle("iterationService", "save")
+                .transform(iterationEntityTransformer)
+                .channel(iterationFinishedPubSubChannel())
                 .get();
     }
     

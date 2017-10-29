@@ -5,18 +5,23 @@ import org.springframework.hateoas.ResourceSupport;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+
 /**
  *
  * @author sergio
  */
 public class CommentDTO extends ResourceSupport implements Serializable {
     
+	private static final long serialVersionUID = 1L;
+	
 	@JsonProperty("identity")
     private String identity;
 	@JsonProperty("message")
     private String message;
 	@JsonProperty("likes")
     private Long likes;
+	@JsonProperty("social_media")
+	private String socialMedia;
 	@JsonProperty("created_time")
     private String createdTime;
 	@JsonProperty("user")
@@ -24,10 +29,11 @@ public class CommentDTO extends ResourceSupport implements Serializable {
     
     public CommentDTO(){}
 
-    public CommentDTO(String identity, String message, Long likes, String createdTime, String user) {
+    public CommentDTO(String identity, String message, Long likes, String socialMedia, String createdTime, String user) {
         this.identity = identity;
         this.message = message;
         this.likes = likes;
+        this.socialMedia = socialMedia;
         this.createdTime = createdTime;
         this.user = user;
     }
@@ -55,8 +61,16 @@ public class CommentDTO extends ResourceSupport implements Serializable {
     public void setLikes(Long likes) {
         this.likes = likes;
     }
+    
+    public String getSocialMedia() {
+		return socialMedia;
+	}
 
-    public String getCreatedTime() {
+	public void setSocialMedia(String socialMedia) {
+		this.socialMedia = socialMedia;
+	}
+
+	public String getCreatedTime() {
         return createdTime;
     }
 
@@ -72,8 +86,11 @@ public class CommentDTO extends ResourceSupport implements Serializable {
         this.user = user;
     }
 
-    @Override
-    public String toString() {
-        return "CommentDTO{" + "message=" + message + ", likes=" + likes + ", createdTime=" + createdTime + ", user=" + user + '}';
-    }
+	@Override
+	public String toString() {
+		return "CommentDTO [identity=" + identity + ", message=" + message + ", likes=" + likes + ", socialMedia="
+				+ socialMedia + ", createdTime=" + createdTime + ", user=" + user + "]";
+	}
+
+    
 }

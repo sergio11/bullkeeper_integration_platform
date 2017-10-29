@@ -2,11 +2,18 @@ package es.bisite.usal.bulltect.domain.service.impl;
 
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import org.bson.types.ObjectId;
+import org.ocpsoft.prettytime.PrettyTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -33,6 +40,8 @@ import es.bisite.usal.bulltect.web.dto.response.AlertsPageDTO;
 
 @Service
 public class AlertServiceImpl implements IAlertService {
+	
+	private static Logger logger = LoggerFactory.getLogger(AlertServiceImpl.class);
 
     private final AlertRepository alertRepository;
     private final AlertEntityMapper alertMapper;
@@ -167,16 +176,36 @@ public class AlertServiceImpl implements IAlertService {
 	}
     
     @Override
-	public AlertsStatisticsDTO getAlertsStatistics(List<String> sonIds, int daysLimit) {
-		//return alertRepository.getAlertsBySon(sonIds);
+	public AlertsStatisticsDTO getAlertsStatistics(List<ObjectId> sonIds, int daysLimit) {
     	
-    	List<AlertLevelDTO> alertsData = Arrays.asList(
-				new AlertLevelDTO("INFO", 34, "33%"),
-				new AlertLevelDTO("WARNING", 34, "33%"),
-				new AlertLevelDTO("DANGER", 34, "33%")
-		);
-		
-		return new AlertsStatisticsDTO("Alerts", alertsData);
+    	
+    	Calendar calendar = Calendar.getInstance(); 
+    	calendar.add(Calendar.DATE, -daysLimit); 
+    	final Date from = calendar.getTime();
+    	
+    	Map<AlertLevelEnum, Long> alertsByLevel = 
+    			(sonIds == null || sonIds.isEmpty() ? 
+    					alertRepository.findByCreateAtGreaterThanEqual(from) :
+    						alertRepository.findBySonIdInAndCreateAtGreaterThanEqual(sonIds, from)	)
+    		.parallelStream()
+    		.collect(Collectors.groupingBy(AlertEntity::getLevel, Collectors.counting()));
+    	
+    	
+    	final Integer totalAlerts = alertsByLevel.values().stream().mapToInt(Number::intValue).sum();
+
+    	List<AlertLevelDTO> alertsData = alertsByLevel.entrySet()
+    		.stream()
+    		.map(alertByLevelEntry -> new AlertLevelDTO(
+    				alertByLevelEntry.getKey(), 
+    				(long)Math.round(alertByLevelEntry.getValue().floatValue()/totalAlerts.floatValue()*100),
+    				Math.round(alertByLevelEntry.getValue().floatValue()/totalAlerts.floatValue()*100) + "%"))
+    		.collect(Collectors.toList());
+    	
+    	PrettyTime pt = new PrettyTime(LocaleContextHolder.getLocale());
+    	
+		return new AlertsStatisticsDTO(
+				messageSourceResolverService.resolver("statistics.alerts.title", new Object[] { pt.format(from) }), 
+				alertsData);
     	
 	}
     

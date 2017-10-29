@@ -4,6 +4,8 @@ package es.bisite.usal.bulltect.web.dto.response;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import es.bisite.usal.bulltect.persistence.entity.SentimentLevelEnum;
+
 /**
  * @author sergio
  */
@@ -43,7 +45,7 @@ public class SentimentAnalysisStatisticsDTO {
 	public static class SentimentDTO {
 		
 		@JsonProperty("type")
-		private String type;
+		private SentimentLevelEnum type;
 		
 		@JsonProperty("score")
 		private float score;
@@ -51,18 +53,18 @@ public class SentimentAnalysisStatisticsDTO {
 		@JsonProperty("label")
 		private String label;
 
-		public SentimentDTO(String type, float score, String label) {
+		public SentimentDTO(SentimentLevelEnum type, float score, String label) {
 			super();
 			this.type = type;
 			this.score = score;
 			this.label = label;
 		}
 
-		public String getType() {
+		public SentimentLevelEnum getType() {
 			return type;
 		}
 
-		public void setType(String type) {
+		public void setType(SentimentLevelEnum type) {
 			this.type = type;
 		}
 
