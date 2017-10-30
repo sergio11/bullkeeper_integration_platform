@@ -74,6 +74,10 @@ public final class CommentAuthorEntity {
 			return false;
 		return true;
 	}
-	
+
+	@Override
+	public String toString() {
+		return "CommentAuthorEntity [externalId=" + externalId + ", name=" + name + ", image=" + image + "]";
+	}
 	
 }

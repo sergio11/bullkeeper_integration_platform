@@ -25,8 +25,11 @@ import es.bisite.usal.bulltect.web.rest.exception.GetInformationFromFacebookExce
 import es.bisite.usal.bulltect.web.rest.exception.InvalidFacebookIdException;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.PostConstruct;
@@ -72,11 +75,7 @@ public class FacebookServiceImpl implements IFacebookService {
                 .flatMap(List::stream)
                 .flatMap(comment
                         -> {
-
-                    logger.debug("Comment -> " + comment.getMessage() + " Created Time : " + comment.getCreatedTime());
-                    logger.debug("From -> " + comment.getFrom());
-                    
-
+                        
                     return comment.getCommentCount() > 0 ? StreamUtils.concat(
                             getCommentsByObjectAfterThan(facebookClient, comment.getId(), startDate, user), comment)
                             : Stream.of(comment);
@@ -108,9 +107,9 @@ public class FacebookServiceImpl implements IFacebookService {
     }
 
     @Override
-    public List<CommentEntity> getCommentsLaterThan(Date startDate, String accessToken) {
+    public Set<CommentEntity> getCommentsLaterThan(Date startDate, String accessToken) {
 
-        List<CommentEntity> comments = new ArrayList<CommentEntity>();
+        Set<CommentEntity> comments = new HashSet<CommentEntity>();
         try {
             logger.debug("Call Facebook API for accessToken : " + accessToken + " on thread: " + Thread.currentThread().getName());            
             FacebookClient facebookClient = new DefaultFacebookClient(accessToken, Version.VERSION_2_8);
@@ -122,9 +121,16 @@ public class FacebookServiceImpl implements IFacebookService {
                     getAllCommentsFromAlbumsAfterThan(facebookClient, startDate, user)
             )
                     .map(comment -> facebookCommentMapper.facebookCommentToCommentEntity(comment))
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toSet());
 
             logger.debug("Total Facebook comments : " + comments.size());
+            
+            comments.forEach(commentToSaved -> {
+            	 logger.debug("Comment -> " + commentToSaved.getMessage() + " Created Time : " + commentToSaved.getCreatedTime());
+                 logger.debug("From -> " + commentToSaved.getAuthor());
+            });
+            
+           
         } catch (FacebookOAuthException e) {
             logger.error(e.getErrorMessage());
             throw new InvalidAccessTokenException(

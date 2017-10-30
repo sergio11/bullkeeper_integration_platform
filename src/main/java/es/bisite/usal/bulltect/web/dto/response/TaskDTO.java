@@ -2,6 +2,7 @@ package es.bisite.usal.bulltect.web.dto.response;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -22,7 +23,7 @@ public class TaskDTO implements Serializable {
 	@JsonProperty("is_success")
     private Boolean success = Boolean.TRUE;
 	@JsonProperty("comments")
-	private List<CommentDTO> comments;
+	private Set<CommentDTO> comments;
 	@JsonProperty("total_comments")
 	private Integer totalComments;
 	@JsonProperty("target")
@@ -35,7 +36,7 @@ public class TaskDTO implements Serializable {
 	public TaskDTO(){}
 	
 	public TaskDTO(String identity, String startDate, String finishDate, Long duration, Boolean success,
-			List<CommentDTO> comments, Integer totalComments, SonDTO son, String socialMediaId, SocialMediaTypeEnum  socialMediaType) {
+			Set<CommentDTO> comments, Integer totalComments, SonDTO son, String socialMediaId, SocialMediaTypeEnum  socialMediaType) {
 		super();
 		this.identity = identity;
 		this.startDate = startDate;
@@ -89,11 +90,11 @@ public class TaskDTO implements Serializable {
 		this.success = success;
 	}
 	
-	public List<CommentDTO> getComments() {
+	public Set<CommentDTO> getComments() {
 		return comments;
 	}
 
-	public void setComments(List<CommentDTO> comments) {
+	public void setComments(Set<CommentDTO> comments) {
 		this.comments = comments;
 	}
 

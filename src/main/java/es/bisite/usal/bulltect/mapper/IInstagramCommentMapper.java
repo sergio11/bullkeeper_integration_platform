@@ -18,7 +18,8 @@ import es.bisite.usal.bulltect.persistence.entity.CommentEntity;
 public interface IInstagramCommentMapper {
     
     @Mappings({ 
-        @Mapping(target = "id", ignore=true),
+    	@Mapping(target = "id", ignore=true),
+    	@Mapping(source = "instagramComment.id", target="externalId"),
         @Mapping(source = "instagramComment.text", target = "message"),
         @Mapping(expression="java(new java.util.Date(Long.parseLong(instagramComment.getCreatedTime())))", target = "createdTime"),
         @Mapping(expression="java(es.bisite.usal.bulltect.persistence.entity.SocialMediaTypeEnum.INSTAGRAM)", target = "socialMedia"),

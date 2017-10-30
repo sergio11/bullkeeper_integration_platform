@@ -1,6 +1,8 @@
 package es.bisite.usal.bulltect.integration.transformer;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.transformer.GenericTransformer;
 import org.springframework.messaging.Message;
@@ -14,6 +16,7 @@ import es.bisite.usal.bulltect.web.dto.response.IterationWithTasksDTO;
 @Component
 public class IterationEntityTransformer implements GenericTransformer<Message<IterationEntity>, IterationWithTasksDTO> {
 
+	private Logger logger = LoggerFactory.getLogger(IterationEntityTransformer.class);
 	
 	@Autowired
 	private IIterationService iterationService;

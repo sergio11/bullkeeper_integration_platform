@@ -1,12 +1,13 @@
 
 package es.bisite.usal.bulltect.rrss.service.impl;
+
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.util.ArrayMap;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -30,10 +31,9 @@ import es.bisite.usal.bulltect.persistence.entity.CommentEntity;
 import es.bisite.usal.bulltect.persistence.entity.SocialMediaTypeEnum;
 import es.bisite.usal.bulltect.rrss.service.IYoutubeService;
 import es.bisite.usal.bulltect.util.StreamUtils;
-
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 
 import javax.annotation.PostConstruct;
 import org.springframework.util.Assert;
@@ -122,10 +122,10 @@ public class YoutubeServiceImpl implements IYoutubeService {
     
     
     @Override
-    public List<CommentEntity> getCommentsLaterThan(Date startDate, String accessToken) {
+    public Set<CommentEntity> getCommentsLaterThan(Date startDate, String accessToken) {
         
         logger.debug("Call Youtube Data API for accessToekn : " + accessToken + " on thread: " + Thread.currentThread().getName());
-        List<CommentEntity> userComments = new ArrayList<>();
+        Set<CommentEntity> userComments = new HashSet<>();
         try {
             YouTube youTube = appCtx.getBean(YouTube.class, accessToken);
             // Get Channels for User
@@ -136,7 +136,7 @@ public class YoutubeServiceImpl implements IYoutubeService {
             	.orElse(Stream.empty())
             	.flatMap(channel -> getCommentRelatedToChannelAfterThan(youTube, channel.getId(), startDate))
             	.map(comment -> youtubeCommentMapper.youtubeCommentToCommentEntity(comment))
-            	.collect(Collectors.toList());
+            	.collect(Collectors.toSet());
             
             logger.debug("·Total Youtube Comments: " + userComments.size());
         

@@ -1,7 +1,9 @@
 package es.bisite.usal.bulltect.web.rest.controller;
 
+import org.ocpsoft.prettytime.PrettyTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.io.ResourceLoader;
 
 import es.bisite.usal.bulltect.i18n.service.IMessageSourceResolverService;
@@ -24,5 +26,7 @@ public abstract class BaseController {
     
     @Autowired
     protected ControllerHelper controllerHelper;
+    
+    protected final PrettyTime prettyTime = new PrettyTime(LocaleContextHolder.getLocale());
     
 }

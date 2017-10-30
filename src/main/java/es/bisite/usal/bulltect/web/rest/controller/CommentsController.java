@@ -2,6 +2,7 @@ package es.bisite.usal.bulltect.web.rest.controller;
 
 
 
+import java.util.Date;
 import java.util.Optional;
 
 import javax.validation.Valid;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import es.bisite.usal.bulltect.domain.service.ICommentsService;
 import es.bisite.usal.bulltect.domain.service.IStatisticsService;
 import es.bisite.usal.bulltect.persistence.constraints.ValidObjectId;
+import es.bisite.usal.bulltect.util.Utils;
 import es.bisite.usal.bulltect.util.ValidList;
 import es.bisite.usal.bulltect.web.dto.response.CommentDTO;
 import es.bisite.usal.bulltect.web.dto.response.CommentsStatisticsDTO;
@@ -28,7 +30,11 @@ import es.bisite.usal.bulltect.web.dto.response.NewFriendsDTO;
 import es.bisite.usal.bulltect.web.dto.response.SocialMediaLikesStatisticsDTO;
 import es.bisite.usal.bulltect.web.rest.ApiHelper;
 import es.bisite.usal.bulltect.web.rest.exception.CommentNotFoundException;
+import es.bisite.usal.bulltect.web.rest.exception.NoActiveFriendsInThisPeriodException;
+import es.bisite.usal.bulltect.web.rest.exception.NoCommentsExtractedException;
 import es.bisite.usal.bulltect.web.rest.exception.NoCommentsFoundException;
+import es.bisite.usal.bulltect.web.rest.exception.NoLikesFoundInThisPeriodException;
+import es.bisite.usal.bulltect.web.rest.exception.NoNewFriendsAtThisTimeException;
 import es.bisite.usal.bulltect.web.rest.hal.ICommentHAL;
 import es.bisite.usal.bulltect.web.rest.response.APIResponse;
 import es.bisite.usal.bulltect.web.rest.response.CommentResponseCode;
@@ -109,14 +115,17 @@ public class CommentsController extends BaseController implements ICommentHAL {
             @ApiParam(name = "identities", value = "Children's Identifiers", required = false)
             	@RequestParam(name="identities" , required=false)
             		ValidList<String> identities,
-            @ApiParam(name = "days_limit", value = "Days limit", required = false)
-        		@RequestParam(name = "days_limit", defaultValue = "1", required = false) Integer daysLimit) throws Throwable {
+            @ApiParam(name = "days_ago", value = "Days Ago", required = false)
+        		@RequestParam(name = "days_ago", defaultValue = "1", required = false) Date from) throws Throwable {
 
+   	
+    	CommentsStatisticsDTO commentsStatistics = statisticsService.getCommentsStatistics(identities, from);
+
+    	if(commentsStatistics.getData().isEmpty())
+    		throw new NoCommentsExtractedException(from);
     	
-    	CommentsStatisticsDTO commentsAnalyzed = statisticsService.getCommentsStatistics(identities, daysLimit);
-
         return ApiHelper.<CommentsStatisticsDTO>createAndSendResponse(CommentResponseCode.COMMENTS_EXTRACTED_BY_SON,
-                HttpStatus.OK, commentsAnalyzed);
+                HttpStatus.OK, commentsStatistics);
     }
     
     @RequestMapping(value = {"/social-media-Likes"}, method = RequestMethod.GET)
@@ -128,12 +137,15 @@ public class CommentsController extends BaseController implements ICommentHAL {
             @ApiParam(name = "identities", value = "Children's Identifiers", required = false)
             	@RequestParam(name="identities" , required=false)
             		ValidList<String> identities,
-            @ApiParam(name = "days_limit", value = "Days limit", required = false)
-        		@RequestParam(name = "days_limit", defaultValue = "1", required = false) Integer daysLimit) throws Throwable {
+            @ApiParam(name = "days_ago", value = "Days Ago", required = false)
+        		@RequestParam(name = "days_ago", defaultValue = "1", required = false) Date from) throws Throwable {
 
     	
-    	SocialMediaLikesStatisticsDTO socialMediaLikes = statisticsService.getSocialMediaLikesStatistics(identities, daysLimit);
+    	SocialMediaLikesStatisticsDTO socialMediaLikes = statisticsService.getSocialMediaLikesStatistics(identities, from);
 
+    	if(socialMediaLikes.getData().isEmpty())
+    		throw new NoLikesFoundInThisPeriodException(from);
+    	
         return ApiHelper.<SocialMediaLikesStatisticsDTO>createAndSendResponse(CommentResponseCode.SOCIAL_MEDIA_LIKES,
                 HttpStatus.OK, socialMediaLikes);
     }
@@ -148,11 +160,15 @@ public class CommentsController extends BaseController implements ICommentHAL {
             @ApiParam(name = "identities", value = "Children's Identifiers", required = false)
             	@RequestParam(name="identities" , required=false)
             		ValidList<String> identities,
-            @ApiParam(name = "days_limit", value = "Days limit", required = false)
-        		@RequestParam(name = "days_limit", defaultValue = "1", required = false) Integer daysLimit) throws Throwable {
+            @ApiParam(name = "days_ago", value = "Days Ago", required = false)
+        		@RequestParam(name = "days_ago", defaultValue = "1", required = false) Date from) throws Throwable {
 
     	
-    	MostActiveFriendsDTO mostActiveFriends = statisticsService.getMostActiveFriends(identities, daysLimit);
+    	MostActiveFriendsDTO mostActiveFriends = statisticsService.getMostActiveFriends(identities, from);
+    	
+    	if(mostActiveFriends.getUsers().isEmpty())
+    		throw new NoActiveFriendsInThisPeriodException(from);
+    	
 
         return ApiHelper.<MostActiveFriendsDTO>createAndSendResponse(CommentResponseCode.MOST_ACTIVE_FRIENDS,
                 HttpStatus.OK, mostActiveFriends);
@@ -168,11 +184,14 @@ public class CommentsController extends BaseController implements ICommentHAL {
             @ApiParam(name = "identities", value = "Children's Identifiers", required = false)
             	@RequestParam(name="identities" , required=false)
             		ValidList<String> identities,
-            @ApiParam(name = "days_limit", value = "Days limit", required = false)
-        		@RequestParam(name = "days_limit", defaultValue = "1", required = false) Integer daysLimit) throws Throwable {
+            @ApiParam(name = "days_ago", value = "Days limit", required = false)
+        		@RequestParam(name = "days_ago", defaultValue = "1", required = false) Date from) throws Throwable {
 
     	
-    	NewFriendsDTO newFriends = statisticsService.getNewFriends(identities, daysLimit);
+    	NewFriendsDTO newFriends = statisticsService.getNewFriends(identities, from);
+    	
+    	if(newFriends.getUsers().isEmpty())
+    		throw new NoNewFriendsAtThisTimeException(from);
 
         return ApiHelper.<NewFriendsDTO>createAndSendResponse(CommentResponseCode.NEW_FRIENDS,
                 HttpStatus.OK, newFriends);

@@ -2,6 +2,7 @@ package es.bisite.usal.bulltect.integration.service.impl;
 
 import java.util.Date;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
@@ -25,10 +26,12 @@ import es.bisite.usal.bulltect.persistence.repository.SocialMediaRepository;
 import es.bisite.usal.bulltect.web.dto.response.IterationWithTasksDTO;
 import es.bisite.usal.bulltect.web.dto.response.SonDTO;
 import es.bisite.usal.bulltect.web.dto.response.CommentDTO;
-import org.apache.commons.collections.ListUtils;
+
+import org.apache.commons.collections4.SetUtils;
 import org.bson.types.ObjectId;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Service("integrationFlowService")
 public final class ItegrationFlowServiceImpl implements IIntegrationFlowService {
@@ -100,27 +103,27 @@ public final class ItegrationFlowServiceImpl implements IIntegrationFlowService 
 		logger.debug("Generate Alerts for this iteration");
 		// Generate informative alerts for the users for whom comments have been obtained, check those users for review.
         @SuppressWarnings("unchecked")
-		Map<SonDTO, List<CommentDTO>> commentsBySonForIteration = iteration.getTasks().parallelStream()
+		Map<SonDTO, Set<CommentDTO>> commentsBySonForIteration = iteration.getTasks().parallelStream()
         		.filter(task -> task.getSuccess() && task.getComments().size() > 0)
         		.collect(Collectors.toMap(
         				task -> task.getSon(), 
         				task -> task.getComments(),
-        				(comments1, comments2) -> ListUtils.union(comments1, comments2)));
+        				(comments1, comments2) -> SetUtils.union(comments1, comments2)));
+       
         
-        
-        for (Map.Entry<SonDTO, List<CommentDTO>> commentsBySonEntry : commentsBySonForIteration.entrySet())
+        for (Map.Entry<SonDTO, Set<CommentDTO>> commentsBySonEntry : commentsBySonForIteration.entrySet())
         {
         	
         	final ObjectId sonId = new ObjectId(commentsBySonEntry.getKey().getIdentity());
         	
-        	Map<String, List<CommentDTO>> commentsBySocialMedia = commentsBySonEntry.getValue().stream()
-        			  .collect(Collectors.groupingBy(CommentDTO::getSocialMedia));
+        	Map<String, Long> commentsBySocialMedia = commentsBySonEntry.getValue().stream()
+        			  .collect(Collectors.groupingBy(CommentDTO::getSocialMedia, Collectors.counting()));
         	
         	StringBuilder sb = new StringBuilder();
         	
-        	for (Map.Entry<String, List<CommentDTO>> commentsBySocialMediaEntry : commentsBySocialMedia.entrySet())
+        	for (Map.Entry<String, Long> commentsBySocialMediaEntry : commentsBySocialMedia.entrySet())
             {
-        		sb.append(messageSourceResolver.resolver("alerts.iteration.comments.by.social.media", new Object[] { commentsBySocialMediaEntry.getKey(), commentsBySocialMediaEntry.getValue().size() }));
+        		sb.append(messageSourceResolver.resolver("alerts.iteration.comments.by.social.media", new Object[] { commentsBySocialMediaEntry.getKey(), commentsBySocialMediaEntry.getValue() }));
             }
         
         	

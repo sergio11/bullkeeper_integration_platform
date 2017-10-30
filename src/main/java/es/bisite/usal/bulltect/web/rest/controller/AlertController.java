@@ -25,6 +25,7 @@ import es.bisite.usal.bulltect.web.dto.response.AlertDTO;
 import es.bisite.usal.bulltect.web.dto.response.AlertsStatisticsDTO;
 import es.bisite.usal.bulltect.web.rest.ApiHelper;
 import es.bisite.usal.bulltect.web.rest.exception.NoAlertsFoundException;
+import es.bisite.usal.bulltect.web.rest.exception.NoAlertsStatisticsForThisPeriodException;
 import es.bisite.usal.bulltect.web.rest.exception.SocialMediaNotFoundException;
 import es.bisite.usal.bulltect.web.rest.response.APIResponse;
 import es.bisite.usal.bulltect.web.rest.response.AlertResponseCode;
@@ -32,6 +33,8 @@ import es.bisite.usal.bulltect.web.security.userdetails.CommonUserDetailsAware;
 import es.bisite.usal.bulltect.web.security.utils.CurrentUser;
 import es.bisite.usal.bulltect.web.security.utils.OnlyAccessForAdmin;
 import es.bisite.usal.bulltect.web.security.utils.OnlyAccessForParent;
+
+import java.util.Date;
 import java.util.Optional;
 import javax.annotation.PostConstruct;
 
@@ -226,12 +229,15 @@ public class AlertController extends BaseController {
             @ApiParam(name = "identities", value = "Children's Identifiers", required = false)
             	@RequestParam(name="identities" , required=false)
             		ValidList<ObjectId> identities,
-            @ApiParam(name = "days_limit", value = "Days limit", required = false)
-    			@RequestParam(name = "days_limit", defaultValue = "1", required = false) 
-            	Integer daysLimit) throws Throwable {
+            @ApiParam(name = "days_ago", value = "Days limit", required = false)
+    			@RequestParam(name = "days_ago", defaultValue = "1", required = false) 
+            	Date from) throws Throwable {
 
-    	AlertsStatisticsDTO alertsStatisticsDTO = alertService.getAlertsStatistics(identities, daysLimit);
-
+    	AlertsStatisticsDTO alertsStatisticsDTO = alertService.getAlertsStatistics(identities, from);
+    	
+    	if(alertsStatisticsDTO.getAlerts().isEmpty())
+    		throw new NoAlertsStatisticsForThisPeriodException(from);
+    	
         return ApiHelper.<AlertsStatisticsDTO>createAndSendResponse(AlertResponseCode.ALERTS_STATISTICS,
                 HttpStatus.OK, alertsStatisticsDTO);
     }

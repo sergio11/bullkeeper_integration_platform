@@ -131,7 +131,7 @@ public class InfrastructureConfiguration {
         		})
                 .wireTap(sf -> sf.handle("errorService", "handleException"))
                 .<MessagingException>handle((p, h)
-                        -> MessageBuilder.withPayload(Collections.<CommentEntity>emptyList())
+                        -> MessageBuilder.withPayload(Collections.<CommentEntity>emptySet())
                         .copyHeaders(p.getFailedMessage().getHeaders())
                         .setHeader(IntegrationConstants.TASK_ERROR_HEADER, true)
                         .build()

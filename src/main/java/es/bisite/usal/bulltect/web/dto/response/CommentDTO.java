@@ -85,6 +85,32 @@ public class CommentDTO extends ResourceSupport implements Serializable {
     public void setUser(String user) {
         this.user = user;
     }
+    
+    @Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((identity == null) ? 0 : identity.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		CommentDTO other = (CommentDTO) obj;
+		if (identity == null) {
+			if (other.identity != null)
+				return false;
+		} else if (!identity.equals(other.identity))
+			return false;
+		return true;
+	}
+    
 
 	@Override
 	public String toString() {

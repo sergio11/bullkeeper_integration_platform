@@ -18,7 +18,8 @@ import org.mapstruct.Named;
 public interface IFacebookCommentMapper {
     
     @Mappings({ 
-        @Mapping(target = "id", ignore=true),
+    	@Mapping(target = "id", ignore=true),
+        @Mapping(source = "facebookComment.id", target="externalId"),
         @Mapping(source = "facebookComment.likeCount", target = "likes"),
         @Mapping(expression="java(es.bisite.usal.bulltect.persistence.entity.SocialMediaTypeEnum.FACEBOOK)", target = "socialMedia"),
         @Mapping(source = "facebookComment.from.name", target = "author.name"),

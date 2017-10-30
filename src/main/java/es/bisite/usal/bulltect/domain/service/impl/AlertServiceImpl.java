@@ -1,7 +1,6 @@
 package es.bisite.usal.bulltect.domain.service.impl;
 
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -176,12 +175,8 @@ public class AlertServiceImpl implements IAlertService {
 	}
     
     @Override
-	public AlertsStatisticsDTO getAlertsStatistics(List<ObjectId> sonIds, int daysLimit) {
+	public AlertsStatisticsDTO getAlertsStatistics(List<ObjectId> sonIds, Date from) {
     	
-    	
-    	Calendar calendar = Calendar.getInstance(); 
-    	calendar.add(Calendar.DATE, -daysLimit); 
-    	final Date from = calendar.getTime();
     	
     	Map<AlertLevelEnum, Long> alertsByLevel = 
     			(sonIds == null || sonIds.isEmpty() ? 

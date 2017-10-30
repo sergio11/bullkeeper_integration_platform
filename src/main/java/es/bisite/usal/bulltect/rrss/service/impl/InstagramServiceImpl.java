@@ -1,8 +1,10 @@
 package es.bisite.usal.bulltect.rrss.service.impl;
 
-import java.util.ArrayList;
+
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import org.jinstagram.Instagram;
@@ -46,11 +48,11 @@ public class InstagramServiceImpl implements IInstagramService {
 	}
 
 	@Override
-    public List<CommentEntity> getCommentsLaterThan(Date startDate, String accessToken) {
+    public Set<CommentEntity> getCommentsLaterThan(Date startDate, String accessToken) {
         
         logger.debug("Call Instagram API for accessToken : " + accessToken + " on thread: " + Thread.currentThread().getName());
         
-        List<CommentEntity> userComments = new ArrayList<>();
+        Set<CommentEntity> userComments = new HashSet<>();
         
         try {
             Instagram instagram = new Instagram(accessToken, appSecret);
@@ -67,7 +69,7 @@ public class InstagramServiceImpl implements IInstagramService {
             	.filter(commentData -> !commentData.getCommentFrom().getId().equals(userId) && 
                 		( startDate != null ? new Date(Long.parseLong(commentData.getCreatedTime())).after(startDate) : true ))
             	.map(commentData -> instagramMapper.instagramCommentToCommentEntity(commentData))
-            	.collect(Collectors.toList());
+            	.collect(Collectors.toSet());
             
             logger.debug("Total Instagram Comments: " + userComments.size());
         } catch (InstagramBadRequestException  e) {

@@ -2,7 +2,8 @@ package es.bisite.usal.bulltect.integration.transformer;
 
 
 import java.util.Date;
-import java.util.List;
+import java.util.Set;
+
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,14 +16,14 @@ import es.bisite.usal.bulltect.persistence.entity.CommentEntity;
 import es.bisite.usal.bulltect.persistence.entity.SonEntity;
 import es.bisite.usal.bulltect.persistence.entity.TaskEntity;
 
-public class TaskEntityTransformer implements GenericTransformer<Message<List<CommentEntity>>, TaskEntity> {
+public class TaskEntityTransformer implements GenericTransformer<Message<Set<CommentEntity>>, TaskEntity> {
 	
 	private Logger logger = LoggerFactory.getLogger(TaskEntityTransformer.class);
 
 	@Override
-	public TaskEntity transform(Message<List<CommentEntity>> message) {
+	public TaskEntity transform(Message<Set<CommentEntity>> message) {
 		
-		logger.debug("TaskEntityTransformer called");
+		logger.debug("Create task from this set");
 		
 		MessageHeaders headers = message.getHeaders();
 		// Get son entity from headers
@@ -37,7 +38,7 @@ public class TaskEntityTransformer implements GenericTransformer<Message<List<Co
         ObjectId socialMediaId = (ObjectId)headers.get(IntegrationConstants.SOCIAL_MEDIA_ID_HEADER);
         // Check if task failed.
         Boolean isSuccess = !headers.containsKey(IntegrationConstants.TASK_ERROR_HEADER);
-        List<CommentEntity> comments = message.getPayload();
+        Set<CommentEntity> comments = message.getPayload();
         for(CommentEntity comment: comments) {
             comment.setSonEntity(sonEntity);
         }

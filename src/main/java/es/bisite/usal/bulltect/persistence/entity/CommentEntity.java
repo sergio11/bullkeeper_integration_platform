@@ -19,6 +19,9 @@ public class CommentEntity {
 
     @Id
     private ObjectId id;
+    
+    @Field("external_id")
+    private String externalId;
 
     @Field("message")
     private String message;
@@ -49,9 +52,10 @@ public class CommentEntity {
     }
 
     @PersistenceConstructor
-    public CommentEntity(String message, Long likes, Date createdTime, Date extractedAt,
+    public CommentEntity(String externalId, String message, Long likes, Date createdTime, Date extractedAt,
             SocialMediaTypeEnum socialMedia, CommentAuthorEntity author, SonEntity sonEntity, CommentAnalysisResultsEntity analysisResults) {
         super();
+        this.externalId = externalId;
         this.message = message;
         this.likes = likes;
         this.createdTime = createdTime;
@@ -69,8 +73,17 @@ public class CommentEntity {
     public void setId(ObjectId id) {
         this.id = id;
     }
+    
 
-    public String getMessage() {
+    public String getExternalId() {
+		return externalId;
+	}
+
+	public void setExternalId(String externalId) {
+		this.externalId = externalId;
+	}
+
+	public String getMessage() {
         return message;
     }
 
@@ -133,6 +146,33 @@ public class CommentEntity {
 
 	public void setAnalysisResults(CommentAnalysisResultsEntity analysisResults) {
 		this.analysisResults = analysisResults;
+	}
+	
+
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((externalId == null) ? 0 : externalId.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		CommentEntity other = (CommentEntity) obj;
+		if (externalId == null) {
+			if (other.externalId != null)
+				return false;
+		} else if (!externalId.equals(other.externalId))
+			return false;
+		return true;
 	}
 
 	@Override

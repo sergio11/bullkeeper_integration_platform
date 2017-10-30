@@ -1,6 +1,8 @@
 package es.bisite.usal.bulltect.mapper;
 
 import java.util.List;
+import java.util.Set;
+
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -26,5 +28,8 @@ public interface ICommentEntityMapper {
 	
     @IterableMapping(qualifiedByName = "commentEntityToCommentDTO")
     List<CommentDTO> commentEntitiesToCommentDTOs(List<CommentEntity> commentEntities);
+    
+    @IterableMapping(qualifiedByName = "commentEntityToCommentDTO")
+    Set<CommentDTO> commentEntitiesToCommentDTOs(Set<CommentEntity> commentEntities);
     
 }

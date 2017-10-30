@@ -2,7 +2,10 @@ package es.bisite.usal.bulltect.persistence.entity;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceConstructor;
@@ -38,7 +41,7 @@ public class TaskEntity {
     @Field("comments")
     @DBRef
     @CascadeSave
-    private List<CommentEntity> comments = new ArrayList<>();
+    private Set<CommentEntity> comments = new HashSet<>();
     
     @Field("target")
     @DBRef
@@ -51,7 +54,7 @@ public class TaskEntity {
     public TaskEntity(){}
     
     @PersistenceConstructor
-    public TaskEntity(Date startDate, Date finishDate, Long duration, Boolean success, List<CommentEntity> comments, SonEntity sonEntity, ObjectId socialMediaId) {
+    public TaskEntity(Date startDate, Date finishDate, Long duration, Boolean success, Set<CommentEntity> comments, SonEntity sonEntity, ObjectId socialMediaId) {
         this.startDate = startDate;
         this.finishDate = finishDate;
         this.duration = duration;
@@ -98,11 +101,11 @@ public class TaskEntity {
         this.success = success;
     }
 
-    public List<CommentEntity> getComments() {
+    public Set<CommentEntity> getComments() {
         return comments;
     }
 
-    public void setComments(List<CommentEntity> comments) {
+    public void setComments(Set<CommentEntity> comments) {
         this.comments = comments;
     }
 

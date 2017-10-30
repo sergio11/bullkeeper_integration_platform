@@ -1,5 +1,10 @@
 package es.bisite.usal.bulltect.util;
 
+import java.util.Calendar;
+import java.util.Date;
+
+import org.springframework.util.Assert;
+
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
@@ -41,6 +46,15 @@ public final class Utils {
 		}
 		
 		return phoneNumber;
+	}
+	
+	public static Date getDateNDaysAgo(Integer daysAgo) {
+		Assert.notNull(daysAgo, "Days Ago can not be null");
+		Assert.isTrue(daysAgo >= 0, "Days Ago should be greater than or equal to zero");
+		
+		Calendar calendar = Calendar.getInstance(); 
+    	calendar.add(Calendar.DATE, -daysAgo); 
+    	return calendar.getTime();
 	}
 
 }

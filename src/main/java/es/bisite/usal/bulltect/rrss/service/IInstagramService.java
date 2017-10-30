@@ -1,7 +1,7 @@
 package es.bisite.usal.bulltect.rrss.service;
 
 import java.util.Date;
-import java.util.List;
+import java.util.Set;
 
 import es.bisite.usal.bulltect.persistence.entity.CommentEntity;
 
@@ -10,5 +10,5 @@ import es.bisite.usal.bulltect.persistence.entity.CommentEntity;
  * @author sergio
  */
 public interface IInstagramService {
-    List<CommentEntity> getCommentsLaterThan(Date startDate, String accessToken);
+	Set<CommentEntity> getCommentsLaterThan(Date startDate, String accessToken);
 }

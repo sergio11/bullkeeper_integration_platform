@@ -15,11 +15,14 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import es.bisite.usal.bulltect.i18n.service.IMessageSourceResolverService;
 import es.bisite.usal.bulltect.web.rest.ApiHelper;
 import es.bisite.usal.bulltect.web.rest.controller.BaseController;
 import es.bisite.usal.bulltect.web.rest.exception.CommentNotFoundException;
+import es.bisite.usal.bulltect.web.rest.exception.NoActiveFriendsInThisPeriodException;
+import es.bisite.usal.bulltect.web.rest.exception.NoCommentsExtractedException;
 import es.bisite.usal.bulltect.web.rest.exception.NoCommentsFoundException;
+import es.bisite.usal.bulltect.web.rest.exception.NoLikesFoundInThisPeriodException;
+import es.bisite.usal.bulltect.web.rest.exception.NoNewFriendsAtThisTimeException;
 import es.bisite.usal.bulltect.web.rest.response.APIResponse;
 import es.bisite.usal.bulltect.web.rest.response.CommentResponseCode;
 
@@ -48,6 +51,38 @@ public class CommentsErrorController extends BaseController {
         		messageSourceResolver.resolver("comment.not.found"));
     }
     
+    
+    @ExceptionHandler(NoCommentsExtractedException.class)
+    @ResponseBody
+    protected ResponseEntity<APIResponse<String>> handleNoCommentsExtractedException(NoCommentsExtractedException noCommentsExtractedException, HttpServletRequest request) {
+        return ApiHelper.<String>createAndSendErrorResponseWithHeader(CommentResponseCode.NO_COMMENTS_EXTRACTED, HttpStatus.NOT_FOUND,
+        		messageSourceResolver.resolver("no.comments.extracted", new Object[] { prettyTime.format(noCommentsExtractedException.getFrom()) }));
+    }
+    
+    
+    @ExceptionHandler(NoLikesFoundInThisPeriodException.class)
+    @ResponseBody
+    protected ResponseEntity<APIResponse<String>> handleNoLikesFoundInThisPeriodException(NoLikesFoundInThisPeriodException noLikesFoundInThisPeriodException, HttpServletRequest request) {
+        return ApiHelper.<String>createAndSendErrorResponseWithHeader(CommentResponseCode.NO_LIKES_FOUND_IN_THIS_PERIOD, HttpStatus.NOT_FOUND,
+        		messageSourceResolver.resolver("no.likes.found.in.this.period", new Object[] { prettyTime.format(noLikesFoundInThisPeriodException.getFrom()) }));
+    }
+    
+    @ExceptionHandler(NoActiveFriendsInThisPeriodException.class)
+    @ResponseBody
+    protected ResponseEntity<APIResponse<String>> handleNoActiveFriendsInThisPeriodException(NoActiveFriendsInThisPeriodException noActiveFriedsInThisPeriodException, HttpServletRequest request) {
+        return ApiHelper.<String>createAndSendErrorResponseWithHeader(CommentResponseCode.NO_ACTIVE_FRIENDS_IN_THIS_PERIOD, HttpStatus.NOT_FOUND,
+        		messageSourceResolver.resolver("no.active.friends.in.this.period", new Object[] { prettyTime.format(noActiveFriedsInThisPeriodException.getFrom()) }));
+    }
+    
+    @ExceptionHandler(NoNewFriendsAtThisTimeException.class)
+    @ResponseBody
+    protected ResponseEntity<APIResponse<String>> handleNoNewFriendsAtThisTimeException(NoNewFriendsAtThisTimeException noNewFriendsAtThisTimeException, HttpServletRequest request) {
+        return ApiHelper.<String>createAndSendErrorResponseWithHeader(CommentResponseCode.NO_NEW_FRIENDS_AT_THIS_TIME, HttpStatus.NOT_FOUND,
+        		messageSourceResolver.resolver("no.active.friends.in.this.period", new Object[] { prettyTime.format(noNewFriendsAtThisTimeException.getFrom()) }));
+    }
+   
+   
+   
     @PostConstruct
     protected void init(){
     	Assert.notNull(messageSourceResolver, "Message Source Resolver can not be null");

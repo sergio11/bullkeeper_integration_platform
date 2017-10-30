@@ -18,7 +18,8 @@ import org.mapstruct.Named;
 public interface IYoutubeCommentMapper {
     
     @Mappings({ 
-        @Mapping(target = "id", ignore=true),
+    	@Mapping(target = "id", ignore=true),
+    	@Mapping(source = "youtubeComment.id", target="externalId"),
         @Mapping(source = "youtubeComment.snippet.likeCount", target = "likes"),
         @Mapping(source = "youtubeComment.snippet.textDisplay", target = "message"),
         @Mapping(expression="java(new java.util.Date(youtubeComment.getSnippet().getPublishedAt().getValue()))", target = "createdTime"),

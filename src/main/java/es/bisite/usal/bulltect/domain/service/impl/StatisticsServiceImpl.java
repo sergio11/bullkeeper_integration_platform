@@ -22,7 +22,6 @@ import es.bisite.usal.bulltect.web.dto.response.SocialMediaLikesStatisticsDTO.So
 
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -72,13 +71,11 @@ public class StatisticsServiceImpl implements IStatisticsService {
 	}
 
 	@Override
-	public SocialMediaActivityStatisticsDTO getSocialMediaActivityStatistics(String idSon, Integer daysLimit) {
+	public SocialMediaActivityStatisticsDTO getSocialMediaActivityStatistics(String idSon, Date from) {
 		Assert.notNull(idSon, "Id Son can not be null");
 		Assert.isTrue(ObjectId.isValid(idSon), "Id Son is not valid ObjectId");
+		Assert.notNull(from, "From can not be null");
 		
-		Calendar calendar = Calendar.getInstance(); 
-    	calendar.add(Calendar.DATE, -daysLimit); 
-    	final Date from = calendar.getTime();
     	
     	Map<SocialMediaTypeEnum, Long> socialActivity = commentRepository
     			.findBySonEntityIdAndCreatedTimeGreaterThanEqual(new ObjectId(idSon), from)
@@ -103,13 +100,11 @@ public class StatisticsServiceImpl implements IStatisticsService {
 	}
 
 	@Override
-	public SentimentAnalysisStatisticsDTO getSentimentAnalysisStatistics(String idSon, Integer daysLimit) {
+	public SentimentAnalysisStatisticsDTO getSentimentAnalysisStatistics(String idSon, Date from) {
 		Assert.notNull(idSon, "Id Son can not be null");
 		Assert.isTrue(ObjectId.isValid(idSon), "Id Son is not valid ObjectId");
-		
-		Calendar calendar = Calendar.getInstance(); 
-    	calendar.add(Calendar.DATE, -daysLimit); 
-    	final Date from = calendar.getTime();
+		Assert.notNull(from, "From can not be null");
+	
     	
     	Map<SentimentLevelEnum, Long> sentimentResults = commentRepository.findBySonEntityIdAndAnalysisResultsSentimentFinishAtGreaterThanEqual(new ObjectId(idSon), from)
     		.parallelStream()
@@ -150,7 +145,7 @@ public class StatisticsServiceImpl implements IStatisticsService {
 	}
 
 	@Override
-	public CommunitiesStatisticsDTO getCommunitiesStatistics(String idSon, Integer daysLimit) {
+	public CommunitiesStatisticsDTO getCommunitiesStatistics(String idSon, Date from) {
 		
 		List<CommunityDTO> commutitiesData = Arrays.asList(
 				new CommunityDTO("SEX", 50, "50"),
@@ -163,7 +158,7 @@ public class StatisticsServiceImpl implements IStatisticsService {
 	}
 
 	@Override
-	public DimensionsStatisticsDTO getDimensionsStatistics(String idSon, Integer daysLimit) {
+	public DimensionsStatisticsDTO getDimensionsStatistics(String idSon, Date from) {
 		
 		List<DimensionDTO> dimensionsData = Arrays.asList(
 				new DimensionDTO("SEX", 6, "6"),
@@ -177,11 +172,8 @@ public class StatisticsServiceImpl implements IStatisticsService {
 	}
 
 	@Override
-	public CommentsStatisticsDTO getCommentsStatistics(List<String> identities, Integer daysLimit) {
-		
-		Calendar calendar = Calendar.getInstance(); 
-    	calendar.add(Calendar.DATE, -daysLimit); 
-    	final Date from = calendar.getTime();
+	public CommentsStatisticsDTO getCommentsStatistics(List<String> identities, Date from) {
+		Assert.notNull(from, "From can not be null");
     	
     	final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     	List<CommentsStatisticsDTO.CommentsPerDateDTO> commentsData = getCommentsByExtractedAtFor(identities, from)
@@ -201,14 +193,10 @@ public class StatisticsServiceImpl implements IStatisticsService {
 	}
 
 	@Override
-	public SocialMediaLikesStatisticsDTO getSocialMediaLikesStatistics(List<String> identities, Integer daysLimit) {
-
-	
-		Calendar calendar = Calendar.getInstance(); 
-    	calendar.add(Calendar.DATE, -daysLimit); 
-    	final Date from = calendar.getTime();
+	public SocialMediaLikesStatisticsDTO getSocialMediaLikesStatistics(List<String> identities, Date from) {
+		Assert.notNull(from, "From can not be null");
     	
-    	List<SocialMediaLikesDTO> socialMediaData = getCommentsByCreateAtFor(identities, from).parallelStream()
+    	List<SocialMediaLikesDTO> socialMediaData = getCommentsByExtractedAtFor(identities, from).parallelStream()
         		.collect(Collectors.groupingBy(CommentEntity::getSocialMedia, 
         				Collectors.summingLong(CommentEntity::getLikes)))
         		.entrySet()
@@ -226,13 +214,11 @@ public class StatisticsServiceImpl implements IStatisticsService {
 	}
 
 	@Override
-	public MostActiveFriendsDTO getMostActiveFriends(List<String> identities, Integer daysLimit) {
+	public MostActiveFriendsDTO getMostActiveFriends(List<String> identities, Date from) {
+		Assert.notNull(from, "From can not be null");
 		
-		Calendar calendar = Calendar.getInstance(); 
-    	calendar.add(Calendar.DATE, -daysLimit); 
-    	final Date from = calendar.getTime();
     	
-    	List<MostActiveFriendsDTO.UserDTO> mostActiveFriends = getCommentsByCreateAtFor(identities, from).parallelStream()
+    	List<MostActiveFriendsDTO.UserDTO> mostActiveFriends = getCommentsByExtractedAtFor(identities, from).parallelStream()
         		.collect(Collectors.groupingBy(CommentEntity::getSocialMedia,
         				Collectors.groupingBy(CommentEntity::getAuthor, 
         						Collectors.counting())))
@@ -241,7 +227,7 @@ public class StatisticsServiceImpl implements IStatisticsService {
         		.flatMap(mostActiveFriendEntry -> {
         			final Integer totalComments = mostActiveFriendEntry.getValue().values().stream().mapToInt(Number::intValue).sum();
         			return mostActiveFriendEntry.getValue()
-        					.entrySet().parallelStream().map(activeFriend -> new MostActiveFriendsDTO.UserDTO(
+        					.entrySet().parallelStream().sorted((f1, f2) -> Long.compare(f2.getValue(), f1.getValue())).map(activeFriend -> new MostActiveFriendsDTO.UserDTO(
         							activeFriend.getKey().getName(), activeFriend.getKey().getImage(), mostActiveFriendEntry.getKey(), (long)Math.round(activeFriend.getValue().floatValue()/totalComments.floatValue()*100) ,
         							Math.round(activeFriend.getValue().floatValue()/totalComments.floatValue()*100) + "%"));
         		}).collect(Collectors.toList());
@@ -255,7 +241,8 @@ public class StatisticsServiceImpl implements IStatisticsService {
 	}
 
 	@Override
-	public NewFriendsDTO getNewFriends(List<String> identities, Integer daysLimit) {
+	public NewFriendsDTO getNewFriends(List<String> identities, Date from) {
+		Assert.notNull(from, "From can not be null");
 		
 		List<NewFriendsDTO.UserDTO> newFriends = Arrays.asList(
 				new NewFriendsDTO.UserDTO("Usuario 1", 34),

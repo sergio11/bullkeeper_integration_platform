@@ -16,6 +16,7 @@ import es.bisite.usal.bulltect.web.rest.ApiHelper;
 import es.bisite.usal.bulltect.web.rest.controller.BaseController;
 import es.bisite.usal.bulltect.web.rest.exception.CreateAlertFailedException;
 import es.bisite.usal.bulltect.web.rest.exception.NoAlertsFoundException;
+import es.bisite.usal.bulltect.web.rest.exception.NoAlertsStatisticsForThisPeriodException;
 import es.bisite.usal.bulltect.web.rest.exception.NoNewAlertsFoundException;
 import es.bisite.usal.bulltect.web.rest.response.APIResponse;
 import es.bisite.usal.bulltect.web.rest.response.AlertResponseCode;
@@ -53,6 +54,14 @@ public class AlertsErrorController extends BaseController {
         return ApiHelper.<String>createAndSendErrorResponseWithHeader(AlertResponseCode.NO_NEW_ALERTS_FOUND, HttpStatus.NOT_FOUND, 
         		messageSourceResolver.resolver("no.new.alerts.found"));
     }
+    
+    @ExceptionHandler(NoAlertsStatisticsForThisPeriodException.class)
+    @ResponseBody
+    protected ResponseEntity<APIResponse<String>> handleNoAlertsStatisticsForThisPeriodException(NoAlertsStatisticsForThisPeriodException noAlertsStatisticsForThisPeriodException, HttpServletRequest request) {
+        return ApiHelper.<String>createAndSendErrorResponseWithHeader(AlertResponseCode.NO_ALERTS_STATISTICS_FOR_THIS_PERIOD, HttpStatus.NOT_FOUND, 
+        		messageSourceResolver.resolver("no.alerts.statistics.for.this.period", new Object [] { prettyTime.format(noAlertsStatisticsForThisPeriodException.getFrom()) }));
+    }
+    
     
     @PostConstruct
     protected void init(){

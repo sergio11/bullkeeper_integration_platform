@@ -46,7 +46,10 @@ import es.bisite.usal.bulltect.web.rest.exception.AlertNotFoundException;
 import es.bisite.usal.bulltect.web.rest.exception.CommentsBySonNotFoundException;
 import es.bisite.usal.bulltect.web.rest.exception.NoAlertsBySonFoundException;
 import es.bisite.usal.bulltect.web.rest.exception.NoChildrenFoundException;
-import es.bisite.usal.bulltect.web.rest.exception.SocialMediaActivityStatisticsNotFoundException;
+import es.bisite.usal.bulltect.web.rest.exception.NoCommunityStatisticsForThisPeriodException;
+import es.bisite.usal.bulltect.web.rest.exception.NoDimensionsStatisticsForThisPeriodException;
+import es.bisite.usal.bulltect.web.rest.exception.NoSentimentAnalysisStatisticsForThisPeriodException;
+import es.bisite.usal.bulltect.web.rest.exception.NoSocialMediaActivityFoundForThisPeriodException;
 import es.bisite.usal.bulltect.web.rest.exception.SocialMediaNotFoundException;
 import es.bisite.usal.bulltect.web.rest.exception.SonNotFoundException;
 import es.bisite.usal.bulltect.web.rest.hal.ICommentHAL;
@@ -59,7 +62,6 @@ import es.bisite.usal.bulltect.web.rest.response.SocialMediaResponseCode;
 import es.bisite.usal.bulltect.web.security.userdetails.CommonUserDetailsAware;
 import es.bisite.usal.bulltect.web.security.utils.CurrentUser;
 import es.bisite.usal.bulltect.web.security.utils.OnlyAccessForAdmin;
-import es.bisite.usal.bulltect.web.security.utils.OnlyAccessForParent;
 import es.bisite.usal.bulltect.web.uploads.models.RequestUploadFile;
 import es.bisite.usal.bulltect.web.uploads.service.IUploadFilesService;
 import io.swagger.annotations.Api;
@@ -68,6 +70,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
+import java.util.Date;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletResponse;
@@ -291,13 +294,17 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
     			@Valid @ValidObjectId(message = "{son.id.notvalid}")
             		@SonShouldExists(message = "{son.should.be.exists}")
     						@PathVariable String id,
-    		@ApiParam(name = "days_limit", value = "Days limit", required = false)
-            	@RequestParam(name = "days_limit", defaultValue = "1", required = false) Integer daysLimit) throws Throwable {
+    		@ApiParam(name = "days_ago", value = "Days Ago", required = false)
+            	@RequestParam(name = "days_ago", defaultValue = "1", required = false) Date from) throws Throwable {
         
-        logger.debug("Get Social Media Activity Statistics for Son -> " + id + " Days Limit -> " + daysLimit);
+        logger.debug("Get Social Media Activity Statistics for Son -> " + id );
         
-        SocialMediaActivityStatisticsDTO socialMediaActivityStatistics = statisticsService.getSocialMediaActivityStatistics(id, daysLimit);
+        SocialMediaActivityStatisticsDTO socialMediaActivityStatistics = statisticsService.getSocialMediaActivityStatistics(id, from);
        
+        if(socialMediaActivityStatistics.getData().isEmpty())
+        	throw new NoSocialMediaActivityFoundForThisPeriodException(from);
+        
+        
         return ApiHelper.<SocialMediaActivityStatisticsDTO>createAndSendResponse(ChildrenResponseCode.SOCIAL_MEDIA_ACTIVITY_STATISTICS, 
 				HttpStatus.OK, socialMediaActivityStatistics);  
     }
@@ -312,13 +319,15 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
     			@Valid @ValidObjectId(message = "{son.id.notvalid}")
             		@SonShouldExists(message = "{son.should.be.exists}")
     					@PathVariable String id,
-    		@ApiParam(name = "days_limit", value = "Days limit", required = false)
-        		@RequestParam(name = "days_limit", defaultValue = "1", required = false) Integer daysLimit) throws Throwable {
+    		@ApiParam(name = "days_ago", value = "Days Ago", required = false)
+        		@RequestParam(name = "days_ago", defaultValue = "1", required = false) Date from) throws Throwable {
         
-        logger.debug("Get Sentiment Analysis Statistics for -> " + id + " Days Limit -> " + daysLimit);
+        logger.debug("Get Sentiment Analysis Statistics for -> " + id );
         
-        SentimentAnalysisStatisticsDTO sentimentAnalysisStatistics = statisticsService.getSentimentAnalysisStatistics(id, daysLimit);
+        SentimentAnalysisStatisticsDTO sentimentAnalysisStatistics = statisticsService.getSentimentAnalysisStatistics(id, from);
       
+        if(sentimentAnalysisStatistics.getData().isEmpty())
+        	throw new NoSentimentAnalysisStatisticsForThisPeriodException(from);
        
         return ApiHelper.<SentimentAnalysisStatisticsDTO>createAndSendResponse(ChildrenResponseCode.SENTIMENT_ANALYSIS_STATISTICS, 
 				HttpStatus.OK, sentimentAnalysisStatistics);  
@@ -333,12 +342,15 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
     			@Valid @ValidObjectId(message = "{son.id.notvalid}")
             		@SonShouldExists(message = "{son.should.be.exists}")
     					@PathVariable String id,
-    		@ApiParam(name = "days_limit", value = "Days limit", required = false)
-    			@RequestParam(name = "days_limit", defaultValue = "1", required = false) Integer daysLimit) throws Throwable {
+    		@ApiParam(name = "days_ago", value = "Days Ago", required = false)
+    			@RequestParam(name = "days_ago", defaultValue = "1", required = false) Date from) throws Throwable {
         
-        logger.debug("Get Communities Statistics for -> " + id + " Days Limit " + daysLimit);
+        logger.debug("Get Communities Statistics for -> " + id);
         
-        CommunitiesStatisticsDTO communitiesStatistics = statisticsService.getCommunitiesStatistics(id, daysLimit);
+        CommunitiesStatisticsDTO communitiesStatistics = statisticsService.getCommunitiesStatistics(id, from);
+        
+        if(communitiesStatistics.getData().isEmpty())
+        	throw new NoCommunityStatisticsForThisPeriodException(from);
      
        
         return ApiHelper.<CommunitiesStatisticsDTO>createAndSendResponse(ChildrenResponseCode.COMMUNITIES_STATISTICS, 
@@ -355,13 +367,17 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
     			@Valid @ValidObjectId(message = "{son.id.notvalid}")
             		@SonShouldExists(message = "{son.should.be.exists}")
     					@PathVariable String id,
-    		@ApiParam(name = "days_limit", value = "Days limit", required = false)
-				@RequestParam(name = "days_limit", defaultValue = "1", required = false) Integer daysLimit) throws Throwable {
+    		@ApiParam(name = "days_ago", value = "Days Ago", required = false)
+				@RequestParam(name = "days_ago", defaultValue = "1", required = false) Date from) throws Throwable {
         
-        logger.debug("Get Four Dimensions Statistics for -> " + id + " Days Limit " + daysLimit);
+        logger.debug("Get Four Dimensions Statistics for -> " + id );
         
-        DimensionsStatisticsDTO fourDimensionsStatistics = statisticsService.getDimensionsStatistics(id, daysLimit);
+        DimensionsStatisticsDTO fourDimensionsStatistics = statisticsService.getDimensionsStatistics(id, from);
      
+        if(fourDimensionsStatistics.getData().isEmpty())
+        	throw new NoDimensionsStatisticsForThisPeriodException(from);
+        
+        
         return ApiHelper.<DimensionsStatisticsDTO>createAndSendResponse(ChildrenResponseCode.FOUR_DIMENSIONS_STATISTICS, 
 				HttpStatus.OK, fourDimensionsStatistics);  
     }
