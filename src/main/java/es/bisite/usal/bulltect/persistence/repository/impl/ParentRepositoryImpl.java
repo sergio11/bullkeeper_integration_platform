@@ -17,6 +17,7 @@ import org.springframework.util.Assert;
 
 import es.bisite.usal.bulltect.persistence.entity.ParentEntity;
 import es.bisite.usal.bulltect.persistence.entity.PreferencesEntity;
+import es.bisite.usal.bulltect.persistence.entity.PreferencesEntity.RemoveAlertsEveryEnum;
 import es.bisite.usal.bulltect.persistence.repository.ParentRepositoryCustom;
 
 /**
@@ -190,5 +191,19 @@ public class ParentRepositoryImpl implements ParentRepositoryCustom {
         ParentEntity parent =  mongoTemplate.findOne(query, ParentEntity.class);
         return parent.getPreferences();
         
+	}
+
+	@Override
+	public List<ObjectId> getParentIdsWithRemoveAlertsEveryAs(RemoveAlertsEveryEnum removeAlertsEvery) {
+		Assert.notNull(removeAlertsEvery, "Remove Alerts Every can not be null");
+		
+		Query query = new Query(Criteria.where("preferences.remove_alerts_every").is(removeAlertsEvery));
+		query.fields().include("_id");
+		
+		return mongoTemplate.find(query, ParentEntity.class)
+        		.stream()
+        		.map((parent) -> parent.getId())
+        		.collect(Collectors.toList());
+		
 	}
 }

@@ -47,13 +47,13 @@ public class DimensionsStatisticsDTO {
 		@JsonProperty("type")
         private String type;
 		@JsonProperty("value")
-		private int value;
+		private Long value;
 		@JsonProperty("label")
 		private String label;
 		
 		public DimensionDTO(){}
 		
-		public DimensionDTO(String type, int value, String label) {
+		public DimensionDTO(String type, Long value, String label) {
 			super();
 			this.type = type;
 			this.value = value;
@@ -68,11 +68,11 @@ public class DimensionsStatisticsDTO {
 			this.type = type;
 		}
 
-		public int getValue() {
+		public Long getValue() {
 			return value;
 		}
 
-		public void setValue(int value) {
+		public void setValue(Long value) {
 			this.value = value;
 		}
 

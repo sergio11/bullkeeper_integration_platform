@@ -21,4 +21,8 @@ public interface SonRepository extends MongoRepository<SonEntity, ObjectId>, Son
     Long countByParentIdAndProfileImage(ObjectId parentId, String profileImageId);
     SonEntity findByProfileImage(String profileImageId);
     List<SonEntity> findAllByResultsSentimentObsolete(Boolean obsolete);
+    List<SonEntity> findAllByResultsViolenceObsolete(Boolean obsolete);
+    List<SonEntity> findAllByResultsBullyingObsolete(Boolean obsolete);
+    List<SonEntity> findAllByResultsDrugsObsolete(Boolean obsolete);
+    List<SonEntity> findAllByResultsAdultObsolete(Boolean obsolete);
 }

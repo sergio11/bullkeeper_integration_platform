@@ -20,6 +20,7 @@ import es.bisite.usal.bulltect.mapper.ParentEntityMapper;
 import es.bisite.usal.bulltect.mapper.PreferencesEntityMapper;
 import es.bisite.usal.bulltect.mapper.SonEntityMapper;
 import es.bisite.usal.bulltect.persistence.entity.ParentEntity;
+import es.bisite.usal.bulltect.persistence.entity.PreferencesEntity.RemoveAlertsEveryEnum;
 import es.bisite.usal.bulltect.persistence.entity.SonEntity;
 import es.bisite.usal.bulltect.persistence.repository.ParentRepository;
 import es.bisite.usal.bulltect.persistence.repository.SchoolRepository;
@@ -248,9 +249,13 @@ public class ParentsServiceImpl implements IParentsService {
     @Override
 	public UserSystemPreferencesDTO savePreferences(SaveUserSystemPreferencesDTO preferences, ObjectId idParent) {
     	Assert.notNull(preferences, "Preferences can not be null");
+    	Assert.notNull(idParent, "Id parent can not be null");
+    	
+    	logger.debug("Preferences to save -> " + preferences.toString());
     	
     	ParentEntity parent = parentRepository.findOne(idParent);
     	parent.getPreferences().setPushNotificationsEnabled(preferences.isPushNotificationsEnabled());
+    	parent.getPreferences().setRemoveAlertsEvery(RemoveAlertsEveryEnum.valueOf(preferences.getRemoveAlertsEvery()));
     	parentRepository.save(parent);
     	return preferencesEntityMapper.preferencesEntityToUserSystemPreferencesDTO(parent.getPreferences());
     	

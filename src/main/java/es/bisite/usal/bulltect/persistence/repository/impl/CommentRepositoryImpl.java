@@ -1,5 +1,6 @@
 package es.bisite.usal.bulltect.persistence.repository.impl;
 
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -17,6 +18,7 @@ import org.springframework.util.Assert;
 
 import es.bisite.usal.bulltect.persistence.entity.CommentEntity;
 import es.bisite.usal.bulltect.persistence.entity.AnalysisStatusEnum;
+import es.bisite.usal.bulltect.persistence.entity.AnalysisTypeEnum;
 import es.bisite.usal.bulltect.persistence.repository.CommentRepositoryCustom;
 import es.bisite.usal.bulltect.web.dto.response.CommentsBySonDTO;
 
@@ -57,23 +59,132 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
 		
 	}
 
-	/*@Override
-	public void updateCommentStatus(List<ObjectId> ids, AnalysisStatusEnum status) {
+	@Override
+	public void startViolenceAnalysisFor(Collection<ObjectId> ids) {
 		Assert.notNull(ids, "Ids can not be null");
-		Assert.notNull(status, "Status can not be null");
+		Assert.notEmpty(ids, "Ids can not be empty");
 		
 		mongoTemplate.updateMulti(
         		new Query(Criteria.where("_id").in(ids)),
-        		new Update().set("status", status), CommentEntity.class);
+        		new Update().set("analysis_results.sentiment.status", AnalysisStatusEnum.IN_PROGRESS)
+        		.set("analysis_results.sentiment.start_at", new Date()), CommentEntity.class);
 		
 	}
 
 	@Override
-	public void cancelCommentsInprogress() {
-		mongoTemplate.updateMulti(
-        		new Query(Criteria.where("status").in(AnalysisStatusEnum.IN_PROGRESS)),
-        		new Update().set("status", AnalysisStatusEnum.PENDING), CommentEntity.class);
+	public void startDrugsAnalysisFor(Collection<ObjectId> ids) {
+		Assert.notNull(ids, "Ids can not be null");
+		Assert.notEmpty(ids, "Ids can not be empty");
 		
-	}*/
+		mongoTemplate.updateMulti(
+        		new Query(Criteria.where("_id").in(ids)),
+        		new Update().set("analysis_results.drugs.status", AnalysisStatusEnum.IN_PROGRESS)
+        		.set("analysis_results.drugs.start_at", new Date()), CommentEntity.class);
+		
+	}
+
+	@Override
+	public void startAdultAnalysisFor(Collection<ObjectId> ids) {
+		Assert.notNull(ids, "Ids can not be null");
+		Assert.notEmpty(ids, "Ids can not be empty");
+		
+		mongoTemplate.updateMulti(
+        		new Query(Criteria.where("_id").in(ids)),
+        		new Update().set("analysis_results.adult.status", AnalysisStatusEnum.IN_PROGRESS)
+        		.set("analysis_results.adult.start_at", new Date()), CommentEntity.class);
+		
+	}
+
+	@Override
+	public void startAnalysisFor(final AnalysisTypeEnum type, final Collection<ObjectId> ids) {
+		Assert.notNull(type, "Type can not be null");
+		Assert.notNull(ids, "Ids can not be null");
+		Assert.notEmpty(ids, "Ids can not be empty");
+		
+		mongoTemplate.updateMulti(
+        		new Query(Criteria.where("_id").in(ids)),
+        		new Update().set(String.format("analysis_results.%s.status", type.name().toLowerCase()), AnalysisStatusEnum.IN_PROGRESS)
+        		.set(String.format("analysis_results.%s.start_at", type.name().toLowerCase()), new Date()), CommentEntity.class);
+		
+		
+	}
+
+	@Override
+	public void startBullyingAnalysisFor(Collection<ObjectId> ids) {
+		Assert.notNull(ids, "Ids can not be null");
+		Assert.notEmpty(ids, "Ids can not be empty");
+		
+		mongoTemplate.updateMulti(
+        		new Query(Criteria.where("_id").in(ids)),
+        		new Update().set("analysis_results.bullying.status", AnalysisStatusEnum.IN_PROGRESS)
+        		.set("analysis_results.bullying.start_at", new Date()), CommentEntity.class);
+		
+	}
+
+	@Override
+	public void updateAnalysisStatusFor(AnalysisTypeEnum type, AnalysisStatusEnum status, Collection<ObjectId> ids) {
+		Assert.notNull(type, "Type can not be null");
+		Assert.notNull(status, "status can not be null");
+		Assert.notNull(ids, "Ids can not be null");
+		Assert.notEmpty(ids, "Ids can not be empty");
+		
+		mongoTemplate.updateMulti(
+        		new Query(Criteria.where("_id").in(ids)),
+        		new Update().set(String.format("analysis_results.%s.status", type.name().toLowerCase()), status)
+        		.set(String.format("analysis_results.%s.start_at", type.name().toLowerCase()), new Date()), CommentEntity.class);
+		
+	}
+
+	@Override
+	public void updateAnalysisStatusFor(AnalysisTypeEnum type, AnalysisStatusEnum from, AnalysisStatusEnum to,
+			Collection<ObjectId> ids) {
+		Assert.notNull(type, "Type can not be null");
+		Assert.notNull(from, "from status can not be null");
+		Assert.notNull(to, "to status can not be null");
+		Assert.notNull(ids, "Ids can not be null");
+		Assert.notEmpty(ids, "Ids can not be empty");
+		
+		mongoTemplate.updateMulti(
+        		new Query(Criteria.where("_id").in(ids)
+        				.and(String.format("analysis_results.%s.status", type.name().toLowerCase())).is(from)),
+        		new Update().set(String.format("analysis_results.%s.status", type.name().toLowerCase()), to)
+        		.set(String.format("analysis_results.%s.start_at", type.name().toLowerCase()), new Date()), CommentEntity.class);
+		
+	}
+	
+	@Override
+	public void updateAnalysisStatusFor(AnalysisTypeEnum type, AnalysisStatusEnum from, AnalysisStatusEnum to) {
+		Assert.notNull(type, "Type can not be null");
+		Assert.notNull(from, "from status can not be null");
+		Assert.notNull(to, "to status can not be null");
+		
+		mongoTemplate.updateMulti(
+        		new Query(Criteria
+        				.where(String.format("analysis_results.%s.status", type.name().toLowerCase())).is(from)),
+        		new Update().set(String.format("analysis_results.%s.status", type.name().toLowerCase()), to)
+        		.set(String.format("analysis_results.%s.start_at", type.name().toLowerCase()), new Date()), CommentEntity.class);
+		
+	}
+
+	@Override
+	public void cancelAnalyzesThatAreTakingMoreThanNHours(AnalysisTypeEnum type, Integer hours) {
+		Assert.notNull(type, "Type can not be null");
+		Assert.notNull(hours, "hours can not be null");
+		Assert.isTrue(hours > 0, "hours should be grather than 0");
+		
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(new Date());
+		calendar.add(Calendar.HOUR, -hours);
+		
+		mongoTemplate.updateMulti(
+				new Query(Criteria
+						.where(String.format("analysis_results.%s.status", type.name().toLowerCase())).is(AnalysisStatusEnum.IN_PROGRESS)
+						.and(String.format("analysis_results.%s.start_at", type.name().toLowerCase())).lte(calendar.getTime())),
+				new Update().set(String.format("analysis_results.%s.status", type.name().toLowerCase()), AnalysisStatusEnum.PENDING)
+				.set(String.format("analysis_results.%s.start_at", type.name().toLowerCase()), null), CommentEntity.class);
+		
+		
+	}
+
     
 }

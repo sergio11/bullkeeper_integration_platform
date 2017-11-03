@@ -2,6 +2,7 @@ package es.bisite.usal.bulltect.domain.service.impl;
 
 import es.bisite.usal.bulltect.domain.service.IStatisticsService;
 import es.bisite.usal.bulltect.i18n.service.IMessageSourceResolverService;
+import es.bisite.usal.bulltect.persistence.entity.AnalysisTypeEnum;
 import es.bisite.usal.bulltect.persistence.entity.CommentEntity;
 import es.bisite.usal.bulltect.persistence.entity.SentimentLevelEnum;
 import es.bisite.usal.bulltect.persistence.entity.SocialMediaTypeEnum;
@@ -19,16 +20,13 @@ import es.bisite.usal.bulltect.web.dto.response.SocialMediaActivityStatisticsDTO
 import es.bisite.usal.bulltect.web.dto.response.SocialMediaActivityStatisticsDTO.ActivityDTO;
 import es.bisite.usal.bulltect.web.dto.response.SocialMediaLikesStatisticsDTO;
 import es.bisite.usal.bulltect.web.dto.response.SocialMediaLikesStatisticsDTO.SocialMediaLikesDTO;
-
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import javax.annotation.PostConstruct;
-
 import org.bson.types.ObjectId;
 import org.ocpsoft.prettytime.PrettyTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,7 +74,7 @@ public class StatisticsServiceImpl implements IStatisticsService {
 		Assert.isTrue(ObjectId.isValid(idSon), "Id Son is not valid ObjectId");
 		Assert.notNull(from, "From can not be null");
 		
-    	
+    	// Agrupamos los comentarios del hijo con id "idSon" posteriores a "from" por medio social.
     	Map<SocialMediaTypeEnum, Long> socialActivity = commentRepository
     			.findBySonEntityIdAndCreatedTimeGreaterThanEqual(new ObjectId(idSon), from)
     			.parallelStream()
@@ -146,28 +144,112 @@ public class StatisticsServiceImpl implements IStatisticsService {
 
 	@Override
 	public CommunitiesStatisticsDTO getCommunitiesStatistics(String idSon, Date from) {
+		Assert.notNull(idSon, "Id Son can not be null");
+		Assert.isTrue(ObjectId.isValid(idSon), "Id Son is not valid ObjectId");
+		Assert.notNull(from, "From can not be null");
 		
-		List<CommunityDTO> commutitiesData = Arrays.asList(
-				new CommunityDTO("SEX", 50, "50"),
-				new CommunityDTO("VIOLENCE", 4, "4"),
-				new CommunityDTO("DRUGS", 23, "23"),
-				new CommunityDTO("BULLING", 23, "23")
-		);
+		final List<CommunityDTO> commutitiesData = new ArrayList<CommunityDTO>();
 		
-		return new CommunitiesStatisticsDTO("Communities Data", commutitiesData);
+		// Violence Comunitity
+		Integer totalUserForViolence = commentRepository
+			.findBySonEntityIdAndAnalysisResultsViolenceFinishAtGreaterThanEqualAndAnalysisResultsViolenceResult(new ObjectId(idSon), from, 1)
+			.parallelStream()
+			.map(CommentEntity::getAuthor)
+			.collect(Collectors.toSet())
+			.size();
+		
+		if(totalUserForViolence > 0)
+			commutitiesData.add(new CommunityDTO(AnalysisTypeEnum.VIOLENCE.name(), totalUserForViolence, String.format("%d comentarios", totalUserForViolence)));
+		
+		// Drugs Comunitity
+		
+		Integer totalUserForDrugs = commentRepository
+				.findBySonEntityIdAndAnalysisResultsViolenceFinishAtGreaterThanEqualAndAnalysisResultsViolenceResult(new ObjectId(idSon), from, 1)
+				.parallelStream()
+				.map(CommentEntity::getAuthor)
+				.collect(Collectors.toSet())
+				.size();
+		
+		
+		if(totalUserForDrugs > 0)
+			commutitiesData.add(new CommunityDTO(AnalysisTypeEnum.DRUGS.name(), totalUserForDrugs, String.format("%d comentarios", totalUserForDrugs)));
+		
+		// Adult Comunitity
+		
+		
+		Integer totalUserForAdultContent = commentRepository
+				.findBySonEntityIdAndAnalysisResultsViolenceFinishAtGreaterThanEqualAndAnalysisResultsViolenceResult(new ObjectId(idSon), from, 1)
+				.parallelStream()
+				.map(CommentEntity::getAuthor)
+				.collect(Collectors.toSet())
+				.size();
+		
+		if(totalUserForAdultContent > 0)
+			commutitiesData.add(new CommunityDTO(AnalysisTypeEnum.ADULT.name(), totalUserForAdultContent, String.format("%d comentarios", totalUserForAdultContent)));
+		
+		// Bullying Comunitity
+		
+		Integer totalUserForBullying = commentRepository
+				.findBySonEntityIdAndAnalysisResultsViolenceFinishAtGreaterThanEqualAndAnalysisResultsViolenceResult(new ObjectId(idSon), from, 1)
+				.parallelStream()
+				.map(CommentEntity::getAuthor)
+				.collect(Collectors.toSet())
+				.size();
+		
+		if(totalUserForBullying > 0)
+			commutitiesData.add(new CommunityDTO(AnalysisTypeEnum.BULLYING.name(), totalUserForBullying, String.format("%d comentarios", totalUserForBullying)));
+		
+		
+		return new CommunitiesStatisticsDTO(
+				messageSourceResolverService.resolver("statistics.comments.communities.title", new Object[] { pt.format(from) }), 
+				commutitiesData);
 	}
 
 	@Override
 	public DimensionsStatisticsDTO getDimensionsStatistics(String idSon, Date from) {
+		Assert.notNull(idSon, "Id Son can not be null");
+		Assert.isTrue(ObjectId.isValid(idSon), "Id Son is not valid ObjectId");
+		Assert.notNull(from, "From can not be null");
 		
-		List<DimensionDTO> dimensionsData = Arrays.asList(
-				new DimensionDTO("SEX", 6, "6"),
-				new DimensionDTO("VIOLENCE", 2, "2"),
-				new DimensionDTO("DRUGS", 6, "6"),
-				new DimensionDTO("BULLING", 4, "4")
-		);
 		
-		return new DimensionsStatisticsDTO("Dimensions Data", dimensionsData);
+		final List<DimensionDTO> dimensionsData = new ArrayList<DimensionDTO>();
+		
+		
+		// Count comments for violence.
+		Long totalCommentsViolence = commentRepository
+				.countBySonEntityIdAndAnalysisResultsViolenceFinishAtGreaterThanEqualAndAnalysisResultsViolenceResult(new ObjectId(idSon), from, 1);
+		
+		if(totalCommentsViolence > 0)
+			dimensionsData.add(new DimensionDTO(AnalysisTypeEnum.VIOLENCE.name(), totalCommentsViolence, String.format("%d comentarios", totalCommentsViolence)));
+	
+		
+		// Count comments for drugs.
+		Long totalCommentsDrugs = commentRepository
+				.countBySonEntityIdAndAnalysisResultsDrugsFinishAtGreaterThanEqualAndAnalysisResultsDrugsResult(new ObjectId(idSon), from, 1);
+		
+		
+		if(totalCommentsDrugs > 0)
+			dimensionsData.add(new DimensionDTO(AnalysisTypeEnum.DRUGS.name(), totalCommentsDrugs, String.format("%d comentarios", totalCommentsDrugs)));
+		
+		// Count comments for adult
+		Long totalCommentsAdult = commentRepository
+				.countBySonEntityIdAndAnalysisResultsAdultFinishAtGreaterThanEqualAndAnalysisResultsAdultResult(new ObjectId(idSon), from, 1);
+		
+		
+		if(totalCommentsAdult > 0)
+			dimensionsData.add(new DimensionDTO(AnalysisTypeEnum.ADULT.name(), totalCommentsAdult, String.format("%d comentarios", totalCommentsAdult)));
+		
+		
+		// Count comments for bullying
+		Long totalCommentsBullying = commentRepository
+				.countBySonEntityIdAndAnalysisResultsBullyingFinishAtGreaterThanEqualAndAnalysisResultsBullyingResult(new ObjectId(idSon), from, 1);
+		
+		if(totalCommentsBullying > 0)
+			dimensionsData.add(new DimensionDTO(AnalysisTypeEnum.BULLYING.name(), totalCommentsBullying, String.format("%d comentarios", totalCommentsBullying)));
+		
+
+		return new DimensionsStatisticsDTO(
+				messageSourceResolverService.resolver("statistics.comments.dimensions.title", new Object[] { pt.format(from) }), dimensionsData);
 		
 	}
 
@@ -244,14 +326,23 @@ public class StatisticsServiceImpl implements IStatisticsService {
 	public NewFriendsDTO getNewFriends(List<String> identities, Date from) {
 		Assert.notNull(from, "From can not be null");
 		
-		List<NewFriendsDTO.UserDTO> newFriends = Arrays.asList(
-				new NewFriendsDTO.UserDTO("Usuario 1", 34),
-				new NewFriendsDTO.UserDTO("Usuario 1", 35),
-				new NewFriendsDTO.UserDTO("Usuario 1", 78)
-		);
+		List<NewFriendsDTO.UserDTO> newFriends = (identities == null || identities.isEmpty() ? 
+    			commentRepository.findAllByOrderByCreatedTimeAsc() :
+    				commentRepository.findAllBySonEntityIdInOrderByCreatedTimeAsc(identities.stream()
+    						.map(id -> new ObjectId(id)).collect(Collectors.toList())))
+		 .parallelStream()
+		 .collect(Collectors.toMap(CommentEntity::getAuthor , CommentEntity::getExtractedAt, (oldExtractedAt, newExtractedAt) -> oldExtractedAt))
+		 .entrySet()
+		 .parallelStream()
+		 .filter(newFriendEntry -> newFriendEntry.getValue().after(from))
+		 .map(newFriendEntry -> new NewFriendsDTO.UserDTO(
+				 newFriendEntry.getKey().getName(), 
+				 newFriendEntry.getKey().getImage(),
+				 pt.format(newFriendEntry.getValue())))
+		 .collect(Collectors.toList());
 		
-		
-		return new NewFriendsDTO("New Friends", newFriends);
+		return new NewFriendsDTO(
+				messageSourceResolverService.resolver("statistics.most.new.friends", new Object[] { pt.format(from) }), newFriends);
 	}
 	
 	@PostConstruct

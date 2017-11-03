@@ -49,5 +49,7 @@ public interface AlertRepository extends MongoRepository<AlertEntity, ObjectId>,
     
     List<AlertEntity> findBySonIdInAndCreateAtGreaterThanEqual(List<ObjectId> ids, Date from);
     
+    Long deleteByParentIdInAndCreateAtLessThanEqual(List<ObjectId> ids, Date minimum);
+    
 
 }

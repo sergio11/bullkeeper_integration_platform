@@ -11,12 +11,17 @@ public final class UserSystemPreferencesDTO implements Serializable {
 	@JsonProperty("push_notifications_enabled")
 	private Boolean pushNotificationsEnabled;
 	
+	@JsonProperty("remove_alerts_every")
+    private String removeAlertsEvery;
+	
 	public UserSystemPreferencesDTO(){}
 
-	public UserSystemPreferencesDTO(Boolean pushNotificationsEnabled) {
+	public UserSystemPreferencesDTO(Boolean pushNotificationsEnabled, String removeAlertsEvery) {
 		super();
 		this.pushNotificationsEnabled = pushNotificationsEnabled;
+		this.removeAlertsEvery = removeAlertsEvery;
 	}
+
 
 	public Boolean getPushNotificationsEnabled() {
 		return pushNotificationsEnabled;
@@ -26,4 +31,11 @@ public final class UserSystemPreferencesDTO implements Serializable {
 		this.pushNotificationsEnabled = pushNotificationsEnabled;
 	}
 
+	public String getRemoveAlertsEvery() {
+		return removeAlertsEvery;
+	}
+
+	public void setRemoveAlertsEvery(String removeAlertsEvery) {
+		this.removeAlertsEvery = removeAlertsEvery;
+	}
 }

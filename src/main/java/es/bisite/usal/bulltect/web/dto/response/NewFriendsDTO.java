@@ -43,20 +43,23 @@ public class NewFriendsDTO {
 
 
 	public static class UserDTO {
-
+		
 		@JsonProperty("name")
         private String name;
-		@JsonProperty("value")
-		private int value;
+		@JsonProperty("profile_image")
+        private String profileImage;
+		@JsonProperty("since")
+		private String since;
 		
 		public UserDTO(){}
-	
-		public UserDTO(String name, int value) {
+		
+		public UserDTO(String name, String profileImage, String since) {
 			super();
 			this.name = name;
-			this.value = value;
+			this.profileImage = profileImage;
+			this.since = since;
 		}
-		
+
 		public String getName() {
 			return name;
 		}
@@ -64,18 +67,27 @@ public class NewFriendsDTO {
 		public void setName(String name) {
 			this.name = name;
 		}
-		
-		public int getValue() {
-			return value;
+
+		public String getProfileImage() {
+			return profileImage;
 		}
-		
-		public void setValue(int value) {
-			this.value = value;
+
+		public void setProfileImage(String profileImage) {
+			this.profileImage = profileImage;
+		}
+
+	
+		public String getSince() {
+			return since;
+		}
+
+		public void setSince(String since) {
+			this.since = since;
 		}
 
 		@Override
 		public String toString() {
-			return "UserDTO [name=" + name + ", value=" + value + "]";
+			return "UserDTO [name=" + name + ", profileImage=" + profileImage + ", since=" + since + "]";
 		}
 		
     }

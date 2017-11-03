@@ -1,8 +1,8 @@
 package es.bisite.usal.bulltect.integration.service.impl;
 
 import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
@@ -13,14 +13,11 @@ import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
 
 import es.bisite.usal.bulltect.domain.service.IAlertService;
-import es.bisite.usal.bulltect.domain.service.IAnalysisService;
 import es.bisite.usal.bulltect.domain.service.IIterationService;
-import es.bisite.usal.bulltect.domain.service.impl.IterationServiceImpl;
 import es.bisite.usal.bulltect.i18n.service.IMessageSourceResolverService;
 import es.bisite.usal.bulltect.integration.properties.IntegrationFlowProperties;
 import es.bisite.usal.bulltect.integration.service.IIntegrationFlowService;
 import es.bisite.usal.bulltect.persistence.entity.AlertLevelEnum;
-import es.bisite.usal.bulltect.persistence.entity.IterationEntity;
 import es.bisite.usal.bulltect.persistence.repository.CommentRepository;
 import es.bisite.usal.bulltect.persistence.repository.SocialMediaRepository;
 import es.bisite.usal.bulltect.web.dto.response.IterationWithTasksDTO;
@@ -29,7 +26,6 @@ import es.bisite.usal.bulltect.web.dto.response.CommentDTO;
 
 import org.apache.commons.collections4.SetUtils;
 import org.bson.types.ObjectId;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -88,12 +84,20 @@ public final class ItegrationFlowServiceImpl implements IIntegrationFlowService 
 	
 	@Override
 	public void scheduleSocialMediaForNextIteration(IterationWithTasksDTO iteration) {
-		logger.debug("Schedule Social Media For Next Iteration ....");
-		
-		// plan the next review of these social media
-        Date scheduledFor = getDateForNextPoll();
-        socialMediaRepository.setScheduledForAndLastProbing(iteration.getTasks().stream().map(task -> new ObjectId(task.getSocialMediaId())).collect(Collectors.toList()), 
-        		scheduledFor, iteration.getFinishDate());
+		logger.debug("Schedule Valid Social Media For Next Iteration ....");
+
+        
+        final List<ObjectId> validSocialMediaIds = iteration.getTasks().stream()
+        		.filter(task -> task.getSuccess())
+        		.map(task -> new ObjectId(task.getSocialMediaId()))
+        		.collect(Collectors.toList());
+        
+        
+        if(!validSocialMediaIds.isEmpty()) {
+        	final Date scheduledFor = getDateForNextPoll();
+        	socialMediaRepository.setScheduledForAndLastProbing(validSocialMediaIds, scheduledFor, iteration.getFinishDate());
+        }
+        	
 		
 	}
 	

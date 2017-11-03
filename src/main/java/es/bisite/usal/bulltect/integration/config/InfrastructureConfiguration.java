@@ -163,16 +163,6 @@ public class InfrastructureConfiguration {
            .get();
     }
     
-    /**
-     *  Analysis of iteration comments
-     * @return
-     */
-    @Bean
-    public IntegrationFlow startAnalysis() {
-        return IntegrationFlows.from(iterationFinishedPubSubChannel())
-           .handle("analysisService", "startAnalysisFor")
-           .get();
-    }
     
     /**
      * Mainstream, obtains valid social media and proceeds to obtain comments using the access token

@@ -56,5 +56,23 @@ public final class Utils {
     	calendar.add(Calendar.DATE, -daysAgo); 
     	return calendar.getTime();
 	}
+	
+	public static Date getDateNHoursAgo(Integer hoursAgo) {
+		Assert.notNull(hoursAgo, "Hours Ago can not be null");
+		Assert.isTrue(hoursAgo >= 0, "Hours Ago should be greater than or equal to zero");
+		
+		Calendar calendar = Calendar.getInstance(); 
+    	calendar.add(Calendar.HOUR, -hoursAgo); 
+    	return calendar.getTime();
+	}
+	
+	public static Date getDateNMonthAgo(Integer monthAgo) {
+		Assert.notNull(monthAgo, "Month Ago can not be null");
+		Assert.isTrue(monthAgo >= 0, "Month Ago should be greater than or equal to zero");
+		
+		Calendar calendar = Calendar.getInstance(); 
+    	calendar.add(Calendar.DATE, -monthAgo); 
+    	return calendar.getTime();
+	}
 
 }

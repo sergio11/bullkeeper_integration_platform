@@ -8,6 +8,8 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 @Document
 public class PreferencesEntity {
+	
+	public enum RemoveAlertsEveryEnum { NEVER,  LAST_HOUR, LAST_DAY, LAST_MONTH }
 
 	@Id
     private ObjectId id;
@@ -15,13 +17,17 @@ public class PreferencesEntity {
 	@Field("push_notifications_enabled")
     private Boolean pushNotificationsEnabled = Boolean.TRUE;
 	
+	@Field("remove_alerts_every")
+    private RemoveAlertsEveryEnum removeAlertsEvery = RemoveAlertsEveryEnum.NEVER;
+	
 	public PreferencesEntity(){}
 
 	@PersistenceConstructor
-	public PreferencesEntity(ObjectId id, Boolean pushNotificationsEnabled) {
+	public PreferencesEntity(ObjectId id, Boolean pushNotificationsEnabled, RemoveAlertsEveryEnum removeAlertsEvery) {
 		super();
 		this.id = id;
 		this.pushNotificationsEnabled = pushNotificationsEnabled;
+		this.removeAlertsEvery = removeAlertsEvery;
 	}
 
 	public ObjectId getId() {
@@ -38,5 +44,13 @@ public class PreferencesEntity {
 
 	public void setPushNotificationsEnabled(Boolean pushNotificationsEnabled) {
 		this.pushNotificationsEnabled = pushNotificationsEnabled;
+	}
+
+	public RemoveAlertsEveryEnum getRemoveAlertsEvery() {
+		return removeAlertsEvery;
+	}
+
+	public void setRemoveAlertsEvery(RemoveAlertsEveryEnum removeAlertsEvery) {
+		this.removeAlertsEvery = removeAlertsEvery;
 	}
 }

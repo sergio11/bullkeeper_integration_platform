@@ -6,6 +6,7 @@ import java.util.List;
 import org.bson.types.ObjectId;
 
 import es.bisite.usal.bulltect.persistence.entity.PreferencesEntity;
+import es.bisite.usal.bulltect.persistence.entity.PreferencesEntity.RemoveAlertsEveryEnum;
 
 
 
@@ -29,5 +30,6 @@ public interface ParentRepositoryCustom {
     String getProfileImageIdByUserId(ObjectId id);
     String getFbIdByEmail(String email);
     List<ObjectId> getParentIds();
+    List<ObjectId> getParentIdsWithRemoveAlertsEveryAs(RemoveAlertsEveryEnum removeAlertsEvery);
     PreferencesEntity getPreferences(ObjectId id);
 }
