@@ -1,6 +1,7 @@
 package es.bisite.usal.bulltect.domain.service.impl;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -65,11 +66,11 @@ public class AnalysisServiceImpl implements IAnalysisService {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-		MultiValueMap<String, String> map= new LinkedMultiValueMap<String, String>();
-		map.add(CHILD_ID_ARG, sonId.toString());
-		map.add(COMMENT_IDS_ARG, String.join(",", commentIds.parallelStream().map((commentObjectId) -> commentObjectId.toString()).collect(Collectors.toList())));
+		Map<String, String> map= new HashMap<String, String>();
+		map.put(CHILD_ID_ARG, sonId.toString());
+		map.put(COMMENT_IDS_ARG, String.join(",", commentIds.parallelStream().map((commentObjectId) -> commentObjectId.toString()).collect(Collectors.toList())));
 
-		HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(map, headers);
+		HttpEntity<Map<String, String>> request = new HttpEntity<Map<String, String>>(map, headers);
 
 		ResponseEntity<Void> response = restTemplate.postForEntity(analysisServiceBaseUrl + "/" + analysisServices.get(type), 
 				request,  Void.class);

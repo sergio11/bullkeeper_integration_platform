@@ -6,7 +6,11 @@ import java.util.Date;
 import java.util.List;
 
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
@@ -17,6 +21,8 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.Assert;
 
 import es.bisite.usal.bulltect.persistence.entity.CommentEntity;
+import es.bisite.usal.bulltect.persistence.entity.ParentEntity;
+import es.bisite.usal.bulltect.persistence.entity.SocialMediaTypeEnum;
 import es.bisite.usal.bulltect.persistence.entity.AnalysisStatusEnum;
 import es.bisite.usal.bulltect.persistence.entity.AnalysisTypeEnum;
 import es.bisite.usal.bulltect.persistence.repository.CommentRepositoryCustom;
@@ -27,6 +33,8 @@ import es.bisite.usal.bulltect.web.dto.response.CommentsBySonDTO;
  * @author sergio
  */
 public class CommentRepositoryImpl implements CommentRepositoryCustom {
+	
+	private static Logger logger = LoggerFactory.getLogger(CommentRepositoryImpl.class);
     
     @Autowired
     private MongoTemplate mongoTemplate;
@@ -184,6 +192,23 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
 				.set(String.format("analysis_results.%s.start_at", type.name().toLowerCase()), null), CommentEntity.class);
 		
 		
+	}
+
+	@Override
+	public Date getExtractedAtOfTheLastCommentBySocialMediaAndSonId(SocialMediaTypeEnum socialMedia, ObjectId sonId) {
+		Assert.notNull(socialMedia, "Social Media can not be null");
+		Assert.notNull(sonId, "Son id can not be null");
+		
+		logger.debug("Son Id -> " + sonId);
+		logger.debug("Social Media -> " + socialMedia);
+		
+		Query query = new Query(
+				Criteria.where("social_media").is(socialMedia));
+        query.fields().include("extracted_at");
+        query.with(new Sort(Sort.Direction.DESC,"extracted_at"));
+     
+        CommentEntity lastComment =  mongoTemplate.findOne(query, CommentEntity.class);
+        return lastComment != null ? lastComment.getExtractedAt() : null;
 	}
 
     

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import es.bisite.usal.bulltect.integration.service.IIntegrationFlowService;
 import es.bisite.usal.bulltect.persistence.entity.SocialMediaEntity;
+import es.bisite.usal.bulltect.persistence.repository.CommentRepository;
 import es.bisite.usal.bulltect.persistence.repository.SonRepository;
 import es.bisite.usal.bulltect.web.dto.request.SaveSocialMediaDTO;
 import es.bisite.usal.bulltect.web.dto.response.SocialMediaDTO;
@@ -25,6 +26,9 @@ public abstract class SocialMediaEntityMapper {
 	
 	@Autowired
 	protected IIntegrationFlowService itegrationFlowService;
+	
+	@Autowired
+	protected CommentRepository commentRepository;
     
     @Mappings({
         @Mapping(expression="java(socialMediaEntity.getId().toString())", target = "identity" ),
@@ -43,7 +47,8 @@ public abstract class SocialMediaEntityMapper {
     @Mappings({
     	@Mapping(expression="java(es.bisite.usal.bulltect.persistence.entity.SocialMediaTypeEnum.valueOf(saveSocialMediaDTO.getType()))", target = "type" ),
     	@Mapping(expression="java(sonRepository.findOne(new org.bson.types.ObjectId(saveSocialMediaDTO.getSon())))", target = "sonEntity" ),
-    	@Mapping(expression="java(itegrationFlowService.getDateForNextPoll().getTime())", target = "scheduledFor" )
+    	@Mapping(expression="java(itegrationFlowService.getDateForNextPoll().getTime())", target = "scheduledFor" ),
+    	@Mapping(expression="java(commentRepository.getExtractedAtOfTheLastCommentBySocialMediaAndSonId(es.bisite.usal.bulltect.persistence.entity.SocialMediaTypeEnum.valueOf(saveSocialMediaDTO.getType()) ,new org.bson.types.ObjectId(saveSocialMediaDTO.getSon())))", target = "lastProbing" )
     })
     @Named("addSocialMediaDTOToSocialMediaEntity")
     public abstract SocialMediaEntity addSocialMediaDTOToSocialMediaEntity(SaveSocialMediaDTO saveSocialMediaDTO);

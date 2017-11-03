@@ -161,6 +161,7 @@ public class SocialMediaServiceImpl implements ISocialMediaService {
             } else if(i == -1 && j >= 0) {
             	// Add New Social Media
                 final SocialMediaEntity newSocialMedia = socialMediaMapper.addSocialMediaDTOToSocialMediaEntity(socialMediaList.get(j));
+                
                 logger.debug(newSocialMedia.toString());
                 result.add(newSocialMedia);
             } else if ( i >= 0 && j == -1) {
