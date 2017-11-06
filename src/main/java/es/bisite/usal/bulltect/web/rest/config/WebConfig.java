@@ -21,6 +21,7 @@ import org.springframework.data.web.PagedResourcesAssemblerArgumentResolver;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
@@ -31,7 +32,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.bisite.usal.bulltect.fcm.properties.FCMCustomProperties;
 import es.bisite.usal.bulltect.fcm.utils.FCMErrorHandler;
-import es.bisite.usal.bulltect.i18n.config.SmartLocaleResolver;
 import es.bisite.usal.bulltect.web.rest.interceptor.HeaderRequestInterceptor;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -128,8 +128,8 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 		return new FCMErrorHandler();
 	}
 
-    @Bean("FCMRestTemplate")
-    public RestTemplate restTemplate(ObjectMapper objectMapper, List<ClientHttpRequestInterceptor> interceptors,
+    @Bean("fcmRestTemplate")
+    public RestTemplate fcmRestTemplate(ObjectMapper objectMapper, List<ClientHttpRequestInterceptor> interceptors,
     		MappingJackson2HttpMessageConverter converter, DefaultResponseErrorHandler responseErrorHandler) {
     	logger.debug("Total interceptors: " + interceptors.size());
         RestTemplate restTemplate = new RestTemplate(Collections.singletonList(converter));
@@ -138,12 +138,14 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         return restTemplate;
     }
     
-    /*@Bean("BasicRestTemplate")
-    public RestTemplate restTemplate(ObjectMapper objectMapper, MappingJackson2HttpMessageConverter converter, ClientHttpRequestFactory clientHttpRequestFactory) {
-    	RestTemplate rest =  new RestTemplate(Collections.singletonList(converter));
+    @Bean("analysisRestTemplate")
+    public RestTemplate analysisRestTemplate(ObjectMapper objectMapper, 
+    		ClientHttpRequestFactory clientHttpRequestFactory, @Qualifier("loggingRequestInterceptor") ClientHttpRequestInterceptor loggingRequestInterceptor) {
+    	RestTemplate rest =  new RestTemplate(Collections.singletonList(new FormHttpMessageConverter()));
     	rest.setRequestFactory(clientHttpRequestFactory);
+    	rest.setInterceptors(Collections.singletonList(loggingRequestInterceptor));
     	return rest;
-    }*/
+    }
     
     @PostConstruct
     protected void init(){

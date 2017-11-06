@@ -42,13 +42,15 @@ public class StatisticsServiceImpl implements IStatisticsService {
 	
 	private final CommentRepository commentRepository;
 	private final IMessageSourceResolverService messageSourceResolverService;
-	private final PrettyTime pt = new PrettyTime(LocaleContextHolder.getLocale());
+	private final PrettyTime pt;
 	
 
 	@Autowired
-	public StatisticsServiceImpl(CommentRepository commentRepository, IMessageSourceResolverService messageSourceResolverService){
+	public StatisticsServiceImpl(CommentRepository commentRepository, IMessageSourceResolverService messageSourceResolverService, 
+			PrettyTime pt){
 		this.commentRepository = commentRepository;
 		this.messageSourceResolverService = messageSourceResolverService;
+		this.pt = pt;
 	}
 
 	
@@ -349,6 +351,7 @@ public class StatisticsServiceImpl implements IStatisticsService {
     protected void init() {
         Assert.notNull(commentRepository, "Comment Repository cannot be null");
         Assert.notNull(messageSourceResolverService, "Message Source Resolver Service cannot be null");
+        Assert.notNull(pt, "Pretty Time cannot be null");
     }
     
 }

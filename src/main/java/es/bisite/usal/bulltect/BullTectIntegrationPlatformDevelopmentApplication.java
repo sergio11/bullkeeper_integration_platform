@@ -20,7 +20,7 @@ import es.bisite.usal.bulltect.web.rest.interceptor.LoggingRequestInterceptor;
 @EnableMongoRepositories( value = { "es.bisite.usal.bulltect.persistence.repository" } )
 public class BullTectIntegrationPlatformDevelopmentApplication {
 	
-	@Bean
+	@Bean(name = "loggingRequestInterceptor")
 	@Order(Ordered.LOWEST_PRECEDENCE)
 	public ClientHttpRequestInterceptor provideLoggingRequestInterceptor(){
 		return new LoggingRequestInterceptor();

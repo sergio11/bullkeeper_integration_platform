@@ -1,4 +1,4 @@
-package es.bisite.usal.bulltect.tasks.config;
+package es.bisite.usal.bulltect.tasks.impl;
 
 import java.util.List;
 
@@ -8,10 +8,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 import es.bisite.usal.bulltect.domain.service.IParentsService;
 import es.bisite.usal.bulltect.domain.service.IPasswordResetTokenService;
@@ -20,11 +19,10 @@ import es.bisite.usal.bulltect.persistence.entity.EmailEntity;
 import es.bisite.usal.bulltect.persistence.repository.EmailRepository;
 import io.jsonwebtoken.lang.Assert;
 
-@Configuration
-@EnableScheduling
-public class AccountsTasksConfig {
+@Component
+public class AccountsTasks {
 	
-	private static final Logger logger = LoggerFactory.getLogger(AccountsTasksConfig.class);
+	private static final Logger logger = LoggerFactory.getLogger(AccountsTasks.class);
 	
 	private final IPasswordResetTokenService passwordResetTokenService;
 	private final IParentsService parentService;
@@ -35,7 +33,7 @@ public class AccountsTasksConfig {
     private Integer numberOfEmailsToForwarding;
 	
 	@Autowired
-	public AccountsTasksConfig(IPasswordResetTokenService passwordResetTokenService, 
+	public AccountsTasks(IPasswordResetTokenService passwordResetTokenService, 
 			IParentsService parentService, EmailRepository emailRepository, IMailClientService mailClientService){
 		this.passwordResetTokenService = passwordResetTokenService;
 		this.parentService = parentService;
@@ -78,7 +76,7 @@ public class AccountsTasksConfig {
         Assert.notNull(parentService, "Parent Service can not be null");
         Assert.notNull(emailRepository, "Email Repository can not be null");
         Assert.notNull(mailClientService, "Mail Client Service can not be null");
-        logger.debug("AccountsTasksConfig initialized ...");
+        logger.debug("init Account Tasks ...");
     }
 
 }

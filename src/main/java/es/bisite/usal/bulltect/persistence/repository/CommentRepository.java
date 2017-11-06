@@ -38,6 +38,8 @@ public interface CommentRepository extends MongoRepository<CommentEntity, Object
     Long countByAnalysisResultsSentimentFinishAtGreaterThanEqual(Date from);
     Long countByAnalysisResultsViolenceFinishAtGreaterThanEqual(Date from);
     Long countByAnalysisResultsDrugsFinishAtGreaterThanEqual(Date from);
+    Long countByAnalysisResultsAdultFinishAtGreaterThanEqual(Date from);
+    Long countByAnalysisResultsBullyingFinishAtGreaterThanEqual(Date from);
     Long countBySonEntityIdAndAnalysisResultsViolenceFinishAtGreaterThanEqualAndAnalysisResultsViolenceResult(ObjectId sonId, Date from, Integer result);
     Long countBySonEntityIdAndAnalysisResultsDrugsFinishAtGreaterThanEqualAndAnalysisResultsDrugsResult(ObjectId sonId, Date from, Integer result);
     Long countBySonEntityIdAndAnalysisResultsAdultFinishAtGreaterThanEqualAndAnalysisResultsAdultResult(ObjectId sonId, Date from, Integer result);

@@ -8,28 +8,38 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @Document
 public class BullyingResultsEntity extends ResultsEntity {
 	
-	@Field("avg_value")
-	private Double avgValue;
+	@Field("total_comments_bullying")
+	private Long totalCommentsBullying;
+	
+	@Field("total_comments_nobullying")
+	private Long totalCommentsNoBullying;
 	
 
 	public BullyingResultsEntity() {
 		super();
 	}
 
-
 	@PersistenceConstructor
-	public BullyingResultsEntity(Double avgValue) {
+	public BullyingResultsEntity(Long totalCommentsBullying, Long totalCommentsNoBullying) {
 		super();
-		this.avgValue = avgValue;
+		this.totalCommentsBullying = totalCommentsBullying;
+		this.totalCommentsNoBullying = totalCommentsNoBullying;
 	}
 
-
-	public Double getAvgValue() {
-		return avgValue;
+	public Long getTotalCommentsBullying() {
+		return totalCommentsBullying;
 	}
 
-
-	public void setAvgValue(Double avgValue) {
-		this.avgValue = avgValue;
+	public void setTotalCommentsBullying(Long totalCommentsBullying) {
+		this.totalCommentsBullying = totalCommentsBullying;
 	}
+
+	public Long getTotalCommentsNoBullying() {
+		return totalCommentsNoBullying;
+	}
+
+	public void setTotalCommentsNoBullying(Long totalCommentsNoBullying) {
+		this.totalCommentsNoBullying = totalCommentsNoBullying;
+	}
+	
 }

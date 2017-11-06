@@ -8,28 +8,38 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @Document
 public class DrugsResultsEntity extends ResultsEntity {
 	
-	@Field("avg_value")
-	private Double avgValue;
+	@Field("total_comments_drugs")
+	private Long totalCommentsDrugs;
+	
+	@Field("total_comments_nodrugs")
+	private Long totalCommentsNoDrugs;
 	
 
 	public DrugsResultsEntity() {
 		super();
 	}
 
-
 	@PersistenceConstructor
-	public DrugsResultsEntity(Double avgValue) {
+	public DrugsResultsEntity(Long totalCommentsDrugs, Long totalCommentsNoDrugs) {
 		super();
-		this.avgValue = avgValue;
+		this.totalCommentsDrugs = totalCommentsDrugs;
+		this.totalCommentsNoDrugs = totalCommentsNoDrugs;
 	}
 
-
-	public Double getAvgValue() {
-		return avgValue;
+	public Long getTotalCommentsDrugs() {
+		return totalCommentsDrugs;
 	}
 
-
-	public void setAvgValue(Double avgValue) {
-		this.avgValue = avgValue;
+	public void setTotalCommentsDrugs(Long totalCommentsDrugs) {
+		this.totalCommentsDrugs = totalCommentsDrugs;
 	}
+
+	public Long getTotalCommentsNoDrugs() {
+		return totalCommentsNoDrugs;
+	}
+
+	public void setTotalCommentsNoDrugs(Long totalCommentsNoDrugs) {
+		this.totalCommentsNoDrugs = totalCommentsNoDrugs;
+	}
+	
 }

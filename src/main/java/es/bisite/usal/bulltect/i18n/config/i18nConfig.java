@@ -1,17 +1,21 @@
 
 package es.bisite.usal.bulltect.i18n.config;
 
-import java.util.Locale;
+
 import javax.annotation.PostConstruct;
+
+import org.ocpsoft.prettytime.PrettyTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.web.servlet.LocaleResolver;
-import org.springframework.web.servlet.i18n.CookieLocaleResolver;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 
 @Configuration
@@ -50,6 +54,13 @@ public class i18nConfig {
     public LocaleResolver localeResolver() {
         return new SmartLocaleResolver();
     }
+    
+    @Bean(name = "prettyTime")
+    @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+    public PrettyTime prettyTime() {
+    	return new PrettyTime(LocaleContextHolder.getLocale());
+    }
+    
     
     @PostConstruct
     protected void init(){

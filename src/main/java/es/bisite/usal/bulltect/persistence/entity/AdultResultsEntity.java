@@ -8,28 +8,42 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @Document
 public class AdultResultsEntity extends ResultsEntity {
 	
-	@Field("avg_value")
-	private Double avgValue;
+	@Field("total_comments_adult_content")
+	private Long totalCommentsAdultContent;
+	
+	@Field("total_comments_noadult_content")
+	private Long totalCommentsNoAdultContent;
 	
 
 	public AdultResultsEntity() {
 		super();
 	}
 
-
 	@PersistenceConstructor
-	public AdultResultsEntity(Double avgValue) {
+	public AdultResultsEntity(Long totalCommentsAdultContent, Long totalCommentsNoAdultContent) {
 		super();
-		this.avgValue = avgValue;
+		this.totalCommentsAdultContent = totalCommentsAdultContent;
+		this.totalCommentsNoAdultContent = totalCommentsNoAdultContent;
+	}
+
+	public Long getTotalCommentsAdultContent() {
+		return totalCommentsAdultContent;
 	}
 
 
-	public Double getAvgValue() {
-		return avgValue;
+	public void setTotalCommentsAdultContent(Long totalCommentsAdultContent) {
+		this.totalCommentsAdultContent = totalCommentsAdultContent;
 	}
 
 
-	public void setAvgValue(Double avgValue) {
-		this.avgValue = avgValue;
+	public Long getTotalCommentsNoAdultContent() {
+		return totalCommentsNoAdultContent;
 	}
+
+
+	public void setTotalCommentsNoAdultContent(Long totalCommentsNoAdultContent) {
+		this.totalCommentsNoAdultContent = totalCommentsNoAdultContent;
+	}
+	
+	
 }

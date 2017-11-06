@@ -89,6 +89,7 @@ public class InfrastructureConfiguration {
         executor.setCorePoolSize(5);
         executor.setMaxPoolSize(10);
         executor.setQueueCapacity(25);
+        executor.setThreadNamePrefix("integration-pool-thread");
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
         return executor;
     }

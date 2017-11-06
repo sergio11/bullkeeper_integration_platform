@@ -1,7 +1,6 @@
 package es.bisite.usal.bulltect.domain.service.impl;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -10,6 +9,8 @@ import org.apache.commons.collections.ListUtils;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -33,7 +34,7 @@ public class AnalysisServiceImpl implements IAnalysisService {
 	
 	private Logger logger = LoggerFactory.getLogger(AnalysisServiceImpl.class);
 	
-	private final RestTemplate restTemplate;
+	private final RestTemplate analysisRestTemplate;
 	private final CommentRepository commentRepository;
 	
 	private final static String CHILD_ID_ARG = "childId";
@@ -51,13 +52,13 @@ public class AnalysisServiceImpl implements IAnalysisService {
 			    .build();
 	}
 	
-	@Value("${domain.services.analysis.service.base.url}")
+	@Value("${analysis.service.base.url}")
 	private String analysisServiceBaseUrl;
 	
-
-	public AnalysisServiceImpl(RestTemplate restTemplate, CommentRepository commentRepository) {
+	@Autowired
+	public AnalysisServiceImpl(@Qualifier("analysisRestTemplate") RestTemplate analysisRestTemplate, CommentRepository commentRepository) {
 		super();
-		this.restTemplate = restTemplate;
+		this.analysisRestTemplate = analysisRestTemplate;
 		this.commentRepository = commentRepository;
 	}
 	
@@ -65,14 +66,16 @@ public class AnalysisServiceImpl implements IAnalysisService {
 		
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+		
+		// create form parameters as a MultiValueMap
+		final MultiValueMap<String, String> formVars = new LinkedMultiValueMap<>();
+		formVars.add(CHILD_ID_ARG, sonId.toString());
+		formVars.add(COMMENT_IDS_ARG, String.join(",", commentIds.parallelStream().map((commentObjectId) -> commentObjectId.toString()).collect(Collectors.toList())));
 
-		Map<String, String> map= new HashMap<String, String>();
-		map.put(CHILD_ID_ARG, sonId.toString());
-		map.put(COMMENT_IDS_ARG, String.join(",", commentIds.parallelStream().map((commentObjectId) -> commentObjectId.toString()).collect(Collectors.toList())));
 
-		HttpEntity<Map<String, String>> request = new HttpEntity<Map<String, String>>(map, headers);
+		HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(formVars, headers);
 
-		ResponseEntity<Void> response = restTemplate.postForEntity(analysisServiceBaseUrl + "/" + analysisServices.get(type), 
+		ResponseEntity<Void> response = analysisRestTemplate.postForEntity(analysisServiceBaseUrl + "/" + analysisServices.get(type), 
 				request,  Void.class);
 		
 		return response;
@@ -91,14 +94,21 @@ public class AnalysisServiceImpl implements IAnalysisService {
 			 
 			 logger.debug(String.format("Start %s analysis for %s with %d comments", type.toString(), sonId.toString(), commentIds.size()));
 			 
-			 
-			 commentRepository.updateAnalysisStatusFor(type, AnalysisStatusEnum.IN_PROGRESS, commentIds);
-			 ResponseEntity<Void> response = startAnalysisFor(type, sonId, commentIds);
-			 
-			 if(response.getStatusCode().equals(HttpStatus.INTERNAL_SERVER_ERROR) || response.getStatusCode().equals(HttpStatus.NOT_FOUND)) {
-				 logger.error(String.format("Failed call to the %s analysis service with code %d ", type.toString(), response.getStatusCode().name()));
+			 try {
+				 
+				 commentRepository.updateAnalysisStatusFor(type, AnalysisStatusEnum.IN_PROGRESS, commentIds);
+				 ResponseEntity<Void> response = startAnalysisFor(type, sonId, commentIds);
+				 
+				 if(response.getStatusCode().equals(HttpStatus.INTERNAL_SERVER_ERROR) || response.getStatusCode().equals(HttpStatus.NOT_FOUND)) {
+					 logger.error(String.format("Failed call to the %s analysis service with code %d ", type.toString(), response.getStatusCode().name()));
+					 commentRepository.updateAnalysisStatusFor(type, AnalysisStatusEnum.PENDING, commentIds);
+				 }
+			 } catch (Exception e) {
+				 logger.error(String.format("Failed call to the %s analysis service with err %s ", type.toString(), e.getMessage()));
 				 commentRepository.updateAnalysisStatusFor(type, AnalysisStatusEnum.PENDING, commentIds);
 			 }
+			 
+			 
 	     }
 		
 	}
@@ -158,7 +168,7 @@ public class AnalysisServiceImpl implements IAnalysisService {
 	
 	@PostConstruct
     protected void init() {
-        Assert.notNull(restTemplate, "RestTemplate can not be null");
+        Assert.notNull(analysisRestTemplate, "Analysis RestTemplate can not be null");
         Assert.notNull(commentRepository, "Comment Repository cannot be null");
     }
 

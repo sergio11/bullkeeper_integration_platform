@@ -36,7 +36,7 @@ public class PushNotificationsServiceImpl implements IPushNotificationsService {
 	private final FCMCustomProperties firebaseCustomProperties;
 
 	@Autowired
-	public PushNotificationsServiceImpl(@Qualifier("FCMRestTemplate") RestTemplate restTemplate, FCMCustomProperties firebaseCustomProperties) {
+	public PushNotificationsServiceImpl(@Qualifier("fcmRestTemplate") RestTemplate restTemplate, FCMCustomProperties firebaseCustomProperties) {
 		super();
 		this.restTemplate = restTemplate;
 		this.firebaseCustomProperties = firebaseCustomProperties;

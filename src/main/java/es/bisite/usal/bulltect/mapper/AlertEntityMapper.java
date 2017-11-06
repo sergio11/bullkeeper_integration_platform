@@ -5,6 +5,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.Named;
+import org.ocpsoft.prettytime.PrettyTime;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import es.bisite.usal.bulltect.persistence.entity.AlertEntity;
@@ -23,11 +24,15 @@ public abstract class AlertEntityMapper {
 	
 	@Autowired
 	protected SonEntityMapper sonEntityMapper;
+	
+	@Autowired
+	protected PrettyTime prettyTime;
     
     @Mappings({
         @Mapping(expression="java(alertEntity.getId().toString())", target = "identity" ),
         @Mapping(expression="java(sonEntityMapper.sonEntityToSonDTO(alertEntity.getSon()))", target = "son" ),
-        @Mapping(source = "alertEntity.createAt", target = "createAt", dateFormat = "yyyy/MM/dd HH:mm:ss")
+        @Mapping(source = "alertEntity.createAt", target = "createAt", dateFormat = "yyyy/MM/dd HH:mm:ss"),
+        @Mapping(expression="java(prettyTime.format(alertEntity.getCreateAt()))", target = "since")
     })
     @Named("alertEntityToSonDTO")
     public abstract AlertDTO alertEntityToAlertDTO(AlertEntity alertEntity); 

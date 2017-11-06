@@ -1,4 +1,4 @@
-package es.bisite.usal.bulltect.tasks.config;
+package es.bisite.usal.bulltect.tasks.impl;
 
 
 import java.util.Date;
@@ -12,9 +12,9 @@ import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.launch.support.SimpleJobLauncher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
 import es.bisite.usal.bulltect.batch.config.BatchConfiguration;
 import es.bisite.usal.bulltect.persistence.entity.PreferencesEntity.RemoveAlertsEveryEnum;
 import es.bisite.usal.bulltect.persistence.repository.AlertRepository;
@@ -22,11 +22,10 @@ import es.bisite.usal.bulltect.persistence.repository.ParentRepository;
 import es.bisite.usal.bulltect.util.Utils;
 import io.jsonwebtoken.lang.Assert;
 
-@Configuration
-@EnableScheduling
-public class AlertsTasksConfig {
+@Component
+public class AlertsTasks {
 	
-	private static final Logger logger = LoggerFactory.getLogger(AlertsTasksConfig.class);
+	private static final Logger logger = LoggerFactory.getLogger(AlertsTasks.class);
 	
     private final Job notificationJob;
     private final SimpleJobLauncher jobLauncher;
@@ -34,7 +33,7 @@ public class AlertsTasksConfig {
     private final AlertRepository alertRepository;
     
     @Autowired
-    public AlertsTasksConfig(@Qualifier(BatchConfiguration.NOTIFICATION_JOB) Job notificationJob, 
+    public AlertsTasks(@Qualifier(BatchConfiguration.NOTIFICATION_JOB) Job notificationJob, 
     		SimpleJobLauncher jobLauncher, ParentRepository parentRepository, AlertRepository alertRepository){
     	
     	this.notificationJob = notificationJob;
@@ -92,7 +91,7 @@ public class AlertsTasksConfig {
         Assert.notNull(jobLauncher, "Job Launcher can not be null");
         Assert.notNull(parentRepository, "Parent Repository can not be null");
         Assert.notNull(alertRepository, "Alert Repository can not be null");
-        logger.debug("AlertsTasksConfig initialized ...");
+        logger.debug("init Alerts Tasks  ...");
 	}
 
 }

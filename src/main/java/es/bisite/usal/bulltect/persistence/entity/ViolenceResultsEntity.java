@@ -8,28 +8,36 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @Document
 public class ViolenceResultsEntity extends ResultsEntity {
 	
-	@Field("avg_value")
-	private Double avgValue;
+	@Field("total_violent_comments")
+	private Long totalViolentComments;
 	
+	@Field("total nonviolent comments")
+	private Long totalNonViolentComments;
 
 	public ViolenceResultsEntity() {
 		super();
 	}
 
-
 	@PersistenceConstructor
-	public ViolenceResultsEntity(Double avgValue) {
+	public ViolenceResultsEntity(Long totalViolentComments, Long totalNonViolentComments) {
 		super();
-		this.avgValue = avgValue;
+		this.totalViolentComments = totalViolentComments;
+		this.totalNonViolentComments = totalNonViolentComments;
 	}
 
-
-	public Double getAvgValue() {
-		return avgValue;
+	public Long getTotalViolentComments() {
+		return totalViolentComments;
 	}
 
+	public void setTotalViolentComments(Long totalViolentComments) {
+		this.totalViolentComments = totalViolentComments;
+	}
 
-	public void setAvgValue(Double avgValue) {
-		this.avgValue = avgValue;
+	public Long getTotalNonViolentComments() {
+		return totalNonViolentComments;
+	}
+
+	public void setTotalNonViolentComments(Long totalNonViolentComments) {
+		this.totalNonViolentComments = totalNonViolentComments;
 	}
 }

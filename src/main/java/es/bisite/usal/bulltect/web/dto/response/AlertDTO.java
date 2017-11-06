@@ -1,7 +1,6 @@
 package es.bisite.usal.bulltect.web.dto.response;
 
 import org.springframework.hateoas.ResourceSupport;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class AlertDTO extends ResourceSupport {
@@ -16,19 +15,22 @@ public class AlertDTO extends ResourceSupport {
     private String payload;
     @JsonProperty("create_at")
     private String createAt;
+    @JsonProperty("since")
+    private String since;
     @JsonProperty("son")
     private SonDTO son;
 
     public AlertDTO() {
     }
 
-    public AlertDTO(String identity, String level, String title, String payload, String createAt, SonDTO son) {
+    public AlertDTO(String identity, String level, String title, String payload, String createAt, String since, SonDTO son) {
         super();
         this.identity = identity;
         this.level = level;
         this.title = title;
         this.payload = payload;
         this.createAt = createAt;
+        this.since = since;
         this.son = son;
     }
 
@@ -73,7 +75,15 @@ public class AlertDTO extends ResourceSupport {
         this.createAt = createAt;
     }
 
-    public SonDTO getSon() {
+    public String getSince() {
+		return since;
+	}
+
+	public void setSince(String since) {
+		this.since = since;
+	}
+
+	public SonDTO getSon() {
         return son;
     }
 

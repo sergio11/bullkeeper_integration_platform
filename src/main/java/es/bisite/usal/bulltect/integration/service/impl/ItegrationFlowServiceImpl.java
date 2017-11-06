@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-import org.springframework.web.client.RestTemplate;
 
 import es.bisite.usal.bulltect.domain.service.IAlertService;
 import es.bisite.usal.bulltect.domain.service.IIterationService;
@@ -44,7 +43,7 @@ public final class ItegrationFlowServiceImpl implements IIntegrationFlowService 
 	@Autowired
 	public ItegrationFlowServiceImpl(IntegrationFlowProperties integrationFlowProperties,
 			SocialMediaRepository socialMediaRepository, IIterationService iterationService,
-			RestTemplate restTemplate, CommentRepository commentRepository, IAlertService alertService,
+			CommentRepository commentRepository, IAlertService alertService,
 			IMessageSourceResolverService messageSourceResolver) {
 		super();
 		this.integrationFlowProperties = integrationFlowProperties;
