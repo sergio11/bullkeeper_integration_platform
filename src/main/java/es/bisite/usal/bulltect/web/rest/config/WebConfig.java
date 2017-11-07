@@ -9,8 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
@@ -33,6 +33,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import es.bisite.usal.bulltect.fcm.properties.FCMCustomProperties;
 import es.bisite.usal.bulltect.fcm.utils.FCMErrorHandler;
 import es.bisite.usal.bulltect.web.rest.interceptor.HeaderRequestInterceptor;
+import es.bisite.usal.bulltect.web.rest.interceptor.LoggingRequestInterceptor;
+
 import org.springframework.beans.factory.annotation.Value;
 
 @Configuration
@@ -113,6 +115,12 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     public ClientHttpRequestInterceptor provideProjectId(){
     	return new HeaderRequestInterceptor("project_id", fcmProperties.getSenderId());
     }
+    
+    @Bean(name = "loggingRequestInterceptor")
+	@Order(Ordered.LOWEST_PRECEDENCE)
+	public ClientHttpRequestInterceptor provideLoggingRequestInterceptor(){
+		return new LoggingRequestInterceptor();
+	}
     
     @Bean
     public ClientHttpRequestFactory provideClientHttpRequestFactory() {
