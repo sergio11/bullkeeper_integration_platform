@@ -15,13 +15,13 @@ import es.bisite.usal.bulltect.web.rest.deserializers.ClearStringDeserializer;
 public class AddSchoolDTO {
 	
 	@NotBlank(message = "{school.name.notblank}")
-    @Size(min = 5, max = 15, message = "{school.name.size}")
+    @Size(min = 5, max = 30, message = "{school.name.size}")
 	@SchoolNameShouldNotExists(message="{school.name.should.not.exists}", groups = Extended.class)
 	@JsonProperty("name")
 	@JsonDeserialize(using = ClearStringDeserializer.class)
 	private String schoolName;
 	@NotBlank(message = "{school.residence.notblank}")
-    @Size(min = 5, max = 15, message = "{school.residence.size}")
+    @Size(min = 5, max = 30, message = "{school.residence.size}")
 	@JsonProperty("residence")
 	private String residence;
 	@NotBlank(message = "{school.location.notblank}")

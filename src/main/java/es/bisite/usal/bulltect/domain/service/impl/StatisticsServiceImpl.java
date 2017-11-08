@@ -62,10 +62,10 @@ public class StatisticsServiceImpl implements IStatisticsService {
     						.map(id -> new ObjectId(id)).collect(Collectors.toList()), from));
 	}
 	
-	private List<CommentEntity> getCommentsByExtractedAtFor(List<String> identities, Date from){
+	private List<CommentEntity> getCommentsByExtractedAtFor(ObjectId parentId, List<String> identities, Date from){
 		
 		return (identities == null || identities.isEmpty() ? 
-    			commentRepository.findByExtractedAtGreaterThanEqual(from) :
+    			commentRepository.findBySonEntityParentIdAndExtractedAtGreaterThanEqual(parentId, from) :
     				commentRepository.findBySonEntityIdInAndExtractedAtGreaterThanEqual(identities.stream()
     						.map(id -> new ObjectId(id)).collect(Collectors.toList()), from));
 	}
@@ -256,11 +256,11 @@ public class StatisticsServiceImpl implements IStatisticsService {
 	}
 
 	@Override
-	public CommentsStatisticsDTO getCommentsStatistics(List<String> identities, Date from) {
+	public CommentsStatisticsDTO getCommentsStatistics(ObjectId parentId, List<String> identities, Date from) {
 		Assert.notNull(from, "From can not be null");
     	
     	final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-    	List<CommentsStatisticsDTO.CommentsPerDateDTO> commentsData = getCommentsByExtractedAtFor(identities, from)
+    	List<CommentsStatisticsDTO.CommentsPerDateDTO> commentsData = getCommentsByExtractedAtFor(parentId, identities, from)
     		.parallelStream()
     		.collect(Collectors.groupingBy(
     				comment -> dateFormat.format(comment.getExtractedAt()), 
@@ -277,10 +277,10 @@ public class StatisticsServiceImpl implements IStatisticsService {
 	}
 
 	@Override
-	public SocialMediaLikesStatisticsDTO getSocialMediaLikesStatistics(List<String> identities, Date from) {
+	public SocialMediaLikesStatisticsDTO getSocialMediaLikesStatistics(ObjectId parentId, List<String> identities, Date from) {
 		Assert.notNull(from, "From can not be null");
     	
-    	List<SocialMediaLikesDTO> socialMediaData = getCommentsByExtractedAtFor(identities, from).parallelStream()
+    	List<SocialMediaLikesDTO> socialMediaData = getCommentsByExtractedAtFor(parentId, identities, from).parallelStream()
         		.collect(Collectors.groupingBy(CommentEntity::getSocialMedia, 
         				Collectors.summingLong(CommentEntity::getLikes)))
         		.entrySet()
@@ -298,11 +298,11 @@ public class StatisticsServiceImpl implements IStatisticsService {
 	}
 
 	@Override
-	public MostActiveFriendsDTO getMostActiveFriends(List<String> identities, Date from) {
+	public MostActiveFriendsDTO getMostActiveFriends(ObjectId parentId, List<String> identities, Date from) {
 		Assert.notNull(from, "From can not be null");
 		
     	
-    	List<MostActiveFriendsDTO.UserDTO> mostActiveFriends = getCommentsByExtractedAtFor(identities, from).parallelStream()
+    	List<MostActiveFriendsDTO.UserDTO> mostActiveFriends = getCommentsByExtractedAtFor(parentId, identities, from).parallelStream()
         		.collect(Collectors.groupingBy(CommentEntity::getSocialMedia,
         				Collectors.groupingBy(CommentEntity::getAuthor, 
         						Collectors.counting())))
@@ -325,11 +325,11 @@ public class StatisticsServiceImpl implements IStatisticsService {
 	}
 
 	@Override
-	public NewFriendsDTO getNewFriends(List<String> identities, Date from) {
+	public NewFriendsDTO getNewFriends(ObjectId parentId, List<String> identities, Date from) {
 		Assert.notNull(from, "From can not be null");
 		
 		List<NewFriendsDTO.UserDTO> newFriends = (identities == null || identities.isEmpty() ? 
-    			commentRepository.findAllByOrderByCreatedTimeAsc() :
+    			commentRepository.findAllBySonEntityParentIdOrderByCreatedTimeAsc(parentId) :
     				commentRepository.findAllBySonEntityIdInOrderByCreatedTimeAsc(identities.stream()
     						.map(id -> new ObjectId(id)).collect(Collectors.toList())))
 		 .parallelStream()

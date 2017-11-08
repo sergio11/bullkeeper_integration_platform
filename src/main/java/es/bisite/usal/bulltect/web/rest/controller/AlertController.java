@@ -232,8 +232,8 @@ public class AlertController extends BaseController {
             @ApiParam(name = "days_ago", value = "Days limit", required = false)
     			@RequestParam(name = "days_ago", defaultValue = "1", required = false) 
             	Date from) throws Throwable {
-
-    	AlertsStatisticsDTO alertsStatisticsDTO = alertService.getAlertsStatistics(identities, from);
+    	
+    	AlertsStatisticsDTO alertsStatisticsDTO = alertService.getAlertsStatistics(selfParent.getUserId(), identities, from);
     	
     	if(alertsStatisticsDTO.getAlerts().isEmpty())
     		throw new NoAlertsStatisticsForThisPeriodException(from);

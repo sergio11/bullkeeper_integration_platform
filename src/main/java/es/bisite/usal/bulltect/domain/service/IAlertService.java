@@ -50,5 +50,5 @@ public interface IAlertService {
     
     void createInvalidAccessTokenAlert(String payload, ParentEntity parent, SonEntity son);
     
-    AlertsStatisticsDTO getAlertsStatistics(List<ObjectId> sonIds, Date from);
+    AlertsStatisticsDTO getAlertsStatistics(ObjectId parentId, List<ObjectId> sonIds, Date from);
 }

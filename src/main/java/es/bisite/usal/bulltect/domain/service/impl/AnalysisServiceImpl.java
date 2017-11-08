@@ -70,12 +70,12 @@ public class AnalysisServiceImpl implements IAnalysisService {
 		// create form parameters as a MultiValueMap
 		final MultiValueMap<String, String> formVars = new LinkedMultiValueMap<>();
 		formVars.add(CHILD_ID_ARG, sonId.toString());
-		formVars.add(COMMENT_IDS_ARG, String.join(",", commentIds.parallelStream().map((commentObjectId) -> commentObjectId.toString()).collect(Collectors.toList())));
+		formVars.add(COMMENT_IDS_ARG, String.join("_", commentIds.parallelStream().map((commentObjectId) -> commentObjectId.toString()).collect(Collectors.toList())));
 
 
 		HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(formVars, headers);
 
-		ResponseEntity<Void> response = analysisRestTemplate.postForEntity(analysisServiceBaseUrl + "/" + analysisServices.get(type), 
+		ResponseEntity<Void> response = analysisRestTemplate.postForEntity(analysisServiceBaseUrl + "/" + analysisServices.get(type) + "/", 
 				request,  Void.class);
 		
 		return response;

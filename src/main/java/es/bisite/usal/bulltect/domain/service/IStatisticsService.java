@@ -3,6 +3,8 @@ package es.bisite.usal.bulltect.domain.service;
 import java.util.Date;
 import java.util.List;
 
+import org.bson.types.ObjectId;
+
 import es.bisite.usal.bulltect.web.dto.response.CommentsStatisticsDTO;
 import es.bisite.usal.bulltect.web.dto.response.CommunitiesStatisticsDTO;
 import es.bisite.usal.bulltect.web.dto.response.DimensionsStatisticsDTO;
@@ -21,8 +23,8 @@ public interface IStatisticsService {
     SentimentAnalysisStatisticsDTO getSentimentAnalysisStatistics(String idSon, Date from);
     CommunitiesStatisticsDTO getCommunitiesStatistics(String idSon, Date from);
     DimensionsStatisticsDTO getDimensionsStatistics(String idSon, Date from);
-    CommentsStatisticsDTO getCommentsStatistics(List<String> identities, Date from);
-    SocialMediaLikesStatisticsDTO getSocialMediaLikesStatistics(List<String> identities, Date from);
-    MostActiveFriendsDTO getMostActiveFriends(List<String> identities, Date from);
-    NewFriendsDTO getNewFriends(List<String> identities, Date from);
+    CommentsStatisticsDTO getCommentsStatistics(ObjectId parentId, List<String> identities, Date from);
+    SocialMediaLikesStatisticsDTO getSocialMediaLikesStatistics(ObjectId parentId, List<String> identities, Date from);
+    MostActiveFriendsDTO getMostActiveFriends(ObjectId parentId, List<String> identities, Date from);
+    NewFriendsDTO getNewFriends(ObjectId parentId, List<String> identities, Date from);
 }

@@ -22,6 +22,7 @@ public interface CommentRepository extends MongoRepository<CommentEntity, Object
     List<CommentEntity> findAllBySonEntityIdIn(List<ObjectId> ids);
     List<CommentEntity> findAllBySonEntityIdInOrderByCreatedTimeAsc(List<ObjectId> ids);
     List<CommentEntity> findAllByOrderByCreatedTimeAsc();
+    List<CommentEntity> findAllBySonEntityParentIdOrderByCreatedTimeAsc(ObjectId parentId);
     Long deleteBySonEntity(ObjectId id);
     Page<CommentEntity> findAllByAnalysisResultsSentimentStatus(AnalysisStatusEnum status, Pageable pageable);
     Page<CommentEntity> findAllByAnalysisResultsViolenceStatus(AnalysisStatusEnum status, Pageable pageable);
@@ -35,6 +36,7 @@ public interface CommentRepository extends MongoRepository<CommentEntity, Object
     List<CommentEntity> findByCreatedTimeGreaterThanEqual(Date from);
     List<CommentEntity> findBySonEntityIdInAndExtractedAtGreaterThanEqual(List<ObjectId> ids, Date from);
     List<CommentEntity> findByExtractedAtGreaterThanEqual(Date from);
+    List<CommentEntity> findBySonEntityParentIdAndExtractedAtGreaterThanEqual(ObjectId parentId, Date from);
     Long countByAnalysisResultsSentimentFinishAtGreaterThanEqual(Date from);
     Long countByAnalysisResultsViolenceFinishAtGreaterThanEqual(Date from);
     Long countByAnalysisResultsDrugsFinishAtGreaterThanEqual(Date from);

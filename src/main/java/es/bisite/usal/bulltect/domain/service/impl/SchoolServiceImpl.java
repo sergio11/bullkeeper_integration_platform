@@ -1,5 +1,6 @@
 package es.bisite.usal.bulltect.domain.service.impl;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.bson.types.ObjectId;
@@ -55,7 +56,7 @@ public class SchoolServiceImpl implements ISchoolService {
 
 	@Override
 	public Page<SchoolDTO> findByNamePaginated(String name, Pageable pageable) {
-		Page<SchoolEntity> schoolPage = schoolRepository.findAllByNameLike(name, pageable);
+		Page<SchoolEntity> schoolPage = schoolRepository.findAllByNameLikeIgnoreCase(name, pageable);
 		return schoolPage.map(new Converter<SchoolEntity, SchoolDTO>(){
             @Override
             public SchoolDTO convert(SchoolEntity school) {
@@ -63,6 +64,13 @@ public class SchoolServiceImpl implements ISchoolService {
             }
         });
 	}
+	
+	@Override
+	public Iterable<SchoolDTO> findByName(String name) {
+		List<SchoolEntity> schoolsEntities = schoolRepository.findAllByNameLikeIgnoreCase(name);
+		return schoolEntityMapper.schoolEntitiesToSchoolDTOs(schoolsEntities);
+	}
+
 
 	@Override
 	public SchoolDTO getSchoolById(String id) {
@@ -88,5 +96,10 @@ public class SchoolServiceImpl implements ISchoolService {
 	public Iterable<SchoolNameDTO> getAllSchoolNames() {
 		return schoolRepository.getAllSchoolNames()
 				.stream().map((school) -> new SchoolNameDTO(school.getId().toString(), school.getName())).collect(Collectors.toList());
+	}
+
+	@Override
+	public Long getTotalNumberOfSchools() {
+		return schoolRepository.count();
 	}
 }

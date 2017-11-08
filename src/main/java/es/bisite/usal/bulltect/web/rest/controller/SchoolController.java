@@ -75,6 +75,18 @@ public class SchoolController extends BaseController implements ISchoolHAL {
     	
     }
     
+    @RequestMapping(value = "/count", method = RequestMethod.GET)
+    @ApiOperation(value = "GET_TOTAL_NUMBER_OF_SCHOOLS", nickname = "GET_TOTAL_NUMBER_OF_SCHOOLS", notes = "Get total number of schools",
+            response = Long.class)
+    public ResponseEntity<APIResponse<Long>> getTotalNumberOfSchools() throws Throwable {
+    	
+    	Long totalSchools = schoolService.getTotalNumberOfSchools();
+    	
+    	return ApiHelper.<Long>createAndSendResponse(SchoolResponseCode.TOTAL_NUMBER_OF_SCHOOLS, 
+        		HttpStatus.OK, totalSchools);
+    	
+    }
+    
     
     @RequestMapping(value = "/all/names", method = RequestMethod.GET)
     @ApiOperation(value = "GET_ALL_SCHOOL_NAMES", nickname = "GET_ALL_SCHOOL_NAMES", notes = "Get all School Names",
@@ -94,20 +106,18 @@ public class SchoolController extends BaseController implements ISchoolHAL {
     @RequestMapping(value = "/", method = RequestMethod.GET)
     @ApiOperation(value = "FIND_SCHOOLS_BY_NAME", nickname = "FIND_SCHOOLS_BY_NAME", notes = "Find Schools by name",
             response = PagedResources.class)
-    public ResponseEntity<APIResponse<PagedResources<Resource<SchoolDTO>>>> getSchoolsByName(
+    public ResponseEntity<APIResponse<Iterable<SchoolDTO>>> getSchoolsByName(
     		@ApiParam(value = "name", required = true) 
     			@Valid @NotBlank(message = "{school.name.notblank}") 
-    				@RequestParam(value = "name", required = false) String name,
-    		@ApiIgnore @PageableDefault Pageable pageable, 
-    		@ApiIgnore PagedResourcesAssembler<SchoolDTO> pagedAssembler) throws Throwable {
+    				@RequestParam(value = "name", required = false) String name) throws Throwable {
     	
-    	Page<SchoolDTO> schoolPage = schoolService.findByNamePaginated(name, pageable);
+    	Iterable<SchoolDTO> schools = schoolService.findByName(name);
     	
-    	if(schoolPage.getTotalElements() == 0)
+    	if(Iterables.size(schools) == 0)
     		throw new NoSchoolsFoundException();
     	
-    	return ApiHelper.<PagedResources<Resource<SchoolDTO>>>createAndSendResponse(SchoolResponseCode.SCHOOLS_BY_NAME, 
-        		HttpStatus.OK, pagedAssembler.toResource(addLinksToSchool((schoolPage))));
+    	return ApiHelper.<Iterable<SchoolDTO>>createAndSendResponse(SchoolResponseCode.SCHOOLS_BY_NAME, 
+        		HttpStatus.OK, schools);
     }
     
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)

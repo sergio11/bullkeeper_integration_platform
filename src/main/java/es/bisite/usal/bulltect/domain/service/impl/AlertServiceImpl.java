@@ -175,15 +175,16 @@ public class AlertServiceImpl implements IAlertService {
 	}
     
     @Override
-	public AlertsStatisticsDTO getAlertsStatistics(List<ObjectId> sonIds, Date from) {
+	public AlertsStatisticsDTO getAlertsStatistics(ObjectId parentId, List<ObjectId> sonIds, Date from) {
     	
     	
     	Map<AlertLevelEnum, Long> alertsByLevel = 
     			(sonIds == null || sonIds.isEmpty() ? 
-    					alertRepository.findByCreateAtGreaterThanEqual(from) :
-    						alertRepository.findBySonIdInAndCreateAtGreaterThanEqual(sonIds, from)	)
+    					alertRepository.findByParentIdAndCreateAtGreaterThanEqual(parentId, from) :
+    						alertRepository.findByParentIdAndSonIdInAndCreateAtGreaterThanEqual(parentId, sonIds, from)	)
     		.parallelStream()
     		.collect(Collectors.groupingBy(AlertEntity::getLevel, Collectors.counting()));
+    	
     	
     	
     	final Integer totalAlerts = alertsByLevel.values().stream().mapToInt(Number::intValue).sum();

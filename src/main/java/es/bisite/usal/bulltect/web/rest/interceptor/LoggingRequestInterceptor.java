@@ -1,13 +1,19 @@
 package es.bisite.usal.bulltect.web.rest.interceptor;
 
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
+
+import es.bisite.usal.bulltect.util.ResetOnCloseInputStream;
 
 public class LoggingRequestInterceptor implements ClientHttpRequestInterceptor {
 
@@ -30,14 +36,29 @@ public class LoggingRequestInterceptor implements ClientHttpRequestInterceptor {
         log.debug("==========================request end================================================");
     }
     
+    public static String fromStream(InputStream in) throws IOException
+    {
+        @SuppressWarnings("resource")
+		BufferedReader reader = new BufferedReader(new InputStreamReader(new ResetOnCloseInputStream(in)));
+        StringBuilder out = new StringBuilder();
+        String newLine = System.getProperty("line.separator");
+        String line;
+        while ((line = reader.readLine()) != null) {
+            out.append(line);
+            out.append(newLine);
+        }
+        return out.toString();
+    }
+    
     private void traceResponse(ClientHttpResponse response) {
         
         try {
-            
+
             log.debug("============================response begin==========================================");
             log.debug("Status code  : {}", response.getStatusCode());
             log.debug("Status text  : {}", response.getStatusText());
             log.debug("Headers      : {}", response.getHeaders());
+            log.debug("Body: ", fromStream(response.getBody()));
             log.debug("=======================response end=================================================");
         } catch (IOException ex) {
             log.error(ex.getMessage());

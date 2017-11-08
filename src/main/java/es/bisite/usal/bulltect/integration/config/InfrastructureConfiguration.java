@@ -84,7 +84,7 @@ public class InfrastructureConfiguration {
     }
     
     @Bean
-    public TaskExecutor taskExecutor() {
+    public TaskExecutor integrationTaskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(5);
         executor.setMaxPoolSize(10);
@@ -185,7 +185,7 @@ public class InfrastructureConfiguration {
                     .header(MessageHeaders.ERROR_CHANNEL, "socialMediaErrorChannel")
                     .header(IntegrationConstants.TASK_START_HEADER, new Date())
                 )
-                .channel(MessageChannels.executor("executorChannel", this.taskExecutor()))
+                .channel(MessageChannels.executor("executorChannel", this.integrationTaskExecutor()))
                 .<SocialMediaEntity, SocialMediaTypeEnum>route(p -> p.getType(),
                         m
                         -> m.subFlowMapping(SocialMediaTypeEnum.FACEBOOK, 

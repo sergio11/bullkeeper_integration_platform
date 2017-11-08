@@ -25,6 +25,7 @@ import es.bisite.usal.bulltect.persistence.entity.SonEntity;
 import es.bisite.usal.bulltect.persistence.entity.UserSystemEntity;
 import es.bisite.usal.bulltect.persistence.repository.AlertRepository;
 import es.bisite.usal.bulltect.persistence.repository.AuthorityRepository;
+import es.bisite.usal.bulltect.persistence.repository.CommentRepository;
 import es.bisite.usal.bulltect.persistence.repository.DeviceGroupRepository;
 import es.bisite.usal.bulltect.persistence.repository.ParentRepository;
 import es.bisite.usal.bulltect.persistence.repository.SchoolRepository;
@@ -51,6 +52,7 @@ public class LoadInitialDataForDevelopmentEnvironment implements CommandLineRunn
     private final UserSystemRepository userSystemRepository;
     private final AlertRepository alertRepository;
     private final DeviceGroupRepository deviceGroupRepository;
+    private final CommentRepository commentRepository;
     
     
     private static List<AuthorityEntity> authoritiesList = new ArrayList<>();
@@ -122,7 +124,7 @@ public class LoadInitialDataForDevelopmentEnvironment implements CommandLineRunn
     	childrenList.add(sergio);
         
         socialMedias.addAll(Arrays.asList( new SocialMediaEntity[] { 
-            new SocialMediaEntity("EAACEdEose0cBAOZAfq8CSIjiv4WuZCfhpngFTNG0YuZCUrLRaFqA5ZCixFJHUbeINZAwUYmhNGOamDyIgOBjZCjLejd6w9Gik5b2VXhJyM3vpuqZCmabMrAK1ecgSLgyCBkZBlyxPIgi7lZAZAL3aLqg4NTwbTG3xZA9o1LaezmCuvK8ZCPRTKmkIjOvmpG3ayhqPSGgx7SLh9ondQZDZD", SocialMediaTypeEnum.FACEBOOK, sergio),
+            new SocialMediaEntity("EAACEdEose0cBADEt0cFcZBMmjaZCIaEelaUbD2MRb0gq453A7xV5kl8Mhsac7hkmnAbO6ZCKmNrCwpxjQXgIuAaca4eGzCSCJ28XnBdSIENYn3GQiQgsHfQPxMPt0g9bdsClZCYSHz2vuEkiIYtn5DLvMrzUNG1ZBZAQDeEZAAKhDzZAqS7CGBN576cADw7mYYbnAZCZAMWSytzwZDZD", SocialMediaTypeEnum.FACEBOOK, sergio),
             new SocialMediaEntity("3303539559.5d2b345.6fb7b3f97e5142fd93973592ccc4c07d", SocialMediaTypeEnum.INSTAGRAM, sergio),
             new SocialMediaEntity("ya29.GmaiBCC-Gpm_NO9Z-Au4imXzsb9gFjBNYoO2QMEtfJlzYksM93pSZoWsr1yxFvRvI8wuNrLimC4KRf364TcE-ZGr3uyVdery8sQtw3ZKOUxyF1bPicG7lAVBmL113Ji3sK3hrnEpa0Y", SocialMediaTypeEnum.YOUTUBE, sergio)
         }));
@@ -193,7 +195,7 @@ public class LoadInitialDataForDevelopmentEnvironment implements CommandLineRunn
     
     public LoadInitialDataForDevelopmentEnvironment(SchoolRepository schoolRepository, ParentRepository parentRepository,
 			SonRepository sonRepository, SocialMediaRepository socialMediaRepository, AuthorityRepository authorityRepository, 
-			UserSystemRepository userSystemRepository, AlertRepository alertRepository, DeviceGroupRepository deviceGroupRepository) {
+			UserSystemRepository userSystemRepository, AlertRepository alertRepository, DeviceGroupRepository deviceGroupRepository, CommentRepository commentRepository) {
 		super();
 		this.schoolRepository = schoolRepository;
 		this.parentRepository = parentRepository;
@@ -203,6 +205,7 @@ public class LoadInitialDataForDevelopmentEnvironment implements CommandLineRunn
 		this.userSystemRepository = userSystemRepository;
 		this.alertRepository = alertRepository;
 		this.deviceGroupRepository = deviceGroupRepository;
+		this.commentRepository = commentRepository;
 	}
     
     
@@ -217,6 +220,7 @@ public class LoadInitialDataForDevelopmentEnvironment implements CommandLineRunn
         userSystemRepository.deleteAll();
         alertRepository.deleteAll();
         deviceGroupRepository.deleteAll();
+        commentRepository.deleteAll();
         logger.debug("Load Initial Data ...");
         authorityRepository.save(authoritiesList);
         schoolRepository.save(schoolList);
@@ -240,6 +244,7 @@ public class LoadInitialDataForDevelopmentEnvironment implements CommandLineRunn
     	Assert.notNull(userSystemRepository, "UserSystemRepository Can not be null");
     	Assert.notNull(alertRepository, "alertRepository Can not be null");
     	Assert.notNull(deviceGroupRepository, "deviceGroupRepository Can not be null");
+    	Assert.notNull(commentRepository, "commentRepository can not be null");
     }
 
 	

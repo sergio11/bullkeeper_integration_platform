@@ -31,7 +31,6 @@ public class AlertItemReader extends AbstractItemCountingItemStreamItemReader<Al
 		super();
 		this.parentRepository = parentRepository;
 		this.alertRepository = alertRepository;
-		logger.error("Esto es un error");
 		this.setName("alertItemReader");
 		this.setExecutionContextName("alertItemReader");
 	}

@@ -119,7 +119,7 @@ public class CommentsController extends BaseController implements ICommentHAL {
         		@RequestParam(name = "days_ago", defaultValue = "1", required = false) Date from) throws Throwable {
 
    	
-    	CommentsStatisticsDTO commentsStatistics = statisticsService.getCommentsStatistics(identities, from);
+    	CommentsStatisticsDTO commentsStatistics = statisticsService.getCommentsStatistics(selfParent.getUserId(), identities, from);
 
     	if(commentsStatistics.getData().isEmpty())
     		throw new NoCommentsExtractedException(from);
@@ -141,7 +141,7 @@ public class CommentsController extends BaseController implements ICommentHAL {
         		@RequestParam(name = "days_ago", defaultValue = "1", required = false) Date from) throws Throwable {
 
     	
-    	SocialMediaLikesStatisticsDTO socialMediaLikes = statisticsService.getSocialMediaLikesStatistics(identities, from);
+    	SocialMediaLikesStatisticsDTO socialMediaLikes = statisticsService.getSocialMediaLikesStatistics(selfParent.getUserId(), identities, from);
 
     	if(socialMediaLikes.getData().isEmpty())
     		throw new NoLikesFoundInThisPeriodException(from);
@@ -164,7 +164,7 @@ public class CommentsController extends BaseController implements ICommentHAL {
         		@RequestParam(name = "days_ago", defaultValue = "1", required = false) Date from) throws Throwable {
 
     	
-    	MostActiveFriendsDTO mostActiveFriends = statisticsService.getMostActiveFriends(identities, from);
+    	MostActiveFriendsDTO mostActiveFriends = statisticsService.getMostActiveFriends(selfParent.getUserId(), identities, from);
     	
     	if(mostActiveFriends.getUsers().isEmpty())
     		throw new NoActiveFriendsInThisPeriodException(from);
@@ -188,7 +188,7 @@ public class CommentsController extends BaseController implements ICommentHAL {
         		@RequestParam(name = "days_ago", defaultValue = "1", required = false) Date from) throws Throwable {
 
     	
-    	NewFriendsDTO newFriends = statisticsService.getNewFriends(identities, from);
+    	NewFriendsDTO newFriends = statisticsService.getNewFriends(selfParent.getUserId(), identities, from);
     	
     	if(newFriends.getUsers().isEmpty())
     		throw new NoNewFriendsAtThisTimeException(from);
