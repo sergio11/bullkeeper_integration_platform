@@ -33,6 +33,9 @@ public class AlertEntity {
 
     @Field("delivery_mode")
     private AlertDeliveryModeEnum deliveryMode = AlertDeliveryModeEnum.PUSH_NOTIFICATION;
+    
+    @Field("category")
+    private AlertCategoryEnum category = AlertCategoryEnum.DEFAULT;
 
     @Field("parent")
     @DBRef
@@ -76,7 +79,7 @@ public class AlertEntity {
 
     @PersistenceConstructor
     public AlertEntity(AlertLevelEnum level, String title, String payload, Date createAt, ParentEntity parent, SonEntity son,
-            Boolean delivered, AlertDeliveryModeEnum deliveryMode) {
+            Boolean delivered, AlertDeliveryModeEnum deliveryMode, AlertCategoryEnum category) {
         super();
         this.level = level;
         this.title = title;
@@ -86,6 +89,7 @@ public class AlertEntity {
         this.son = son;
         this.delivered = delivered;
         this.deliveryMode = deliveryMode;
+        this.category = category;
     }
 
     public ObjectId getId() {
@@ -167,4 +171,13 @@ public class AlertEntity {
     public void setDeliveryMode(AlertDeliveryModeEnum deliveryMode) {
         this.deliveryMode = deliveryMode;
     }
+
+	public AlertCategoryEnum getCategory() {
+		return category;
+	}
+
+	public void setCategory(AlertCategoryEnum category) {
+		this.category = category;
+	}
+    
 }

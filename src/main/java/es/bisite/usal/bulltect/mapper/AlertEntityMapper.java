@@ -32,7 +32,8 @@ public abstract class AlertEntityMapper {
         @Mapping(expression="java(alertEntity.getId().toString())", target = "identity" ),
         @Mapping(expression="java(sonEntityMapper.sonEntityToSonDTO(alertEntity.getSon()))", target = "son" ),
         @Mapping(source = "alertEntity.createAt", target = "createAt", dateFormat = "yyyy/MM/dd HH:mm:ss"),
-        @Mapping(expression="java(prettyTime.format(alertEntity.getCreateAt()))", target = "since")
+        @Mapping(expression="java(prettyTime.format(alertEntity.getCreateAt()))", target = "since"),
+        @Mapping(expression="java(alertEntity.getCategory().name())", target = "category" )
     })
     @Named("alertEntityToSonDTO")
     public abstract AlertDTO alertEntityToAlertDTO(AlertEntity alertEntity); 

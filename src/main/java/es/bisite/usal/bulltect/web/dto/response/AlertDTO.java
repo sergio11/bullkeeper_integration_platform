@@ -19,11 +19,13 @@ public class AlertDTO extends ResourceSupport {
     private String since;
     @JsonProperty("son")
     private SonDTO son;
+    @JsonProperty("category")
+    private String category;
 
     public AlertDTO() {
     }
 
-    public AlertDTO(String identity, String level, String title, String payload, String createAt, String since, SonDTO son) {
+    public AlertDTO(String identity, String level, String title, String payload, String createAt, String since, SonDTO son, String category) {
         super();
         this.identity = identity;
         this.level = level;
@@ -32,6 +34,7 @@ public class AlertDTO extends ResourceSupport {
         this.createAt = createAt;
         this.since = since;
         this.son = son;
+        this.category = category;
     }
 
     public String getIdentity() {
@@ -90,4 +93,13 @@ public class AlertDTO extends ResourceSupport {
     public void setSon(SonDTO son) {
         this.son = son;
     }
+
+	public String getCategory() {
+		return category;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
+	}
+    
 }
