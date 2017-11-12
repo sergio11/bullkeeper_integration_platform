@@ -35,6 +35,7 @@ public class CommentAnalysisResultsEntity {
 		this.adult = adult;
 		this.bullying = bullying;
 	}
+	
 
 	public AnalysisEntity getSentiment() {
 		return sentiment;

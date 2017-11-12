@@ -57,6 +57,7 @@ public class AlertEntity {
         this.parent = parent;
         this.son = son;
     }
+    
 
     public AlertEntity(AlertLevelEnum level, String title, String payload, ParentEntity parent, SonEntity son) {
         super();
@@ -65,6 +66,16 @@ public class AlertEntity {
         this.payload = payload;
         this.parent = parent;
         this.son = son;
+    }
+    
+    public AlertEntity(AlertLevelEnum level, String title, String payload, ParentEntity parent, SonEntity son, AlertCategoryEnum category) {
+        super();
+        this.level = level;
+        this.title = title;
+        this.payload = payload;
+        this.parent = parent;
+        this.son = son;
+        this.category = category;
     }
 
     public AlertEntity(AlertLevelEnum level, String title, String payload, ParentEntity parent, SonEntity son, AlertDeliveryModeEnum deliveryMode) {

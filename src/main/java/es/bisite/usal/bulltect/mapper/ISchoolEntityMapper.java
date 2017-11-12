@@ -18,7 +18,9 @@ import es.bisite.usal.bulltect.web.dto.response.SchoolNameDTO;
 public interface ISchoolEntityMapper {
     
     @Mappings({
-        @Mapping(expression="java(schoolEntity.getId().toString())", target = "identity" )
+        @Mapping(expression="java(schoolEntity.getId().toString())", target = "identity" ),
+        @Mapping(source = "schoolEntity.location.latitude", target = "latitude"),
+        @Mapping(source = "schoolEntity.location.longitude", target = "longitude")
     })
     @Named("schoolEntityToSchoolDTO")
     SchoolDTO schoolEntityToSchoolDTO(SchoolEntity schoolEntity); 
@@ -26,6 +28,10 @@ public interface ISchoolEntityMapper {
     @IterableMapping(qualifiedByName = "schoolEntityToSchoolDTO")
     Iterable<SchoolDTO> schoolEntitiesToSchoolDTOs(Iterable<SchoolEntity> schoolEntities);
     
+    @Mappings({
+        @Mapping(source = "addSchoolEntity.latitude", target = "location.latitude"),
+        @Mapping(source = "addSchoolEntity.longitude", target = "location.longitude")
+    })
     @Named("addSchoolDTOToSchoolEntity")
     SchoolEntity addSchoolDTOToSchoolEntity(AddSchoolDTO addSchoolEntity);
     

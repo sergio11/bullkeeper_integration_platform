@@ -4,10 +4,8 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
 import es.bisite.usal.bulltect.persistence.constraints.SchoolNameShouldNotExists;
 import es.bisite.usal.bulltect.persistence.constraints.group.Extended;
 import es.bisite.usal.bulltect.web.rest.deserializers.ClearStringDeserializer;
@@ -21,13 +19,13 @@ public class AddSchoolDTO {
 	@JsonDeserialize(using = ClearStringDeserializer.class)
 	private String schoolName;
 	@NotBlank(message = "{school.residence.notblank}")
-    @Size(min = 5, max = 30, message = "{school.residence.size}")
+    @Size(min = 5, max = 100, message = "{school.residence.size}")
 	@JsonProperty("residence")
 	private String residence;
-	@NotBlank(message = "{school.location.notblank}")
-    @Size(min = 5, max = 15, message = "{school.location.size}")
-	@JsonProperty("location")
-	private String location;
+	@JsonProperty("latitude")
+	private Double latitude;
+	@JsonProperty("longitude")
+	private Double longitude;
 	@JsonProperty("province")
 	private String province;
 	@JsonProperty("tfno")
@@ -40,12 +38,13 @@ public class AddSchoolDTO {
 	public AddSchoolDTO(){}
 	
 	
-	public AddSchoolDTO(String name, String residence, String location, String province, Integer tfno,
+	public AddSchoolDTO(String name, String residence,  Double latitude, Double longitude, String province, Integer tfno,
 			String email) {
 		super();
 		this.schoolName = name;
 		this.residence = residence;
-		this.location = location;
+		this.latitude = latitude;
+		this.longitude = longitude;
 		this.province = province;
 		this.tfno = tfno;
 		this.email = email;
@@ -71,14 +70,23 @@ public class AddSchoolDTO {
 		this.residence = residence;
 	}
 
-
-	public String getLocation() {
-		return location;
+	public Double getLatitude() {
+		return latitude;
 	}
 
 
-	public void setLocation(String location) {
-		this.location = location;
+	public void setLatitude(Double latitude) {
+		this.latitude = latitude;
+	}
+
+
+	public Double getLongitude() {
+		return longitude;
+	}
+
+
+	public void setLongitude(Double longitude) {
+		this.longitude = longitude;
 	}
 
 

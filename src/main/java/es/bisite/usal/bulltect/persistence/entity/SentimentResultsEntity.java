@@ -1,7 +1,6 @@
 package es.bisite.usal.bulltect.persistence.entity;
 
 import java.util.Date;
-
 import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -10,13 +9,13 @@ import org.springframework.data.mongodb.core.mapping.Field;
 public class SentimentResultsEntity extends ResultsEntity {
 	
 	@Field("total_positive")
-	private Long totalPositive;
+	private long totalPositive;
 	
 	@Field("total_negative")
-	private Long totalNegative;
+	private long totalNegative;
 	
 	@Field("total_neutro")
-	private Long totalNeutro;
+	private long totalNeutro;
 	
 
 	public SentimentResultsEntity() {
@@ -24,35 +23,43 @@ public class SentimentResultsEntity extends ResultsEntity {
 	}
 
 	@PersistenceConstructor
-	public SentimentResultsEntity(Boolean obsolete, Date date, Long totalPositive, Long totalNegative,
-			Long totalNeutro) {
+	public SentimentResultsEntity(Boolean obsolete, Date date, long totalPositive, long totalNegative,
+			long totalNeutro) {
 		super(obsolete, date);
 		this.totalPositive = totalPositive;
 		this.totalNegative = totalNegative;
 		this.totalNeutro = totalNeutro;
 	}
 
-	public Long getTotalPositive() {
+	public long getTotalPositive() {
 		return totalPositive;
 	}
 
-	public void setTotalPositive(Long totalPositive) {
+	public void setTotalPositive(long totalPositive) {
 		this.totalPositive = totalPositive;
 	}
 
-	public Long getTotalNegative() {
+	public long getTotalNegative() {
 		return totalNegative;
 	}
 
-	public void setTotalNegative(Long totalNegative) {
+	public void setTotalNegative(long totalNegative) {
 		this.totalNegative = totalNegative;
 	}
 
-	public Long getTotalNeutro() {
+	public long getTotalNeutro() {
 		return totalNeutro;
 	}
 
-	public void setTotalNeutro(Long totalNeutro) {
+	public void setTotalNeutro(long totalNeutro) {
 		this.totalNeutro = totalNeutro;
 	}
+
+	@Override
+	public String toString() {
+		return "SentimentResultsEntity [totalPositive=" + totalPositive + ", totalNegative=" + totalNegative
+				+ ", totalNeutro=" + totalNeutro + "]";
+	}
+	
+	
 }

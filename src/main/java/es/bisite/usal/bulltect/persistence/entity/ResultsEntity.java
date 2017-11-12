@@ -7,6 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 @Document
 public class ResultsEntity {
+
 	
 	@Field("obsolete")
 	private Boolean obsolete = Boolean.FALSE;
@@ -20,11 +21,12 @@ public class ResultsEntity {
 	}
 	
 	@PersistenceConstructor
-	public ResultsEntity(Boolean obsolete, Date date) {
+	public ResultsEntity( Boolean obsolete, Date date) {
 		super();
 		this.obsolete = obsolete;
 		this.date = date;
 	}
+	
 
 	public Boolean IsObsolete() {
 		return obsolete;

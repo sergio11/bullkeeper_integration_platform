@@ -1,6 +1,7 @@
 package es.bisite.usal.bulltect.persistence.entity;
 
 
+import java.util.Date;
 import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -9,10 +10,10 @@ import org.springframework.data.mongodb.core.mapping.Field;
 public class AdultResultsEntity extends ResultsEntity {
 	
 	@Field("total_comments_adult_content")
-	private Long totalCommentsAdultContent;
+	private long totalCommentsAdultContent;
 	
 	@Field("total_comments_noadult_content")
-	private Long totalCommentsNoAdultContent;
+	private long totalCommentsNoAdultContent;
 	
 
 	public AdultResultsEntity() {
@@ -20,28 +21,28 @@ public class AdultResultsEntity extends ResultsEntity {
 	}
 
 	@PersistenceConstructor
-	public AdultResultsEntity(Long totalCommentsAdultContent, Long totalCommentsNoAdultContent) {
-		super();
+	public AdultResultsEntity(Boolean obsolete, Date date, long totalCommentsAdultContent, long totalCommentsNoAdultContent) {
+		super(obsolete, date);
 		this.totalCommentsAdultContent = totalCommentsAdultContent;
 		this.totalCommentsNoAdultContent = totalCommentsNoAdultContent;
 	}
 
-	public Long getTotalCommentsAdultContent() {
+	public long getTotalCommentsAdultContent() {
 		return totalCommentsAdultContent;
 	}
 
 
-	public void setTotalCommentsAdultContent(Long totalCommentsAdultContent) {
+	public void setTotalCommentsAdultContent(long totalCommentsAdultContent) {
 		this.totalCommentsAdultContent = totalCommentsAdultContent;
 	}
 
 
-	public Long getTotalCommentsNoAdultContent() {
+	public long getTotalCommentsNoAdultContent() {
 		return totalCommentsNoAdultContent;
 	}
 
 
-	public void setTotalCommentsNoAdultContent(Long totalCommentsNoAdultContent) {
+	public void setTotalCommentsNoAdultContent(long totalCommentsNoAdultContent) {
 		this.totalCommentsNoAdultContent = totalCommentsNoAdultContent;
 	}
 	

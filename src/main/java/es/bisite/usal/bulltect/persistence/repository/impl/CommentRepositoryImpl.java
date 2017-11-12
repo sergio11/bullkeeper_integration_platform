@@ -184,6 +184,8 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
 		calendar.setTime(new Date());
 		calendar.add(Calendar.HOUR, -hours);
 		
+		logger.debug("date let -> " + calendar.getTime());
+		
 		mongoTemplate.updateMulti(
 				new Query(Criteria
 						.where(String.format("analysis_results.%s.status", type.name().toLowerCase())).is(AnalysisStatusEnum.IN_PROGRESS)

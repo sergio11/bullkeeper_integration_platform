@@ -81,11 +81,11 @@ public class LoadInitialDataForDevelopmentEnvironment implements CommandLineRunn
     	
     	
     	// SCHOOL
-    	SchoolEntity school1 = new SchoolEntity("C.E.I.P. Fernando Gavilán", "Avda. Herrera Oria, s/n", "Ubrique", "Cádiz", 956128801, "11008033.edu@juntadeandalucia.es");
+    	SchoolEntity school1 = new SchoolEntity("C.E.I.P. Fernando Gavilán", "Avda. Herrera Oria, s/n", "Cádiz", 956128801, "11008033.edu@juntadeandalucia.es");
     	
     	schoolList.add(school1);
     	
-    	SchoolEntity school2 = new SchoolEntity("C.E.I.P. San Juan de Ávila", "C/ Erillas, s/n", "Iznalloz", "Granada", 958399591, "18005475.edu@juntadeandalucia.es");
+    	SchoolEntity school2 = new SchoolEntity("C.E.I.P. San Juan de Ávila", "C/ Erillas, s/n", "Granada", 958399591, "18005475.edu@juntadeandalucia.es");
     	
     	schoolList.add(school2);
     	
@@ -124,7 +124,7 @@ public class LoadInitialDataForDevelopmentEnvironment implements CommandLineRunn
     	childrenList.add(sergio);
         
         socialMedias.addAll(Arrays.asList( new SocialMediaEntity[] { 
-            new SocialMediaEntity("EAACEdEose0cBADEt0cFcZBMmjaZCIaEelaUbD2MRb0gq453A7xV5kl8Mhsac7hkmnAbO6ZCKmNrCwpxjQXgIuAaca4eGzCSCJ28XnBdSIENYn3GQiQgsHfQPxMPt0g9bdsClZCYSHz2vuEkiIYtn5DLvMrzUNG1ZBZAQDeEZAAKhDzZAqS7CGBN576cADw7mYYbnAZCZAMWSytzwZDZD", SocialMediaTypeEnum.FACEBOOK, sergio),
+            new SocialMediaEntity("EAACEdEose0cBAH7IK01GvJdmVU5j3pJ2gXCmhg0RDqWylG6Snep5Yc0TorED3jIjesWzjBrdesZCGrhYK3ZCBZBni7STfvSq9wahs6ZB2GI2X8b1Aj2xrtDHXQ3xMoWauXPooZBEeiNwqbDdVy5TkR1ojmnL6Fp2U8f9zUXE5BQ1njxuRbf9bmQc9mpQAsCp47iVXWByvDQZDZD", SocialMediaTypeEnum.FACEBOOK, sergio),
             new SocialMediaEntity("3303539559.5d2b345.6fb7b3f97e5142fd93973592ccc4c07d", SocialMediaTypeEnum.INSTAGRAM, sergio),
             new SocialMediaEntity("ya29.GmaiBCC-Gpm_NO9Z-Au4imXzsb9gFjBNYoO2QMEtfJlzYksM93pSZoWsr1yxFvRvI8wuNrLimC4KRf364TcE-ZGr3uyVdery8sQtw3ZKOUxyF1bPicG7lAVBmL113Ji3sK3hrnEpa0Y", SocialMediaTypeEnum.YOUTUBE, sergio)
         }));

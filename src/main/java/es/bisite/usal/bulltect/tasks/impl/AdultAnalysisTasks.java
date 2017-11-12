@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -14,6 +15,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import es.bisite.usal.bulltect.persistence.entity.AdultResultsEntity;
+import es.bisite.usal.bulltect.persistence.entity.AlertCategoryEnum;
 import es.bisite.usal.bulltect.persistence.entity.AlertLevelEnum;
 import es.bisite.usal.bulltect.persistence.entity.AnalysisEntity;
 import es.bisite.usal.bulltect.persistence.entity.AnalysisStatusEnum;
@@ -22,6 +24,7 @@ import es.bisite.usal.bulltect.persistence.entity.CommentEntity;
 import es.bisite.usal.bulltect.persistence.entity.SonEntity;
 
 @Component
+@ConditionalOnProperty(name = "task.analysis.adult.status", havingValue = "enable", matchIfMissing = false)
 public class AdultAnalysisTasks extends AbstractAnalysisTasks {
 	
 	private static final Logger logger = LoggerFactory.getLogger(AdultAnalysisTasks.class);
@@ -70,16 +73,19 @@ public class AdultAnalysisTasks extends AbstractAnalysisTasks {
 				.collect(Collectors.toMap(
 						sonEntity -> sonEntity,
 						sonEntity -> commentRepository
-						.findBySonEntityId(sonEntity.getId())
+						.findAllBySonEntityIdAndAnalysisResultsAdultStatus(sonEntity.getId(), AnalysisStatusEnum.FINISHED)
 						.parallelStream()
 						.map(comment -> comment.getAnalysisResults().getAdult())
+						.filter(comment -> comment.getResult() != null)
 						.collect(Collectors.groupingBy(AnalysisEntity::getResult, Collectors.counting()))));
 		
+		logger.debug("Adult content by son -> " + adultContentBySon.toString());
 		
 		for (Map.Entry<SonEntity, Map<Integer, Long>> adultContentBySonEntry : adultContentBySon.entrySet())
 	     {
 			
 			final SonEntity sonEntity = adultContentBySonEntry.getKey();
+			logger.debug("Analysis Adult Content Results for -> " + sonEntity.getFullName());
 			final Integer totalComments = adultContentBySonEntry.getValue().values().stream().mapToInt(Number::intValue).sum();
 			final Map<Integer, Long> results = adultContentBySonEntry.getValue();
 			final AdultResultsEntity adultResultsEntity = sonEntity.getResults().getAdult();
@@ -90,36 +96,36 @@ public class AdultAnalysisTasks extends AbstractAnalysisTasks {
 				alertService.save(AlertLevelEnum.INFO, 
 						messageSourceResolver.resolver("alerts.adult.total.analyzed.title"),
 						messageSourceResolver.resolver("alerts.adult.total.analyzed.body", new Object[] { totalCommentsAnalyzedForAdult, prettyTime.format(adultResultsEntity.getDate()) }),
-						sonEntity.getId());
+						sonEntity.getId(), AlertCategoryEnum.STATISTICS_SON);
 			}
 			
 			if(results.containsKey(ADULT_CONTENT)) {
 				
 				final Long totalCommentsAdultContent = results.get(ADULT_CONTENT);
-				final float percentage = totalCommentsAdultContent/totalComments*100;
+				final int percentage = Math.round((float)totalCommentsAdultContent/totalComments*100);
 				if(percentage <= 30) {
 					alertService.save(AlertLevelEnum.SUCCESS, 
 							messageSourceResolver.resolver("alerts.adult.negative.title"),
 							messageSourceResolver.resolver("alerts.adult.negative.low", new Object[] { percentage }),
-							sonEntity.getId());
+							sonEntity.getId(), AlertCategoryEnum.STATISTICS_SON);
 				} else if(percentage > 30 && percentage <= 60) {
 					alertService.save(AlertLevelEnum.WARNING, 
 							messageSourceResolver.resolver("alerts.adult.negative.title"),
 							messageSourceResolver.resolver("alerts.adult.negative.medium", new Object[] { percentage }),
-							sonEntity.getId());
+							sonEntity.getId(), AlertCategoryEnum.STATISTICS_SON);
 				} else {
 					alertService.save(AlertLevelEnum.DANGER, 
 							messageSourceResolver.resolver("alerts.adult.negative.title"),
 							messageSourceResolver.resolver("alerts.adult.negative.hight", new Object[] { percentage }),
-							sonEntity.getId());
+							sonEntity.getId(), AlertCategoryEnum.STATISTICS_SON);
 				}
 				
 			}
 			
 			adultResultsEntity.setDate(new Date());
 			adultResultsEntity.setObsolete(Boolean.FALSE);
-			adultResultsEntity.setTotalCommentsAdultContent(results.get(ADULT_CONTENT));
-			adultResultsEntity.setTotalCommentsNoAdultContent(results.get(NO_ADULT_CONTENT));
+			adultResultsEntity.setTotalCommentsAdultContent(results.containsKey(ADULT_CONTENT) ? results.get(ADULT_CONTENT) : 0L);
+			adultResultsEntity.setTotalCommentsNoAdultContent(results.containsKey(NO_ADULT_CONTENT) ? results.get(NO_ADULT_CONTENT): 0L);
 			sonRepository.save(sonEntity);
 	     }
 				

@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import es.bisite.usal.bulltect.persistence.entity.AlertCategoryEnum;
 import es.bisite.usal.bulltect.persistence.entity.AlertLevelEnum;
 import es.bisite.usal.bulltect.persistence.entity.AnalysisEntity;
 import es.bisite.usal.bulltect.persistence.entity.AnalysisStatusEnum;
@@ -72,17 +73,19 @@ public class ViolenceAnalysisTasks extends AbstractAnalysisTasks {
 				.collect(Collectors.toMap(
 						sonEntity -> sonEntity,
 						sonEntity -> commentRepository
-						.findBySonEntityId(sonEntity.getId())
+						.findAllBySonEntityIdAndAnalysisResultsViolenceStatus(sonEntity.getId(), AnalysisStatusEnum.FINISHED)
 						.parallelStream()
 						.map(comment -> comment.getAnalysisResults().getViolence())
+						.filter(comment -> comment.getResult() != null)
 						.collect(Collectors.groupingBy(AnalysisEntity::getResult, Collectors.counting()))));
 						
-		
+		logger.debug("Violence by son -> " + violenceBySon.toString());
 		
 		for (Map.Entry<SonEntity, Map<Integer, Long>> violenceBySonEntry : violenceBySon.entrySet())
 	     {
 			
 			final SonEntity sonEntity = violenceBySonEntry.getKey();
+			logger.debug("Analysis Violence Results for -> " + sonEntity.getFullName());
 			final Integer totalComments = violenceBySonEntry.getValue().values().stream().mapToInt(Number::intValue).sum();
 			final Map<Integer, Long> results = violenceBySonEntry.getValue();
 			
@@ -94,29 +97,29 @@ public class ViolenceAnalysisTasks extends AbstractAnalysisTasks {
 				alertService.save(AlertLevelEnum.INFO, 
 						messageSourceResolver.resolver("alerts.violence.total.analyzed.title"),
 						messageSourceResolver.resolver("alerts.violence.total.analyzed.body", new Object[] { totalCommentsAnalyzedForViolence, prettyTime.format(violenceResults.getDate()) }),
-						sonEntity.getId());
+						sonEntity.getId(), AlertCategoryEnum.STATISTICS_SON);
 			}
 			
 			
 			if(results.containsKey(VIOLENCE)) {
 				
 				final Long totalViolenceComments = results.get(VIOLENCE);
-				final float percentage = totalViolenceComments/totalComments*100;
+				final int percentage = Math.round((float)totalViolenceComments/totalComments*100);
 				if(percentage <= 30) {
 					alertService.save(AlertLevelEnum.SUCCESS, 
 							messageSourceResolver.resolver("alerts.violence.negative.title"),
 							messageSourceResolver.resolver("alerts.violence.negative.low", new Object[] { percentage }),
-							sonEntity.getId());
+							sonEntity.getId(), AlertCategoryEnum.STATISTICS_SON);
 				} else if(percentage > 30 && percentage <= 60) {
 					alertService.save(AlertLevelEnum.WARNING, 
 							messageSourceResolver.resolver("alerts.violence.negative.title"),
 							messageSourceResolver.resolver("alerts.violence.negative.medium", new Object[] { percentage }),
-							sonEntity.getId());
+							sonEntity.getId(), AlertCategoryEnum.STATISTICS_SON);
 				} else {
 					alertService.save(AlertLevelEnum.DANGER, 
 							messageSourceResolver.resolver("alerts.violence.negative.title"),
 							messageSourceResolver.resolver("alerts.violence.negative.hight", new Object[] { percentage }),
-							sonEntity.getId());
+							sonEntity.getId(), AlertCategoryEnum.STATISTICS_SON);
 				}
 				
 			}
@@ -125,8 +128,8 @@ public class ViolenceAnalysisTasks extends AbstractAnalysisTasks {
 			final ViolenceResultsEntity violenceResultsEntity = sonEntity.getResults().getViolence();
 			violenceResultsEntity.setDate(new Date());
 			violenceResultsEntity.setObsolete(Boolean.FALSE);
-			violenceResultsEntity.setTotalNonViolentComments(results.get(NO_VIOLENCE));
-			violenceResultsEntity.setTotalViolentComments(results.get(VIOLENCE));
+			violenceResultsEntity.setTotalNonViolentComments(results.containsKey(NO_VIOLENCE) ? results.get(NO_VIOLENCE) : 0L);
+			violenceResultsEntity.setTotalViolentComments(results.containsKey(VIOLENCE) ? results.get(VIOLENCE): 0L);
 			sonRepository.save(sonEntity);
 	     }
 				

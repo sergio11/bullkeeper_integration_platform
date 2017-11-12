@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import es.bisite.usal.bulltect.persistence.entity.AlertCategoryEnum;
 import es.bisite.usal.bulltect.persistence.entity.AlertLevelEnum;
 import es.bisite.usal.bulltect.persistence.entity.AnalysisEntity;
 import es.bisite.usal.bulltect.persistence.entity.AnalysisStatusEnum;
@@ -70,16 +71,19 @@ public class DrugsAnalysisTasks extends AbstractAnalysisTasks {
 				.collect(Collectors.toMap(
 						sonEntity -> sonEntity,
 						sonEntity -> commentRepository
-						.findBySonEntityId(sonEntity.getId())
+						.findAllBySonEntityIdAndAnalysisResultsDrugsStatus(sonEntity.getId(), AnalysisStatusEnum.FINISHED)
 						.parallelStream()
 						.map(comment -> comment.getAnalysisResults().getDrugs())
+						.filter(comment -> comment.getResult() != null)
 						.collect(Collectors.groupingBy(AnalysisEntity::getResult, Collectors.counting()))));
-		
+		logger.debug("Drugs by son -> " + drugsBySon.toString());
 		
 		for (Map.Entry<SonEntity, Map<Integer, Long>> drugsBySonEntry : drugsBySon.entrySet())
 	     {
 			
 			final SonEntity sonEntity = drugsBySonEntry.getKey();
+			
+			logger.debug("Analysis Drugs Results for -> " + sonEntity.getFullName());
 			final Map<Integer, Long> results = drugsBySonEntry.getValue();
 			final Integer totalComments = drugsBySonEntry.getValue().values().stream().mapToInt(Number::intValue).sum();
 			final DrugsResultsEntity  drugsResultsEntity = sonEntity.getResults().getDrugs();
@@ -90,36 +94,36 @@ public class DrugsAnalysisTasks extends AbstractAnalysisTasks {
 				alertService.save(AlertLevelEnum.INFO, 
 						messageSourceResolver.resolver("alerts.drugs.total.analyzed.title"),
 						messageSourceResolver.resolver("alerts.drugs.total.analyzed.body", new Object[] { totalCommentsAnalyzedForDrugs, prettyTime.format(drugsResultsEntity.getDate()) }),
-						sonEntity.getId());
+						sonEntity.getId(), AlertCategoryEnum.STATISTICS_SON);
 			}
 			
 			if(results.containsKey(DRUGS)) {
 				
 				final Long totalDrugsComments = results.get(DRUGS);
-				final float percentage = totalDrugsComments/totalComments*100;
+				final int percentage = Math.round((float)totalDrugsComments/totalComments*100);
 				if(percentage <= 30) {
 					alertService.save(AlertLevelEnum.SUCCESS, 
 							messageSourceResolver.resolver("alerts.drugs.negative.title"),
 							messageSourceResolver.resolver("alerts.drugs.negative.low", new Object[] { percentage }),
-							sonEntity.getId());
+							sonEntity.getId(), AlertCategoryEnum.STATISTICS_SON);
 				} else if(percentage > 30 && percentage <= 60) {
 					alertService.save(AlertLevelEnum.WARNING, 
 							messageSourceResolver.resolver("alerts.drugs.negative.title"),
 							messageSourceResolver.resolver("alerts.drugs.negative.medium", new Object[] { percentage }),
-							sonEntity.getId());
+							sonEntity.getId(), AlertCategoryEnum.STATISTICS_SON);
 				} else {
 					alertService.save(AlertLevelEnum.DANGER, 
 							messageSourceResolver.resolver("alerts.drugs.negative.title"),
 							messageSourceResolver.resolver("alerts.drugs.negative.hight", new Object[] { percentage }),
-							sonEntity.getId());
+							sonEntity.getId(), AlertCategoryEnum.STATISTICS_SON);
 				}
 				
 			}
 		
 			drugsResultsEntity.setDate(new Date());
 			drugsResultsEntity.setObsolete(Boolean.FALSE);
-			drugsResultsEntity.setTotalCommentsDrugs(results.get(DRUGS));
-			drugsResultsEntity.setTotalCommentsNoDrugs(results.get(NO_DRUGS));
+			drugsResultsEntity.setTotalCommentsDrugs(results.containsKey(DRUGS) ? results.get(DRUGS): 0L);
+			drugsResultsEntity.setTotalCommentsNoDrugs(results.containsKey(NO_DRUGS) ? results.get(NO_DRUGS): 0L);
 			sonRepository.save(sonEntity);
 	     }
 				

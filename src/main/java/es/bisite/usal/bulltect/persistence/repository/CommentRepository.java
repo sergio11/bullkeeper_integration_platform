@@ -19,6 +19,11 @@ import java.util.List;
 public interface CommentRepository extends MongoRepository<CommentEntity, ObjectId>, CommentRepositoryCustom {
     Page<CommentEntity> findAllBySonEntityId(ObjectId userId, Pageable pageable);
     List<CommentEntity> findAllBySonEntityId(ObjectId userId);
+    List<CommentEntity> findAllBySonEntityIdAndAnalysisResultsSentimentStatus(ObjectId userId, AnalysisStatusEnum status);
+    List<CommentEntity> findAllBySonEntityIdAndAnalysisResultsViolenceStatus(ObjectId userId, AnalysisStatusEnum status);
+    List<CommentEntity> findAllBySonEntityIdAndAnalysisResultsDrugsStatus(ObjectId userId, AnalysisStatusEnum status);
+    List<CommentEntity> findAllBySonEntityIdAndAnalysisResultsAdultStatus(ObjectId userId, AnalysisStatusEnum status);
+    List<CommentEntity> findAllBySonEntityIdAndAnalysisResultsBullyingStatus(ObjectId userId, AnalysisStatusEnum status);
     List<CommentEntity> findAllBySonEntityIdIn(List<ObjectId> ids);
     List<CommentEntity> findAllBySonEntityIdInOrderByCreatedTimeAsc(List<ObjectId> ids);
     List<CommentEntity> findAllByOrderByCreatedTimeAsc();

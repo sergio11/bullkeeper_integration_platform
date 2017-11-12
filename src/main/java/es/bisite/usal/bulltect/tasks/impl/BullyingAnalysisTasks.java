@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import es.bisite.usal.bulltect.persistence.entity.AlertCategoryEnum;
 import es.bisite.usal.bulltect.persistence.entity.AlertLevelEnum;
 import es.bisite.usal.bulltect.persistence.entity.AnalysisEntity;
 import es.bisite.usal.bulltect.persistence.entity.AnalysisStatusEnum;
@@ -72,16 +73,19 @@ public class BullyingAnalysisTasks extends AbstractAnalysisTasks {
 				.collect(Collectors.toMap(
 						sonEntity -> sonEntity,
 						sonEntity -> commentRepository
-						.findBySonEntityId(sonEntity.getId())
+						.findAllBySonEntityIdAndAnalysisResultsBullyingStatus(sonEntity.getId(), AnalysisStatusEnum.FINISHED)
 						.parallelStream()
 						.map(comment -> comment.getAnalysisResults().getBullying())
+						.filter(comment -> comment.getResult() != null)
 						.collect(Collectors.groupingBy(AnalysisEntity::getResult, Collectors.counting()))));
 		
+		logger.debug("Bullying by son -> " + bullyingBySon.toString());
 		
 		for (Map.Entry<SonEntity, Map<Integer, Long>> bullyingBySonEntry : bullyingBySon.entrySet())
 	     {
 			
 			final SonEntity sonEntity = bullyingBySonEntry.getKey();
+			logger.debug("Analysis Drugs Results for -> " + sonEntity.getFullName());
 			final Map<Integer, Long> results = bullyingBySonEntry.getValue();
 			final Integer totalComments = bullyingBySonEntry.getValue().values().stream().mapToInt(Number::intValue).sum();;
 			final BullyingResultsEntity bullyingResultsEntity = sonEntity.getResults().getBullying();
@@ -92,36 +96,36 @@ public class BullyingAnalysisTasks extends AbstractAnalysisTasks {
 				alertService.save(AlertLevelEnum.INFO, 
 						messageSourceResolver.resolver("alerts.bullying.total.analyzed.title"),
 						messageSourceResolver.resolver("alerts.bullying.total.analyzed.body", new Object[] { totalCommentsAnalyzedForBullying, prettyTime.format(bullyingResultsEntity.getDate()) }),
-						sonEntity.getId());
+						sonEntity.getId(), AlertCategoryEnum.STATISTICS_SON);
 			}
 			
 			if(results.containsKey(BULLYING_CONTENT)) {
 				
 				final Long totalCommentsBullyingContent = results.get(BULLYING_CONTENT);
-				final float percentage = totalCommentsBullyingContent/totalComments*100;
+				final int percentage = Math.round((float)totalCommentsBullyingContent/totalComments*100);
 				if(percentage <= 30) {
 					alertService.save(AlertLevelEnum.SUCCESS, 
 							messageSourceResolver.resolver("alerts.bullying.negative.title"),
 							messageSourceResolver.resolver("alerts.bullying.negative.low", new Object[] { percentage }),
-							sonEntity.getId());
+							sonEntity.getId(), AlertCategoryEnum.STATISTICS_SON);
 				} else if(percentage > 30 && percentage <= 60) {
 					alertService.save(AlertLevelEnum.WARNING, 
 							messageSourceResolver.resolver("alerts.bullying.negative.title"),
 							messageSourceResolver.resolver("alerts.bullying.negative.medium", new Object[] { percentage }),
-							sonEntity.getId());
+							sonEntity.getId(), AlertCategoryEnum.STATISTICS_SON);
 				} else {
 					alertService.save(AlertLevelEnum.DANGER, 
 							messageSourceResolver.resolver("alerts.bullying.negative.title"),
 							messageSourceResolver.resolver("alerts.bullying.negative.hight", new Object[] { percentage }),
-							sonEntity.getId());
+							sonEntity.getId(), AlertCategoryEnum.STATISTICS_SON);
 				}
 				
 			}
 			
 			bullyingResultsEntity.setDate(new Date());
 			bullyingResultsEntity.setObsolete(Boolean.FALSE);
-			bullyingResultsEntity.setTotalCommentsBullying(results.get(BULLYING_CONTENT));
-			bullyingResultsEntity.setTotalCommentsNoBullying(results.get(NOBULLYING_CONTENT));
+			bullyingResultsEntity.setTotalCommentsBullying(results.containsKey(BULLYING_CONTENT) ? results.get(BULLYING_CONTENT): 0L);
+			bullyingResultsEntity.setTotalCommentsNoBullying(results.containsKey(NOBULLYING_CONTENT) ? results.get(NOBULLYING_CONTENT): 0L);
 			sonRepository.save(sonEntity);
 	     }
 				

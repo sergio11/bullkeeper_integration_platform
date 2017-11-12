@@ -13,28 +13,43 @@ public class SchoolEntity {
 	
 	@Id
     private ObjectId id;
-	@Field
+	
+	@Field("name")
 	private String name;
-	@Field
+	
+	@Field("residence")
 	private String residence;
-	@Field
-	private String location;
-	@Field
+	
+	@Field("location")
+	private SchoolLocation location = new SchoolLocation();
+	
+	@Field("province")
 	private String province;
-	@Field
+	
+	@Field("tfno")
 	private Integer tfno;
-	@Field
+	
+	@Field("email")
 	private String email;
 
 	
 	public SchoolEntity(){}
 	
 	@PersistenceConstructor
-	public SchoolEntity(String name, String residence, String location, String province, Integer tfno, String email) {
+	public SchoolEntity(String name, String residence, SchoolLocation location, String province, Integer tfno, String email) {
 		super();
 		this.name = name;
 		this.residence = residence;
 		this.location = location;
+		this.province = province;
+		this.tfno = tfno;
+		this.email = email;
+	}
+	
+	public SchoolEntity(String name, String residence, String province, Integer tfno, String email) {
+		super();
+		this.name = name;
+		this.residence = residence;
 		this.province = province;
 		this.tfno = tfno;
 		this.email = email;
@@ -64,11 +79,11 @@ public class SchoolEntity {
 		this.residence = residence;
 	}
 
-	public String getLocation() {
+	public SchoolLocation getLocation() {
 		return location;
 	}
 
-	public void setLocation(String location) {
+	public void setLocation(SchoolLocation location) {
 		this.location = location;
 	}
 
@@ -94,6 +109,42 @@ public class SchoolEntity {
 
 	public void setEmail(String email) {
 		this.email = email;
+	}
+	
+	public static class SchoolLocation {
+		
+		@Field("latitude")
+		private Double latitude;
+		
+		@Field("longitude")
+		private Double longitude;
+		
+		public SchoolLocation(){}
+		
+
+		@PersistenceConstructor
+		public SchoolLocation(Double latitude, Double longitude) {
+			super();
+			this.latitude = latitude;
+			this.longitude = longitude;
+		}
+
+		public Double getLatitude() {
+			return latitude;
+		}
+
+		public void setLatitude(Double latitude) {
+			this.latitude = latitude;
+		}
+
+		public Double getLongitude() {
+			return longitude;
+		}
+
+		public void setLongitude(Double longitude) {
+			this.longitude = longitude;
+		}
+		
 	}
 
 	@Override

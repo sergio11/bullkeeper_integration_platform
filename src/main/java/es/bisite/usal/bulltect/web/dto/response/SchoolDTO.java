@@ -11,8 +11,10 @@ public class SchoolDTO extends ResourceSupport {
 	private String name;
 	@JsonProperty("residence")
 	private String residence;
-	@JsonProperty("location")
-	private String location;
+	@JsonProperty("latitude")
+	private Double latitude;
+	@JsonProperty("longitude")
+	private Double longitude;
 	@JsonProperty("province")
 	private String province;
 	@JsonProperty("tfno")
@@ -22,13 +24,14 @@ public class SchoolDTO extends ResourceSupport {
 	
 	public SchoolDTO(){}
 	
-	public SchoolDTO(String identity, String name, String residence, String location, String province, Integer tfno,
+	public SchoolDTO(String identity, String name, String residence,  Double latitude, Double longitude, String province, Integer tfno,
 			String email) {
 		super();
 		this.identity = identity;
 		this.name = name;
 		this.residence = residence;
-		this.location = location;
+		this.latitude = latitude;
+		this.longitude = longitude;
 		this.province = province;
 		this.tfno = tfno;
 		this.email = email;
@@ -64,16 +67,21 @@ public class SchoolDTO extends ResourceSupport {
 		this.residence = residence;
 	}
 
-
-	public String getLocation() {
-		return location;
+	public Double getLatitude() {
+		return latitude;
 	}
 
-
-	public void setLocation(String location) {
-		this.location = location;
+	public void setLatitude(Double latitude) {
+		this.latitude = latitude;
 	}
 
+	public Double getLongitude() {
+		return longitude;
+	}
+
+	public void setLongitude(Double longitude) {
+		this.longitude = longitude;
+	}
 
 	public String getProvince() {
 		return province;

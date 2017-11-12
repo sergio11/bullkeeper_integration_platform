@@ -8,6 +8,8 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import es.bisite.usal.bulltect.persistence.utils.CascadeSave;
+
 /**
  *
  * @author sergio
@@ -46,6 +48,7 @@ public class CommentEntity {
     private SonEntity sonEntity;
     
     @Field("analysis_results")
+    @CascadeSave
     private CommentAnalysisResultsEntity analysisResults = new CommentAnalysisResultsEntity();
 
     public CommentEntity() {

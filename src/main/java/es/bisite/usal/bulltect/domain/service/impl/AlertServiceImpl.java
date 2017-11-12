@@ -25,6 +25,7 @@ import com.google.common.collect.Iterables;
 import es.bisite.usal.bulltect.domain.service.IAlertService;
 import es.bisite.usal.bulltect.i18n.service.IMessageSourceResolverService;
 import es.bisite.usal.bulltect.mapper.AlertEntityMapper;
+import es.bisite.usal.bulltect.persistence.entity.AlertCategoryEnum;
 import es.bisite.usal.bulltect.persistence.entity.AlertEntity;
 import es.bisite.usal.bulltect.persistence.entity.AlertLevelEnum;
 import es.bisite.usal.bulltect.persistence.entity.ParentEntity;
@@ -166,7 +167,7 @@ public class AlertServiceImpl implements IAlertService {
         Assert.notNull(parent, "Parent can not be null");
         Assert.notNull(son, "Son can not be null");
         String title = messageSourceResolverService.resolver("alerts.title.invalid.access.token", parent.getLocale());
-        alertRepository.save(new AlertEntity(AlertLevelEnum.WARNING, title, payload, parent, son));
+        alertRepository.save(new AlertEntity(AlertLevelEnum.WARNING, title, payload, parent, son, AlertCategoryEnum.INFORMATION_SON));
     }
     
     @Override
@@ -207,16 +208,23 @@ public class AlertServiceImpl implements IAlertService {
     
     @Override
 	public AlertDTO save(AlertLevelEnum level, String title, String payload, ObjectId sonId) {
+    	return save(level, title, payload, sonId, AlertCategoryEnum.DEFAULT);
+	}
+    
+    @Override
+	public AlertDTO save(AlertLevelEnum level, String title, String payload, ObjectId sonId,
+			AlertCategoryEnum category) {
     	Assert.notNull(level, "Level can not be null");
     	Assert.notNull(title, "Title can not be null");
     	Assert.hasLength(title, "Title can not be empty");
     	Assert.notNull(payload, "Payload can not be null");
     	Assert.hasLength(payload, "Payload can not be empty");
     	Assert.notNull(sonId, "Son can not be null");
+    	Assert.notNull(category, "category can not be null");
     	
     	
     	final SonEntity target = sonRepository.findOne(sonId);
-    	final AlertEntity alertToSave = new AlertEntity(level, title, payload, target.getParent(), target);
+    	final AlertEntity alertToSave = new AlertEntity(level, title, payload, target.getParent(), target, category);
     	final AlertEntity alertSaved = alertRepository.save(alertToSave);
         return alertMapper.alertEntityToAlertDTO(alertSaved);
 	}
@@ -228,4 +236,6 @@ public class AlertServiceImpl implements IAlertService {
         Assert.notNull(messageSourceResolverService, "Message Source Resolver Service cannot be null");
         
     }
+
+	
 }

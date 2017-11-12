@@ -7,6 +7,8 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import es.bisite.usal.bulltect.persistence.utils.CascadeSave;
+
 @Document(collection = SonEntity.COLLECTION_NAME)
 public final class SonEntity extends PersonEntity {
 
@@ -20,6 +22,7 @@ public final class SonEntity extends PersonEntity {
     
     
     @Field("results")
+    @CascadeSave
     private SonResultsEntity results = new SonResultsEntity();
 
     public SonEntity() {

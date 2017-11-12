@@ -1,6 +1,7 @@
 package es.bisite.usal.bulltect.tasks.impl;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import es.bisite.usal.bulltect.persistence.entity.AlertCategoryEnum;
 import es.bisite.usal.bulltect.persistence.entity.AlertLevelEnum;
 import es.bisite.usal.bulltect.persistence.entity.AnalysisStatusEnum;
 import es.bisite.usal.bulltect.persistence.entity.AnalysisTypeEnum;
@@ -62,17 +64,24 @@ public class SentimentAnalysisTasks extends AbstractAnalysisTasks {
 	public void sentimentAnalysisResults() {
 		logger.debug("sentiment analysis results");
 		
-		Map<SonEntity, Map<SentimentLevelEnum, Long>> sentimentResults = sonRepository.findAllByResultsSentimentObsolete(Boolean.TRUE).parallelStream()
+		List<SonEntity> sonEntities = sonRepository.findAllByResultsSentimentObsolete(Boolean.TRUE);
+		
+		logger.debug(sonEntities.toString());
+		
+		Map<SonEntity, Map<SentimentLevelEnum, Long>> sentimentResults = sonEntities.parallelStream()
 			.collect(Collectors.toMap(
 				sonEntity -> sonEntity,
 				sonEntity -> commentRepository
-				.findBySonEntityId(sonEntity.getId())
+				.findAllBySonEntityIdAndAnalysisResultsSentimentStatus(sonEntity.getId(), AnalysisStatusEnum.FINISHED)
 				.parallelStream()
 				.map(comment -> comment.getAnalysisResults().getSentiment())
+				.filter(comment -> comment.getResult() != null)
 				.collect(Collectors.groupingBy(
 					sentiment -> {
 						
 						SentimentLevelEnum sentimentLevel; 
+						
+						logger.debug("sentiment -> " + sentiment.toString());
 						
 						if(sentiment.getResult() >= -10 && sentiment.getResult() <= -5) {
 							sentimentLevel = SentimentLevelEnum.NEGATIVE;
@@ -89,54 +98,62 @@ public class SentimentAnalysisTasks extends AbstractAnalysisTasks {
 				))
 			));
 		
+		logger.debug("Sentiment by son -> " + sentimentResults.toString());
 		
 		for (Map.Entry<SonEntity, Map<SentimentLevelEnum, Long>> sentimentResultEntry : sentimentResults.entrySet())
 	     {
 			
 			final SonEntity sonEntity = sentimentResultEntry.getKey();
+			
 			final Integer totalComments = sentimentResultEntry.getValue().values().stream().mapToInt(Number::intValue).sum();
-			
 			final SentimentResultsEntity sentimentResultsEntity = sonEntity.getResults().getSentiment();
-			
 			final Long totalCommentsAnalyzedForSentiment = commentRepository.countByAnalysisResultsSentimentFinishAtGreaterThanEqual(sentimentResultsEntity.getDate());
+			
+			logger.debug("Analysis Sentiment Results for -> " + sonEntity.getFullName() + " Total comments: " + totalComments + "totalCommentsAnalyzedForSentiment" + totalCommentsAnalyzedForSentiment);
 			
 			if(totalCommentsAnalyzedForSentiment > 0) {
 				alertService.save(AlertLevelEnum.INFO, 
 						messageSourceResolver.resolver("alerts.sentiment.total.analyzed.title"),
 						messageSourceResolver.resolver("alerts.sentiment.total.analyzed.body", new Object[] { totalCommentsAnalyzedForSentiment, prettyTime.format(sentimentResultsEntity.getDate()) }),
-						sonEntity.getId());
+						sonEntity.getId(), AlertCategoryEnum.STATISTICS_SON);
 			}
-			
-		
 			
 			if(sentimentResultEntry.getValue().containsKey(SentimentLevelEnum.NEGATIVE)) {
 				
 				final Long totalNegativeComments = sentimentResultEntry.getValue().get(SentimentLevelEnum.NEGATIVE);
-				final float percentage = totalNegativeComments/totalComments*100;
+	
+				final int percentage = Math.round((float)totalNegativeComments/totalComments*100);
+				logger.debug("Percentage -> " + percentage);
+				
 				if(percentage <= 30) {
 					alertService.save(AlertLevelEnum.SUCCESS, 
 							messageSourceResolver.resolver("alerts.sentiment.negative.title"),
 							messageSourceResolver.resolver("alerts.sentiment.negative.low", new Object[] { percentage }),
-							sonEntity.getId());
+							sonEntity.getId(), AlertCategoryEnum.STATISTICS_SON);
 				} else if(percentage > 30 && percentage <= 60) {
 					alertService.save(AlertLevelEnum.WARNING, 
 							messageSourceResolver.resolver("alerts.sentiment.negative.title"),
 							messageSourceResolver.resolver("alerts.sentiment.negative.medium", new Object[] { percentage }),
-							sonEntity.getId());
+							sonEntity.getId(), AlertCategoryEnum.STATISTICS_SON);
 				} else {
 					alertService.save(AlertLevelEnum.DANGER, 
 							messageSourceResolver.resolver("alerts.sentiment.negative.title"),
 							messageSourceResolver.resolver("alerts.sentiment.negative.hight", new Object[] { percentage }),
-							sonEntity.getId());
+							sonEntity.getId(), AlertCategoryEnum.STATISTICS_SON);
 				}
 				
 			}
 			
 			sentimentResultsEntity.setDate(new Date());
 			sentimentResultsEntity.setObsolete(Boolean.FALSE);
-			sentimentResultsEntity.setTotalNegative(sentimentResultEntry.getValue().get(SentimentLevelEnum.NEGATIVE));
-			sentimentResultsEntity.setTotalNeutro(sentimentResultEntry.getValue().get(SentimentLevelEnum.NEUTRO));
-			sentimentResultsEntity.setTotalPositive(sentimentResultEntry.getValue().get(SentimentLevelEnum.POSITIVE));
+			sentimentResultsEntity.setTotalNegative(sentimentResultEntry.getValue().containsKey(SentimentLevelEnum.NEGATIVE)
+					? sentimentResultEntry.getValue().get(SentimentLevelEnum.NEGATIVE) : 0L);
+			sentimentResultsEntity.setTotalNeutro(sentimentResultEntry.getValue().containsKey(SentimentLevelEnum.NEUTRO) ? 
+					sentimentResultEntry.getValue().get(SentimentLevelEnum.NEUTRO): 0L);
+			sentimentResultsEntity.setTotalPositive(sentimentResultEntry.getValue().containsKey(SentimentLevelEnum.POSITIVE) ? 
+					sentimentResultEntry.getValue().get(SentimentLevelEnum.POSITIVE): 0L);
+			
+			logger.debug("Sentiment Result -> " + sentimentResultsEntity.toString());
 			
 			sonRepository.save(sonEntity);
 			

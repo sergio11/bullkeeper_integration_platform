@@ -2,6 +2,8 @@ package es.bisite.usal.bulltect.persistence.entity;
 
 import java.util.Date;
 
+import org.bson.types.ObjectId;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -9,14 +11,13 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @Document
 public class AnalysisEntity {
 	
-	
 	@Field("type")
 	private AnalysisTypeEnum type;
 	
 	@Field("start_at")
     private Date startAt;
     
-    @Field("finish_at")
+    @Field("finished_at")
     private Date finishAt;
     
     @Field("result")
@@ -65,8 +66,6 @@ public class AnalysisEntity {
 		this.status = status;
 	}
 
-
-
 	public AnalysisTypeEnum getType() {
 		return type;
 	}
@@ -105,6 +104,14 @@ public class AnalysisEntity {
 
 	public void setStatus(AnalysisStatusEnum status) {
 		this.status = status;
+	}
+
+
+
+	@Override
+	public String toString() {
+		return "AnalysisEntity [type=" + type + ", startAt=" + startAt + ", finishAt=" + finishAt + ", result=" + result
+				+ ", status=" + status + "]";
 	}
     
 

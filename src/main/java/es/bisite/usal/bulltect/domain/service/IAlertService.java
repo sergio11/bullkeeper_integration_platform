@@ -1,6 +1,7 @@
 package es.bisite.usal.bulltect.domain.service;
 
 
+import es.bisite.usal.bulltect.persistence.entity.AlertCategoryEnum;
 import es.bisite.usal.bulltect.persistence.entity.AlertLevelEnum;
 import java.util.Date;
 import java.util.List;
@@ -31,6 +32,8 @@ public interface IAlertService {
     AlertDTO save(AddAlertDTO alert);
     
     AlertDTO save(AlertLevelEnum level, String title, String payload, ObjectId sonId);
+    
+    AlertDTO save(AlertLevelEnum level, String title, String payload, ObjectId sonId, AlertCategoryEnum category);
     
     Long getTotalAlerts();
 
