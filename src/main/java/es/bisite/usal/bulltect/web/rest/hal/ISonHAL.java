@@ -26,8 +26,8 @@ public interface ISonHAL {
         sonResource.add(selfLink);
             try {
     
-                ResponseEntity<APIResponse<PagedResources<Resource<CommentDTO>>>> methodLinkBuilder = methodOn(ChildrenController.class)
-                        .getCommentsBySonId(null, null, sonResource.getIdentity());
+                ResponseEntity<APIResponse<Iterable<CommentDTO>>> methodLinkBuilder = methodOn(ChildrenController.class)
+                        .getCommentsBySonId(sonResource.getIdentity());
                 Link commentsLink = linkTo(methodLinkBuilder).withRel("comments");
                 sonResource.add(commentsLink);
                 

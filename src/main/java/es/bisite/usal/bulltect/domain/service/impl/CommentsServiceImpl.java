@@ -1,5 +1,8 @@
 package es.bisite.usal.bulltect.domain.service.impl;
 
+
+import java.util.List;
+
 import javax.annotation.PostConstruct;
 import org.bson.types.ObjectId;
 import org.springframework.core.convert.converter.Converter;
@@ -10,7 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import es.bisite.usal.bulltect.domain.service.ICommentsService;
-import es.bisite.usal.bulltect.mapper.ICommentEntityMapper;
+import es.bisite.usal.bulltect.mapper.CommentEntityMapper;
 import es.bisite.usal.bulltect.persistence.entity.CommentEntity;
 import es.bisite.usal.bulltect.persistence.repository.CommentRepository;
 import es.bisite.usal.bulltect.web.dto.response.CommentDTO;
@@ -22,9 +25,9 @@ import es.bisite.usal.bulltect.web.dto.response.CommentDTO;
 public class CommentsServiceImpl implements ICommentsService {
     
     private final CommentRepository commentRepository;
-    private final ICommentEntityMapper commentEntityMapper;
+    private final CommentEntityMapper commentEntityMapper;
 
-    public CommentsServiceImpl(CommentRepository commentRepository, ICommentEntityMapper commentEntityMapper) {
+    public CommentsServiceImpl(CommentRepository commentRepository, CommentEntityMapper commentEntityMapper) {
         this.commentRepository = commentRepository;
         this.commentEntityMapper = commentEntityMapper;
     }
@@ -64,8 +67,8 @@ public class CommentsServiceImpl implements ICommentsService {
     }
 
     @Override
-    public Page<CommentDTO> getCommentBySonId(Pageable pageable, String userId) {
-        Page<CommentEntity> commentsPage =  commentRepository.findAllBySonEntityId(new ObjectId(userId), pageable);
+    public Page<CommentDTO> getCommentBySonIdPaginated(Pageable pageable, String userId) {
+        Page<CommentEntity> commentsPage =  commentRepository.findAllBySonEntityIdOrderByExtractedAtDesc(new ObjectId(userId), pageable);
         return commentsPage.map(new Converter<CommentEntity, CommentDTO>(){
             @Override
             public CommentDTO convert(CommentEntity s) {
@@ -74,10 +77,17 @@ public class CommentsServiceImpl implements ICommentsService {
         });
     }
     
+    @Override
+	public Iterable<CommentDTO> getCommentBySonId(String userId) {
+		final List<CommentEntity> commentEntities = commentRepository.findAllBySonEntityIdOrderByExtractedAtDesc(new ObjectId(userId));
+		return commentEntityMapper.commentEntitiesToCommentDTOs(commentEntities);
+	}
+    
+    
     @PostConstruct
     protected void init(){
         Assert.notNull(commentRepository, "CommentRepository cannot be null");
         Assert.notNull(commentEntityMapper, "ICommentEntityMapper cannot be null");
     }
-    
+	
 }

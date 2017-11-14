@@ -20,6 +20,7 @@ import es.bisite.usal.bulltect.persistence.entity.AnalysisStatusEnum;
 import es.bisite.usal.bulltect.persistence.entity.AnalysisTypeEnum;
 import es.bisite.usal.bulltect.persistence.entity.CommentEntity;
 import es.bisite.usal.bulltect.persistence.entity.SonEntity;
+import es.bisite.usal.bulltect.persistence.entity.ViolenceLevelEnum;
 import es.bisite.usal.bulltect.persistence.entity.ViolenceResultsEntity;
 
 @Component
@@ -62,12 +63,9 @@ public class ViolenceAnalysisTasks extends AbstractAnalysisTasks {
 	public void violenceAnalysisResults() {
 		
 		logger.debug("violence analysis results");
-		
-		final Integer VIOLENCE = 1;
-		final Integer NO_VIOLENCE = 0;
-		
-		
-		Map<SonEntity, Map<Integer, Long>> violenceBySon = sonRepository
+	
+	
+		Map<SonEntity, Map<ViolenceLevelEnum, Long>> violenceBySon = sonRepository
 				.findAllByResultsViolenceObsolete(Boolean.TRUE)
 				.parallelStream()
 				.collect(Collectors.toMap(
@@ -77,17 +75,17 @@ public class ViolenceAnalysisTasks extends AbstractAnalysisTasks {
 						.parallelStream()
 						.map(comment -> comment.getAnalysisResults().getViolence())
 						.filter(comment -> comment.getResult() != null)
-						.collect(Collectors.groupingBy(AnalysisEntity::getResult, Collectors.counting()))));
+						.collect(Collectors.groupingBy(analysisResult -> ViolenceLevelEnum.fromResult(analysisResult.getResult()), Collectors.counting()))));
 						
 		logger.debug("Violence by son -> " + violenceBySon.toString());
 		
-		for (Map.Entry<SonEntity, Map<Integer, Long>> violenceBySonEntry : violenceBySon.entrySet())
+		for (Map.Entry<SonEntity, Map<ViolenceLevelEnum, Long>> violenceBySonEntry : violenceBySon.entrySet())
 	     {
 			
 			final SonEntity sonEntity = violenceBySonEntry.getKey();
 			logger.debug("Analysis Violence Results for -> " + sonEntity.getFullName());
 			final Integer totalComments = violenceBySonEntry.getValue().values().stream().mapToInt(Number::intValue).sum();
-			final Map<Integer, Long> results = violenceBySonEntry.getValue();
+			final Map<ViolenceLevelEnum, Long> results = violenceBySonEntry.getValue();
 			
 			final ViolenceResultsEntity  violenceResults = sonEntity.getResults().getViolence();
 			
@@ -101,9 +99,9 @@ public class ViolenceAnalysisTasks extends AbstractAnalysisTasks {
 			}
 			
 			
-			if(results.containsKey(VIOLENCE)) {
+			if(results.containsKey(ViolenceLevelEnum.POSITIVE)) {
 				
-				final Long totalViolenceComments = results.get(VIOLENCE);
+				final Long totalViolenceComments = results.get(ViolenceLevelEnum.POSITIVE);
 				final int percentage = Math.round((float)totalViolenceComments/totalComments*100);
 				if(percentage <= 30) {
 					alertService.save(AlertLevelEnum.SUCCESS, 
@@ -128,8 +126,8 @@ public class ViolenceAnalysisTasks extends AbstractAnalysisTasks {
 			final ViolenceResultsEntity violenceResultsEntity = sonEntity.getResults().getViolence();
 			violenceResultsEntity.setDate(new Date());
 			violenceResultsEntity.setObsolete(Boolean.FALSE);
-			violenceResultsEntity.setTotalNonViolentComments(results.containsKey(NO_VIOLENCE) ? results.get(NO_VIOLENCE) : 0L);
-			violenceResultsEntity.setTotalViolentComments(results.containsKey(VIOLENCE) ? results.get(VIOLENCE): 0L);
+			violenceResultsEntity.setTotalNonViolentComments(results.containsKey(ViolenceLevelEnum.NEGATIVE) ? results.get(ViolenceLevelEnum.NEGATIVE) : 0L);
+			violenceResultsEntity.setTotalViolentComments(results.containsKey(ViolenceLevelEnum.POSITIVE) ? results.get(ViolenceLevelEnum.POSITIVE): 0L);
 			sonRepository.save(sonEntity);
 	     }
 				

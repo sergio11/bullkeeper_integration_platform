@@ -19,6 +19,7 @@ import es.bisite.usal.bulltect.persistence.entity.AnalysisEntity;
 import es.bisite.usal.bulltect.persistence.entity.AnalysisStatusEnum;
 import es.bisite.usal.bulltect.persistence.entity.AnalysisTypeEnum;
 import es.bisite.usal.bulltect.persistence.entity.CommentEntity;
+import es.bisite.usal.bulltect.persistence.entity.DrugsLevelEnum;
 import es.bisite.usal.bulltect.persistence.entity.DrugsResultsEntity;
 import es.bisite.usal.bulltect.persistence.entity.SonEntity;
 
@@ -62,10 +63,8 @@ public class DrugsAnalysisTasks extends AbstractAnalysisTasks {
 		
 		logger.debug("drugs analysis results");
 		
-		final Integer DRUGS = 1;
-		final Integer NO_DRUGS = 0;
 		
-		Map<SonEntity, Map<Integer, Long>> drugsBySon = sonRepository
+		Map<SonEntity, Map<DrugsLevelEnum, Long>> drugsBySon = sonRepository
 				.findAllByResultsDrugsObsolete(Boolean.TRUE)
 				.parallelStream()
 				.collect(Collectors.toMap(
@@ -75,16 +74,16 @@ public class DrugsAnalysisTasks extends AbstractAnalysisTasks {
 						.parallelStream()
 						.map(comment -> comment.getAnalysisResults().getDrugs())
 						.filter(comment -> comment.getResult() != null)
-						.collect(Collectors.groupingBy(AnalysisEntity::getResult, Collectors.counting()))));
+						.collect(Collectors.groupingBy(analysisResult -> DrugsLevelEnum.fromResult(analysisResult.getResult()), Collectors.counting()))));
 		logger.debug("Drugs by son -> " + drugsBySon.toString());
 		
-		for (Map.Entry<SonEntity, Map<Integer, Long>> drugsBySonEntry : drugsBySon.entrySet())
+		for (Map.Entry<SonEntity, Map<DrugsLevelEnum, Long>> drugsBySonEntry : drugsBySon.entrySet())
 	     {
 			
 			final SonEntity sonEntity = drugsBySonEntry.getKey();
 			
 			logger.debug("Analysis Drugs Results for -> " + sonEntity.getFullName());
-			final Map<Integer, Long> results = drugsBySonEntry.getValue();
+			final Map<DrugsLevelEnum, Long> results = drugsBySonEntry.getValue();
 			final Integer totalComments = drugsBySonEntry.getValue().values().stream().mapToInt(Number::intValue).sum();
 			final DrugsResultsEntity  drugsResultsEntity = sonEntity.getResults().getDrugs();
 			
@@ -97,9 +96,9 @@ public class DrugsAnalysisTasks extends AbstractAnalysisTasks {
 						sonEntity.getId(), AlertCategoryEnum.STATISTICS_SON);
 			}
 			
-			if(results.containsKey(DRUGS)) {
+			if(results.containsKey(DrugsLevelEnum.POSITIVE)) {
 				
-				final Long totalDrugsComments = results.get(DRUGS);
+				final Long totalDrugsComments = results.get(DrugsLevelEnum.POSITIVE);
 				final int percentage = Math.round((float)totalDrugsComments/totalComments*100);
 				if(percentage <= 30) {
 					alertService.save(AlertLevelEnum.SUCCESS, 
@@ -122,8 +121,8 @@ public class DrugsAnalysisTasks extends AbstractAnalysisTasks {
 		
 			drugsResultsEntity.setDate(new Date());
 			drugsResultsEntity.setObsolete(Boolean.FALSE);
-			drugsResultsEntity.setTotalCommentsDrugs(results.containsKey(DRUGS) ? results.get(DRUGS): 0L);
-			drugsResultsEntity.setTotalCommentsNoDrugs(results.containsKey(NO_DRUGS) ? results.get(NO_DRUGS): 0L);
+			drugsResultsEntity.setTotalCommentsDrugs(results.containsKey(DrugsLevelEnum.POSITIVE) ? results.get(DrugsLevelEnum.POSITIVE): 0L);
+			drugsResultsEntity.setTotalCommentsNoDrugs(results.containsKey(DrugsLevelEnum.NEGATIVE) ? results.get(DrugsLevelEnum.NEGATIVE): 0L);
 			sonRepository.save(sonEntity);
 	     }
 				

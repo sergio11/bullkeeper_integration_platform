@@ -77,26 +77,8 @@ public class SentimentAnalysisTasks extends AbstractAnalysisTasks {
 				.map(comment -> comment.getAnalysisResults().getSentiment())
 				.filter(comment -> comment.getResult() != null)
 				.collect(Collectors.groupingBy(
-					sentiment -> {
-						
-						SentimentLevelEnum sentimentLevel; 
-						
-						logger.debug("sentiment -> " + sentiment.toString());
-						
-						if(sentiment.getResult() >= -10 && sentiment.getResult() <= -5) {
-							sentimentLevel = SentimentLevelEnum.NEGATIVE;
-						} else if(sentiment.getResult() > -5 && sentiment.getResult() <= 5) {
-							sentimentLevel = SentimentLevelEnum.NEUTRO;
-						} else {
-							sentimentLevel = SentimentLevelEnum.POSITIVE;
-						}
-						
-						return sentimentLevel;
-						
-					},
-					Collectors.counting()
-				))
-			));
+					sentiment -> SentimentLevelEnum.fromResult(sentiment.getResult()),
+					Collectors.counting()))));
 		
 		logger.debug("Sentiment by son -> " + sentimentResults.toString());
 		

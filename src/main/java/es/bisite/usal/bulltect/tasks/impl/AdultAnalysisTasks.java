@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import es.bisite.usal.bulltect.persistence.entity.AdultLevelEnum;
 import es.bisite.usal.bulltect.persistence.entity.AdultResultsEntity;
 import es.bisite.usal.bulltect.persistence.entity.AlertCategoryEnum;
 import es.bisite.usal.bulltect.persistence.entity.AlertLevelEnum;
@@ -64,10 +65,8 @@ public class AdultAnalysisTasks extends AbstractAnalysisTasks {
 		
 		logger.debug("adult analysis results");
 		
-		final Integer ADULT_CONTENT = 1;
-		final Integer NO_ADULT_CONTENT = 0;
 		
-		Map<SonEntity, Map<Integer, Long>> adultContentBySon = sonRepository
+		Map<SonEntity, Map<AdultLevelEnum, Long>> adultContentBySon = sonRepository
 				.findAllByResultsAdultObsolete(Boolean.TRUE)
 				.parallelStream()
 				.collect(Collectors.toMap(
@@ -77,17 +76,17 @@ public class AdultAnalysisTasks extends AbstractAnalysisTasks {
 						.parallelStream()
 						.map(comment -> comment.getAnalysisResults().getAdult())
 						.filter(comment -> comment.getResult() != null)
-						.collect(Collectors.groupingBy(AnalysisEntity::getResult, Collectors.counting()))));
+						.collect(Collectors.groupingBy(analysisResult -> AdultLevelEnum.fromResult(analysisResult.getResult()), Collectors.counting()))));
 		
 		logger.debug("Adult content by son -> " + adultContentBySon.toString());
 		
-		for (Map.Entry<SonEntity, Map<Integer, Long>> adultContentBySonEntry : adultContentBySon.entrySet())
+		for (Map.Entry<SonEntity, Map<AdultLevelEnum, Long>> adultContentBySonEntry : adultContentBySon.entrySet())
 	     {
 			
 			final SonEntity sonEntity = adultContentBySonEntry.getKey();
 			logger.debug("Analysis Adult Content Results for -> " + sonEntity.getFullName());
 			final Integer totalComments = adultContentBySonEntry.getValue().values().stream().mapToInt(Number::intValue).sum();
-			final Map<Integer, Long> results = adultContentBySonEntry.getValue();
+			final Map<AdultLevelEnum, Long> results = adultContentBySonEntry.getValue();
 			final AdultResultsEntity adultResultsEntity = sonEntity.getResults().getAdult();
 			
 			final Long totalCommentsAnalyzedForAdult = commentRepository.countByAnalysisResultsAdultFinishAtGreaterThanEqual(adultResultsEntity.getDate());
@@ -99,9 +98,9 @@ public class AdultAnalysisTasks extends AbstractAnalysisTasks {
 						sonEntity.getId(), AlertCategoryEnum.STATISTICS_SON);
 			}
 			
-			if(results.containsKey(ADULT_CONTENT)) {
+			if(results.containsKey(AdultLevelEnum.POSITIVE)) {
 				
-				final Long totalCommentsAdultContent = results.get(ADULT_CONTENT);
+				final Long totalCommentsAdultContent = results.get(AdultLevelEnum.POSITIVE);
 				final int percentage = Math.round((float)totalCommentsAdultContent/totalComments*100);
 				if(percentage <= 30) {
 					alertService.save(AlertLevelEnum.SUCCESS, 
@@ -124,8 +123,8 @@ public class AdultAnalysisTasks extends AbstractAnalysisTasks {
 			
 			adultResultsEntity.setDate(new Date());
 			adultResultsEntity.setObsolete(Boolean.FALSE);
-			adultResultsEntity.setTotalCommentsAdultContent(results.containsKey(ADULT_CONTENT) ? results.get(ADULT_CONTENT) : 0L);
-			adultResultsEntity.setTotalCommentsNoAdultContent(results.containsKey(NO_ADULT_CONTENT) ? results.get(NO_ADULT_CONTENT): 0L);
+			adultResultsEntity.setTotalCommentsAdultContent(results.containsKey(AdultLevelEnum.POSITIVE) ? results.get(AdultLevelEnum.POSITIVE) : 0L);
+			adultResultsEntity.setTotalCommentsNoAdultContent(results.containsKey(AdultLevelEnum.NEGATIVE) ? results.get(AdultLevelEnum.NEGATIVE): 0L);
 			sonRepository.save(sonEntity);
 	     }
 				

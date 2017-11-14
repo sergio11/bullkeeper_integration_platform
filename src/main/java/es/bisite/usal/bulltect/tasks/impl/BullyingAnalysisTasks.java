@@ -18,6 +18,7 @@ import es.bisite.usal.bulltect.persistence.entity.AlertLevelEnum;
 import es.bisite.usal.bulltect.persistence.entity.AnalysisEntity;
 import es.bisite.usal.bulltect.persistence.entity.AnalysisStatusEnum;
 import es.bisite.usal.bulltect.persistence.entity.AnalysisTypeEnum;
+import es.bisite.usal.bulltect.persistence.entity.BullyingLevelEnum;
 import es.bisite.usal.bulltect.persistence.entity.BullyingResultsEntity;
 import es.bisite.usal.bulltect.persistence.entity.CommentEntity;
 import es.bisite.usal.bulltect.persistence.entity.SonEntity;
@@ -64,10 +65,7 @@ public class BullyingAnalysisTasks extends AbstractAnalysisTasks {
 		
 		logger.debug("bullying analysis results");
 		
-		final Integer BULLYING_CONTENT = 1;
-		final Integer NOBULLYING_CONTENT = 0;
-		
-		Map<SonEntity, Map<Integer, Long>> bullyingBySon = sonRepository
+		Map<SonEntity, Map<BullyingLevelEnum, Long>> bullyingBySon = sonRepository
 				.findAllByResultsBullyingObsolete(Boolean.TRUE)
 				.parallelStream()
 				.collect(Collectors.toMap(
@@ -77,16 +75,16 @@ public class BullyingAnalysisTasks extends AbstractAnalysisTasks {
 						.parallelStream()
 						.map(comment -> comment.getAnalysisResults().getBullying())
 						.filter(comment -> comment.getResult() != null)
-						.collect(Collectors.groupingBy(AnalysisEntity::getResult, Collectors.counting()))));
+						.collect(Collectors.groupingBy(analysisResult -> BullyingLevelEnum.fromResult(analysisResult.getResult()), Collectors.counting()))));
 		
 		logger.debug("Bullying by son -> " + bullyingBySon.toString());
 		
-		for (Map.Entry<SonEntity, Map<Integer, Long>> bullyingBySonEntry : bullyingBySon.entrySet())
+		for (Map.Entry<SonEntity, Map<BullyingLevelEnum, Long>> bullyingBySonEntry : bullyingBySon.entrySet())
 	     {
 			
 			final SonEntity sonEntity = bullyingBySonEntry.getKey();
 			logger.debug("Analysis Drugs Results for -> " + sonEntity.getFullName());
-			final Map<Integer, Long> results = bullyingBySonEntry.getValue();
+			final Map<BullyingLevelEnum, Long> results = bullyingBySonEntry.getValue();
 			final Integer totalComments = bullyingBySonEntry.getValue().values().stream().mapToInt(Number::intValue).sum();;
 			final BullyingResultsEntity bullyingResultsEntity = sonEntity.getResults().getBullying();
 			
@@ -99,9 +97,9 @@ public class BullyingAnalysisTasks extends AbstractAnalysisTasks {
 						sonEntity.getId(), AlertCategoryEnum.STATISTICS_SON);
 			}
 			
-			if(results.containsKey(BULLYING_CONTENT)) {
+			if(results.containsKey(BullyingLevelEnum.POSITIVE)) {
 				
-				final Long totalCommentsBullyingContent = results.get(BULLYING_CONTENT);
+				final Long totalCommentsBullyingContent = results.get(BullyingLevelEnum.POSITIVE);
 				final int percentage = Math.round((float)totalCommentsBullyingContent/totalComments*100);
 				if(percentage <= 30) {
 					alertService.save(AlertLevelEnum.SUCCESS, 
@@ -124,8 +122,8 @@ public class BullyingAnalysisTasks extends AbstractAnalysisTasks {
 			
 			bullyingResultsEntity.setDate(new Date());
 			bullyingResultsEntity.setObsolete(Boolean.FALSE);
-			bullyingResultsEntity.setTotalCommentsBullying(results.containsKey(BULLYING_CONTENT) ? results.get(BULLYING_CONTENT): 0L);
-			bullyingResultsEntity.setTotalCommentsNoBullying(results.containsKey(NOBULLYING_CONTENT) ? results.get(NOBULLYING_CONTENT): 0L);
+			bullyingResultsEntity.setTotalCommentsBullying(results.containsKey(BullyingLevelEnum.POSITIVE) ? results.get(BullyingLevelEnum.POSITIVE): 0L);
+			bullyingResultsEntity.setTotalCommentsNoBullying(results.containsKey(BullyingLevelEnum.NEGATIVE) ? results.get(BullyingLevelEnum.NEGATIVE): 0L);
 			sonRepository.save(sonEntity);
 	     }
 				

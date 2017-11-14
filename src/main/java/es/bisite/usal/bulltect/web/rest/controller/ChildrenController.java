@@ -163,23 +163,21 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
     @RequestMapping(value = "/{id}/comments", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     @ApiOperation(value = "GET_COMMENTS_BY_SON", nickname = "GET_COMMENTS_BY_SON", notes = "Get Comments By Son Id",
-            response = PagedResources.class)
-    public ResponseEntity<APIResponse<PagedResources<Resource<CommentDTO>>>> getCommentsBySonId(
-    		@ApiIgnore @PageableDefault Pageable pageable, 
-    		@ApiIgnore PagedResourcesAssembler<CommentDTO> pagedAssembler,
+            response = List.class)
+    public ResponseEntity<APIResponse<Iterable<CommentDTO>>> getCommentsBySonId(
             @ApiParam(name = "id", value = "Identificador del hijo", required = true)
             	@Valid @ValidObjectId(message = "{son.id.notvalid}")
              		@PathVariable String id) throws Throwable {
         
     	logger.debug("Get Comments by user with id: " + id);
         
-        Page<CommentDTO> commentsPage = commentService.getCommentBySonId(pageable, id);
+        Iterable<CommentDTO> comments = commentService.getCommentBySonId(id);
         
-        if(commentsPage.getTotalElements() == 0)
+        if(Iterables.size(comments) == 0)
         	throw new CommentsBySonNotFoundException();
         
-        return ApiHelper.<PagedResources<Resource<CommentDTO>>>createAndSendResponse(CommentResponseCode.ALL_COMMENTS_BY_CHILD, 
-        		HttpStatus.OK, pagedAssembler.toResource(addLinksToComments((commentsPage))));
+        return ApiHelper.<Iterable<CommentDTO>>createAndSendResponse(CommentResponseCode.ALL_COMMENTS_BY_CHILD, 
+        		HttpStatus.OK, comments);
         
     }
     

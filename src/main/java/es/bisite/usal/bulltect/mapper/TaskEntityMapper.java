@@ -22,7 +22,7 @@ public abstract class TaskEntityMapper {
 	protected SocialMediaRepository socialMediaRepository;
 	
 	@Autowired
-	protected ICommentEntityMapper commentEntityMapper;
+	protected CommentEntityMapper commentEntityMapper;
 	
 	@Mappings({
 		@Mapping(expression="java(taskEntity.getId().toString())", target = "identity" ),
