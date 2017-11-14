@@ -36,6 +36,9 @@ public class CommentEntity {
     
     @Field("extracted_at")
     private Date extractedAt = new Date();
+    
+    @Field("extracted_times")
+    private Integer extractedTimes = 1;
 
     @Field("social_media")
     private SocialMediaTypeEnum socialMedia;
@@ -55,7 +58,7 @@ public class CommentEntity {
     }
 
     @PersistenceConstructor
-    public CommentEntity(String externalId, String message, Long likes, Date createdTime, Date extractedAt,
+    public CommentEntity(String externalId, String message, Long likes, Date createdTime, Date extractedAt, Integer extractedTimes,
             SocialMediaTypeEnum socialMedia, CommentAuthorEntity author, SonEntity sonEntity, CommentAnalysisResultsEntity analysisResults) {
         super();
         this.externalId = externalId;
@@ -63,6 +66,7 @@ public class CommentEntity {
         this.likes = likes;
         this.createdTime = createdTime;
         this.extractedAt = extractedAt;
+        this.extractedTimes = extractedTimes;
         this.socialMedia = socialMedia;
         this.author = author;
         this.sonEntity = sonEntity;
@@ -125,6 +129,15 @@ public class CommentEntity {
 
 	public void setExtractedAt(Date extractedAt) {
 		this.extractedAt = extractedAt;
+	}
+	
+
+	public Integer getExtractedTimes() {
+		return extractedTimes;
+	}
+
+	public void setExtractedTimes(Integer extractedTimes) {
+		this.extractedTimes = extractedTimes;
 	}
 
 	public SocialMediaTypeEnum getSocialMedia() {

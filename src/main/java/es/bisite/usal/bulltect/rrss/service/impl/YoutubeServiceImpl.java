@@ -122,9 +122,14 @@ public class YoutubeServiceImpl implements IYoutubeService {
     
     
     @Override
-    public Set<CommentEntity> getCommentsLaterThan(Date startDate, String accessToken) {
-        
-        logger.debug("Call Youtube Data API for accessToekn : " + accessToken + " on thread: " + Thread.currentThread().getName());
+	public Set<CommentEntity> getCommentsReceived(String accessToken) {
+		return getCommentsReceived(null, accessToken);
+	}
+
+
+	@Override
+	public Set<CommentEntity> getCommentsReceived(Date startDate, String accessToken) {
+		logger.debug("Call Youtube Data API for accessToekn : " + accessToken + " on thread: " + Thread.currentThread().getName());
         Set<CommentEntity> userComments = new HashSet<>();
         try {
             YouTube youTube = appCtx.getBean(YouTube.class, accessToken);
@@ -155,7 +160,7 @@ public class YoutubeServiceImpl implements IYoutubeService {
             throw new GetCommentsProcessException(e.toString());
         }
         return userComments;
-    }
+	}
     
     @PostConstruct
     protected void init(){

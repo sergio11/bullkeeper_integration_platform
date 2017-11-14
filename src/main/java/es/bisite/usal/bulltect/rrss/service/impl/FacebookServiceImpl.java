@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.PostConstruct;
@@ -64,50 +65,76 @@ public class FacebookServiceImpl implements IFacebookService {
         this.messageSourceResolver = messageSourceResolver;
         this.userFacebookMapper = userFacebookMapper;
     }
-
-    private Stream<Comment> getCommentsByObjectAfterThan(final FacebookClient facebookClient, final String objectId, final Date startDate, User user) {
-
-        Connection<Comment> commentConnection
-                = facebookClient.fetchConnection(objectId + "/comments", Comment.class,
-                        Parameter.with("fields", "id, comment_count, created_time, from, message, like_count"));
-
-        return StreamUtils.asStream(commentConnection.iterator())
-                .flatMap(List::stream)
-                .flatMap(comment
-                        -> {
-                        
-                    return comment.getCommentCount() > 0 ? StreamUtils.concat(
-                            getCommentsByObjectAfterThan(facebookClient, comment.getId(), startDate, user), comment)
-                            : Stream.of(comment);
-                }
-                ).filter(comment -> !comment.getFrom().getId().equals(user.getId())
-                && (startDate != null ? comment.getCreatedTime().after(startDate) : true));
+    
+    /**
+     * Get recursive comments by Object Id.
+     * @param facebookClient
+     * @param objectId
+     * @param filter
+     * @return
+     */
+    private Stream<Comment> getCommentsByObject(final FacebookClient facebookClient, final String objectId, final Predicate<Comment> filter) {
+    	Assert.notNull(facebookClient, "Facebook Client should be not null");
+    	Assert.notNull(objectId, "ObjectId should be not null");
+    	Assert.notNull(filter, "Filter should be not null");
+    
+    	Connection<Comment> commentConnection
+         	= facebookClient.fetchConnection(objectId + "/comments", Comment.class,
+                 Parameter.with("fields", "id, comment_count, created_time, from, message, like_count"));
+    	
+    	return StreamUtils.asStream(commentConnection.iterator())
+    	         .flatMap(List::stream)
+    	         .flatMap(comment -> comment.getCommentCount() > 0 ? StreamUtils.concat(
+	            		 getCommentsByObject(facebookClient, comment.getId(), filter), comment)
+	                     : Stream.of(comment)).filter(filter);
+    	
     }
 
-    // Get Comments Stream from all posts.
-    private Stream<Comment> getAllCommentsFromPostsAfterThan(final FacebookClient facebookClient, final Date startDate, User user) {
+    /**
+     * Get all the comments received in the posts from.
+     * @param facebookClient
+     * @param startDate
+     * @param user
+     * @return
+     */
+    private Stream<Comment> getAllCommentsFromPostsReceived(final FacebookClient facebookClient, final Date startDate, User user) {
         Connection<Post> userFeed = facebookClient.fetchConnection("me/feed", Post.class);
         // Iterate over the feed to access the particular pages
         return StreamUtils.asStream(userFeed.iterator())
                 .flatMap(List::stream)
-                .flatMap(post -> getCommentsByObjectAfterThan(facebookClient, post.getId(), startDate, user));
+                .flatMap(post -> getCommentsByObject(facebookClient, post.getId(), comment -> !comment.getFrom().getId().equals(user.getId())
+           	         && (startDate != null ? comment.getCreatedTime().after(startDate) : true)));
 
     }
-
-    // Get Comments Stream from all albums.
-    private Stream<Comment> getAllCommentsFromAlbumsAfterThan(FacebookClient facebookClient, Date startDate, User user) {
+    
+ 
+    /**
+     * Get All Comments From Albums Received After Than
+     * @param facebookClient
+     * @param startDate
+     * @param user
+     * @return
+     */
+    private Stream<Comment> getAllCommentsFromAlbumsReceived(FacebookClient facebookClient, Date startDate, User user) {
         Connection<Album> userAlbums = facebookClient.fetchConnection("me/albums", Album.class);
         // Iterate over the albums to access the particular pages
         return StreamUtils.asStream(userAlbums.iterator())
                 .flatMap(List::stream)
                 .flatMap(album -> {
                     logger.debug("Album -> " + album.getName() + "Description " + album.getDescription());
-                    return getCommentsByObjectAfterThan(facebookClient, album.getId(), startDate, user);
+                    return getCommentsByObject(facebookClient, album.getId(), comment -> !comment.getFrom().getId().equals(user.getId())
+                  	         && (startDate != null ? comment.getCreatedTime().after(startDate) : true));
                 });
     }
+    
+    
+    @Override
+	public Set<CommentEntity> getCommentsReceived(String accessToken) {
+		return getCommentsReceived(null, accessToken);
+	}
 
     @Override
-    public Set<CommentEntity> getCommentsLaterThan(Date startDate, String accessToken) {
+    public Set<CommentEntity> getCommentsReceived(Date startDate, String accessToken) {
 
         Set<CommentEntity> comments = new HashSet<CommentEntity>();
         try {
@@ -117,8 +144,8 @@ public class FacebookServiceImpl implements IFacebookService {
             User user = facebookClient.fetchObject("me", User.class);
             logger.debug("Get Comments For User : " + user.getName() + " after than " + startDate);
             comments = StreamUtils.concat(
-                    getAllCommentsFromPostsAfterThan(facebookClient, startDate, user),
-                    getAllCommentsFromAlbumsAfterThan(facebookClient, startDate, user)
+            		getAllCommentsFromPostsReceived(facebookClient, startDate, user),
+            		getAllCommentsFromAlbumsReceived(facebookClient, startDate, user)
             )
                     .map(comment -> facebookCommentMapper.facebookCommentToCommentEntity(comment))
                     .collect(Collectors.toSet());
@@ -202,5 +229,4 @@ public class FacebookServiceImpl implements IFacebookService {
         Assert.notNull(facebookCommentMapper, "The Facebook Comment Mapper can not be null");
         Assert.notNull(messageSourceResolver, "The Message Source Resolver can not be null");
     }
-
 }

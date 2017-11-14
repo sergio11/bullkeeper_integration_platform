@@ -37,6 +37,7 @@ import es.bisite.usal.bulltect.integration.aggregation.IterationGroupProcessor;
 import es.bisite.usal.bulltect.integration.constants.IntegrationConstants;
 import es.bisite.usal.bulltect.integration.properties.IntegrationFlowProperties;
 import es.bisite.usal.bulltect.integration.transformer.IterationEntityTransformer;
+import es.bisite.usal.bulltect.integration.transformer.MergeCommentsTransformer;
 import es.bisite.usal.bulltect.integration.transformer.TaskEntityTransformer;
 import es.bisite.usal.bulltect.persistence.entity.CommentEntity;
 import es.bisite.usal.bulltect.persistence.entity.SocialMediaEntity;
@@ -72,6 +73,9 @@ public class InfrastructureConfiguration {
     
     @Autowired
     private IterationEntityTransformer iterationEntityTransformer;
+    
+    @Autowired
+    private MergeCommentsTransformer mergeCommentsTransformer;
     
    
     /**
@@ -189,13 +193,14 @@ public class InfrastructureConfiguration {
                 .<SocialMediaEntity, SocialMediaTypeEnum>route(p -> p.getType(),
                         m
                         -> m.subFlowMapping(SocialMediaTypeEnum.FACEBOOK, 
-                                sf -> sf.handle(SocialMediaEntity.class, (p, h) -> facebookService.getCommentsLaterThan(p.getLastProbing(), p.getAccessToken())))
+                                sf -> sf.handle(SocialMediaEntity.class, (p, h) -> facebookService.getCommentsReceived(p.getAccessToken())))
                             .subFlowMapping(SocialMediaTypeEnum.YOUTUBE, 
-                                sf -> sf.handle(SocialMediaEntity.class, (p, h) -> youtubeService.getCommentsLaterThan(p.getLastProbing(), p.getAccessToken())))
+                                sf -> sf.handle(SocialMediaEntity.class, (p, h) -> youtubeService.getCommentsReceived(p.getAccessToken())))
                             .subFlowMapping(SocialMediaTypeEnum.INSTAGRAM, 
-                                sf -> sf.handle(SocialMediaEntity.class, (p, h) -> instagramService.getCommentsLaterThan(p.getLastProbing(), p.getAccessToken())))
+                                sf -> sf.handle(SocialMediaEntity.class, (p, h) -> instagramService.getCommentsReceived(p.getAccessToken())))
                 )
                 .channel("directChannel_1")
+                .transform(mergeCommentsTransformer)
                 .transform(new TaskEntityTransformer())
                 .aggregate(a -> a.outputProcessor(new IterationGroupProcessor()))
                 .channel("directChannel_2")

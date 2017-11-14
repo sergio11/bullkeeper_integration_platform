@@ -148,4 +148,13 @@ public  class RegisterParentDTO {
 	public void setLocale(Locale locale) {
 		this.locale = locale;
 	}
+
+
+	@Override
+	public String toString() {
+		return "RegisterParentDTO [firstName=" + firstName + ", lastName=" + lastName + ", birthdate=" + birthdate
+				+ ", email=" + email + ", passwordClear=" + passwordClear + ", confirmPassword=" + confirmPassword
+				+ ", telephone=" + telephone + ", locale=" + locale + "]";
+	}
+	
 }

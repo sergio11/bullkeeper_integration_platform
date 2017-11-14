@@ -9,6 +9,7 @@ import es.bisite.usal.bulltect.persistence.entity.CommentEntity;
 import es.bisite.usal.bulltect.persistence.entity.AnalysisStatusEnum;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -30,6 +31,7 @@ public interface CommentRepository extends MongoRepository<CommentEntity, Object
     List<CommentEntity> findAllBySonEntityIdInOrderByCreatedTimeAsc(List<ObjectId> ids);
     List<CommentEntity> findAllByOrderByCreatedTimeAsc();
     List<CommentEntity> findAllBySonEntityParentIdOrderByCreatedTimeAsc(ObjectId parentId);
+    Set<CommentEntity> findAllByExternalIdIn(Set<String> ids);
     Long deleteBySonEntity(ObjectId id);
     Page<CommentEntity> findAllByAnalysisResultsSentimentStatus(AnalysisStatusEnum status, Pageable pageable);
     Page<CommentEntity> findAllByAnalysisResultsViolenceStatus(AnalysisStatusEnum status, Pageable pageable);

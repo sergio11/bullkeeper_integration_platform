@@ -28,7 +28,6 @@ public class AnalysisEntity {
     public AnalysisEntity(){}
     
     
-
     public AnalysisEntity(AnalysisTypeEnum type) {
 		super();
 		this.type = type;

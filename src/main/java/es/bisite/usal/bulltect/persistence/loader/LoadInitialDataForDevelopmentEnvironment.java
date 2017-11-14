@@ -124,7 +124,7 @@ public class LoadInitialDataForDevelopmentEnvironment implements CommandLineRunn
     	childrenList.add(sergio);
         
         socialMedias.addAll(Arrays.asList( new SocialMediaEntity[] { 
-            new SocialMediaEntity("EAACEdEose0cBAPEbPZButXEy3o8cYef35d7Sktbpo1TxBZCC09haQRRsRazk9LdZCBcAZAygDeefHQlnO8aqTpgVFi2yCUhNtST0GSmBNfIQteUSbl1LOcOOxtOE2L3nK9K02pgbTfmTLZBt5tJet1nrusypSWvCpEiwLVqr5tbYHyie4lqCgwh0Ml2HmxsPiBRayytaQqQZDZD", SocialMediaTypeEnum.FACEBOOK, sergio),
+            new SocialMediaEntity("EAACEdEose0cBAFMcExdbxUH4nM0kRFMin3yfYmiEwneb2kIZCZCnxZBO4j477bZA34ZBHZC0nDKouChRSUNLpFGxZCGCXq2KI4rArKao1S9XQ0Ff13QPaErDyJDZCQGm4QR7WGFNYh5mCyHnYj8FpgIAJqImljvQMN341MUAWHRimcsL95chNb4NnCMtXTjhkOIAUz6iWzYwWgZDZD", SocialMediaTypeEnum.FACEBOOK, sergio),
             new SocialMediaEntity("3303539559.5d2b345.6fb7b3f97e5142fd93973592ccc4c07d", SocialMediaTypeEnum.INSTAGRAM, sergio),
             new SocialMediaEntity("ya29.GmaiBCC-Gpm_NO9Z-Au4imXzsb9gFjBNYoO2QMEtfJlzYksM93pSZoWsr1yxFvRvI8wuNrLimC4KRf364TcE-ZGr3uyVdery8sQtw3ZKOUxyF1bPicG7lAVBmL113Ji3sK3hrnEpa0Y", SocialMediaTypeEnum.YOUTUBE, sergio)
         }));

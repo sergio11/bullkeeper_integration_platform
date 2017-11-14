@@ -100,20 +100,24 @@ public class ParentsServiceImpl implements IParentsService {
 
     @Override
     public ParentDTO save(RegisterParentDTO registerParent) {
+    	logger.debug("Register Parent");
         final ParentEntity parentToSave = parentEntityMapper.registerParentDTOToParentEntity(registerParent);
         if(parentRepository.countByEmail(parentToSave.getEmail()) > 0)
         	throw new EmailAlreadyExistsException();
         
         final ParentEntity parentSaved = parentRepository.save(parentToSave);
+        logger.debug("Parent Saved -> " + parentSaved.toString());
         return parentEntityMapper.parentEntityToParentDTO(parentSaved);
     }
 
     @Override
     public ParentDTO save(RegisterParentByFacebookDTO registerParent) {
+    	logger.debug("Register Parent by facebook");
         final ParentEntity parentToSave = parentEntityMapper.registerParentByFacebookDTOToParentEntity(registerParent);
         if(parentRepository.countByEmail(parentToSave.getEmail()) > 0)
         	throw new EmailAlreadyExistsException();
         final ParentEntity parentSaved = parentRepository.save(parentToSave);
+        logger.debug("Parent Saved -> " + parentSaved.toString());
         return parentEntityMapper.parentEntityToParentDTO(parentSaved);
     }
 

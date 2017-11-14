@@ -357,9 +357,10 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     		@ApiParam(value = "parent", required = true) 
     			@Validated(ICommonSequence.class) @RequestBody RegisterParentDTO parent,
     		@ApiIgnore Locale locale) throws Throwable {
-    	logger.debug("Register Parent");
-    	logger.debug("Locale -> " + locale.toString());
+    	
     	parent.setLocale(locale);
+    	logger.debug("Register Parent -> " + parent.toString());
+    	logger.debug("Locale -> " + locale.toString());
         ParentDTO parentDTO = parentsService.save(parent);
         applicationEventPublisher.publishEvent(new ParentRegistrationSuccessEvent(parentDTO.getIdentity(), this));
         return ApiHelper.<ParentDTO>createAndSendResponse(ParentResponseCode.PARENT_REGISTERED_SUCCESSFULLY, 

@@ -46,11 +46,15 @@ public class InstagramServiceImpl implements IInstagramService {
 		this.instagramMapper = instagramMapper;
 		this.messageSourceResolver = messageSourceResolver;
 	}
+	
+	@Override
+	public Set<CommentEntity> getCommentsReceived(String accessToken) {
+		return getCommentsReceived(null, accessToken);
+	}
 
 	@Override
-    public Set<CommentEntity> getCommentsLaterThan(Date startDate, String accessToken) {
-        
-        logger.debug("Call Instagram API for accessToken : " + accessToken + " on thread: " + Thread.currentThread().getName());
+	public Set<CommentEntity> getCommentsReceived(Date startDate, String accessToken) {
+		logger.debug("Call Instagram API for accessToken : " + accessToken + " on thread: " + Thread.currentThread().getName());
         
         Set<CommentEntity> userComments = new HashSet<>();
         
@@ -81,8 +85,7 @@ public class InstagramServiceImpl implements IInstagramService {
         }
   
         return userComments;
-        
-    }
+	}
     
     @PostConstruct
     protected void init(){
@@ -90,5 +93,4 @@ public class InstagramServiceImpl implements IInstagramService {
         Assert.notNull(instagramMapper, "Instagram Comment Mapper cannot be null");
         Assert.notNull(messageSourceResolver, "The Message Source Resolver can not be null");
     }
-    
 }
