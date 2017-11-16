@@ -25,6 +25,9 @@ public class SocialMediaEntity {
     @Field("access_token")
     private String accessToken;
     
+    @Field("refresh_token")
+    private String refreshToken;
+    
     @Field("social_media_type")
     private SocialMediaTypeEnum type;
     
@@ -53,10 +56,11 @@ public class SocialMediaEntity {
 	}
 
     @PersistenceConstructor
-    public SocialMediaEntity(String accessToken, SocialMediaTypeEnum type, Boolean invalidToken, Long scheduledFor,
+    public SocialMediaEntity(String accessToken, String refreshToken, SocialMediaTypeEnum type, Boolean invalidToken, Long scheduledFor,
 			Date lastProbing, SonEntity sonEntity) {
 		super();
 		this.accessToken = accessToken;
+		this.refreshToken = refreshToken;
 		this.type = type;
 		this.invalidToken = invalidToken;
 		this.scheduledFor = scheduledFor;
@@ -76,8 +80,21 @@ public class SocialMediaEntity {
     public void setAccessToken(String accessToken) {
         this.accessToken = accessToken;
     }
+    
 
-    public SocialMediaTypeEnum getType() {
+    public String getRefreshToken() {
+		return refreshToken;
+	}
+
+	public void setRefreshToken(String refreshToken) {
+		this.refreshToken = refreshToken;
+	}
+
+	public Boolean getInvalidToken() {
+		return invalidToken;
+	}
+
+	public SocialMediaTypeEnum getType() {
         return type;
     }
 
@@ -147,8 +164,8 @@ public class SocialMediaEntity {
 
 	@Override
 	public String toString() {
-		return "SocialMediaEntity [id=" + id + ", accessToken=" + accessToken + ", type=" + type + ", invalidToken="
-				+ invalidToken + ", scheduledFor=" + scheduledFor + ", lastProbing=" + lastProbing + ", sonEntity="
-				+ sonEntity + "]";
+		return "SocialMediaEntity [id=" + id + ", accessToken=" + accessToken + ", refreshToken=" + refreshToken
+				+ ", type=" + type + ", invalidToken=" + invalidToken + ", scheduledFor=" + scheduledFor
+				+ ", lastProbing=" + lastProbing + ", sonEntity=" + sonEntity + "]";
 	}
 }

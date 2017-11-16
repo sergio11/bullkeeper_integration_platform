@@ -16,6 +16,7 @@ import es.bisite.usal.bulltect.domain.service.IIterationService;
 import es.bisite.usal.bulltect.i18n.service.IMessageSourceResolverService;
 import es.bisite.usal.bulltect.integration.properties.IntegrationFlowProperties;
 import es.bisite.usal.bulltect.integration.service.IIntegrationFlowService;
+import es.bisite.usal.bulltect.persistence.entity.AlertCategoryEnum;
 import es.bisite.usal.bulltect.persistence.entity.AlertLevelEnum;
 import es.bisite.usal.bulltect.persistence.repository.CommentRepository;
 import es.bisite.usal.bulltect.persistence.repository.SocialMediaRepository;
@@ -134,7 +135,7 @@ public final class ItegrationFlowServiceImpl implements IIntegrationFlowService 
         	alertService.save(AlertLevelEnum.INFO, 
         			messageSourceResolver.resolver("alerts.iteration.comments.title"),
         			sb.toString(), 
-        			sonId);
+        			sonId, AlertCategoryEnum.INFORMATION_EXTRACTION);
         	
         }
 		

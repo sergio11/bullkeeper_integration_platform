@@ -72,7 +72,7 @@ public class YoutubeServiceImpl implements IYoutubeService {
     
     private CommentThreadListResponse getCommentThreadLists(final YouTube youTube, final String channelId) {
     	try {
-			return youTube.commentThreads().list("snippet")
+			return youTube.commentThreads().list("snippet, replies")
 					.setAllThreadsRelatedToChannelId(channelId)
 			        .execute();
 		} catch (IOException e) {
@@ -122,17 +122,18 @@ public class YoutubeServiceImpl implements IYoutubeService {
     
     
     @Override
-	public Set<CommentEntity> getCommentsReceived(String accessToken) {
-		return getCommentsReceived(null, accessToken);
+	public Set<CommentEntity> getCommentsReceived(String accessToken, String refreshToken) {
+		return getCommentsReceived(null, accessToken, refreshToken);
 	}
 
 
 	@Override
-	public Set<CommentEntity> getCommentsReceived(Date startDate, String accessToken) {
-		logger.debug("Call Youtube Data API for accessToekn : " + accessToken + " on thread: " + Thread.currentThread().getName());
+	public Set<CommentEntity> getCommentsReceived(Date startDate, String accessToken, String refreshToken) {
+		logger.debug("Call Youtube Data API for access token : "
+				+ accessToken + " and refresh token " + refreshToken + "on thread: " + Thread.currentThread().getName());
         Set<CommentEntity> userComments = new HashSet<>();
         try {
-            YouTube youTube = appCtx.getBean(YouTube.class, accessToken);
+            YouTube youTube = appCtx.getBean(YouTube.class, accessToken, refreshToken);
             // Get Channels for User
             userComments = Optional.ofNullable(getChannelsForCurrentUser(youTube))
             	.map(channelResult -> channelResult.getItems())

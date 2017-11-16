@@ -3,6 +3,7 @@ package es.bisite.usal.bulltect.rrss.service.impl;
 import com.restfb.Connection;
 import com.restfb.DefaultFacebookClient;
 import com.restfb.FacebookClient;
+import com.restfb.FacebookClient.AccessToken;
 import com.restfb.Parameter;
 import com.restfb.Version;
 import com.restfb.exception.FacebookOAuthException;
@@ -221,6 +222,13 @@ public class FacebookServiceImpl implements IFacebookService {
         logger.debug("Profile Image " + profileImageUrl);
         return profileImageUrl;
     }
+    
+    @Override
+	public String obtainExtendedAccessToken(String shortLivedToken) {
+    	FacebookClient facebookClient = new DefaultFacebookClient(shortLivedToken, Version.VERSION_2_8);
+    	AccessToken extendedAccessToken = facebookClient.obtainExtendedAccessToken(appKey, appSecret, shortLivedToken);
+    	return extendedAccessToken.getAccessToken();
+	}
 
     @PostConstruct
     protected void init() {

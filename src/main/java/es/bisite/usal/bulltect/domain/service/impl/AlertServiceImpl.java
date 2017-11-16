@@ -1,7 +1,6 @@
 package es.bisite.usal.bulltect.domain.service.impl;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -19,9 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-
 import com.google.common.collect.Iterables;
-
 import es.bisite.usal.bulltect.domain.service.IAlertService;
 import es.bisite.usal.bulltect.i18n.service.IMessageSourceResolverService;
 import es.bisite.usal.bulltect.mapper.AlertEntityMapper;
@@ -132,11 +129,31 @@ public class AlertServiceImpl implements IAlertService {
 		alertsPageDTO.setReturned(returned);
 		// total remaining alerts
 		Integer totalNewAlerts = alertRepository.countByParentIdAndCreateAtGreaterThanEqual(parent, lastAccessToAlerts);
-		alertsPageDTO.setRemaining(totalNewAlerts - returned);
+		alertsPageDTO.setRemaining(Math.abs(totalNewAlerts - returned));
 		alertsPageDTO.setLastQuery(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(lastAccessToAlerts));
-		
 		return alertsPageDTO;
 		
+	}
+    
+    @Override
+	public AlertsPageDTO getLastAlerts(ObjectId parent, Integer count, String[] levels) {
+    	AlertsPageDTO alertsPageDTO = new AlertsPageDTO();
+		
+    	Pageable countAlerts = new PageRequest(0, count);
+		Iterable<AlertEntity> lastAlerts = levels != null && levels.length > 0 ? 
+				alertRepository.findByParentIdAndLevelIsInOrderByCreateAtDesc(parent, levels, countAlerts) :
+					alertRepository.findByParentIdOrderByCreateAtDesc(parent, countAlerts);
+		Iterable<AlertDTO> lastAlertsDTO = alertMapper.alertEntitiesToAlertDTO(lastAlerts);
+		alertsPageDTO.setAlerts(lastAlertsDTO);
+		// total alerts count
+		Integer totalAlerts = alertRepository.countByParentId(parent);
+		alertsPageDTO.setTotal(totalAlerts);
+		// total returned alerts count
+		Integer returned = Iterables.size(lastAlerts);
+		alertsPageDTO.setReturned(returned);
+		alertsPageDTO.setRemaining(0);
+		alertsPageDTO.setLastQuery(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
+		return alertsPageDTO;
 	}
         
         
@@ -236,6 +253,5 @@ public class AlertServiceImpl implements IAlertService {
         Assert.notNull(messageSourceResolverService, "Message Source Resolver Service cannot be null");
         
     }
-
 	
 }

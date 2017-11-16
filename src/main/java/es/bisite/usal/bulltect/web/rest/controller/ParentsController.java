@@ -360,7 +360,6 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     	
     	parent.setLocale(locale);
     	logger.debug("Register Parent -> " + parent.toString());
-    	logger.debug("Locale -> " + locale.toString());
         ParentDTO parentDTO = parentsService.save(parent);
         applicationEventPublisher.publishEvent(new ParentRegistrationSuccessEvent(parentDTO.getIdentity(), this));
         return ApiHelper.<ParentDTO>createAndSendResponse(ParentResponseCode.PARENT_REGISTERED_SUCCESSFULLY, 
@@ -456,10 +455,10 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     		@ApiResponse(code = 200, message= "Alerts", response = AlertsPageDTO.class)
     })
     public ResponseEntity<APIResponse<AlertsPageDTO>> getLastAlertsForSelfParent(
-    		@Valid @Min(value= 5, message = "{alerts.count.min}") @Max(value = 50, message = "{alerts.count.max}")
-    		@RequestParam(name="count", value = "count", required=false, defaultValue="5") Integer count,
-    		@Valid @Min(value= 15, message = "{alerts.count.last.minutes}")
-    		@RequestParam(name="last_minutes", value = "last_minutes", required=false, defaultValue="15") Integer lastMinutes,
+    		@Valid @Min(value= 20, message = "{alerts.count.min}") @Max(value = 80, message = "{alerts.count.max}")
+    		@RequestParam(name="count", value = "count", required=false, defaultValue="20") Integer count,
+    		@Valid @Min(value= 0, message = "{alerts.count.last.minutes}")
+    		@RequestParam(name="last_minutes", value = "last_minutes", required=false, defaultValue="0") Integer lastMinutes,
     		@RequestParam(name="levels", value="levels" , required=false) String[] levels,
     		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
     	
@@ -467,16 +466,25 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
         logger.debug("Only News -> " + lastMinutes);
         if(levels != null) logger.debug("Levels -> " + String.join(",", levels));
         
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.MINUTE, -lastMinutes);
-        Date lastAccessToAlerts = calendar.getTime();
-       
-        AlertsPageDTO alertsPageDTO = alertService.getLastAlerts(selfParent.getUserId(), lastAccessToAlerts, count, levels);
+        AlertsPageDTO alertsPageDTO;
+        
+        if(lastMinutes > 0) {
+        	
+        	Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.MINUTE, -lastMinutes);
+            Date lastAccessToAlerts = calendar.getTime();
+           
+            alertsPageDTO = alertService.getLastAlerts(selfParent.getUserId(), lastAccessToAlerts, count, levels);
+        } else {
+        	
+        	alertsPageDTO = alertService.getLastAlerts(selfParent.getUserId(), count, levels);
+        }
+        
+        
         // Update Last Access To Alerts
         parentsService.updateLastAccessToAlerts(selfParent.getUserId());
   
-        return ApiHelper.<AlertsPageDTO>createAndSendResponse(ParentResponseCode.ALERTS_FOR_SELF_PARENT, 
-        		HttpStatus.OK, alertsPageDTO);
+        return ApiHelper.<AlertsPageDTO>createAndSendResponse(ParentResponseCode.ALERTS_FOR_SELF_PARENT, HttpStatus.OK, alertsPageDTO);
    
     }
     

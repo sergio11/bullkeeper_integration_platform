@@ -195,7 +195,7 @@ public class InfrastructureConfiguration {
                         -> m.subFlowMapping(SocialMediaTypeEnum.FACEBOOK, 
                                 sf -> sf.handle(SocialMediaEntity.class, (p, h) -> facebookService.getCommentsReceived(p.getAccessToken())))
                             .subFlowMapping(SocialMediaTypeEnum.YOUTUBE, 
-                                sf -> sf.handle(SocialMediaEntity.class, (p, h) -> youtubeService.getCommentsReceived(p.getAccessToken())))
+                                sf -> sf.handle(SocialMediaEntity.class, (p, h) -> youtubeService.getCommentsReceived(p.getAccessToken(), p.getRefreshToken())))
                             .subFlowMapping(SocialMediaTypeEnum.INSTAGRAM, 
                                 sf -> sf.handle(SocialMediaEntity.class, (p, h) -> instagramService.getCommentsReceived(p.getAccessToken())))
                 )

@@ -16,4 +16,5 @@ public interface IFacebookService {
     RegisterParentByFacebookDTO getRegistrationInformationForTheParent(String fbId, String token);
     String getFbIdByAccessToken(String accessToken);
     String fetchUserPicture(String accessToken);
+    String obtainExtendedAccessToken(String shortLivedToken);
 }

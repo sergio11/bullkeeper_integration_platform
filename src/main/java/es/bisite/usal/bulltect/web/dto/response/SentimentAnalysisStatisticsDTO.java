@@ -45,7 +45,7 @@ public class SentimentAnalysisStatisticsDTO {
 	public static class SentimentDTO {
 		
 		@JsonProperty("type")
-		private SentimentLevelEnum type;
+		private String type;
 		
 		@JsonProperty("score")
 		private float score;
@@ -53,18 +53,18 @@ public class SentimentAnalysisStatisticsDTO {
 		@JsonProperty("label")
 		private String label;
 
-		public SentimentDTO(SentimentLevelEnum type, float score, String label) {
+		public SentimentDTO(String type, float score, String label) {
 			super();
 			this.type = type;
 			this.score = score;
 			this.label = label;
 		}
 
-		public SentimentLevelEnum getType() {
+		public String getType() {
 			return type;
 		}
 
-		public void setType(SentimentLevelEnum type) {
+		public void setType(String type) {
 			this.type = type;
 		}
 

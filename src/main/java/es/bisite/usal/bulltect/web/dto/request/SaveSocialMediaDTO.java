@@ -14,6 +14,8 @@ public class SaveSocialMediaDTO {
     @NotBlank(message = "{social.token.notnull}")
     @JsonProperty("access_token")
     private String accessToken;
+    @JsonProperty("refresh_token")
+    private String refreshToken;
     @ValidSocialMediaType(message = "{social.type.invalid}")
     @JsonProperty("type")
     private String type;
@@ -25,9 +27,10 @@ public class SaveSocialMediaDTO {
     public SaveSocialMediaDTO() {
     }
 
-    public SaveSocialMediaDTO(String accessToken, String type, String son) {
+    public SaveSocialMediaDTO(String accessToken, String refreshToken,  String type, String son) {
         super();
         this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
         this.type = type;
         this.son = son;
     }
@@ -40,7 +43,15 @@ public class SaveSocialMediaDTO {
         this.accessToken = accessToken;
     }
 
-    public String getType() {
+    public String getRefreshToken() {
+		return refreshToken;
+	}
+
+	public void setRefreshToken(String refreshToken) {
+		this.refreshToken = refreshToken;
+	}
+
+	public String getType() {
         return type;
     }
 

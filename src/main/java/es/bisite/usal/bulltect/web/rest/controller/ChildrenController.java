@@ -560,11 +560,7 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
         
     }
     
-    
-    @RequestMapping(value = "/redirect", method = RequestMethod.GET)
-    public void method(HttpServletResponse httpServletResponse) {
-        httpServletResponse.setHeader("Location", "ig08a463d96c5149a8beaf00c1d911fb67://authorize");
-    }
+   
     
     @PostConstruct
     protected void init() {

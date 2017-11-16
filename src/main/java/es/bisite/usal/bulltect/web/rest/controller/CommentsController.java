@@ -2,7 +2,9 @@ package es.bisite.usal.bulltect.web.rest.controller;
 
 
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 import javax.validation.Valid;
@@ -21,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import es.bisite.usal.bulltect.domain.service.ICommentsService;
 import es.bisite.usal.bulltect.domain.service.IStatisticsService;
 import es.bisite.usal.bulltect.persistence.constraints.ValidObjectId;
-import es.bisite.usal.bulltect.util.Utils;
+import es.bisite.usal.bulltect.persistence.entity.SocialMediaTypeEnum;
 import es.bisite.usal.bulltect.util.ValidList;
 import es.bisite.usal.bulltect.web.dto.response.CommentDTO;
 import es.bisite.usal.bulltect.web.dto.response.CommentsStatisticsDTO;
@@ -103,6 +105,41 @@ public class CommentsController extends BaseController implements ICommentHAL {
                 .map(commentResource -> ApiHelper.<CommentDTO>createAndSendResponse(CommentResponseCode.SINGLE_COMMENT, 
                 		HttpStatus.OK, commentResource))
                 .orElseThrow(() -> { throw new CommentNotFoundException(); });
+    }
+    
+    @RequestMapping(value = "/comments", method = RequestMethod.GET)
+    @ApiOperation(value = "GET_COMMENTS", nickname = "GET_COMMENTS", 
+            notes = "Get Comments", response = PagedResources.class)
+    public ResponseEntity<APIResponse<List<CommentDTO>>> getComments(
+    		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent,
+            @ApiParam(name = "children", value = "Children's Identifiers", required = false)
+            	@RequestParam(name="children" , required=false)
+            		ValidList<String> identities,
+            @ApiParam(name = "author", value = "Author's identifier", required = false)	
+    			@RequestParam(name="author" , required=false)
+    				String auhor,
+    		@ApiParam(name = "social_media", value = "Author's identifier", required = false)	
+				@RequestParam(name="social_media" , required=false)
+    				SocialMediaTypeEnum socialMedia,
+			@ApiParam(name = "days_ago", value = "Days Ago", required = false)
+        		@RequestParam(name = "days_ago", defaultValue = "1", required = false) Date from) throws Throwable {
+    	
+    	if(identities != null && !identities.isEmpty()) {
+    		logger.debug("Children's Identifiers -> " + identities.toString());
+    	}
+    	
+    	logger.debug("Author's identifier -> " + auhor);
+    	logger.debug("Social Media -> " + socialMedia);
+    	logger.debug("Days Ago -> " + from);
+    	
+    	
+    	
+        logger.debug("Get Comments");
+        
+        
+        return ApiHelper.<List<CommentDTO>>createAndSendResponse(CommentResponseCode.FILTERED_COMMENTS, 
+        		HttpStatus.OK, new ArrayList<>());
+       
     }
     
     
@@ -196,6 +233,5 @@ public class CommentsController extends BaseController implements ICommentHAL {
         return ApiHelper.<NewFriendsDTO>createAndSendResponse(CommentResponseCode.NEW_FRIENDS,
                 HttpStatus.OK, newFriends);
     }
-    
     
 }

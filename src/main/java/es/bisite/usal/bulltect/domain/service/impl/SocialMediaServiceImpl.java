@@ -17,6 +17,7 @@ import es.bisite.usal.bulltect.persistence.entity.SocialMediaEntity;
 import es.bisite.usal.bulltect.persistence.entity.SocialMediaTypeEnum;
 import es.bisite.usal.bulltect.persistence.repository.SocialMediaRepository;
 import es.bisite.usal.bulltect.persistence.repository.SonRepository;
+import es.bisite.usal.bulltect.rrss.service.IFacebookService;
 import es.bisite.usal.bulltect.web.dto.request.SaveSocialMediaDTO;
 import es.bisite.usal.bulltect.web.dto.response.SocialMediaDTO;
 import java.util.stream.Collectors;
@@ -34,12 +35,14 @@ public class SocialMediaServiceImpl implements ISocialMediaService {
     private final SocialMediaRepository socialMediaRepository;
     private final SocialMediaEntityMapper socialMediaMapper;
     private final IIntegrationFlowService itegrationFlowService;
+    private final IFacebookService facebookService;
 
     public SocialMediaServiceImpl(SocialMediaRepository socialMediaRepository,
-            SocialMediaEntityMapper socialMediaMapper, IIntegrationFlowService itegrationFlowService) {
+            SocialMediaEntityMapper socialMediaMapper, IIntegrationFlowService itegrationFlowService, IFacebookService facebookService) {
         this.socialMediaRepository = socialMediaRepository;
         this.socialMediaMapper = socialMediaMapper;
         this.itegrationFlowService = itegrationFlowService;
+        this.facebookService = facebookService;
     }
 
     @Override
@@ -91,7 +94,9 @@ public class SocialMediaServiceImpl implements ISocialMediaService {
         SocialMediaEntity socialMediaEntityToUpdate = socialMediaRepository.findByTypeAndSonEntityId(
                 SocialMediaTypeEnum.valueOf(socialMedia.getType()), new ObjectId(socialMedia.getSon()));
         if (socialMediaEntityToUpdate != null) {
-            socialMediaEntityToUpdate.setAccessToken(socialMedia.getAccessToken());
+            socialMediaEntityToUpdate.setAccessToken(socialMediaEntityToUpdate.getType().equals(SocialMediaTypeEnum.FACEBOOK) ? 
+            		facebookService.obtainExtendedAccessToken(socialMedia.getAccessToken()): socialMedia.getAccessToken());
+            socialMediaEntityToUpdate.setRefreshToken(socialMedia.getRefreshToken());
             socialMediaEntityToUpdate.setScheduledFor(itegrationFlowService.getDateForNextPoll().getTime());
             SocialMediaEntity socialMediaEntityUpdated = socialMediaRepository.save(socialMediaEntityToUpdate);
             socialMediaUpdated = socialMediaMapper.socialMediaEntityToSocialMediaDTO(socialMediaEntityUpdated);
@@ -105,7 +110,9 @@ public class SocialMediaServiceImpl implements ISocialMediaService {
         SocialMediaEntity socialMediaEntityToSave = socialMediaRepository.findByTypeAndSonEntityId(
                 SocialMediaTypeEnum.valueOf(socialMedia.getType()), new ObjectId(socialMedia.getSon()));
         if (socialMediaEntityToSave != null) {
-            socialMediaEntityToSave.setAccessToken(socialMedia.getAccessToken());
+            socialMediaEntityToSave.setAccessToken(socialMediaEntityToSave.getType().equals(SocialMediaTypeEnum.FACEBOOK) ? 
+            		facebookService.obtainExtendedAccessToken(socialMedia.getAccessToken()): socialMedia.getAccessToken());
+            socialMediaEntityToSave.setRefreshToken(socialMedia.getRefreshToken());
             socialMediaEntityToSave.setScheduledFor(itegrationFlowService.getDateForNextPoll().getTime());
         } else {
             socialMediaEntityToSave = socialMediaMapper.addSocialMediaDTOToSocialMediaEntity(socialMedia);
@@ -151,7 +158,9 @@ public class SocialMediaServiceImpl implements ISocialMediaService {
                 
                 // check if it is necessary to update the token
                 if(!currentSocialMedia.getAccessToken().equals(newSocialMedia.getAccessToken())) {
-                    currentSocialMedia.setAccessToken(newSocialMedia.getAccessToken());
+                    currentSocialMedia.setAccessToken(currentSocialMedia.getType().equals(SocialMediaTypeEnum.FACEBOOK) ? 
+                    		facebookService.obtainExtendedAccessToken(newSocialMedia.getAccessToken()): newSocialMedia.getAccessToken());
+                    currentSocialMedia.setRefreshToken(newSocialMedia.getRefreshToken());
                     currentSocialMedia.setInvalidToken(Boolean.FALSE);
                     currentSocialMedia.setScheduledFor(itegrationFlowService.getDateForNextPoll().getTime());
                 }

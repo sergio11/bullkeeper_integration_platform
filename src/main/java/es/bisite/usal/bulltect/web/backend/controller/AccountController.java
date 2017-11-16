@@ -1,5 +1,9 @@
 package es.bisite.usal.bulltect.web.backend.controller;
 
+import java.io.IOException;
+
+import javax.servlet.http.HttpServletResponse;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -75,4 +79,10 @@ public class AccountController extends BaseController {
 		
 		return CANCEL_DELETE_ACCOUNT_VIEW_NAME;
 	}
+	
+	 @RequestMapping(value = "/redirect", method = RequestMethod.GET)
+	 public String redirect() throws IOException {
+		 logger.debug("Redirect to ig63b03cfec6894833aaf0c2823b4a66fb://authorize");
+		 return "redirect:https://www.google.es/";
+	 }
 }

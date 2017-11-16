@@ -51,7 +51,7 @@ public class SocialMediaLikesStatisticsDTO {
 	public static class SocialMediaLikesDTO {
 
 		@JsonProperty("type")
-        private SocialMediaTypeEnum type;
+        private String type;
 		@JsonProperty("likes")
 		private long likes;
 		@JsonProperty("label")
@@ -59,18 +59,18 @@ public class SocialMediaLikesStatisticsDTO {
 		
 		public SocialMediaLikesDTO(){}
 		
-		public SocialMediaLikesDTO(SocialMediaTypeEnum type, long likes, String label) {
+		public SocialMediaLikesDTO(String type, long likes, String label) {
 			super();
 			this.type = type;
 			this.likes = likes;
 			this.label = label;
 		}
 		
-		public SocialMediaTypeEnum getType() {
+		public String getType() {
 			return type;
 		}
 		
-		public void setType(SocialMediaTypeEnum type) {
+		public void setType(String type) {
 			this.type = type;
 		}
 		

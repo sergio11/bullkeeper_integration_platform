@@ -1,6 +1,7 @@
 package es.bisite.usal.bulltect.rrss.service.impl;
 
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -8,6 +9,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import org.jinstagram.Instagram;
+import org.jinstagram.entity.users.basicinfo.UserInfoData;
+import org.jinstagram.entity.users.feed.MediaFeed;
+import org.jinstagram.entity.users.feed.MediaFeedData;
 import org.jinstagram.exceptions.InstagramBadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,32 +63,70 @@ public class InstagramServiceImpl implements IInstagramService {
         Set<CommentEntity> userComments = new HashSet<>();
         
         try {
-            Instagram instagram = new Instagram(accessToken, appSecret);
+        	Instagram instagram = new Instagram(accessToken, appSecret);
  
-            String userId = instagram.getCurrentUserInfo().getData().getId();
+            UserInfoData userInfo = instagram.getCurrentUserInfo().getData();
+            
+        	logger.debug("User Fullname -> " + userInfo.getUsername());
+            logger.debug("User Id -> " + userInfo.getId());
+            
+            MediaFeed mediaFeed = instagram.getUserRecentMedia();
+            
+            logger.debug("MediaFeed -> " + mediaFeed.toString());
+            
+            for(final MediaFeedData mediaFeedData: mediaFeed.getData()){
+            	logger.debug("Media Feed Data -> " + mediaFeedData.toString());
+            	logger.debug("Comments -> " + mediaFeedData.getComments());
+            	
+            }
 
-            userComments = instagram
+            /*userComments = instagram
             	.getUserRecentMedia()
             	.getData()
             	.stream()
-            	.map(mediaFeed -> mediaFeed.getComments())
-            	.map(comments -> comments.getComments())
+            	.map(mediaFeed -> {
+            		
+            		if(mediaFeed != null) {
+            			logger.debug("Media Feed " + mediaFeed.getId() + mediaFeed.getCaption().getText());
+            			
+            		}
+            		
+            		return mediaFeed.getComments();
+            		
+            	})
+            	.map(comments -> {
+            		if(comments != null) {
+            			logger.debug("Comments -> " + comments.getCount());
+            		}
+            		return comments.getComments();
+            		
+            	})
             	.flatMap(List::stream)
-            	.filter(commentData -> !commentData.getCommentFrom().getId().equals(userId) && 
+            	.filter(commentData -> !commentData.getCommentFrom().getId().equals(userInfo.getId()) && 
                 		( startDate != null ? new Date(Long.parseLong(commentData.getCreatedTime())).after(startDate) : true ))
-            	.map(commentData -> instagramMapper.instagramCommentToCommentEntity(commentData))
-            	.collect(Collectors.toSet());
+            	.map(commentData -> {
+            		
+            		logger.debug("Comment Id -> " + commentData.getId() + " Text -> " + commentData.getText());
+            		logger.debug("Comment From -> " + commentData.getCommentFrom().getFullName());
+            		
+            		return instagramMapper.instagramCommentToCommentEntity(commentData);
+            	})
+            	.collect(Collectors.toSet());*/
             
-            logger.debug("Total Instagram Comments: " + userComments.size());
+            
+            
+            //logger.debug("Total Instagram Comments: " + userComments.size());
         } catch (InstagramBadRequestException  e) {
         	throw new InvalidAccessTokenException(
             		messageSourceResolver.resolver("invalid.access.token", new Object[]{ SocialMediaTypeEnum.INSTAGRAM.name() }),
             		SocialMediaTypeEnum.INSTAGRAM, accessToken);
         } catch (Exception e) {
+        	logger.error(e.fillInStackTrace().toString());
             throw new GetCommentsProcessException(e.toString());
         }
   
-        return userComments;
+        //return userComments;
+        return Collections.emptySet();
 	}
     
     @PostConstruct

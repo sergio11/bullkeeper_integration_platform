@@ -129,7 +129,7 @@ public class WebSecurityConfig  {
 			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
 				.antMatchers(HttpMethod.OPTIONS, "/**")
 					.permitAll()
-				.antMatchers("/api/v1/parents/auth/**", "/api/v1/admin/auth", "/api/v1/children/redirect")
+				.antMatchers("/api/v1/parents/auth/**", "/api/v1/admin/auth")
 					.permitAll()
 				.antMatchers(HttpMethod.POST, "/api/v1/parents/", "/api/v1/parents/reset-password")
 					.permitAll()

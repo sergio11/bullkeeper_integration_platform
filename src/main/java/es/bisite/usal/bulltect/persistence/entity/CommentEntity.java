@@ -193,10 +193,9 @@ public class CommentEntity {
 
 	@Override
 	public String toString() {
-		return "CommentEntity [id=" + id + ", message=" + message + ", likes=" + likes + ", createdTime=" + createdTime
-				+ ", socialMedia=" + socialMedia + ", author=" + author + ", sonEntity=" + sonEntity
-				+ ", analysisResults=" + analysisResults + "]";
+		return "CommentEntity [id=" + id + ", externalId=" + externalId + ", message=" + message + ", likes=" + likes
+				+ ", createdTime=" + createdTime + ", extractedAt=" + extractedAt + ", extractedTimes=" + extractedTimes
+				+ ", socialMedia=" + socialMedia + ", author=" + author + "]";
 	}
-	
 	
 }

@@ -44,6 +44,7 @@ public interface CommentRepository extends MongoRepository<CommentEntity, Object
     List<CommentEntity> findBySonEntityIdInAndCreatedTimeGreaterThanEqual(List<ObjectId> ids, Date from);
     List<CommentEntity> findByCreatedTimeGreaterThanEqual(Date from);
     List<CommentEntity> findBySonEntityIdInAndExtractedAtGreaterThanEqual(List<ObjectId> ids, Date from);
+    List<CommentEntity> findBySonEntityAndExtractedAtGreaterThanEqual(ObjectId sonId, Date from);
     List<CommentEntity> findByExtractedAtGreaterThanEqual(Date from);
     List<CommentEntity> findBySonEntityParentIdAndExtractedAtGreaterThanEqual(ObjectId parentId, Date from);
     Long countByAnalysisResultsSentimentFinishAtGreaterThanEqual(Date from);

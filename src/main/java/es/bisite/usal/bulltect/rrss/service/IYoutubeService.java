@@ -11,6 +11,6 @@ import es.bisite.usal.bulltect.persistence.entity.CommentEntity;
  */
 public interface IYoutubeService {
 	
-	Set<CommentEntity> getCommentsReceived(String accessToken);
-    Set<CommentEntity> getCommentsReceived(Date startDate, String accessToken);
+	Set<CommentEntity> getCommentsReceived(String accessToken, String refreshToken);
+    Set<CommentEntity> getCommentsReceived(Date startDate, String accessToken, String refreshToken);
 }

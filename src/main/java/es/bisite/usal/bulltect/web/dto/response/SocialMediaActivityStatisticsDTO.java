@@ -59,24 +59,24 @@ public class SocialMediaActivityStatisticsDTO {
 	public static class ActivityDTO {
 
 		@JsonProperty("type")
-        public SocialMediaTypeEnum type;
+        public String type;
 		@JsonProperty("value")
         public int value;
 		@JsonProperty("label")
 		public String label;
 		
-		public ActivityDTO(SocialMediaTypeEnum type, int value, String label) {
+		public ActivityDTO(String type, int value, String label) {
 			super();
 			this.type = type;
 			this.value = value;
 			this.label = label;
 		}
 
-		public SocialMediaTypeEnum getType() {
+		public String getType() {
 			return type;
 		}
 
-		public void setType(SocialMediaTypeEnum type) {
+		public void setType(String type) {
 			this.type = type;
 		}
 

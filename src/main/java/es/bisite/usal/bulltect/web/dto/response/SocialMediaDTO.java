@@ -2,7 +2,6 @@ package es.bisite.usal.bulltect.web.dto.response;
 
 import java.io.Serializable;
 import org.springframework.hateoas.ResourceSupport;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -17,6 +16,8 @@ public class SocialMediaDTO extends ResourceSupport implements Serializable {
     private String identity;
 	@JsonProperty("access_token")
     private String accessToken;
+	@JsonProperty("refresh_token")
+    private String refreshToken;
 	@JsonProperty("type")
     private String type;
     @JsonProperty("invalid_token")
@@ -26,9 +27,10 @@ public class SocialMediaDTO extends ResourceSupport implements Serializable {
     
     public SocialMediaDTO(){}
 
-    public SocialMediaDTO(String identity, String accessToken, String type, Boolean invalidToken, String user) {
+    public SocialMediaDTO(String identity, String accessToken, String refreshToken, String type, Boolean invalidToken, String user) {
         this.identity = identity;
         this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
         this.type = type;
         this.invalidToken = invalidToken;
         this.user = user;
@@ -49,8 +51,16 @@ public class SocialMediaDTO extends ResourceSupport implements Serializable {
     public void setAccessToken(String accessToken) {
         this.accessToken = accessToken;
     }
+    
+    public String getRefreshToken() {
+		return refreshToken;
+	}
 
-    public String getType() {
+	public void setRefreshToken(String refreshToken) {
+		this.refreshToken = refreshToken;
+	}
+
+	public String getType() {
         return type;
     }
 

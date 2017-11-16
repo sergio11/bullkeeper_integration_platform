@@ -56,20 +56,26 @@ public class GoogleAPIConfig {
     
     @Bean
     @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-    public GoogleCredential provideGoogleCredential(String refreshToken) throws IOException {
-        return new GoogleCredential.Builder()
+    public GoogleCredential provideGoogleCredential(String accessToken, String refreshToken) throws IOException {
+    	GoogleCredential credential = new GoogleCredential.Builder()
                 .setJsonFactory(provideJsonFactory())
                 .setTransport(provideHttpTransport())
                 .setClientSecrets(provideGoogleClientSecrets())
-                .build()
-                .setAccessToken(refreshToken);
+                .build();
+    	
+    	credential.setAccessToken(accessToken);
+    	
+    	if(refreshToken != null) {
+    		credential.setRefreshToken(refreshToken);
+    	}
+    	
+    	return credential;
     }
-    
     
     @Bean
     @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-    public YouTube provideYoutubeApi(String refreshToken) throws IOException{
-        return new YouTube.Builder(provideHttpTransport(), provideJsonFactory(), provideGoogleCredential(refreshToken))
+    public YouTube provideYoutubeApi(String accessToken, String refreshToken) throws IOException{
+        return new YouTube.Builder(provideHttpTransport(), provideJsonFactory(), provideGoogleCredential(accessToken, refreshToken))
                 .setApplicationName(applicationName)
                 .build();
     }

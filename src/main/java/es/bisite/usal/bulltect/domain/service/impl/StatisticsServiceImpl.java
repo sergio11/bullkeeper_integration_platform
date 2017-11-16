@@ -29,8 +29,9 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import org.bson.types.ObjectId;
 import org.ocpsoft.prettytime.PrettyTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -39,6 +40,8 @@ import org.springframework.util.Assert;
  */
 @Service
 public class StatisticsServiceImpl implements IStatisticsService {
+	
+	private Logger logger = LoggerFactory.getLogger(StatisticsServiceImpl.class);
 	
 	private final CommentRepository commentRepository;
 	private final IMessageSourceResolverService messageSourceResolverService;
@@ -62,7 +65,13 @@ public class StatisticsServiceImpl implements IStatisticsService {
     						.map(id -> new ObjectId(id)).collect(Collectors.toList()), from));
 	}
 	
+	
 	private List<CommentEntity> getCommentsByExtractedAtFor(ObjectId parentId, List<String> identities, Date from){
+		
+		logger.debug("Get Comments Extracted From -> " + from);
+		if(identities != null && !identities.isEmpty())
+			logger.debug("Identities -> " + identities.toString());
+		logger.debug("Parent -> " + parentId.toString());
 		
 		return (identities == null || identities.isEmpty() ? 
     			commentRepository.findBySonEntityParentIdAndExtractedAtGreaterThanEqual(parentId, from) :
@@ -78,7 +87,7 @@ public class StatisticsServiceImpl implements IStatisticsService {
 		
     	// Agrupamos los comentarios del hijo con id "idSon" posteriores a "from" por medio social.
     	Map<SocialMediaTypeEnum, Long> socialActivity = commentRepository
-    			.findBySonEntityIdAndCreatedTimeGreaterThanEqual(new ObjectId(idSon), from)
+    			.findBySonEntityAndExtractedAtGreaterThanEqual(new ObjectId(idSon), from)
     			.parallelStream()
     			.collect(Collectors.groupingBy(CommentEntity::getSocialMedia, Collectors.counting()));
     	
@@ -87,10 +96,10 @@ public class StatisticsServiceImpl implements IStatisticsService {
     	List<ActivityDTO> socialData = socialActivity
     			.entrySet().stream()
     			.map(socialActivityEntry -> new ActivityDTO(
-    					socialActivityEntry.getKey(),
+    					socialActivityEntry.getKey().name(),
     					Math.round(socialActivityEntry.getValue().floatValue()/totalComments.floatValue()*100),
-        				String.format("%.0f%%", Math.round(socialActivityEntry.getValue().floatValue()/totalComments.floatValue()*100)
-    			)))
+    					Math.round(socialActivityEntry.getValue().floatValue()/totalComments.floatValue()*100) + "%"
+    			))
     			.collect(Collectors.toList());
 		
 		
@@ -133,9 +142,9 @@ public class StatisticsServiceImpl implements IStatisticsService {
     	List<SentimentDTO> sentimentData = sentimentResults.entrySet()
         		.stream()
         		.map(sentimentEntry -> new SentimentDTO(
-        				sentimentEntry.getKey(),
+        				sentimentEntry.getKey().name(),
         				(long)Math.round(sentimentEntry.getValue().floatValue()/totalComments.floatValue()*100),
-        				String.format("%.0f%%", Math.round(sentimentEntry.getValue().floatValue()/totalComments.floatValue()*100))))
+        				Math.round(sentimentEntry.getValue().floatValue()/totalComments.floatValue()*100) + "%"))
         		.collect(Collectors.toList());
         
 		
@@ -262,6 +271,11 @@ public class StatisticsServiceImpl implements IStatisticsService {
     	final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     	List<CommentsStatisticsDTO.CommentsPerDateDTO> commentsData = getCommentsByExtractedAtFor(parentId, identities, from)
     		.parallelStream()
+    		.map(comment -> {
+    			
+    			logger.debug(comment.toString());
+    			return comment;
+    		})
     		.collect(Collectors.groupingBy(
     				comment -> dateFormat.format(comment.getExtractedAt()), 
     				Collectors.counting()))
@@ -285,7 +299,7 @@ public class StatisticsServiceImpl implements IStatisticsService {
         				Collectors.summingLong(CommentEntity::getLikes)))
         		.entrySet()
         		.stream()
-        		.map(socialEntry -> new SocialMediaLikesDTO(socialEntry.getKey(), 
+        		.map(socialEntry -> new SocialMediaLikesDTO(socialEntry.getKey().name(), 
         				socialEntry.getValue(), String.format("%d likes", socialEntry.getValue())))
         		.collect(Collectors.toList());
     	
