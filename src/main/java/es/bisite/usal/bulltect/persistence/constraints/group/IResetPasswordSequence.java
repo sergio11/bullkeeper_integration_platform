@@ -4,9 +4,10 @@ import es.bisite.usal.bulltect.persistence.constraints.group.IGroups.IAccountSho
 import es.bisite.usal.bulltect.persistence.constraints.group.IGroups.IAccountShouldNotLocked;
 import es.bisite.usal.bulltect.persistence.constraints.group.IGroups.IEmailShouldExist;
 import es.bisite.usal.bulltect.persistence.constraints.group.IGroups.IShouldNotBeAFacebookUser;
+import es.bisite.usal.bulltect.persistence.constraints.group.IGroups.IShouldNotBeAGoogleUser;
 import es.bisite.usal.bulltect.persistence.constraints.group.IGroups.IValidEmail;
 import javax.validation.GroupSequence;
 
-@GroupSequence({ IValidEmail.class, IEmailShouldExist.class, IShouldNotBeAFacebookUser.class, 
+@GroupSequence({ IValidEmail.class, IEmailShouldExist.class, IShouldNotBeAFacebookUser.class, IShouldNotBeAGoogleUser.class,
     IAccountShouldActive.class, IAccountShouldNotLocked.class})
 public interface IResetPasswordSequence {}

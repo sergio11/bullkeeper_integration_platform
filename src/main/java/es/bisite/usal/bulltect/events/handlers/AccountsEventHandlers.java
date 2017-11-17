@@ -13,6 +13,7 @@ import es.bisite.usal.bulltect.domain.service.ITokenGeneratorService;
 import es.bisite.usal.bulltect.events.AccountDeletionRequestEvent;
 import es.bisite.usal.bulltect.events.ParentAccountActivatedEvent;
 import es.bisite.usal.bulltect.events.ParentRegistrationByFacebookSuccessEvent;
+import es.bisite.usal.bulltect.events.ParentRegistrationByGoogleSuccessEvent;
 import es.bisite.usal.bulltect.events.ParentRegistrationSuccessEvent;
 import es.bisite.usal.bulltect.events.PasswordChangedEvent;
 import es.bisite.usal.bulltect.events.PasswordResetEvent;
@@ -61,6 +62,20 @@ public class AccountsEventHandlers {
 	        .ifPresent(parent -> {
 	            logger.debug("Send Email To Confirm Registration via Facebook");
 	            mailClient.sendMailForConfirmRegistrationViaFacebook(parent.getEmail(), parent.getFirstName(), 
+	            		parent.getLastName(), new Locale(parent.getLocale()));
+	        });
+	}
+	
+	/**
+	 * Send email to confirm registration via google
+	 * @param parentRegistrationByGoogleSuccessEvent
+	 */
+	@EventListener
+	void handle(final ParentRegistrationByGoogleSuccessEvent parentRegistrationByGoogleSuccessEvent) {
+		Optional.ofNullable(parentService.getParentById(parentRegistrationByGoogleSuccessEvent.getIdentity()))
+	        .ifPresent(parent -> {
+	            logger.debug("Send Email To Confirm Registration via Google");
+	            mailClient.sendMailForConfirmRegistrationViaGoogle(parent.getEmail(), parent.getFirstName(), 
 	            		parent.getLastName(), new Locale(parent.getLocale()));
 	        });
 	}

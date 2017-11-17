@@ -104,7 +104,8 @@ public class StatisticsServiceImpl implements IStatisticsService {
 		
 		
 		return new SocialMediaActivityStatisticsDTO(
-				messageSourceResolverService.resolver("statistics.social.activity.title", new Object[] { pt.format(from) }), 
+				messageSourceResolverService.resolver("statistics.social.activity.title", new Object[] { pt.format(from) }),
+				messageSourceResolverService.resolver("statistics.social.activity.subtitle", new Object[] { totalComments }),
 				socialData);
 	}
 
@@ -149,7 +150,8 @@ public class StatisticsServiceImpl implements IStatisticsService {
         
 		
         	return new SentimentAnalysisStatisticsDTO(
-        			messageSourceResolverService.resolver("statistics.comments.sentiment.title", new Object[] { pt.format(from) }), 
+        			messageSourceResolverService.resolver("statistics.comments.sentiment.title", new Object[] { pt.format(from) }),
+        			messageSourceResolverService.resolver("statistics.comments.sentiment.subtitle", new Object[] {  totalComments }), 
         			sentimentData);
 	}
 
@@ -230,37 +232,40 @@ public class StatisticsServiceImpl implements IStatisticsService {
 		Long totalCommentsViolence = commentRepository
 				.countBySonEntityIdAndAnalysisResultsViolenceFinishAtGreaterThanEqualAndAnalysisResultsViolenceResult(new ObjectId(idSon), from, 1);
 		
+		// Count comments for drugs.
+	    Long totalCommentsDrugs = commentRepository
+	    		.countBySonEntityIdAndAnalysisResultsDrugsFinishAtGreaterThanEqualAndAnalysisResultsDrugsResult(new ObjectId(idSon), from, 1);
+				
+	    // Count comments for adult
+	 	Long totalCommentsAdult = commentRepository
+	 			.countBySonEntityIdAndAnalysisResultsAdultFinishAtGreaterThanEqualAndAnalysisResultsAdultResult(new ObjectId(idSon), from, 1);
+	 	
+	 	// Count comments for bullying
+	 	Long totalCommentsBullying = commentRepository
+	 			.countBySonEntityIdAndAnalysisResultsBullyingFinishAtGreaterThanEqualAndAnalysisResultsBullyingResult(new ObjectId(idSon), from, 1);
+	 	
+	 	Long totalAnalyzesPerformed = totalCommentsViolence + totalCommentsDrugs + totalCommentsAdult + totalCommentsBullying;
+		
 		if(totalCommentsViolence > 0)
-			dimensionsData.add(new DimensionDTO(AnalysisTypeEnum.VIOLENCE.name(), totalCommentsViolence, String.format("%d comentarios", totalCommentsViolence)));
+			dimensionsData.add(new DimensionDTO(AnalysisTypeEnum.VIOLENCE.name(), totalCommentsViolence, String.format("%d/%d", totalCommentsViolence, totalAnalyzesPerformed)));
 	
 		
-		// Count comments for drugs.
-		Long totalCommentsDrugs = commentRepository
-				.countBySonEntityIdAndAnalysisResultsDrugsFinishAtGreaterThanEqualAndAnalysisResultsDrugsResult(new ObjectId(idSon), from, 1);
-		
-		
 		if(totalCommentsDrugs > 0)
-			dimensionsData.add(new DimensionDTO(AnalysisTypeEnum.DRUGS.name(), totalCommentsDrugs, String.format("%d comentarios", totalCommentsDrugs)));
-		
-		// Count comments for adult
-		Long totalCommentsAdult = commentRepository
-				.countBySonEntityIdAndAnalysisResultsAdultFinishAtGreaterThanEqualAndAnalysisResultsAdultResult(new ObjectId(idSon), from, 1);
+			dimensionsData.add(new DimensionDTO(AnalysisTypeEnum.DRUGS.name(), totalCommentsDrugs, String.format("%d/%d", totalCommentsDrugs, totalAnalyzesPerformed)));
 		
 		
 		if(totalCommentsAdult > 0)
-			dimensionsData.add(new DimensionDTO(AnalysisTypeEnum.ADULT.name(), totalCommentsAdult, String.format("%d comentarios", totalCommentsAdult)));
+			dimensionsData.add(new DimensionDTO(AnalysisTypeEnum.ADULT.name(), totalCommentsAdult, String.format("%d/%d", totalCommentsAdult, totalAnalyzesPerformed)));
 		
-		
-		// Count comments for bullying
-		Long totalCommentsBullying = commentRepository
-				.countBySonEntityIdAndAnalysisResultsBullyingFinishAtGreaterThanEqualAndAnalysisResultsBullyingResult(new ObjectId(idSon), from, 1);
 		
 		if(totalCommentsBullying > 0)
-			dimensionsData.add(new DimensionDTO(AnalysisTypeEnum.BULLYING.name(), totalCommentsBullying, String.format("%d comentarios", totalCommentsBullying)));
+			dimensionsData.add(new DimensionDTO(AnalysisTypeEnum.BULLYING.name(), totalCommentsBullying, String.format("%d/%d", totalCommentsBullying, totalAnalyzesPerformed)));
 		
 
 		return new DimensionsStatisticsDTO(
-				messageSourceResolverService.resolver("statistics.comments.dimensions.title", new Object[] { pt.format(from) }), dimensionsData);
+				messageSourceResolverService.resolver("statistics.comments.dimensions.title", new Object[] { pt.format(from) }),
+				messageSourceResolverService.resolver("statistics.comments.dimensions.subtitle", new Object[] { totalAnalyzesPerformed  }),
+				dimensionsData);
 		
 	}
 
@@ -303,10 +308,10 @@ public class StatisticsServiceImpl implements IStatisticsService {
         				socialEntry.getValue(), String.format("%d likes", socialEntry.getValue())))
         		.collect(Collectors.toList());
     	
-    
-		
+   
 		return new SocialMediaLikesStatisticsDTO(
 				messageSourceResolverService.resolver("statistics.social.likes.title", new Object[] { pt.format(from) }), 
+				messageSourceResolverService.resolver("statistics.social.likes.subtitle", new Object[] { 1 }), 
 				socialMediaData);
 		
 	}

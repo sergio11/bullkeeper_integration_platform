@@ -30,6 +30,11 @@ import es.bisite.usal.bulltect.persistence.constraints.SocialMediaShouldExists;
 import es.bisite.usal.bulltect.persistence.constraints.SonShouldExists;
 import es.bisite.usal.bulltect.persistence.constraints.ValidObjectId;
 import es.bisite.usal.bulltect.persistence.constraints.group.ICommonSequence;
+import es.bisite.usal.bulltect.persistence.entity.AdultLevelEnum;
+import es.bisite.usal.bulltect.persistence.entity.BullyingLevelEnum;
+import es.bisite.usal.bulltect.persistence.entity.DrugsLevelEnum;
+import es.bisite.usal.bulltect.persistence.entity.SocialMediaTypeEnum;
+import es.bisite.usal.bulltect.persistence.entity.ViolenceLevelEnum;
 import es.bisite.usal.bulltect.util.ValidList;
 import es.bisite.usal.bulltect.web.dto.request.SaveSocialMediaDTO;
 import es.bisite.usal.bulltect.web.dto.response.AlertDTO;
@@ -70,6 +75,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.annotation.PostConstruct;
@@ -167,11 +173,34 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
     public ResponseEntity<APIResponse<Iterable<CommentDTO>>> getCommentsBySonId(
             @ApiParam(name = "id", value = "Identificador del hijo", required = true)
             	@Valid @ValidObjectId(message = "{son.id.notvalid}")
-             		@PathVariable String id) throws Throwable {
+             		@PathVariable String id,
+            @ApiParam(name = "author", value = "Author's identifier", required = false)	
+        			@RequestParam(name="author" , required=false)
+        				String author,
+            @ApiParam(name = "days_ago", value = "Days Ago", required = false)
+    			@RequestParam(name = "days_ago", defaultValue = "1", required = false) Date from,
+    		@ApiParam(name = "social_media", value = "Author's identifier", required = false)	
+				@RequestParam(name="social_media" , required=false)
+					SocialMediaTypeEnum socialMedia,
+	    	@ApiParam(name = "violence", value = "Result for Violence", required = false)
+				@RequestParam(name = "violence", required = false) ViolenceLevelEnum violence,
+			@ApiParam(name = "drugs", value = "Result for Drugs", required = false)
+				@RequestParam(name = "drugs", required = false) DrugsLevelEnum drugs,
+			@ApiParam(name = "bullying", value = "Result for bullying", required = false)
+				@RequestParam(name = "bullying", required = false) BullyingLevelEnum bullying,
+			@ApiParam(name = "adult", value = "Result for adult content", required = false)
+				@RequestParam(name = "adult", required = false) AdultLevelEnum adult) throws Throwable {
         
     	logger.debug("Get Comments by user with id: " + id);
+    	logger.debug("Author's identifier -> " + author);
+    	logger.debug("Social Media -> " + socialMedia);
+    	logger.debug("Days Ago -> " + from);
+    	logger.debug("Violence -> " + violence);
+    	logger.debug("Drugs -> " + drugs);
+    	logger.debug("Bullying -> " + bullying);
+    	logger.debug("Adult -> " + adult);
         
-        Iterable<CommentDTO> comments = commentService.getCommentBySonId(id);
+        Iterable<CommentDTO> comments = commentService.getComments(id, author, from, socialMedia, violence, drugs, bullying, adult);
         
         if(Iterables.size(comments) == 0)
         	throw new CommentsBySonNotFoundException();

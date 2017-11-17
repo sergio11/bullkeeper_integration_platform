@@ -14,14 +14,18 @@ public class SentimentAnalysisStatisticsDTO {
 	@JsonProperty("title")
 	private String title;
 	
+	@JsonProperty("subtitle")
+	private String subtitle;
+	
 	@JsonProperty("sentiment_data")
 	private List<SentimentDTO> data;
     
 	public SentimentAnalysisStatisticsDTO(){}
 	
-    public SentimentAnalysisStatisticsDTO(String title, List<SentimentDTO> data) {
+    public SentimentAnalysisStatisticsDTO(String title, String subtitle, List<SentimentDTO> data) {
 		super();
 		this.title = title;
+		this.subtitle = subtitle;
 		this.data = data;
 	}
 
@@ -32,6 +36,15 @@ public class SentimentAnalysisStatisticsDTO {
 
 	public void setTitle(String title) {
 		this.title = title;
+	}
+	
+
+	public String getSubtitle() {
+		return subtitle;
+	}
+
+	public void setSubtitle(String subtitle) {
+		this.subtitle = subtitle;
 	}
 
 	public List<SentimentDTO> getData() {
@@ -92,9 +105,11 @@ public class SentimentAnalysisStatisticsDTO {
 		
 	}
 
-
 	@Override
 	public String toString() {
-		return "SentimentAnalysisStatisticsDTO [title=" + title + ", data=" + data + "]";
+		return "SentimentAnalysisStatisticsDTO [title=" + title + ", subtitle=" + subtitle + ", data=" + data + "]";
 	}
+
+
+	
 }

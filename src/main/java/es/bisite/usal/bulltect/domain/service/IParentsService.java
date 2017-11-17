@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import es.bisite.usal.bulltect.web.dto.request.RegisterParentByFacebookDTO;
+import es.bisite.usal.bulltect.web.dto.request.RegisterParentByGoogleDTO;
 import es.bisite.usal.bulltect.web.dto.request.RegisterParentDTO;
 import es.bisite.usal.bulltect.web.dto.request.RegisterSonDTO;
 import es.bisite.usal.bulltect.web.dto.request.SaveUserSystemPreferencesDTO;
@@ -28,6 +29,7 @@ public interface IParentsService {
     Iterable<SonDTO> getChildrenOfParent(String id);
     ParentDTO save(final RegisterParentDTO registerParent);
     ParentDTO save(final RegisterParentByFacebookDTO registerParent);
+    ParentDTO save(final RegisterParentByGoogleDTO registerParent);
     SonDTO addSon(String parentId, RegisterSonDTO registerSonDTO);
     SonDTO updateSon(String parentId, UpdateSonDTO registerSonDTO);
     void setAsNotActiveAndConfirmationToken(String id, String confirmationToken);
@@ -37,6 +39,7 @@ public interface IParentsService {
     void lockAccount(String id);
     void unlockAccount(String id);
     ParentDTO getParentByFbId(String fbId);
+    ParentDTO getParentByGoogleId(String googleId);
     void updateFbAccessToken(String fbId, String fbAccessToken);
     void cancelAccountDeletionProcess(String confirmationToken);
     void startAccountDeletionProcess(ObjectId id, String confirmationToken);

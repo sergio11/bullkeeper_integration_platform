@@ -13,14 +13,18 @@ public class DimensionsStatisticsDTO {
 	@JsonProperty("title")
 	private String title;
 	
+	@JsonProperty("subtitle")
+	private String subtitle;
+	
 	@JsonProperty("dimensions")
 	private List<DimensionDTO> data;
     
 	public DimensionsStatisticsDTO(){}
 	
-    public DimensionsStatisticsDTO(String title, List<DimensionDTO> data) {
+    public DimensionsStatisticsDTO(String title, String subtitle, List<DimensionDTO> data) {
 		super();
 		this.title = title;
+		this.subtitle = subtitle;
 		this.data = data;
 	}
 
@@ -31,6 +35,15 @@ public class DimensionsStatisticsDTO {
 
 	public void setTitle(String title) {
 		this.title = title;
+	}
+
+
+	public String getSubtitle() {
+		return subtitle;
+	}
+
+	public void setSubtitle(String subtitle) {
+		this.subtitle = subtitle;
 	}
 
 	public List<DimensionDTO> getData() {
@@ -85,10 +98,13 @@ public class DimensionsStatisticsDTO {
 		}
 
     }
-	
+
 
 	@Override
 	public String toString() {
-		return "DimensionsStatisticsDTO [title=" + title + ", data=" + data + "]";
+		return "DimensionsStatisticsDTO [title=" + title + ", subtitle=" + subtitle + ", data=" + data + "]";
 	}
+	
+
+	
 }

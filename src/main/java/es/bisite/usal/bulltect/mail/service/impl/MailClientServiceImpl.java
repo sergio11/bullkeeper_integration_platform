@@ -167,6 +167,23 @@ public class MailClientServiceImpl implements IMailClientService {
         String content = mailContentBuilderService.buildConfirmRegistrationViaFacebookTemplate(firstname, lastname, locale);
         sendEmail(email, EmailTypeEnum.CONFIRM_REGISTRATION_VIA_FACEBOOK , subject, content);
     }
+    
+    @Override
+	public void sendMailForConfirmRegistrationViaGoogle(String email, String firstname, String lastname, Locale locale) {
+    	Assert.notNull(email, "Email can not be null");
+        Assert.hasLength(email, "Email can not be empty");
+        Assert.notNull(firstname, "Firstname can not be null");
+        Assert.hasLength(firstname, "Firstname can not be empty");
+        Assert.notNull(lastname, "Lastname can not be null");
+        Assert.hasLength(lastname, "Lastname can not be empty");
+        Assert.notNull(locale, "Locale can not be null");
+        
+        logger.debug("Send Mail for Confirm Registration via Google");
+        String subject = messageSourceResolver.resolver("mail.registration.success.subject.title", new Object[]{firstname, lastname});
+        String content = mailContentBuilderService.buildConfirmRegistrationViaGoogleTemplate(firstname, lastname, locale);
+        sendEmail(email, EmailTypeEnum.CONFIRM_REGISTRATION_VIA_GOOGLE , subject, content);
+		
+	}
 
     @Override
     public void sendMailForCompleteAccountDeletionProcess(String email, String firstname, String lastname, String confirmationToken, Locale locale) {

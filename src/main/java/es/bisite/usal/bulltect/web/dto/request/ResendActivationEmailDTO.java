@@ -6,10 +6,12 @@ import es.bisite.usal.bulltect.persistence.constraints.ParentAccountShouldNotAct
 import es.bisite.usal.bulltect.persistence.constraints.ParentAccountShouldNotLocked;
 import es.bisite.usal.bulltect.persistence.constraints.ParentEmailShouldExist;
 import es.bisite.usal.bulltect.persistence.constraints.ShouldNotBeAFacebookUser;
+import es.bisite.usal.bulltect.persistence.constraints.ShouldNotBeAGoogleUser;
 import es.bisite.usal.bulltect.persistence.constraints.group.IGroups.IAccountShouldNotActive;
 import es.bisite.usal.bulltect.persistence.constraints.group.IGroups.IAccountShouldNotLocked;
 import es.bisite.usal.bulltect.persistence.constraints.group.IGroups.IEmailShouldExist;
 import es.bisite.usal.bulltect.persistence.constraints.group.IGroups.IShouldNotBeAFacebookUser;
+import es.bisite.usal.bulltect.persistence.constraints.group.IGroups.IShouldNotBeAGoogleUser;
 import es.bisite.usal.bulltect.persistence.constraints.group.IGroups.IValidEmail;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
@@ -25,6 +27,7 @@ public class ResendActivationEmailDTO {
     @ParentEmailShouldExist(message = "{user.email.not.exists}", groups = IEmailShouldExist.class)
     @ParentAccountShouldNotActive(message = "{user.email.should.not.activate}", groups = IAccountShouldNotActive.class)
     @ShouldNotBeAFacebookUser(message = "{user.should.not.be.a.facebook.user}", groups = IShouldNotBeAFacebookUser.class)
+    @ShouldNotBeAGoogleUser(message = "{user.should.not.be.a.google.user}", groups = IShouldNotBeAGoogleUser.class)
     @ParentAccountShouldNotLocked(message = "{user.email.not.locked}", groups = IAccountShouldNotLocked.class)
     @JsonProperty("email")
     private String email;

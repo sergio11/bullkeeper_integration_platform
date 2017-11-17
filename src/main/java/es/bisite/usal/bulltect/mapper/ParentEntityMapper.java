@@ -14,6 +14,7 @@ import es.bisite.usal.bulltect.persistence.entity.SonEntity;
 import es.bisite.usal.bulltect.persistence.repository.AuthorityRepository;
 import es.bisite.usal.bulltect.persistence.repository.SonRepository;
 import es.bisite.usal.bulltect.web.dto.request.RegisterParentByFacebookDTO;
+import es.bisite.usal.bulltect.web.dto.request.RegisterParentByGoogleDTO;
 import es.bisite.usal.bulltect.web.dto.request.RegisterParentDTO;
 import es.bisite.usal.bulltect.web.dto.request.UpdateParentDTO;
 import es.bisite.usal.bulltect.web.dto.request.UpdateSonDTO;
@@ -63,6 +64,13 @@ public abstract class ParentEntityMapper {
         @Mapping(source="registerParentByFacebookDTO.telephone.rawInput", target = "telephone" )
 	})
     public abstract ParentEntity registerParentByFacebookDTOToParentEntity(RegisterParentByFacebookDTO registerParentByFacebookDTO);
+    
+    @Mappings({ 
+    	@Mapping(target = "telephone", ignore=true),
+		@Mapping(expression="java(passwordEncoder.encode(registerParentByGoogleDTO.getPasswordClear()))", target = "password"),
+		@Mapping(expression="java(authorityRepository.findByType(es.bisite.usal.bulltect.persistence.entity.AuthorityEnum.ROLE_PARENT))", target = "authority"),
+	})
+    public abstract ParentEntity registerParentByGoogleDTOToParentEntity(RegisterParentByGoogleDTO registerParentByGoogleDTO);
     
  
 }

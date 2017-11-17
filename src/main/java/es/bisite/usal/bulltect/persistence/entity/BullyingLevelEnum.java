@@ -1,7 +1,7 @@
 package es.bisite.usal.bulltect.persistence.entity;
 
 public enum BullyingLevelEnum {
-	UNKNOWN, POSITIVE, NEGATIVE;
+	NEGATIVE, POSITIVE, UNKNOWN;
 	
 	public static BullyingLevelEnum fromResult(Integer result){
 		

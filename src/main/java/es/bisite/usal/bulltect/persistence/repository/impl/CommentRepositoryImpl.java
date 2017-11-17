@@ -4,13 +4,11 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
@@ -19,12 +17,14 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.Assert;
-
 import es.bisite.usal.bulltect.persistence.entity.CommentEntity;
-import es.bisite.usal.bulltect.persistence.entity.ParentEntity;
+import es.bisite.usal.bulltect.persistence.entity.DrugsLevelEnum;
 import es.bisite.usal.bulltect.persistence.entity.SocialMediaTypeEnum;
+import es.bisite.usal.bulltect.persistence.entity.ViolenceLevelEnum;
+import es.bisite.usal.bulltect.persistence.entity.AdultLevelEnum;
 import es.bisite.usal.bulltect.persistence.entity.AnalysisStatusEnum;
 import es.bisite.usal.bulltect.persistence.entity.AnalysisTypeEnum;
+import es.bisite.usal.bulltect.persistence.entity.BullyingLevelEnum;
 import es.bisite.usal.bulltect.persistence.repository.CommentRepositoryCustom;
 import es.bisite.usal.bulltect.web.dto.response.CommentsBySonDTO;
 
@@ -211,6 +211,99 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
      
         CommentEntity lastComment =  mongoTemplate.findOne(query, CommentEntity.class);
         return lastComment != null ? lastComment.getExtractedAt() : null;
+	}
+
+	@Override
+	public List<CommentEntity> getComments(String idSon, String author, Date from, SocialMediaTypeEnum socialMedia,
+			ViolenceLevelEnum violence, DrugsLevelEnum drugs, BullyingLevelEnum bullying, AdultLevelEnum adult) {
+		Assert.notNull(idSon, "Id son can not be null");
+		Assert.hasLength(idSon, "Id son can not be empty");
+		Assert.notNull(from, "From can not be null");
+		Assert.isTrue(from.before(new Date()), "From must be a date before the current one");
+		
+		
+		final Query query = new Query(Criteria.where("target").is(idSon).and("extracted_at").gte(from));
+		// Social Media Filter
+		if(socialMedia != null)
+			query.addCriteria(Criteria.where("social_media").is(socialMedia));
+		
+		// Author Filter
+		if(author != null)
+			query.addCriteria(Criteria.where("author.external_id").is(author));
+			
+		// Violence Filter
+		if(violence != null && !violence.equals(ViolenceLevelEnum.UNKNOWN))
+			query.addCriteria(Criteria
+					.where("analysis_results.violence.status").is(AnalysisStatusEnum.FINISHED)
+					.and("analysis_results.violence.result").is(violence.ordinal()));
+		// Drugs Filter
+		if(drugs != null && !drugs.equals(DrugsLevelEnum.UNKNOWN))
+			query.addCriteria(Criteria
+					.where("analysis_results.drugs.status").is(AnalysisStatusEnum.FINISHED)
+					.and("analysis_results.drugs.result").is(drugs.ordinal()));
+		// Bullying filter
+		if(bullying != null && !bullying.equals(BullyingLevelEnum.UNKNOWN))
+			query.addCriteria(Criteria
+					.where("analysis_results.bullying.status").is(AnalysisStatusEnum.FINISHED)
+					.and("analysis_results.bullying.result").is(bullying.ordinal()));
+		// Adult Content filter
+		if(adult != null && !adult.equals(AdultLevelEnum.UNKNOWN))
+			query.addCriteria(Criteria
+					.where("analysis_results.adult.status").is(AnalysisStatusEnum.FINISHED)
+					.and("analysis_results.adult.result").is(adult.ordinal()));
+
+		
+        query.with(new Sort(Sort.Direction.DESC, "extracted_at"));
+        return mongoTemplate.find(query, CommentEntity.class);
+		
+	}
+
+	@Override
+	public List<CommentEntity> getComments(List<String> identities, String author, Date from,
+			SocialMediaTypeEnum socialMedia, ViolenceLevelEnum violence, DrugsLevelEnum drugs,
+			BullyingLevelEnum bullying, AdultLevelEnum adult) {
+		Assert.notNull(from, "From can not be null");
+		Assert.isTrue(from.before(new Date()), "From must be a date before the current one");
+		
+		
+		final Query query = new Query(Criteria.where("extracted_at").gte(from));
+		
+		// children filter
+		if(identities != null && !identities.isEmpty())
+			query.addCriteria(Criteria.where("target").in(identities));
+		
+		// Social Media Filter
+		if(socialMedia != null)
+			query.addCriteria(Criteria.where("social_media").is(socialMedia));
+		
+		// Author Filter
+		if(author != null)
+			query.addCriteria(Criteria.where("author.external_id").is(author));
+			
+		// Violence Filter
+		if(violence != null && !violence.equals(ViolenceLevelEnum.UNKNOWN))
+			query.addCriteria(Criteria
+					.where("analysis_results.violence.status").is(AnalysisStatusEnum.FINISHED)
+					.and("analysis_results.violence.result").is(violence.ordinal()));
+		// Drugs Filter
+		if(drugs != null && !drugs.equals(DrugsLevelEnum.UNKNOWN))
+			query.addCriteria(Criteria
+					.where("analysis_results.drugs.status").is(AnalysisStatusEnum.FINISHED)
+					.and("analysis_results.drugs.result").is(drugs.ordinal()));
+		// Bullying filter
+		if(bullying != null && !bullying.equals(BullyingLevelEnum.UNKNOWN))
+			query.addCriteria(Criteria
+					.where("analysis_results.bullying.status").is(AnalysisStatusEnum.FINISHED)
+					.and("analysis_results.bullying.result").is(bullying.ordinal()));
+		// Adult Content filter
+		if(adult != null && !adult.equals(AdultLevelEnum.UNKNOWN))
+			query.addCriteria(Criteria
+					.where("analysis_results.adult.status").is(AnalysisStatusEnum.FINISHED)
+					.and("analysis_results.adult.result").is(adult.ordinal()));
+
+		
+        query.with(new Sort(Sort.Direction.DESC, "extracted_at"));
+        return mongoTemplate.find(query, CommentEntity.class);
 	}
 
     

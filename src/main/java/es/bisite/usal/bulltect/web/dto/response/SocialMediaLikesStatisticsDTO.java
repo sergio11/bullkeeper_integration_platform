@@ -4,8 +4,6 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import es.bisite.usal.bulltect.persistence.entity.SocialMediaTypeEnum;
-
 /**
  * @author sergio
  */
@@ -14,15 +12,19 @@ public class SocialMediaLikesStatisticsDTO {
 	@JsonProperty("title")
 	private String title;
 	
+	@JsonProperty("subtitle")
+	private String subtitle;
+	
 	@JsonProperty("likes")
 	private List<SocialMediaLikesDTO> data;
     
 	public SocialMediaLikesStatisticsDTO(){}
 	
 
-	public SocialMediaLikesStatisticsDTO(String title, List<SocialMediaLikesDTO> data) {
+	public SocialMediaLikesStatisticsDTO(String title, String subtitle, List<SocialMediaLikesDTO> data) {
 		super();
 		this.title = title;
+		this.subtitle = subtitle;
 		this.data = data;
 	}
 
@@ -37,6 +39,16 @@ public class SocialMediaLikesStatisticsDTO {
 	}
 
 	
+
+	public String getSubtitle() {
+		return subtitle;
+	}
+
+
+	public void setSubtitle(String subtitle) {
+		this.subtitle = subtitle;
+	}
+
 
 	public List<SocialMediaLikesDTO> getData() {
 		return data;
@@ -100,8 +112,11 @@ public class SocialMediaLikesStatisticsDTO {
 
 	@Override
 	public String toString() {
-		return "CommentsAnalyzedStatisticsDTO [title=" + title + ", data=" + data + "]";
+		return "SocialMediaLikesStatisticsDTO [title=" + title + ", subtitle=" + subtitle + ", data=" + data + "]";
 	}
+
+
+	
 
 	
 }

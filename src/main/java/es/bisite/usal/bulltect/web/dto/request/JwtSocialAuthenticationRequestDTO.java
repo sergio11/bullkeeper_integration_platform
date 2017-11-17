@@ -3,15 +3,15 @@ package es.bisite.usal.bulltect.web.dto.request;
 import org.hibernate.validator.constraints.NotBlank;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public final class JwtFacebookAuthenticationRequestDTO {
+public final class JwtSocialAuthenticationRequestDTO {
 
-	@NotBlank(message = "{user.fbAccessToken.notnull}")
+	@NotBlank(message = "{user.social.access.token.notnull}")
 	@JsonProperty("token")
     private String token;
     
-    public JwtFacebookAuthenticationRequestDTO(){}
+    public JwtSocialAuthenticationRequestDTO(){}
 
-	public JwtFacebookAuthenticationRequestDTO(String token) {
+	public JwtSocialAuthenticationRequestDTO(String token) {
 		super();
 		this.token = token;
 	}

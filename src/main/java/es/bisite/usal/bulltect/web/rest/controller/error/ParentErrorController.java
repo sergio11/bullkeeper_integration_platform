@@ -20,6 +20,7 @@ import es.bisite.usal.bulltect.web.rest.ApiHelper;
 import es.bisite.usal.bulltect.web.rest.controller.BaseController;
 import es.bisite.usal.bulltect.web.rest.exception.EmailAlreadyExistsException;
 import es.bisite.usal.bulltect.web.rest.exception.GetInformationFromFacebookException;
+import es.bisite.usal.bulltect.web.rest.exception.GetInformationFromGoogleException;
 import es.bisite.usal.bulltect.web.rest.exception.InvalidFacebookIdException;
 import es.bisite.usal.bulltect.web.rest.exception.NoChildrenFoundForParentException;
 import es.bisite.usal.bulltect.web.rest.exception.NoChildrenFoundForSelfParentException;
@@ -95,6 +96,14 @@ public class ParentErrorController extends BaseController{
     	return ApiHelper.<String>createAndSendErrorResponseWithHeader(ParentResponseCode.PARENTS_NOT_FOUND, HttpStatus.NOT_FOUND,
     			messageSourceResolver.resolver("parent.get.information.from.facebook.failed"));
     }
+    
+    @ExceptionHandler(GetInformationFromGoogleException.class)
+    @ResponseBody
+    protected ResponseEntity<APIResponse<String>> handleGetInformationFromGoogleException(GetInformationFromGoogleException getInformationFromGoogleException, HttpServletRequest request) {
+    	return ApiHelper.<String>createAndSendErrorResponseWithHeader(ParentResponseCode.PARENTS_NOT_FOUND, HttpStatus.NOT_FOUND,
+    			messageSourceResolver.resolver("parent.get.information.from.google.failed"));
+    }
+    
     
     @ExceptionHandler(InvalidFacebookIdException.class)
     @ResponseBody

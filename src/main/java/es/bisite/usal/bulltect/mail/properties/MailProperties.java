@@ -31,6 +31,9 @@ public class MailProperties implements Serializable {
     @Value("${mail.confirm.registration.via.facebook.template.name}")
     private String confirmRegistrationViaFacebookTemplate;
     
+    @Value("${mail.confirm.registration.via.google.template.name}")
+    private String confirmRegistrationViaGoogleTemplate;
+    
     @Value("${mail.complete.account.deletion.process.template.name}")
     private String completeAccountDeletionProcessTemplate;
     
@@ -56,6 +59,11 @@ public class MailProperties implements Serializable {
 
 	public String getConfirmRegistrationViaFacebookTemplate() {
 		return confirmRegistrationViaFacebookTemplate;
+	}
+	
+
+	public String getConfirmRegistrationViaGoogleTemplate() {
+		return confirmRegistrationViaGoogleTemplate;
 	}
 
 	public String getCompleteAccountDeletionProcessTemplate() {

@@ -26,6 +26,7 @@ import es.bisite.usal.bulltect.persistence.repository.ParentRepository;
 import es.bisite.usal.bulltect.persistence.repository.SchoolRepository;
 import es.bisite.usal.bulltect.persistence.repository.SonRepository;
 import es.bisite.usal.bulltect.web.dto.request.RegisterParentByFacebookDTO;
+import es.bisite.usal.bulltect.web.dto.request.RegisterParentByGoogleDTO;
 import es.bisite.usal.bulltect.web.dto.request.RegisterParentDTO;
 import es.bisite.usal.bulltect.web.dto.request.RegisterSonDTO;
 import es.bisite.usal.bulltect.web.dto.request.SaveUserSystemPreferencesDTO;
@@ -114,6 +115,17 @@ public class ParentsServiceImpl implements IParentsService {
     public ParentDTO save(RegisterParentByFacebookDTO registerParent) {
     	logger.debug("Register Parent by facebook");
         final ParentEntity parentToSave = parentEntityMapper.registerParentByFacebookDTOToParentEntity(registerParent);
+        if(parentRepository.countByEmail(parentToSave.getEmail()) > 0)
+        	throw new EmailAlreadyExistsException();
+        final ParentEntity parentSaved = parentRepository.save(parentToSave);
+        logger.debug("Parent Saved -> " + parentSaved.toString());
+        return parentEntityMapper.parentEntityToParentDTO(parentSaved);
+    }
+    
+    @Override
+    public ParentDTO save(RegisterParentByGoogleDTO registerParent) {
+    	logger.debug("Register Parent by google");
+        final ParentEntity parentToSave = parentEntityMapper.registerParentByGoogleDTOToParentEntity(registerParent);
         if(parentRepository.countByEmail(parentToSave.getEmail()) > 0)
         	throw new EmailAlreadyExistsException();
         final ParentEntity parentSaved = parentRepository.save(parentToSave);
@@ -209,6 +221,11 @@ public class ParentsServiceImpl implements IParentsService {
     public ParentDTO getParentByFbId(String fbId) {
         return parentEntityMapper.parentEntityToParentDTO(parentRepository.findByFbId(fbId));
     }
+    
+    @Override
+	public ParentDTO getParentByGoogleId(String googleId) {
+    	 return parentEntityMapper.parentEntityToParentDTO(parentRepository.findByGoogleId(googleId));
+	}
 
     @Override
     public void updateFbAccessToken(String fbId, String fbAccessToken) {
@@ -282,4 +299,6 @@ public class ParentsServiceImpl implements IParentsService {
         Assert.notNull(preferencesEntityMapper, "Preferences Entity Mapper can not be null");
         
     }
+
+	
 }

@@ -20,10 +20,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.google.common.collect.Iterables;
+
 import es.bisite.usal.bulltect.domain.service.ICommentsService;
 import es.bisite.usal.bulltect.domain.service.IStatisticsService;
 import es.bisite.usal.bulltect.persistence.constraints.ValidObjectId;
+import es.bisite.usal.bulltect.persistence.entity.AdultLevelEnum;
+import es.bisite.usal.bulltect.persistence.entity.BullyingLevelEnum;
+import es.bisite.usal.bulltect.persistence.entity.DrugsLevelEnum;
 import es.bisite.usal.bulltect.persistence.entity.SocialMediaTypeEnum;
+import es.bisite.usal.bulltect.persistence.entity.ViolenceLevelEnum;
 import es.bisite.usal.bulltect.util.ValidList;
 import es.bisite.usal.bulltect.web.dto.response.CommentDTO;
 import es.bisite.usal.bulltect.web.dto.response.CommentsStatisticsDTO;
@@ -110,35 +117,49 @@ public class CommentsController extends BaseController implements ICommentHAL {
     @RequestMapping(value = "/comments", method = RequestMethod.GET)
     @ApiOperation(value = "GET_COMMENTS", nickname = "GET_COMMENTS", 
             notes = "Get Comments", response = PagedResources.class)
-    public ResponseEntity<APIResponse<List<CommentDTO>>> getComments(
+    public ResponseEntity<APIResponse<Iterable<CommentDTO>>> getComments(
     		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent,
             @ApiParam(name = "children", value = "Children's Identifiers", required = false)
             	@RequestParam(name="children" , required=false)
             		ValidList<String> identities,
             @ApiParam(name = "author", value = "Author's identifier", required = false)	
     			@RequestParam(name="author" , required=false)
-    				String auhor,
+    				String author,
     		@ApiParam(name = "social_media", value = "Author's identifier", required = false)	
 				@RequestParam(name="social_media" , required=false)
     				SocialMediaTypeEnum socialMedia,
 			@ApiParam(name = "days_ago", value = "Days Ago", required = false)
-        		@RequestParam(name = "days_ago", defaultValue = "1", required = false) Date from) throws Throwable {
+        		@RequestParam(name = "days_ago", defaultValue = "1", required = false) Date from,
+        	@ApiParam(name = "violence", value = "Result for Violence", required = false)
+    			@RequestParam(name = "violence", required = false) ViolenceLevelEnum violence,
+    		@ApiParam(name = "drugs", value = "Result for Drugs", required = false)
+				@RequestParam(name = "drugs", required = false) DrugsLevelEnum drugs,
+			@ApiParam(name = "bullying", value = "Result for bullying", required = false)
+				@RequestParam(name = "bullying", required = false) BullyingLevelEnum bullying,
+			@ApiParam(name = "adult", value = "Result for adult content", required = false)
+				@RequestParam(name = "adult", required = false) AdultLevelEnum adult) throws Throwable {
     	
     	if(identities != null && !identities.isEmpty()) {
     		logger.debug("Children's Identifiers -> " + identities.toString());
     	}
     	
-    	logger.debug("Author's identifier -> " + auhor);
+    	logger.debug("Author's identifier -> " + author);
     	logger.debug("Social Media -> " + socialMedia);
     	logger.debug("Days Ago -> " + from);
+    	logger.debug("Violence -> " + violence);
+    	logger.debug("Drugs -> " + drugs);
+    	logger.debug("Bullying -> " + bullying);
+    	logger.debug("Adult -> " + adult);
     	
     	
+    	final Iterable<CommentDTO> comments = commentsService.getComments(identities, author, from, socialMedia, violence, drugs, bullying, adult);
     	
-        logger.debug("Get Comments");
+    	if(Iterables.size(comments) == 0)
+    		throw new NoCommentsFoundException();
         
         
-        return ApiHelper.<List<CommentDTO>>createAndSendResponse(CommentResponseCode.FILTERED_COMMENTS, 
-        		HttpStatus.OK, new ArrayList<>());
+        return ApiHelper.<Iterable<CommentDTO>>createAndSendResponse(CommentResponseCode.FILTERED_COMMENTS, 
+        		HttpStatus.OK, comments);
        
     }
     

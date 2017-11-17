@@ -7,6 +7,9 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.youtube.YouTube;
+
+import com.google.api.services.oauth2.Oauth2;
+
 import java.io.IOException;
 import java.io.InputStreamReader;
 import javax.annotation.PostConstruct;
@@ -14,7 +17,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.Resource;
@@ -70,6 +72,24 @@ public class GoogleAPIConfig {
     	}
     	
     	return credential;
+    }
+    
+    @Bean
+    @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+    public GoogleCredential provideGoogleCredential(String accessToken) throws IOException {
+    	return new GoogleCredential.Builder()
+                .setJsonFactory(provideJsonFactory())
+                .setTransport(provideHttpTransport())
+                .setClientSecrets(provideGoogleClientSecrets())
+                .build()
+                .setAccessToken(accessToken);
+    }
+    
+    @Bean
+    @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+    public Oauth2 provideOauth2(String accessToken) throws IOException {
+    	return new Oauth2.Builder(provideHttpTransport(), provideJsonFactory(), provideGoogleCredential(accessToken))
+    		.setApplicationName(applicationName).build();
     }
     
     @Bean

@@ -29,6 +29,8 @@ public interface ParentRepository extends MongoRepository<ParentEntity, ObjectId
     Long countByConfirmationToken(String confirmationToken);
 
     ParentEntity findByFbId(String fbId);
+    
+    ParentEntity findByGoogleId(String googleId);
 
     Long deleteByConfirmationToken(String confirmationToken);
 

@@ -33,6 +33,7 @@ import es.bisite.usal.bulltect.domain.service.IPasswordResetTokenService;
 import es.bisite.usal.bulltect.domain.service.ITokenGeneratorService;
 import es.bisite.usal.bulltect.events.AccountDeletionRequestEvent;
 import es.bisite.usal.bulltect.events.ParentRegistrationByFacebookSuccessEvent;
+import es.bisite.usal.bulltect.events.ParentRegistrationByGoogleSuccessEvent;
 import es.bisite.usal.bulltect.events.ParentRegistrationSuccessEvent;
 import es.bisite.usal.bulltect.events.PasswordResetEvent;
 import es.bisite.usal.bulltect.persistence.constraints.ParentShouldExists;
@@ -42,9 +43,11 @@ import es.bisite.usal.bulltect.persistence.constraints.group.IResendActivationEm
 import es.bisite.usal.bulltect.persistence.constraints.group.IResetPasswordSequence;
 import es.bisite.usal.bulltect.persistence.entity.EmailTypeEnum;
 import es.bisite.usal.bulltect.rrss.service.IFacebookService;
+import es.bisite.usal.bulltect.rrss.service.IGoogleService;
 import es.bisite.usal.bulltect.web.dto.request.JwtAuthenticationRequestDTO;
-import es.bisite.usal.bulltect.web.dto.request.JwtFacebookAuthenticationRequestDTO;
+import es.bisite.usal.bulltect.web.dto.request.JwtSocialAuthenticationRequestDTO;
 import es.bisite.usal.bulltect.web.dto.request.RegisterParentByFacebookDTO;
+import es.bisite.usal.bulltect.web.dto.request.RegisterParentByGoogleDTO;
 import es.bisite.usal.bulltect.web.dto.request.RegisterParentDTO;
 import es.bisite.usal.bulltect.web.dto.request.RegisterSonDTO;
 import es.bisite.usal.bulltect.web.dto.request.ResendActivationEmailDTO;
@@ -111,11 +114,12 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     private final IUploadFilesService uploadFilesService;
     private final IAlertService alertService;
     private final IDeletePendingEmailService deletePendingEmailService;
+    private final IGoogleService googleService;
  
     public ParentsController(IParentsService parentsService, IPasswordResetTokenService passwordResetTokenService, 
     		IAuthenticationService authenticationService, IFacebookService facebookService, 
                 ITokenGeneratorService tokenGeneratorService, IUploadFilesService uploadFilesService, IAlertService alertService,
-                 IDeletePendingEmailService deletePendingEmailService) {
+                 IDeletePendingEmailService deletePendingEmailService, IGoogleService googleService) {
         this.parentsService = parentsService;
         this.passwordResetTokenService = passwordResetTokenService;
         this.authenticationService = authenticationService;
@@ -124,6 +128,7 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
         this.uploadFilesService = uploadFilesService;
         this.alertService = alertService;
         this.deletePendingEmailService = deletePendingEmailService;
+        this.googleService = googleService;
     }
    
     
@@ -171,28 +176,28 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     		@ApiResponse(code = 403, message = "Validation Errors", response = ValidationErrorDTO.class)
     })
 	public ResponseEntity<APIResponse<JwtAuthenticationResponseDTO>> getParentAuthorizationTokenViaFacebook(
-			@Valid @RequestBody JwtFacebookAuthenticationRequestDTO facebookInfo, Device device) throws Throwable {
+			@Valid @RequestBody JwtSocialAuthenticationRequestDTO socialAuthRequest, Device device) throws Throwable {
     	
-    	final String fbId = facebookService.getFbIdByAccessToken(facebookInfo.getToken());
+    	final String fbId = facebookService.getFbIdByAccessToken(socialAuthRequest.getToken());
     	
     	logger.debug("Facebook ID -> " + fbId);
         
     	JwtAuthenticationResponseDTO jwtResponseDTO =  Optional.ofNullable(parentsService.getParentByFbId(fbId))
     			.map(parent -> {
-    				logger.debug("User Already Registered, update token with  -> " + facebookInfo.getToken());
-    				parentsService.updateFbAccessToken(parent.getFbId(), facebookInfo.getToken());
+    				logger.debug("User Already Registered, update token with  -> " + socialAuthRequest.getToken());
+    				parentsService.updateFbAccessToken(parent.getFbId(), socialAuthRequest.getToken());
     				return authenticationService.createAuthenticationTokenForParent(parent.getEmail(), parent.getFbId(), device);
     			})
     			.orElseGet(() -> {
     				
     				logger.debug("Register user with facebook information ");
     				RegisterParentByFacebookDTO registerParent = 
-    						facebookService.getRegistrationInformationForTheParent(fbId, facebookInfo.getToken());
+    						facebookService.getRegistrationInformationForTheParent(fbId, socialAuthRequest.getToken());
     			
     				logger.debug(registerParent.toString());
     				
     				ParentDTO parent = parentsService.save(registerParent);
-                    String profileImageUrl = facebookService.fetchUserPicture(facebookInfo.getToken());
+                    String profileImageUrl = facebookService.fetchUserPicture(socialAuthRequest.getToken());
                     if(profileImageUrl != null && !profileImageUrl.isEmpty())
                             uploadFilesService.uploadParentProfileImageFromUrl(new ObjectId(parent.getIdentity()), profileImageUrl);
     				// notify event
@@ -203,6 +208,47 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     	
     	return ApiHelper.<JwtAuthenticationResponseDTO>createAndSendResponse(
 				ParentResponseCode.AUTHENTICATION_VIA_FACEBOOK_SUCCESS, HttpStatus.OK, jwtResponseDTO);
+	}
+    
+    @RequestMapping(value = "/auth/google", method = RequestMethod.POST)
+    @ApiOperation(value = "GET_AUTHORIZATION_TOKEN_VIA_GOOGLE", nickname = "GET_AUTHORIZATION_TOKEN_VIA_GOOGLE", notes = "Get Parent Authorization Token vi Google ")
+	@ApiResponses(value = { 
+    		@ApiResponse(code = 200, message = "Authentication Success", response = JwtAuthenticationResponseDTO.class),
+    		@ApiResponse(code = 403, message = "Validation Errors", response = ValidationErrorDTO.class)
+    })
+	public ResponseEntity<APIResponse<JwtAuthenticationResponseDTO>> getParentAuthorizationTokenViaGoogle(
+			@Valid @RequestBody JwtSocialAuthenticationRequestDTO socialAuthRequest, Device device) throws Throwable {
+    	
+    	logger.debug("Get Authorization Token via Google -> " + socialAuthRequest.getToken());
+    	
+    	final String googleId = googleService.getGoogleIdByAccessToken(socialAuthRequest.getToken());
+    	
+    	logger.debug("Google ID -> " + googleId);
+        
+    	JwtAuthenticationResponseDTO jwtResponseDTO =  Optional.ofNullable(parentsService.getParentByGoogleId(googleId))
+    			.map(parent -> {
+    				logger.debug("User Already Registered, update token with  -> " + socialAuthRequest.getToken());
+    				return authenticationService.createAuthenticationTokenForParent(parent.getEmail(), parent.getGoogleId(), device);
+    			})
+    			.orElseGet(() -> {
+    				
+    				logger.debug("Register user with Google information ");
+    				RegisterParentByGoogleDTO registerParent = googleService.getUserInfo(socialAuthRequest.getToken());
+    			
+    				logger.debug(registerParent.toString());
+
+    				ParentDTO parent = parentsService.save(registerParent);
+    				
+    				if(registerParent.getPicture() != null && !registerParent.getPicture().isEmpty())
+    					uploadFilesService.uploadParentProfileImageFromUrl(new ObjectId(parent.getIdentity()), registerParent.getPicture());
+
+    				// notify event
+    				applicationEventPublisher.publishEvent(new ParentRegistrationByGoogleSuccessEvent(parent.getIdentity(), this));
+    				return authenticationService.createAuthenticationTokenForParent(parent.getEmail(), parent.getGoogleId(), device);
+    			});
+       
+    	return ApiHelper.<JwtAuthenticationResponseDTO>createAndSendResponse(
+				ParentResponseCode.AUTHENTICATION_VIA_GOOGLE_SUCCESS, HttpStatus.OK, jwtResponseDTO);
 	}
     
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)

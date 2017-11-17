@@ -1,7 +1,7 @@
 package es.bisite.usal.bulltect.persistence.entity;
 
 public enum DrugsLevelEnum {
-	UNKNOWN, POSITIVE, NEGATIVE;
+	NEGATIVE, POSITIVE, UNKNOWN;
 	
 	public static DrugsLevelEnum fromResult(Integer result){
 		

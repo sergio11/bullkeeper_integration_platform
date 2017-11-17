@@ -2,9 +2,7 @@ package es.bisite.usal.bulltect.mail.service.impl;
 
 
 import java.util.Locale;
-
 import javax.annotation.PostConstruct;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +11,6 @@ import org.springframework.util.Assert;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
-
 import es.bisite.usal.bulltect.mail.properties.MailProperties;
 import es.bisite.usal.bulltect.mail.service.IMailContentBuilderService;
 
@@ -102,9 +99,20 @@ public class MailContentBuilderServiceImpl implements IMailContentBuilderService
         return templateEngine.process(mailContentProperties.getCompleteAccountDeletionProcessTemplate(), context);
 	}
 	
+	@Override
+	public String buildConfirmRegistrationViaGoogleTemplate(String firstname, String lastname, Locale locale) {
+		Assert.notNull(mailContentProperties.getConfirmRegistrationViaGoogleTemplate(), "Confirm Registration via Google Template can not be null");
+        Assert.hasLength(mailContentProperties.getConfirmRegistrationViaGoogleTemplate(), "Confirm Registration via Google Template can not be empty");
+        Context context = new Context(locale);
+        context.setVariable("firstname", firstname);
+        context.setVariable("lastname", lastname);
+        return templateEngine.process(mailContentProperties.getConfirmRegistrationViaGoogleTemplate(), context);
+	}
+	
 	@PostConstruct
 	protected void init(){
 		Assert.notNull(mailContentProperties, "Mail Content Properties can not be null");
 		Assert.notNull(templateEngine, "Template Engine can not be null");
 	}
+	
 }

@@ -23,6 +23,8 @@ public class ParentDTO extends ResourceSupport {
     private Long phoneNumber;
     @JsonProperty("fb_id")
     private String fbId;
+    @JsonProperty("google_id")
+    private String googleId;
     @JsonProperty("children")
     private Long children;
     @JsonProperty("locale")
@@ -34,7 +36,7 @@ public class ParentDTO extends ResourceSupport {
     }
 
     public ParentDTO(String identity, String firstName, String lastName, String birthdate, Integer age, String email,
-            String phonePrefix, Long phoneNumber, String fbId, Long children, String locale, String profileImage) {
+            String phonePrefix, Long phoneNumber, String fbId, String googleId, Long children, String locale, String profileImage) {
         super();
         this.identity = identity;
         this.firstName = firstName;
@@ -45,6 +47,7 @@ public class ParentDTO extends ResourceSupport {
         this.phonePrefix = phonePrefix;
         this.phoneNumber = phoneNumber;
         this.fbId = fbId;
+        this.googleId = googleId;
         this.children = children;
         this.locale = locale;
         this.profileImage = profileImage;
@@ -123,8 +126,17 @@ public class ParentDTO extends ResourceSupport {
     public void setFbId(String fbId) {
         this.fbId = fbId;
     }
+    
 
-    public Long getChildren() {
+    public String getGoogleId() {
+		return googleId;
+	}
+
+	public void setGoogleId(String googleId) {
+		this.googleId = googleId;
+	}
+
+	public Long getChildren() {
         return children;
     }
 

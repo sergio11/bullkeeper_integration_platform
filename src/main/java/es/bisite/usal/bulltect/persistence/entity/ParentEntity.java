@@ -20,6 +20,9 @@ public final class ParentEntity extends UserSystemEntity {
 
     @Field("fb_id")
     private String fbId;
+    
+    @Field("google_id")
+    private String googleId;
 
     public ParentEntity() {
     }
@@ -28,13 +31,14 @@ public final class ParentEntity extends UserSystemEntity {
     public ParentEntity(String firstName, String lastName, Date birthdate, String profileImage, String email,
             String password, String passwordRequestedAt, Boolean active, Boolean locked, Date lastLoginAccess,
             Boolean pendingDeletion, Locale locale, Date lastPasswordResetDate, String confirmationToken,
-            Date lastAccessToAlerts, PreferencesEntity preferences, AuthorityEntity authority, String telephone, String fbAccessToken, String fbId) {
+            Date lastAccessToAlerts, PreferencesEntity preferences, AuthorityEntity authority, String telephone, String fbAccessToken, String fbId, String googleId) {
         super(firstName, lastName, birthdate, profileImage, email, password, passwordRequestedAt, active, locked,
                 lastLoginAccess, pendingDeletion, locale, lastPasswordResetDate, confirmationToken, lastAccessToAlerts,
                 preferences, authority);
         this.telephone = telephone;
         this.fbAccessToken = fbAccessToken;
         this.fbId = fbId;
+        this.googleId = googleId;
     }
 
     public ParentEntity(String firstName, String lastName, Date birthdate, String email, String password,
@@ -65,8 +69,16 @@ public final class ParentEntity extends UserSystemEntity {
     public void setFbId(String fbId) {
         this.fbId = fbId;
     }
+    
+    public String getGoogleId() {
+		return googleId;
+	}
 
-    @Override
+	public void setGoogleId(String googleId) {
+		this.googleId = googleId;
+	}
+
+	@Override
     public String toString() {
         return "ParentEntity [telephone=" + telephone + ", fbAccessToken=" + fbAccessToken + ", fbId=" + fbId
                 + ", email=" + email + ", password=" + password + ", passwordRequestedAt=" + passwordRequestedAt

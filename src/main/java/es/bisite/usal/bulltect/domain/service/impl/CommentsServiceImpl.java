@@ -1,6 +1,7 @@
 package es.bisite.usal.bulltect.domain.service.impl;
 
 
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -14,7 +15,12 @@ import org.springframework.util.Assert;
 
 import es.bisite.usal.bulltect.domain.service.ICommentsService;
 import es.bisite.usal.bulltect.mapper.CommentEntityMapper;
+import es.bisite.usal.bulltect.persistence.entity.AdultLevelEnum;
+import es.bisite.usal.bulltect.persistence.entity.BullyingLevelEnum;
 import es.bisite.usal.bulltect.persistence.entity.CommentEntity;
+import es.bisite.usal.bulltect.persistence.entity.DrugsLevelEnum;
+import es.bisite.usal.bulltect.persistence.entity.SocialMediaTypeEnum;
+import es.bisite.usal.bulltect.persistence.entity.ViolenceLevelEnum;
 import es.bisite.usal.bulltect.persistence.repository.CommentRepository;
 import es.bisite.usal.bulltect.web.dto.response.CommentDTO;
 
@@ -83,11 +89,24 @@ public class CommentsServiceImpl implements ICommentsService {
 		return commentEntityMapper.commentEntitiesToCommentDTOs(commentEntities);
 	}
     
+    @Override
+	public Iterable<CommentDTO> getComments(String idSon, String author, Date from, SocialMediaTypeEnum socialMedia,
+			ViolenceLevelEnum violence, DrugsLevelEnum drugs, BullyingLevelEnum bullying, AdultLevelEnum adult) {
+    	final List<CommentEntity> commentEntities = commentRepository.getComments(idSon, author, from, socialMedia, violence, drugs, bullying, adult);
+    	return commentEntityMapper.commentEntitiesToCommentDTOs(commentEntities);
+	}
+    
+    @Override
+	public Iterable<CommentDTO> getComments(List<String> identities, String author, Date from,
+			SocialMediaTypeEnum socialMedia, ViolenceLevelEnum violence, DrugsLevelEnum drugs,
+			BullyingLevelEnum bullying, AdultLevelEnum adult) {
+    	final List<CommentEntity> commentEntities = commentRepository.getComments(identities, author, from, socialMedia, violence, drugs, bullying, adult);
+    	return commentEntityMapper.commentEntitiesToCommentDTOs(commentEntities);
+	}
     
     @PostConstruct
     protected void init(){
         Assert.notNull(commentRepository, "CommentRepository cannot be null");
         Assert.notNull(commentEntityMapper, "ICommentEntityMapper cannot be null");
     }
-	
 }

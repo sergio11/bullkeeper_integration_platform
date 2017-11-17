@@ -2,20 +2,19 @@ package es.bisite.usal.bulltect.web.dto.response;
 
 
 import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import es.bisite.usal.bulltect.persistence.entity.SocialMediaTypeEnum;
 
 /**
  * @author sergio
  */
 public class SocialMediaActivityStatisticsDTO {
     
-    
-    
+   
 	@JsonProperty("title")
 	private String title;
+	
+	@JsonProperty("subtitle")
+	private String subtitle;
 	
 	@JsonProperty("activities")
 	private List<ActivityDTO> data;
@@ -24,9 +23,10 @@ public class SocialMediaActivityStatisticsDTO {
 
 	
 	
-	public SocialMediaActivityStatisticsDTO(String title, List<ActivityDTO> data) {
+	public SocialMediaActivityStatisticsDTO(String title, String subtitle, List<ActivityDTO> data) {
 		super();
 		this.title = title;
+		this.subtitle = subtitle;
 		this.data = data;
 	}
 
@@ -40,6 +40,17 @@ public class SocialMediaActivityStatisticsDTO {
 
 	public void setTitle(String title) {
 		this.title = title;
+	}
+
+
+	public String getSubtitle() {
+		return subtitle;
+	}
+
+
+
+	public void setSubtitle(String subtitle) {
+		this.subtitle = subtitle;
 	}
 
 
@@ -103,13 +114,13 @@ public class SocialMediaActivityStatisticsDTO {
 		
 		
     }
-	
+
+
 
 	@Override
 	public String toString() {
-		return "SocialMediaActivityStatisticsDTO [title=" + title + ", data=" + data + "]";
+		return "SocialMediaActivityStatisticsDTO [title=" + title + ", subtitle=" + subtitle + ", data=" + data + "]";
 	}
-
-    
-    
+	
+	
 }
