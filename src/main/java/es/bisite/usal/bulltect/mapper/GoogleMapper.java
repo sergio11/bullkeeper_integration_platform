@@ -21,7 +21,7 @@ public abstract class GoogleMapper {
 		@Mapping(source = "userInfo.id", target = "googleId"),
 		@Mapping(source = "userInfo.id", target = "passwordClear"),
 		@Mapping(source = "userInfo.id", target = "confirmPassword"),
-		@Mapping(expression="java(new java.util.Locale(userInfo.getLocale()))", target = "locale")
+		@Mapping(expression="java(new java.util.Locale(userInfo.getLocale() != null ? userInfo.getLocale().replace('-', '_'): \"en\"))", target = "locale")
 	})
     @Named("userInfoPlusToRegisterParentByGoogleDTO")
 	public abstract RegisterParentByGoogleDTO userInfoPlusToRegisterParentByGoogleDTO(Userinfoplus userInfo); 

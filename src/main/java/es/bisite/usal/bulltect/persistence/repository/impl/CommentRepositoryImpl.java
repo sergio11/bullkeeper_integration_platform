@@ -1,5 +1,6 @@
 package es.bisite.usal.bulltect.persistence.repository.impl;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
@@ -21,6 +22,7 @@ import es.bisite.usal.bulltect.persistence.entity.CommentEntity;
 import es.bisite.usal.bulltect.persistence.entity.DrugsLevelEnum;
 import es.bisite.usal.bulltect.persistence.entity.SocialMediaTypeEnum;
 import es.bisite.usal.bulltect.persistence.entity.ViolenceLevelEnum;
+import es.bisite.usal.bulltect.domain.service.impl.SocialMediaServiceImpl;
 import es.bisite.usal.bulltect.persistence.entity.AdultLevelEnum;
 import es.bisite.usal.bulltect.persistence.entity.AnalysisStatusEnum;
 import es.bisite.usal.bulltect.persistence.entity.AnalysisTypeEnum;
@@ -214,94 +216,110 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
 	}
 
 	@Override
-	public List<CommentEntity> getComments(String idSon, String author, Date from, SocialMediaTypeEnum socialMedia,
+	public List<CommentEntity> getComments(ObjectId idSon, String author, Date from, SocialMediaTypeEnum[] socialMedias,
 			ViolenceLevelEnum violence, DrugsLevelEnum drugs, BullyingLevelEnum bullying, AdultLevelEnum adult) {
 		Assert.notNull(idSon, "Id son can not be null");
-		Assert.hasLength(idSon, "Id son can not be empty");
 		Assert.notNull(from, "From can not be null");
 		Assert.isTrue(from.before(new Date()), "From must be a date before the current one");
 		
+		final Criteria criteria = Criteria.where("target.$id")
+				.is(idSon).and("extracted_at").gte(from);
 		
-		final Query query = new Query(Criteria.where("target").is(idSon).and("extracted_at").gte(from));
+	
 		// Social Media Filter
-		if(socialMedia != null)
-			query.addCriteria(Criteria.where("social_media").is(socialMedia));
+		if(socialMedias != null && socialMedias.length > 0)
+			criteria.andOperator(Criteria.where("social_media").in(socialMedias));
 		
 		// Author Filter
 		if(author != null)
-			query.addCriteria(Criteria.where("author.external_id").is(author));
+			criteria.andOperator(Criteria.where("author.external_id").is(author));
+
+		final List<Criteria> dimensionCriterias = new ArrayList<>(); 
 			
 		// Violence Filter
 		if(violence != null && !violence.equals(ViolenceLevelEnum.UNKNOWN))
-			query.addCriteria(Criteria
-					.where("analysis_results.violence.status").is(AnalysisStatusEnum.FINISHED)
+			dimensionCriterias.add(Criteria
+					.where("analysis_results.violence.status").is(AnalysisStatusEnum.FINISHED.name())
 					.and("analysis_results.violence.result").is(violence.ordinal()));
 		// Drugs Filter
 		if(drugs != null && !drugs.equals(DrugsLevelEnum.UNKNOWN))
-			query.addCriteria(Criteria
-					.where("analysis_results.drugs.status").is(AnalysisStatusEnum.FINISHED)
+			dimensionCriterias.add(Criteria
+					.where("analysis_results.drugs.status").is(AnalysisStatusEnum.FINISHED.name())
 					.and("analysis_results.drugs.result").is(drugs.ordinal()));
 		// Bullying filter
 		if(bullying != null && !bullying.equals(BullyingLevelEnum.UNKNOWN))
-			query.addCriteria(Criteria
-					.where("analysis_results.bullying.status").is(AnalysisStatusEnum.FINISHED)
+			dimensionCriterias.add(Criteria
+					.where("analysis_results.bullying.status").is(AnalysisStatusEnum.FINISHED.name())
 					.and("analysis_results.bullying.result").is(bullying.ordinal()));
 		// Adult Content filter
+		
 		if(adult != null && !adult.equals(AdultLevelEnum.UNKNOWN))
-			query.addCriteria(Criteria
-					.where("analysis_results.adult.status").is(AnalysisStatusEnum.FINISHED)
+			dimensionCriterias.add(Criteria
+					.where("analysis_results.adult.status").is(AnalysisStatusEnum.FINISHED.name())
 					.and("analysis_results.adult.result").is(adult.ordinal()));
+		
+		if(!dimensionCriterias.isEmpty())
+			criteria.orOperator(dimensionCriterias.toArray(new Criteria[dimensionCriterias.size()]));
 
+		final Query query = new Query(criteria);
 		
         query.with(new Sort(Sort.Direction.DESC, "extracted_at"));
-        return mongoTemplate.find(query, CommentEntity.class);
+        return  mongoTemplate.find(query, CommentEntity.class);
 		
 	}
 
 	@Override
-	public List<CommentEntity> getComments(List<String> identities, String author, Date from,
-			SocialMediaTypeEnum socialMedia, ViolenceLevelEnum violence, DrugsLevelEnum drugs,
+	public List<CommentEntity> getComments(List<ObjectId> identities, String author, Date from,
+			SocialMediaTypeEnum[] socialMedias, ViolenceLevelEnum violence, DrugsLevelEnum drugs,
 			BullyingLevelEnum bullying, AdultLevelEnum adult) {
 		Assert.notNull(from, "From can not be null");
 		Assert.isTrue(from.before(new Date()), "From must be a date before the current one");
 		
 		
-		final Query query = new Query(Criteria.where("extracted_at").gte(from));
+		final Criteria criteria = Criteria.where("extracted_at").gte(from);
+		
 		
 		// children filter
 		if(identities != null && !identities.isEmpty())
-			query.addCriteria(Criteria.where("target").in(identities));
+			criteria.andOperator(Criteria.where("target.$id").in(identities));
 		
 		// Social Media Filter
-		if(socialMedia != null)
-			query.addCriteria(Criteria.where("social_media").is(socialMedia));
+		if(socialMedias != null && socialMedias.length > 0)
+			criteria.andOperator(Criteria.where("social_media").in(socialMedias));
+		
 		
 		// Author Filter
 		if(author != null)
-			query.addCriteria(Criteria.where("author.external_id").is(author));
-			
+			criteria.andOperator(Criteria.where("author.external_id").is(author));
+		
+		
+		List<Criteria> dimensionCriterias = new ArrayList<>(); 
+		
+		
 		// Violence Filter
 		if(violence != null && !violence.equals(ViolenceLevelEnum.UNKNOWN))
-			query.addCriteria(Criteria
-					.where("analysis_results.violence.status").is(AnalysisStatusEnum.FINISHED)
-					.and("analysis_results.violence.result").is(violence.ordinal()));
+			dimensionCriterias.add((Criteria
+					.where("analysis_results.violence.status").is(AnalysisStatusEnum.FINISHED.name())
+					.and("analysis_results.violence.result").is(violence.ordinal())));
 		// Drugs Filter
 		if(drugs != null && !drugs.equals(DrugsLevelEnum.UNKNOWN))
-			query.addCriteria(Criteria
-					.where("analysis_results.drugs.status").is(AnalysisStatusEnum.FINISHED)
+			dimensionCriterias.add(Criteria
+					.where("analysis_results.drugs.status").is(AnalysisStatusEnum.FINISHED.name())
 					.and("analysis_results.drugs.result").is(drugs.ordinal()));
 		// Bullying filter
 		if(bullying != null && !bullying.equals(BullyingLevelEnum.UNKNOWN))
-			query.addCriteria(Criteria
-					.where("analysis_results.bullying.status").is(AnalysisStatusEnum.FINISHED)
+			dimensionCriterias.add(Criteria
+					.where("analysis_results.bullying.status").is(AnalysisStatusEnum.FINISHED.name())
 					.and("analysis_results.bullying.result").is(bullying.ordinal()));
 		// Adult Content filter
 		if(adult != null && !adult.equals(AdultLevelEnum.UNKNOWN))
-			query.addCriteria(Criteria
-					.where("analysis_results.adult.status").is(AnalysisStatusEnum.FINISHED)
+			dimensionCriterias.add(Criteria
+					.where("analysis_results.adult.status").is(AnalysisStatusEnum.FINISHED.name())
 					.and("analysis_results.adult.result").is(adult.ordinal()));
-
 		
+		if(!dimensionCriterias.isEmpty())
+			criteria.orOperator(dimensionCriterias.toArray(new Criteria[dimensionCriterias.size()]));
+		final Query query = new Query(criteria);
         query.with(new Sort(Sort.Direction.DESC, "extracted_at"));
         return mongoTemplate.find(query, CommentEntity.class);
 	}

@@ -34,8 +34,8 @@ public interface CommentRepositoryCustom {
     void startBullyingAnalysisFor(Collection<ObjectId> ids);
     void cancelAnalyzesThatAreTakingMoreThanNHours(final AnalysisTypeEnum type, Integer hours);
     Date getExtractedAtOfTheLastCommentBySocialMediaAndSonId(final SocialMediaTypeEnum socialMedia, final ObjectId sonId);
-    List<CommentEntity> getComments(String idSon, String author, Date from, SocialMediaTypeEnum socialMedia,
+    List<CommentEntity> getComments(ObjectId idSon, String author, Date from, SocialMediaTypeEnum[] socialMedias,
 			ViolenceLevelEnum violence, DrugsLevelEnum drugs, BullyingLevelEnum bullying, AdultLevelEnum adult);
-    List<CommentEntity> getComments(List<String> identities, String author, Date from, SocialMediaTypeEnum socialMedia,
+    List<CommentEntity> getComments(List<ObjectId> identities, String author, Date from, SocialMediaTypeEnum[] socialMedias,
 			ViolenceLevelEnum violence, DrugsLevelEnum drugs, BullyingLevelEnum bullying, AdultLevelEnum adult);
 }

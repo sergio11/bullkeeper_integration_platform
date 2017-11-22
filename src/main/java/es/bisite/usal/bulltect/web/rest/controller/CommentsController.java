@@ -2,13 +2,9 @@ package es.bisite.usal.bulltect.web.rest.controller;
 
 
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
-
 import javax.validation.Valid;
-
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -125,9 +121,8 @@ public class CommentsController extends BaseController implements ICommentHAL {
             @ApiParam(name = "author", value = "Author's identifier", required = false)	
     			@RequestParam(name="author" , required=false)
     				String author,
-    		@ApiParam(name = "social_media", value = "Author's identifier", required = false)	
-				@RequestParam(name="social_media" , required=false)
-    				SocialMediaTypeEnum socialMedia,
+    	   @ApiParam(name = "social_medias", value = "Social Medias", required = false)	
+    			@RequestParam(name="social_media" , required=false) SocialMediaTypeEnum[] socialMedias,
 			@ApiParam(name = "days_ago", value = "Days Ago", required = false)
         		@RequestParam(name = "days_ago", defaultValue = "1", required = false) Date from,
         	@ApiParam(name = "violence", value = "Result for Violence", required = false)
@@ -144,7 +139,8 @@ public class CommentsController extends BaseController implements ICommentHAL {
     	}
     	
     	logger.debug("Author's identifier -> " + author);
-    	logger.debug("Social Media -> " + socialMedia);
+    	if(socialMedias != null && socialMedias.length > 0)
+    		logger.debug("Social Media -> " + socialMedias.toString());
     	logger.debug("Days Ago -> " + from);
     	logger.debug("Violence -> " + violence);
     	logger.debug("Drugs -> " + drugs);
@@ -152,7 +148,7 @@ public class CommentsController extends BaseController implements ICommentHAL {
     	logger.debug("Adult -> " + adult);
     	
     	
-    	final Iterable<CommentDTO> comments = commentsService.getComments(identities, author, from, socialMedia, violence, drugs, bullying, adult);
+    	final Iterable<CommentDTO> comments = commentsService.getComments(identities, author, from, socialMedias, violence, drugs, bullying, adult);
     	
     	if(Iterables.size(comments) == 0)
     		throw new NoCommentsFoundException();

@@ -3,6 +3,7 @@ package es.bisite.usal.bulltect.domain.service.impl;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import org.bson.types.ObjectId;
@@ -90,17 +91,27 @@ public class CommentsServiceImpl implements ICommentsService {
 	}
     
     @Override
-	public Iterable<CommentDTO> getComments(String idSon, String author, Date from, SocialMediaTypeEnum socialMedia,
+	public Iterable<CommentDTO> getComments(String idSon, String author, Date from, SocialMediaTypeEnum[] socialMedias,
 			ViolenceLevelEnum violence, DrugsLevelEnum drugs, BullyingLevelEnum bullying, AdultLevelEnum adult) {
-    	final List<CommentEntity> commentEntities = commentRepository.getComments(idSon, author, from, socialMedia, violence, drugs, bullying, adult);
+    	
+    	Assert.notNull(idSon, "Id son can not be null");
+		Assert.isTrue(ObjectId.isValid(idSon), "Id Son should have a valid format");
+		Assert.isTrue(from.before(new Date()), "From must be a date before the current one");
+    	
+    	final List<CommentEntity> commentEntities = commentRepository.getComments(new ObjectId(idSon), author, from, socialMedias, violence, drugs, bullying, adult);
     	return commentEntityMapper.commentEntitiesToCommentDTOs(commentEntities);
 	}
     
     @Override
 	public Iterable<CommentDTO> getComments(List<String> identities, String author, Date from,
-			SocialMediaTypeEnum socialMedia, ViolenceLevelEnum violence, DrugsLevelEnum drugs,
+			SocialMediaTypeEnum[] socialMedias, ViolenceLevelEnum violence, DrugsLevelEnum drugs,
 			BullyingLevelEnum bullying, AdultLevelEnum adult) {
-    	final List<CommentEntity> commentEntities = commentRepository.getComments(identities, author, from, socialMedia, violence, drugs, bullying, adult);
+    	
+    	Assert.notNull(identities, "identities can not be null");
+    	Assert.isTrue(from.before(new Date()), "From must be a date before the current one");
+    	
+    	final List<CommentEntity> commentEntities = commentRepository.getComments(identities.stream().
+    			filter((indentity) -> ObjectId.isValid(indentity)).map((indentity) -> new ObjectId(indentity)).collect(Collectors.toList()), author, from, socialMedias, violence, drugs, bullying, adult);
     	return commentEntityMapper.commentEntitiesToCommentDTOs(commentEntities);
 	}
     

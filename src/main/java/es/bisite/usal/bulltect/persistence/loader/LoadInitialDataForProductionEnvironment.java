@@ -22,8 +22,8 @@ import es.bisite.usal.bulltect.persistence.repository.UserSystemRepository;
  * @author sergio
  */
 
-/*@Component
-@Profile("prod")*/
+@Component
+@Profile("prod")
 public class LoadInitialDataForProductionEnvironment implements CommandLineRunner {
     
     private static final Logger logger = LoggerFactory.getLogger(LoadInitialDataForProductionEnvironment.class);
@@ -69,9 +69,15 @@ public class LoadInitialDataForProductionEnvironment implements CommandLineRunne
     
     @Override
     public void run(String...args) throws Exception {
+    	
         logger.debug("Load Initial Data ...");
-        authorityRepository.save(authoritiesList);
-        userSystemRepository.save(admins);
+        
+        final Long authorities = authorityRepository.count();
+        if(authorities == 0 || authorities < authoritiesList.size()){
+        	authorityRepository.deleteAll();
+        	authorityRepository.save(authoritiesList);
+        }
+        //userSystemRepository.save(admins);
         logger.info("Data Loaded ...");
     }
     

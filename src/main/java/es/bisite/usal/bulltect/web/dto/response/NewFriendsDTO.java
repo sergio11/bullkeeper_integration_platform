@@ -44,6 +44,8 @@ public class NewFriendsDTO {
 
 	public static class UserDTO {
 		
+		@JsonProperty("external_id")
+		private String id;
 		@JsonProperty("name")
         private String name;
 		@JsonProperty("profile_image")
@@ -53,11 +55,21 @@ public class NewFriendsDTO {
 		
 		public UserDTO(){}
 		
-		public UserDTO(String name, String profileImage, String since) {
+		public UserDTO(String id, String name, String profileImage, String since) {
 			super();
+			this.id = id;
 			this.name = name;
 			this.profileImage = profileImage;
 			this.since = since;
+		}
+	
+
+		public String getId() {
+			return id;
+		}
+
+		public void setId(String id) {
+			this.id = id;
 		}
 
 		public String getName() {

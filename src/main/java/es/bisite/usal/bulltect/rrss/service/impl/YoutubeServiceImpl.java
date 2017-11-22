@@ -92,14 +92,13 @@ public class YoutubeServiceImpl implements IYoutubeService {
     
     
     private Stream<Comment> getCommentRelatedToChannelAfterThan(final YouTube youTube, final String channelId, Date startDate) {
-    	
+
 		return Optional.ofNullable(getCommentThreadLists(youTube, channelId))
 				.map(commentThreadListResult -> commentThreadListResult.getItems()).map(Collection::stream)
 				.filter(Objects::nonNull).orElse(Stream.empty())
 
 				.flatMap(commentThread -> {
 					Comment topLevelComment = commentThread.getSnippet().getTopLevelComment();
-
 					return commentThread.getReplies() != null ?
 
 							StreamUtils.concat(

@@ -1,7 +1,7 @@
 package es.bisite.usal.bulltect.batch;
 
-import java.util.List;
 
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
@@ -59,7 +59,8 @@ public class AlertItemReader extends AbstractItemCountingItemStreamItemReader<Al
 	@Override
 	protected void doClose() throws Exception {
 		logger.debug("AlertItemReader doClose called ...");
-		parents.clear();
+		if(parents != null)
+			parents.clear();
 	    setMaxItemCount(0);
 	    setCurrentItemCount(0);
 	}

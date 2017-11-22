@@ -179,9 +179,9 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
         				String author,
             @ApiParam(name = "days_ago", value = "Days Ago", required = false)
     			@RequestParam(name = "days_ago", defaultValue = "1", required = false) Date from,
-    		@ApiParam(name = "social_media", value = "Author's identifier", required = false)	
+    		@ApiParam(name = "social_media", value = "Social Medias", required = false)	
 				@RequestParam(name="social_media" , required=false)
-					SocialMediaTypeEnum socialMedia,
+					SocialMediaTypeEnum[] socialMedias,
 	    	@ApiParam(name = "violence", value = "Result for Violence", required = false)
 				@RequestParam(name = "violence", required = false) ViolenceLevelEnum violence,
 			@ApiParam(name = "drugs", value = "Result for Drugs", required = false)
@@ -193,14 +193,15 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
         
     	logger.debug("Get Comments by user with id: " + id);
     	logger.debug("Author's identifier -> " + author);
-    	logger.debug("Social Media -> " + socialMedia);
+    	if(socialMedias != null && socialMedias.length > 0)
+    		logger.debug("Social Media count -> " + socialMedias.length + " Medias -> "+ socialMedias.toString());
     	logger.debug("Days Ago -> " + from);
     	logger.debug("Violence -> " + violence);
     	logger.debug("Drugs -> " + drugs);
     	logger.debug("Bullying -> " + bullying);
     	logger.debug("Adult -> " + adult);
         
-        Iterable<CommentDTO> comments = commentService.getComments(id, author, from, socialMedia, violence, drugs, bullying, adult);
+        Iterable<CommentDTO> comments = commentService.getComments(id, author, from, socialMedias, violence, drugs, bullying, adult);
         
         if(Iterables.size(comments) == 0)
         	throw new CommentsBySonNotFoundException();

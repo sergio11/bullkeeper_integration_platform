@@ -26,9 +26,9 @@ public interface ICommentsService {
     Page<CommentDTO> getCommentBySonIdPaginated(Pageable pageable, String userId);
     Iterable<CommentDTO> getCommentBySonId(String userId);
     Iterable<CommentDTO> getComments(List<String> identities, String author, Date from,
-    		SocialMediaTypeEnum socialMedia, ViolenceLevelEnum violence, DrugsLevelEnum drugs, BullyingLevelEnum bullying,
+    		SocialMediaTypeEnum[] socialMedias, ViolenceLevelEnum violence, DrugsLevelEnum drugs, BullyingLevelEnum bullying,
     		AdultLevelEnum adult);
     Iterable<CommentDTO> getComments(String idSon, String author, Date from,
-    		SocialMediaTypeEnum socialMedia, ViolenceLevelEnum violence, DrugsLevelEnum drugs, BullyingLevelEnum bullying,
+    		SocialMediaTypeEnum[] socialMedias, ViolenceLevelEnum violence, DrugsLevelEnum drugs, BullyingLevelEnum bullying,
     		AdultLevelEnum adult);
 }

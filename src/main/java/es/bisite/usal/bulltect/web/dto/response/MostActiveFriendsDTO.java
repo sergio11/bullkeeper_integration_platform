@@ -46,6 +46,8 @@ public class MostActiveFriendsDTO {
 
 	public static class UserDTO {
 
+		@JsonProperty("external_id")
+		private String id;
 		@JsonProperty("name")
         private String name;
 		@JsonProperty("profile_image")
@@ -59,8 +61,9 @@ public class MostActiveFriendsDTO {
 		
 		public UserDTO(){}
 	
-		public UserDTO(String name, String profileImage, SocialMediaTypeEnum socialMedia, Long value, String valueLabel) {
+		public UserDTO(String id, String name, String profileImage, SocialMediaTypeEnum socialMedia, Long value, String valueLabel) {
 			super();
+			this.id = id;
 			this.name = name;
 			this.profileImage = profileImage;
 			this.socialMedia = socialMedia;
@@ -68,6 +71,15 @@ public class MostActiveFriendsDTO {
 			this.valueLabel = valueLabel;
 		}
 		
+		
+		public String getId() {
+			return id;
+		}
+
+		public void setId(String id) {
+			this.id = id;
+		}
+
 		public String getName() {
 			return name;
 		}

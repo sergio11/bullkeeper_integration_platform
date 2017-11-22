@@ -331,7 +331,7 @@ public class StatisticsServiceImpl implements IStatisticsService {
         			final Integer totalComments = mostActiveFriendEntry.getValue().values().stream().mapToInt(Number::intValue).sum();
         			return mostActiveFriendEntry.getValue()
         					.entrySet().parallelStream().sorted((f1, f2) -> Long.compare(f2.getValue(), f1.getValue())).map(activeFriend -> new MostActiveFriendsDTO.UserDTO(
-        							activeFriend.getKey().getName(), activeFriend.getKey().getImage(), mostActiveFriendEntry.getKey(), (long)Math.round(activeFriend.getValue().floatValue()/totalComments.floatValue()*100) ,
+        							activeFriend.getKey().getExternalId(), activeFriend.getKey().getName(), activeFriend.getKey().getImage(), mostActiveFriendEntry.getKey(), (long)Math.round(activeFriend.getValue().floatValue()/totalComments.floatValue()*100) ,
         							Math.round(activeFriend.getValue().floatValue()/totalComments.floatValue()*100) + "%"));
         		}).collect(Collectors.toList());
     	
@@ -357,6 +357,7 @@ public class StatisticsServiceImpl implements IStatisticsService {
 		 .parallelStream()
 		 .filter(newFriendEntry -> newFriendEntry.getValue().after(from))
 		 .map(newFriendEntry -> new NewFriendsDTO.UserDTO(
+				 newFriendEntry.getKey().getExternalId(),
 				 newFriendEntry.getKey().getName(), 
 				 newFriendEntry.getKey().getImage(),
 				 pt.format(newFriendEntry.getValue())))
