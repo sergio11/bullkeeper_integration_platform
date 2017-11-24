@@ -36,11 +36,17 @@ import es.bisite.usal.bulltect.events.ParentRegistrationByFacebookSuccessEvent;
 import es.bisite.usal.bulltect.events.ParentRegistrationByGoogleSuccessEvent;
 import es.bisite.usal.bulltect.events.ParentRegistrationSuccessEvent;
 import es.bisite.usal.bulltect.events.PasswordResetEvent;
+import es.bisite.usal.bulltect.exception.NoAlertsFoundException;
+import es.bisite.usal.bulltect.exception.NoChildrenFoundForParentException;
+import es.bisite.usal.bulltect.exception.NoChildrenFoundForSelfParentException;
+import es.bisite.usal.bulltect.exception.NoParentsFoundException;
+import es.bisite.usal.bulltect.exception.ParentNotFoundException;
 import es.bisite.usal.bulltect.persistence.constraints.ParentShouldExists;
 import es.bisite.usal.bulltect.persistence.constraints.ValidObjectId;
 import es.bisite.usal.bulltect.persistence.constraints.group.ICommonSequence;
 import es.bisite.usal.bulltect.persistence.constraints.group.IResendActivationEmailSequence;
 import es.bisite.usal.bulltect.persistence.constraints.group.IResetPasswordSequence;
+import es.bisite.usal.bulltect.persistence.entity.AlertLevelEnum;
 import es.bisite.usal.bulltect.persistence.entity.EmailTypeEnum;
 import es.bisite.usal.bulltect.rrss.service.IFacebookService;
 import es.bisite.usal.bulltect.rrss.service.IGoogleService;
@@ -65,11 +71,6 @@ import es.bisite.usal.bulltect.web.dto.response.SonDTO;
 import es.bisite.usal.bulltect.web.dto.response.UserSystemPreferencesDTO;
 import es.bisite.usal.bulltect.web.dto.response.ValidationErrorDTO;
 import es.bisite.usal.bulltect.web.rest.ApiHelper;
-import es.bisite.usal.bulltect.web.rest.exception.NoAlertsFoundException;
-import es.bisite.usal.bulltect.web.rest.exception.NoChildrenFoundForParentException;
-import es.bisite.usal.bulltect.web.rest.exception.NoChildrenFoundForSelfParentException;
-import es.bisite.usal.bulltect.web.rest.exception.NoParentsFoundException;
-import es.bisite.usal.bulltect.web.rest.exception.ParentNotFoundException;
 import es.bisite.usal.bulltect.web.rest.hal.IParentHAL;
 import es.bisite.usal.bulltect.web.rest.hal.ISonHAL;
 import es.bisite.usal.bulltect.web.rest.response.APIResponse;
@@ -476,11 +477,22 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     		@ApiResponse(code = 200, message= "Alerts", response = AlertDTO.class)
     })
     public ResponseEntity<APIResponse<Iterable<AlertDTO>>> getAlertsForSelfParent(
-    		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
+    		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent,
+    		@ApiParam(name = "count", value = "Number of alerts", required = false)
+				@RequestParam(name = "count", defaultValue = "0", required = false) Integer count,
+    		@ApiParam(name = "days_ago", value = "Days Ago", required = false)
+				@RequestParam(name = "days_ago", defaultValue = "1", required = false) Date from,
+			@ApiParam(name = "levels", value = "Alert Levels", required = false)	
+				@RequestParam(name="levels" , required=false)
+        			AlertLevelEnum[] levels) throws Throwable {
     	
         logger.debug("Get Alerts For Self Parent");
+        logger.debug("Count -> " + count);
+        logger.debug("From -> " + from);
+        if(levels != null && levels.length > 0)
+        	logger.debug("Levels -> " + levels.toString());
         
-        Iterable<AlertDTO> alerts = alertService.findByParent(selfParent.getUserId());
+        Iterable<AlertDTO> alerts = alertService.findParentAlerts(selfParent.getUserId(), count, from, levels);
         
         // Update Last Access To Alerts
         //parentsService.updateLastAccessToAlerts(selfParent.getUserId());

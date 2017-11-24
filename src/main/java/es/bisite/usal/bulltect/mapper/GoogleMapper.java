@@ -1,6 +1,7 @@
 package es.bisite.usal.bulltect.mapper;
 
 import java.util.List;
+import java.util.Locale;
 
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
@@ -13,6 +14,18 @@ import es.bisite.usal.bulltect.web.dto.request.RegisterParentByGoogleDTO;
 
 @Mapper(unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE)
 public abstract class GoogleMapper {
+	
+	protected Locale parseLocale(String locale) {
+		
+		Locale userLocale = new Locale("es");
+		
+		if(locale != null) {
+			
+			
+		}
+		
+		
+	}
 	
 	@Mappings({
 		@Mapping(source = "userInfo.givenName", target = "firstName"),

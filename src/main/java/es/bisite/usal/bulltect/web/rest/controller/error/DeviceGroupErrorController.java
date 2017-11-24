@@ -12,12 +12,12 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import es.bisite.usal.bulltect.exception.DeviceGroupCreateFailedException;
+import es.bisite.usal.bulltect.exception.NoDevicesIntoTheGroupException;
+import es.bisite.usal.bulltect.exception.RemoveDeviceFromGroupFailedException;
+import es.bisite.usal.bulltect.exception.UpdateDeviceFailedException;
 import es.bisite.usal.bulltect.web.rest.ApiHelper;
 import es.bisite.usal.bulltect.web.rest.controller.BaseController;
-import es.bisite.usal.bulltect.web.rest.exception.DeviceGroupCreateFailedException;
-import es.bisite.usal.bulltect.web.rest.exception.NoDevicesIntoTheGroupException;
-import es.bisite.usal.bulltect.web.rest.exception.RemoveDeviceFromGroupFailedException;
-import es.bisite.usal.bulltect.web.rest.exception.UpdateDeviceFailedException;
 import es.bisite.usal.bulltect.web.rest.response.APIResponse;
 import es.bisite.usal.bulltect.web.rest.response.DeviceGroupResponseCode;
 import io.jsonwebtoken.lang.Assert;

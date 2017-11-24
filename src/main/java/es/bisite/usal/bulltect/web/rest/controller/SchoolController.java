@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.common.collect.Iterables;
 
 import es.bisite.usal.bulltect.domain.service.ISchoolService;
+import es.bisite.usal.bulltect.exception.NoSchoolsFoundException;
+import es.bisite.usal.bulltect.exception.SchoolNotFoundException;
 import es.bisite.usal.bulltect.persistence.constraints.ValidObjectId;
 import es.bisite.usal.bulltect.persistence.constraints.group.ICommonSequence;
 import es.bisite.usal.bulltect.web.dto.request.AddSchoolDTO;
@@ -31,8 +33,6 @@ import es.bisite.usal.bulltect.web.dto.response.SchoolDTO;
 import es.bisite.usal.bulltect.web.dto.response.SchoolNameDTO;
 import es.bisite.usal.bulltect.web.dto.response.ValidationErrorDTO;
 import es.bisite.usal.bulltect.web.rest.ApiHelper;
-import es.bisite.usal.bulltect.web.rest.exception.NoSchoolsFoundException;
-import es.bisite.usal.bulltect.web.rest.exception.SchoolNotFoundException;
 import es.bisite.usal.bulltect.web.rest.hal.ISchoolHAL;
 import es.bisite.usal.bulltect.web.rest.response.APIResponse;
 import es.bisite.usal.bulltect.web.rest.response.SchoolResponseCode;

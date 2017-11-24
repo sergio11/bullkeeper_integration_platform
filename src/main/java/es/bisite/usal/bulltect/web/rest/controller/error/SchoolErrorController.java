@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import es.bisite.usal.bulltect.exception.NoSchoolsFoundException;
+import es.bisite.usal.bulltect.exception.SchoolNotFoundException;
 import es.bisite.usal.bulltect.web.rest.ApiHelper;
 import es.bisite.usal.bulltect.web.rest.controller.BaseController;
-import es.bisite.usal.bulltect.web.rest.exception.NoSchoolsFoundException;
-import es.bisite.usal.bulltect.web.rest.exception.SchoolNotFoundException;
 import es.bisite.usal.bulltect.web.rest.response.APIResponse;
 import es.bisite.usal.bulltect.web.rest.response.SchoolResponseCode;
 

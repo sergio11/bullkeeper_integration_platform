@@ -43,7 +43,7 @@ public interface IParentsService {
     void updateFbAccessToken(String fbId, String fbAccessToken);
     void cancelAccountDeletionProcess(String confirmationToken);
     void startAccountDeletionProcess(ObjectId id, String confirmationToken);
-    Long deleteAccount(String confirmationToken);
+    void deleteAccount(String confirmationToken);
     Long deleteUnactivatedAccounts();
     void cancelAllAccountDeletionProcess();
     void updateLastAccessToAlerts(ObjectId id);

@@ -122,13 +122,9 @@ public class ViolenceAnalysisTasks extends AbstractAnalysisTasks {
 				
 			}
 			
-		
-			final ViolenceResultsEntity violenceResultsEntity = sonEntity.getResults().getViolence();
-			violenceResultsEntity.setDate(new Date());
-			violenceResultsEntity.setObsolete(Boolean.FALSE);
-			violenceResultsEntity.setTotalNonViolentComments(results.containsKey(ViolenceLevelEnum.NEGATIVE) ? results.get(ViolenceLevelEnum.NEGATIVE) : 0L);
-			violenceResultsEntity.setTotalViolentComments(results.containsKey(ViolenceLevelEnum.POSITIVE) ? results.get(ViolenceLevelEnum.POSITIVE): 0L);
-			sonRepository.save(sonEntity);
+			sonRepository.updateViolenceResultsFor(sonEntity.getId(), 
+					results.containsKey(ViolenceLevelEnum.POSITIVE) ? results.get(ViolenceLevelEnum.POSITIVE): 0L, 
+					results.containsKey(ViolenceLevelEnum.NEGATIVE) ? results.get(ViolenceLevelEnum.NEGATIVE) : 0L);
 	     }
 				
 	}

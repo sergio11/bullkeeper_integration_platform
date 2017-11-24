@@ -14,6 +14,7 @@ public interface CommonUserDetailsAware<T> extends UserDetails {
     final String LAST_PASSWORD_RESET_DATE = "LAST_PASSWORD_RESET_DATE";
     final String LAST_ACCESS_TO_ALERTS = "LAST_ACCESS_TO_ALERTS";
     final String LAST_LOGIN_ACCESS = "LAST_LOGIN_ACCESS";
+    final String IS_PENDING_DELETE = "IS_PENDING_DELETE";
 
     T getUserId();
 
@@ -32,5 +33,9 @@ public interface CommonUserDetailsAware<T> extends UserDetails {
     Date getLastAccessToAlerts();
     
     Date getLastLoginAccess();
+    
+    Boolean isPendingDelete();
+    
+    
 
 }

@@ -30,11 +30,11 @@ public final class RegisterSonDTO {
     @JsonProperty("birthdate")
     @JsonDeserialize(using = BirthdayDeserializer.class)
     @NotNull(message="{user.age.notnull}")
-    @InAgeRange(min="8", max="18", message="{user.age.invalid}")
+    @InAgeRange(min="8", max="18", message="{user.age.invalid}", groups = Extended.class)
     private Date birthdate;
 
     @NotBlank(message = "{user.school.notnull}")
-    @ValidObjectId(message = "{user.school.not.valid}")
+    @ValidObjectId(message = "{user.school.not.valid}", groups = Extended.class)
     @SchoolMustExists(message="{school.should.exists}" , groups = Extended.class)
     @JsonProperty("school")
     private String school;

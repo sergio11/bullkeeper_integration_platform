@@ -1,7 +1,5 @@
 package es.bisite.usal.bulltect.domain.service.impl;
 
-
-
 import javax.annotation.PostConstruct;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
@@ -16,6 +14,9 @@ import org.springframework.stereotype.Service;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.PhoneNumberUtil.PhoneNumberFormat;
 import es.bisite.usal.bulltect.domain.service.IParentsService;
+import es.bisite.usal.bulltect.domain.service.ISonService;
+import es.bisite.usal.bulltect.exception.EmailAlreadyExistsException;
+import es.bisite.usal.bulltect.exception.ParentNotFoundException;
 import es.bisite.usal.bulltect.mapper.ParentEntityMapper;
 import es.bisite.usal.bulltect.mapper.PreferencesEntityMapper;
 import es.bisite.usal.bulltect.mapper.SonEntityMapper;
@@ -35,7 +36,7 @@ import es.bisite.usal.bulltect.web.dto.request.UpdateSonDTO;
 import es.bisite.usal.bulltect.web.dto.response.ParentDTO;
 import es.bisite.usal.bulltect.web.dto.response.SonDTO;
 import es.bisite.usal.bulltect.web.dto.response.UserSystemPreferencesDTO;
-import es.bisite.usal.bulltect.web.rest.exception.EmailAlreadyExistsException;
+import es.bisite.usal.bulltect.web.uploads.service.IUploadFilesService;
 import io.jsonwebtoken.lang.Assert;
 
 @Service
@@ -50,10 +51,13 @@ public class ParentsServiceImpl implements IParentsService {
     private final PasswordEncoder passwordEncoder;
     private final SchoolRepository schoolRepository;
     private final PreferencesEntityMapper preferencesEntityMapper;
+    private final ISonService sonService;
+    private final IUploadFilesService uploadFilesService;
 
     @Autowired
     public ParentsServiceImpl(ParentRepository parentRepository, ParentEntityMapper parentEntityMapper, SonEntityMapper sonEntityMapper,
-            SonRepository sonRepository, PasswordEncoder passwordEncoder, SchoolRepository schoolRepository, PreferencesEntityMapper preferencesEntityMapper) {
+            SonRepository sonRepository, PasswordEncoder passwordEncoder, SchoolRepository schoolRepository, PreferencesEntityMapper preferencesEntityMapper,
+            ISonService sonService, IUploadFilesService uploadFilesService) {
         super();
         this.parentRepository = parentRepository;
         this.parentEntityMapper = parentEntityMapper;
@@ -62,6 +66,8 @@ public class ParentsServiceImpl implements IParentsService {
         this.passwordEncoder = passwordEncoder;
         this.schoolRepository = schoolRepository;
         this.preferencesEntityMapper = preferencesEntityMapper;
+        this.sonService = sonService;
+        this.uploadFilesService = uploadFilesService;
     }
 
     @Override
@@ -233,12 +239,23 @@ public class ParentsServiceImpl implements IParentsService {
     }
 
     @Override
-    public Long deleteAccount(String confirmationToken) {
-        return parentRepository.deleteByConfirmationToken(confirmationToken);
+    public void deleteAccount(String confirmationToken) {
+    	ParentEntity parent = parentRepository.findByConfirmationToken(confirmationToken);
+    	if(parent == null)
+    		throw new ParentNotFoundException();
+    	uploadFilesService.deleteProfileImage(parentRepository.getProfileImageIdByUserId(parent.getId()));
+		parentRepository.delete(parent);
+		sonService.deleteAllOfParent(parent.getId());
+		
     }
 
     @Override
     public void cancelAccountDeletionProcess(String confirmationToken) {
+    	
+    	Long exists = parentRepository.countByConfirmationToken(confirmationToken);
+    	if(exists == 0)
+    		throw new ParentNotFoundException();
+    	
         parentRepository.setPendingDeletionAsFalseAndDeleteConfirmationToken(confirmationToken);
     }
 

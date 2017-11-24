@@ -9,7 +9,7 @@ import javax.validation.ConstraintValidatorContext;
 
 public class InDateRangeValidator implements ConstraintValidator<InDateRange, java.util.Date> {
     
-    private static final SimpleDateFormat dateParser = new SimpleDateFormat("yyyy-MM-dd");
+    private static final SimpleDateFormat dateParser = new SimpleDateFormat("dd-MM-yyyy");
     
     private InDateRange constraintAnnotation;
     

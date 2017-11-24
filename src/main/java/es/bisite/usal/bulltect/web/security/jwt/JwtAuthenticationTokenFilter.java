@@ -17,6 +17,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import es.bisite.usal.bulltect.web.security.exception.AccountPendingToBeRemoveException;
 import es.bisite.usal.bulltect.web.security.userdetails.CommonUserDetailsAware;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
@@ -52,8 +53,8 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             
                 @SuppressWarnings("unchecked")
                 CommonUserDetailsAware<Long> userDetails = (CommonUserDetailsAware<Long>) this.userDetailsService.loadUserByUsername(username);
-
-                if (jwtTokenUtil.validateToken(authToken, userDetails)) {
+                
+                if (!userDetails.isPendingDelete() && jwtTokenUtil.validateToken(authToken, userDetails)) {
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     logger.info("authenticated user " + username + ", setting security context");

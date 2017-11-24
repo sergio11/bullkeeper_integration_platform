@@ -10,10 +10,13 @@ import com.restfb.exception.FacebookOAuthException;
 import com.restfb.types.Album;
 import com.restfb.types.Comment;
 import com.restfb.types.Post;
+import com.restfb.types.ProfilePictureSource;
 import com.restfb.types.User;
 
 import es.bisite.usal.bulltect.exception.GetCommentsProcessException;
+import es.bisite.usal.bulltect.exception.GetInformationFromFacebookException;
 import es.bisite.usal.bulltect.exception.InvalidAccessTokenException;
+import es.bisite.usal.bulltect.exception.InvalidFacebookIdException;
 import es.bisite.usal.bulltect.i18n.service.IMessageSourceResolverService;
 import es.bisite.usal.bulltect.mapper.IFacebookCommentMapper;
 import es.bisite.usal.bulltect.mapper.UserFacebookMapper;
@@ -22,8 +25,6 @@ import es.bisite.usal.bulltect.persistence.entity.SocialMediaTypeEnum;
 import es.bisite.usal.bulltect.rrss.service.IFacebookService;
 import es.bisite.usal.bulltect.util.StreamUtils;
 import es.bisite.usal.bulltect.web.dto.request.RegisterParentByFacebookDTO;
-import es.bisite.usal.bulltect.web.rest.exception.GetInformationFromFacebookException;
-import es.bisite.usal.bulltect.web.rest.exception.InvalidFacebookIdException;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -218,8 +219,14 @@ public class FacebookServiceImpl implements IFacebookService {
     public String fetchUserPicture(String accessToken) {
         FacebookClient client = new DefaultFacebookClient(accessToken, Version.VERSION_2_8);
         User user = client.fetchObject("me", User.class, Parameter.with("fields", "picture"));
-        String profileImageUrl = user.getPicture().getUrl();
-        logger.debug("Profile Image " + profileImageUrl);
+        String profileImageUrl = null;
+        final ProfilePictureSource picture = user.getPicture();
+        if(picture != null) {
+        	picture.setWidth(100);
+            picture.setHeight(100);
+            profileImageUrl = picture.getUrl();
+            logger.debug("Profile Image " + profileImageUrl);
+        }
         return profileImageUrl;
     }
     

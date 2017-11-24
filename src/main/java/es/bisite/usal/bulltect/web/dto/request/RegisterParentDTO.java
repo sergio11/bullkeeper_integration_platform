@@ -2,17 +2,13 @@ package es.bisite.usal.bulltect.web.dto.request;
 
 import java.util.Date;
 import java.util.Locale;
-
 import javax.validation.constraints.Size;
-
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.context.i18n.LocaleContextHolder;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
-
 import es.bisite.usal.bulltect.persistence.constraints.FieldMatch;
 import es.bisite.usal.bulltect.persistence.constraints.InDateRange;
 import es.bisite.usal.bulltect.persistence.constraints.ParentEmailShouldNotExist;
@@ -32,14 +28,14 @@ public  class RegisterParentDTO {
 	protected String firstName;
 	
 	@NotBlank(message = "{user.lastname.notnull}")
-    @Size(min = 3, max = 15, message = "{user.lastname.size}")
+    @Size(min = 3, max = 30, message = "{user.lastname.size}")
 	@JsonProperty("last_name")
 	@JsonDeserialize(using = ClearStringDeserializer.class)
 	protected String lastName;
 	
 	
 	@JsonDeserialize(using = BirthdayDeserializer.class)
-	@InDateRange(min = "1960-1-1", max = "2000-1-1", message="{user.birthdate.invalid}")
+	@InDateRange(min = "1-1-1960", max = "1-1-2000", message="{user.birthdate.invalid}")
 	@JsonProperty("birthdate")
 	protected Date birthdate;
  

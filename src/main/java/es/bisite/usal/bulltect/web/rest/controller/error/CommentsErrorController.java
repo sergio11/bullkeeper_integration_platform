@@ -15,14 +15,14 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import es.bisite.usal.bulltect.exception.CommentNotFoundException;
+import es.bisite.usal.bulltect.exception.NoActiveFriendsInThisPeriodException;
+import es.bisite.usal.bulltect.exception.NoCommentsExtractedException;
+import es.bisite.usal.bulltect.exception.NoCommentsFoundException;
+import es.bisite.usal.bulltect.exception.NoLikesFoundInThisPeriodException;
+import es.bisite.usal.bulltect.exception.NoNewFriendsAtThisTimeException;
 import es.bisite.usal.bulltect.web.rest.ApiHelper;
 import es.bisite.usal.bulltect.web.rest.controller.BaseController;
-import es.bisite.usal.bulltect.web.rest.exception.CommentNotFoundException;
-import es.bisite.usal.bulltect.web.rest.exception.NoActiveFriendsInThisPeriodException;
-import es.bisite.usal.bulltect.web.rest.exception.NoCommentsExtractedException;
-import es.bisite.usal.bulltect.web.rest.exception.NoCommentsFoundException;
-import es.bisite.usal.bulltect.web.rest.exception.NoLikesFoundInThisPeriodException;
-import es.bisite.usal.bulltect.web.rest.exception.NoNewFriendsAtThisTimeException;
 import es.bisite.usal.bulltect.web.rest.response.APIResponse;
 import es.bisite.usal.bulltect.web.rest.response.CommentResponseCode;
 

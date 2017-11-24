@@ -245,6 +245,24 @@ public class AlertServiceImpl implements IAlertService {
     	final AlertEntity alertSaved = alertRepository.save(alertToSave);
         return alertMapper.alertEntityToAlertDTO(alertSaved);
 	}
+    
+    @Override
+	public Iterable<AlertDTO> findParentAlerts(ObjectId id, Integer count, Date from, AlertLevelEnum[] levels) {
+    	Assert.notNull(id, "Id can not be null");
+    	Assert.notNull(count, "Count cannot be null");
+		Assert.notNull(from, "From can not be null");
+		Assert.isTrue(from.before(new Date()), "From should be a date before the current time");
+    	return alertMapper.alertEntitiesToAlertDTO(alertRepository.findParentAlerts(id, count, from, levels));
+	}
+
+	@Override
+	public Iterable<AlertDTO> findSonAlerts(ObjectId id, Integer count, Date from, AlertLevelEnum[] levels) {
+		Assert.notNull(id, "Id can not be null");
+		Assert.notNull(count, "Count cannot be null");
+		Assert.notNull(from, "From can not be null");
+		Assert.isTrue(from.before(new Date()), "From should be a date before the current time");
+		return alertMapper.alertEntitiesToAlertDTO(alertRepository.findSonAlerts(id, count, from, levels));
+	}
 
     @PostConstruct
     protected void init() {

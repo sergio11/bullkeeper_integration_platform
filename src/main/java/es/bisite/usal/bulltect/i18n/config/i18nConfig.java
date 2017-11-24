@@ -1,9 +1,7 @@
 
 package es.bisite.usal.bulltect.i18n.config;
 
-
 import javax.annotation.PostConstruct;
-
 import org.ocpsoft.prettytime.PrettyTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +15,8 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
+
+import es.bisite.usal.bulltect.i18n.resolver.SmartLocaleResolver;
 
 @Configuration
 public class i18nConfig {

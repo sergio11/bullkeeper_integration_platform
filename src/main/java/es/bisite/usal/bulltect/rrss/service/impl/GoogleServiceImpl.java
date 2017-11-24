@@ -17,11 +17,11 @@ import com.restfb.Version;
 import com.restfb.exception.FacebookOAuthException;
 import com.restfb.types.User;
 
+import es.bisite.usal.bulltect.exception.GetInformationFromFacebookException;
+import es.bisite.usal.bulltect.exception.GetInformationFromGoogleException;
 import es.bisite.usal.bulltect.mapper.GoogleMapper;
 import es.bisite.usal.bulltect.rrss.service.IGoogleService;
 import es.bisite.usal.bulltect.web.dto.request.RegisterParentByGoogleDTO;
-import es.bisite.usal.bulltect.web.rest.exception.GetInformationFromFacebookException;
-import es.bisite.usal.bulltect.web.rest.exception.GetInformationFromGoogleException;
 
 @Service
 @Profile({"dev", "prod"})

@@ -119,12 +119,10 @@ public class BullyingAnalysisTasks extends AbstractAnalysisTasks {
 				}
 				
 			}
-			
-			bullyingResultsEntity.setDate(new Date());
-			bullyingResultsEntity.setObsolete(Boolean.FALSE);
-			bullyingResultsEntity.setTotalCommentsBullying(results.containsKey(BullyingLevelEnum.POSITIVE) ? results.get(BullyingLevelEnum.POSITIVE): 0L);
-			bullyingResultsEntity.setTotalCommentsNoBullying(results.containsKey(BullyingLevelEnum.NEGATIVE) ? results.get(BullyingLevelEnum.NEGATIVE): 0L);
-			sonRepository.save(sonEntity);
+
+			sonRepository.updateBullyingResultsFor(sonEntity.getId(), 
+					results.containsKey(BullyingLevelEnum.POSITIVE) ? results.get(BullyingLevelEnum.POSITIVE): 0L, 
+							results.containsKey(BullyingLevelEnum.NEGATIVE) ? results.get(BullyingLevelEnum.NEGATIVE): 0L);
 	     }
 				
 	}

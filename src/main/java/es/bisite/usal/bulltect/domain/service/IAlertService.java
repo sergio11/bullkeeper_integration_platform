@@ -40,6 +40,8 @@ public interface IAlertService {
     Iterable<AlertDTO> findByParent(ObjectId id, Boolean delivered);
     
     Iterable<AlertDTO> findByParent(ObjectId id);
+    
+    Iterable<AlertDTO> findParentAlerts(ObjectId id, Integer count, Date from, AlertLevelEnum[] levels);
 
     AlertsPageDTO getLastAlerts(ObjectId parent, Date lastAccessToAlerts, Integer count, String[] levels);
     
@@ -48,6 +50,8 @@ public interface IAlertService {
     Long deleteAlertsOfParent(ObjectId parent);
 
     Iterable<AlertDTO> findBySon(ObjectId son);
+    
+    Iterable<AlertDTO> findSonAlerts(ObjectId id,  Integer count, Date from, AlertLevelEnum[] levels);
 
     Long clearChildAlerts(ObjectId son);
     

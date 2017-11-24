@@ -12,12 +12,12 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import es.bisite.usal.bulltect.exception.CreateAlertFailedException;
+import es.bisite.usal.bulltect.exception.NoAlertsFoundException;
+import es.bisite.usal.bulltect.exception.NoAlertsStatisticsForThisPeriodException;
+import es.bisite.usal.bulltect.exception.NoNewAlertsFoundException;
 import es.bisite.usal.bulltect.web.rest.ApiHelper;
 import es.bisite.usal.bulltect.web.rest.controller.BaseController;
-import es.bisite.usal.bulltect.web.rest.exception.CreateAlertFailedException;
-import es.bisite.usal.bulltect.web.rest.exception.NoAlertsFoundException;
-import es.bisite.usal.bulltect.web.rest.exception.NoAlertsStatisticsForThisPeriodException;
-import es.bisite.usal.bulltect.web.rest.exception.NoNewAlertsFoundException;
 import es.bisite.usal.bulltect.web.rest.response.APIResponse;
 import es.bisite.usal.bulltect.web.rest.response.AlertResponseCode;
 import io.jsonwebtoken.lang.Assert;

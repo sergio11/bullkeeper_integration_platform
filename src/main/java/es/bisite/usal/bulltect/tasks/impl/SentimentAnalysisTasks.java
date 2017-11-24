@@ -126,18 +126,11 @@ public class SentimentAnalysisTasks extends AbstractAnalysisTasks {
 				
 			}
 			
-			sentimentResultsEntity.setDate(new Date());
-			sentimentResultsEntity.setObsolete(Boolean.FALSE);
-			sentimentResultsEntity.setTotalNegative(sentimentResultEntry.getValue().containsKey(SentimentLevelEnum.NEGATIVE)
-					? sentimentResultEntry.getValue().get(SentimentLevelEnum.NEGATIVE) : 0L);
-			sentimentResultsEntity.setTotalNeutro(sentimentResultEntry.getValue().containsKey(SentimentLevelEnum.NEUTRO) ? 
-					sentimentResultEntry.getValue().get(SentimentLevelEnum.NEUTRO): 0L);
-			sentimentResultsEntity.setTotalPositive(sentimentResultEntry.getValue().containsKey(SentimentLevelEnum.POSITIVE) ? 
-					sentimentResultEntry.getValue().get(SentimentLevelEnum.POSITIVE): 0L);
-			
-			logger.debug("Sentiment Result -> " + sentimentResultsEntity.toString());
-			
-			sonRepository.save(sonEntity);
+
+			sonRepository.updateSentimentResultsFor(sonEntity.getId(), sentimentResultEntry.getValue().containsKey(SentimentLevelEnum.POSITIVE) ? 
+					sentimentResultEntry.getValue().get(SentimentLevelEnum.POSITIVE): 0L, sentimentResultEntry.getValue().containsKey(SentimentLevelEnum.NEGATIVE)
+					? sentimentResultEntry.getValue().get(SentimentLevelEnum.NEGATIVE) : 0L, sentimentResultEntry.getValue().containsKey(SentimentLevelEnum.NEUTRO) ? 
+							sentimentResultEntry.getValue().get(SentimentLevelEnum.NEUTRO): 0L);
 			
 	     }
 		

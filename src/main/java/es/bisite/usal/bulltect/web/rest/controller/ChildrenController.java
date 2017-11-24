@@ -26,11 +26,22 @@ import es.bisite.usal.bulltect.domain.service.ICommentsService;
 import es.bisite.usal.bulltect.domain.service.ISocialMediaService;
 import es.bisite.usal.bulltect.domain.service.ISonService;
 import es.bisite.usal.bulltect.domain.service.IStatisticsService;
+import es.bisite.usal.bulltect.exception.AlertNotFoundException;
+import es.bisite.usal.bulltect.exception.CommentsBySonNotFoundException;
+import es.bisite.usal.bulltect.exception.NoAlertsBySonFoundException;
+import es.bisite.usal.bulltect.exception.NoChildrenFoundException;
+import es.bisite.usal.bulltect.exception.NoCommunityStatisticsForThisPeriodException;
+import es.bisite.usal.bulltect.exception.NoDimensionsStatisticsForThisPeriodException;
+import es.bisite.usal.bulltect.exception.NoSentimentAnalysisStatisticsForThisPeriodException;
+import es.bisite.usal.bulltect.exception.NoSocialMediaActivityFoundForThisPeriodException;
+import es.bisite.usal.bulltect.exception.SocialMediaNotFoundException;
+import es.bisite.usal.bulltect.exception.SonNotFoundException;
 import es.bisite.usal.bulltect.persistence.constraints.SocialMediaShouldExists;
 import es.bisite.usal.bulltect.persistence.constraints.SonShouldExists;
 import es.bisite.usal.bulltect.persistence.constraints.ValidObjectId;
 import es.bisite.usal.bulltect.persistence.constraints.group.ICommonSequence;
 import es.bisite.usal.bulltect.persistence.entity.AdultLevelEnum;
+import es.bisite.usal.bulltect.persistence.entity.AlertLevelEnum;
 import es.bisite.usal.bulltect.persistence.entity.BullyingLevelEnum;
 import es.bisite.usal.bulltect.persistence.entity.DrugsLevelEnum;
 import es.bisite.usal.bulltect.persistence.entity.SocialMediaTypeEnum;
@@ -47,16 +58,6 @@ import es.bisite.usal.bulltect.web.dto.response.SocialMediaActivityStatisticsDTO
 import es.bisite.usal.bulltect.web.dto.response.SocialMediaDTO;
 import es.bisite.usal.bulltect.web.dto.response.SonDTO;
 import es.bisite.usal.bulltect.web.rest.ApiHelper;
-import es.bisite.usal.bulltect.web.rest.exception.AlertNotFoundException;
-import es.bisite.usal.bulltect.web.rest.exception.CommentsBySonNotFoundException;
-import es.bisite.usal.bulltect.web.rest.exception.NoAlertsBySonFoundException;
-import es.bisite.usal.bulltect.web.rest.exception.NoChildrenFoundException;
-import es.bisite.usal.bulltect.web.rest.exception.NoCommunityStatisticsForThisPeriodException;
-import es.bisite.usal.bulltect.web.rest.exception.NoDimensionsStatisticsForThisPeriodException;
-import es.bisite.usal.bulltect.web.rest.exception.NoSentimentAnalysisStatisticsForThisPeriodException;
-import es.bisite.usal.bulltect.web.rest.exception.NoSocialMediaActivityFoundForThisPeriodException;
-import es.bisite.usal.bulltect.web.rest.exception.SocialMediaNotFoundException;
-import es.bisite.usal.bulltect.web.rest.exception.SonNotFoundException;
 import es.bisite.usal.bulltect.web.rest.hal.ICommentHAL;
 import es.bisite.usal.bulltect.web.rest.hal.ISocialMediaHAL;
 import es.bisite.usal.bulltect.web.rest.hal.ISonHAL;
@@ -516,11 +517,22 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
     public ResponseEntity<APIResponse<Iterable<AlertDTO>>> getAlertsBySonId(
             @ApiParam(name = "id", value = "Identificador del hijo", required = true)
             	@Valid @ValidObjectId(message = "{son.id.notvalid}")
-             		@PathVariable String id) throws Throwable {
+             		@PathVariable String id,
+             @ApiParam(name = "count", value = "Number of alerts", required = false)
+    				@RequestParam(name = "count", defaultValue = "0", required = false) Integer count,
+            @ApiParam(name = "days_ago", value = "Days Ago", required = false)
+				@RequestParam(name = "days_ago", defaultValue = "1", required = false) Date from,
+			@ApiParam(name = "levels", value = "Alert Levels", required = false)	
+				@RequestParam(name="levels" , required=false)
+            	AlertLevelEnum[] levels) throws Throwable {
         
     	logger.debug("Get Alerts by Son with id: " + id);
+    	logger.debug("Count -> " + count);
+    	logger.debug("From -> " + from);
+    	if(levels != null && levels.length > 0)
+    		logger.debug("Levels -> " + levels.toString());
         
-        Iterable<AlertDTO> alerts = alertService.findBySon(new ObjectId(id));
+        Iterable<AlertDTO> alerts = alertService.findSonAlerts(new ObjectId(id), count, from, levels);
         
         if(Iterables.size(alerts) == 0)
             throw new NoAlertsBySonFoundException();

@@ -14,4 +14,6 @@ public interface ISonService {
     Long getTotalChildren();
     String getProfileImage(ObjectId id);
     void deleteById(String id);
+    void deleteById(ObjectId id);
+    void deleteAllOfParent(ObjectId id);
 }

@@ -12,7 +12,7 @@ public class ViolenceResultsEntity extends ResultsEntity {
 	@Field("total_violent_comments")
 	private long totalViolentComments;
 	
-	@Field("total nonviolent comments")
+	@Field("total_nonviolent_comments")
 	private long totalNonViolentComments;
 
 	public ViolenceResultsEntity() {

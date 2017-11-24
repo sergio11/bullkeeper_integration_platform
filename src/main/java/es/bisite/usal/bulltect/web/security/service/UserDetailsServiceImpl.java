@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import es.bisite.usal.bulltect.persistence.repository.ParentRepository;
 import es.bisite.usal.bulltect.persistence.repository.UserSystemRepository;
+import es.bisite.usal.bulltect.web.security.exception.AccountPendingToBeRemoveException;
 import es.bisite.usal.bulltect.web.security.userdetails.impl.UserDetailsImpl;
 
 import org.bson.types.ObjectId;
@@ -48,10 +49,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             	
             	grantedAuthorities.add(new SimpleGrantedAuthority(userSystemEntity.getAuthority().getAuthority()));
             
-                return new UserDetailsImpl<ObjectId>(userSystemEntity.getId(), userSystemEntity.getEmail(),
+            	UserDetailsImpl<ObjectId> userDetails =  new UserDetailsImpl<ObjectId>(userSystemEntity.getId(), userSystemEntity.getEmail(),
                 		userSystemEntity.getPassword(), userSystemEntity.getFirstName(), userSystemEntity.getLastName(), userSystemEntity.isLocked(),
                 		userSystemEntity.getLastPasswordResetDate(), userSystemEntity.isActive(),
-                		grantedAuthorities, userSystemEntity.getLastAccessToAlerts(), userSystemEntity.getLastLoginAccess());
+                		grantedAuthorities, userSystemEntity.getLastAccessToAlerts(), userSystemEntity.getLastLoginAccess(), userSystemEntity.isPendingDeletion());
+                
+            	
+            	return userDetails;
+                
         	}).orElseThrow(() -> new UsernameNotFoundException("User " + email + " was not found in the " +
         "database"));
 	}

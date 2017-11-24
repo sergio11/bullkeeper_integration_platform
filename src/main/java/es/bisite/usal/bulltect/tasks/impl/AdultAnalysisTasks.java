@@ -18,7 +18,6 @@ import es.bisite.usal.bulltect.persistence.entity.AdultLevelEnum;
 import es.bisite.usal.bulltect.persistence.entity.AdultResultsEntity;
 import es.bisite.usal.bulltect.persistence.entity.AlertCategoryEnum;
 import es.bisite.usal.bulltect.persistence.entity.AlertLevelEnum;
-import es.bisite.usal.bulltect.persistence.entity.AnalysisEntity;
 import es.bisite.usal.bulltect.persistence.entity.AnalysisStatusEnum;
 import es.bisite.usal.bulltect.persistence.entity.AnalysisTypeEnum;
 import es.bisite.usal.bulltect.persistence.entity.CommentEntity;
@@ -29,7 +28,6 @@ import es.bisite.usal.bulltect.persistence.entity.SonEntity;
 public class AdultAnalysisTasks extends AbstractAnalysisTasks {
 	
 	private static final Logger logger = LoggerFactory.getLogger(AdultAnalysisTasks.class);
-	
 	
 	@Value("${task.analysis.adult.number.of.comments}")
 	private Integer maximumNumberOfCommentsForAdultAnalysis;
@@ -120,12 +118,10 @@ public class AdultAnalysisTasks extends AbstractAnalysisTasks {
 				}
 				
 			}
-			
-			adultResultsEntity.setDate(new Date());
-			adultResultsEntity.setObsolete(Boolean.FALSE);
-			adultResultsEntity.setTotalCommentsAdultContent(results.containsKey(AdultLevelEnum.POSITIVE) ? results.get(AdultLevelEnum.POSITIVE) : 0L);
-			adultResultsEntity.setTotalCommentsNoAdultContent(results.containsKey(AdultLevelEnum.NEGATIVE) ? results.get(AdultLevelEnum.NEGATIVE): 0L);
-			sonRepository.save(sonEntity);
+
+			sonRepository.updateAdultResultsFor(sonEntity.getId(), 
+					results.containsKey(AdultLevelEnum.POSITIVE) ? results.get(AdultLevelEnum.POSITIVE) : 0L, 
+							results.containsKey(AdultLevelEnum.NEGATIVE) ? results.get(AdultLevelEnum.NEGATIVE): 0L);
 	     }
 				
 	}

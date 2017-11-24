@@ -20,11 +20,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.bisite.usal.bulltect.domain.service.ISocialMediaService;
+import es.bisite.usal.bulltect.exception.ResourceNotFoundException;
+import es.bisite.usal.bulltect.exception.SocialMediaNotFoundException;
 import es.bisite.usal.bulltect.persistence.constraints.ValidObjectId;
 import es.bisite.usal.bulltect.web.dto.response.SocialMediaDTO;
 import es.bisite.usal.bulltect.web.rest.ApiHelper;
-import es.bisite.usal.bulltect.web.rest.exception.ResourceNotFoundException;
-import es.bisite.usal.bulltect.web.rest.exception.SocialMediaNotFoundException;
 import es.bisite.usal.bulltect.web.rest.hal.ISocialMediaHAL;
 import es.bisite.usal.bulltect.web.rest.response.APIResponse;
 import es.bisite.usal.bulltect.web.rest.response.SocialMediaResponseCode;

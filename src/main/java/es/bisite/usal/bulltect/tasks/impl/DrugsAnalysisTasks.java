@@ -118,12 +118,10 @@ public class DrugsAnalysisTasks extends AbstractAnalysisTasks {
 				}
 				
 			}
-		
-			drugsResultsEntity.setDate(new Date());
-			drugsResultsEntity.setObsolete(Boolean.FALSE);
-			drugsResultsEntity.setTotalCommentsDrugs(results.containsKey(DrugsLevelEnum.POSITIVE) ? results.get(DrugsLevelEnum.POSITIVE): 0L);
-			drugsResultsEntity.setTotalCommentsNoDrugs(results.containsKey(DrugsLevelEnum.NEGATIVE) ? results.get(DrugsLevelEnum.NEGATIVE): 0L);
-			sonRepository.save(sonEntity);
+			
+			sonRepository.updateDrugsResultsFor(sonEntity.getId(), 
+					results.containsKey(DrugsLevelEnum.POSITIVE) ? results.get(DrugsLevelEnum.POSITIVE): 0L, 
+							results.containsKey(DrugsLevelEnum.NEGATIVE) ? results.get(DrugsLevelEnum.NEGATIVE): 0L);
 	     }
 				
 	}

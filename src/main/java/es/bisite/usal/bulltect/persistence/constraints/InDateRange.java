@@ -18,7 +18,7 @@ public @interface InDateRange {
  Class<?>[] groups() default {};
  Class<? extends Payload>[] payload() default {};
  // min value, we for now just a string
- String min() default "1900-01-01";
+ String min() default "01-01-1900";
  // max date value we support
- String max() default "2999-12-31";
+ String max() default "31-12-2999";
 }

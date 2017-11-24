@@ -17,6 +17,7 @@ import es.bisite.usal.bulltect.web.rest.ApiHelper;
 import es.bisite.usal.bulltect.web.rest.controller.BaseController;
 import es.bisite.usal.bulltect.web.rest.response.APIResponse;
 import es.bisite.usal.bulltect.web.rest.response.CommonErrorResponseCode;
+import es.bisite.usal.bulltect.web.security.exception.AccountPendingToBeRemoveException;
 
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -69,6 +70,13 @@ public class CommonErrorRestController extends BaseController {
     @ResponseBody
     public ResponseEntity<APIResponse<String>> handleAccessDeniedException(AccessDeniedException ex) {
     	return ApiHelper.<String>createAndSendErrorResponseWithHeader(CommonErrorResponseCode.ACCESS_DENIED, HttpStatus.FORBIDDEN, ex.getMessage());
+    }
+    
+    
+    @ExceptionHandler(AccountPendingToBeRemoveException.class)
+    @ResponseBody
+    public ResponseEntity<APIResponse<String>> handleAccountPendingToBeRemoveException(AccountPendingToBeRemoveException ex) {
+    	return ApiHelper.<String>createAndSendErrorResponseWithHeader(CommonErrorResponseCode.ACCOUNT_PENDING_TO_BE_REMOVE, HttpStatus.FORBIDDEN, ex.getMessage());
     }
     
     

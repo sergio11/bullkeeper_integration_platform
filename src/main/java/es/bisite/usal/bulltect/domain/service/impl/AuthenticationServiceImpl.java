@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import es.bisite.usal.bulltect.domain.service.IAuthenticationService;
 import es.bisite.usal.bulltect.persistence.repository.ParentRepository;
 import es.bisite.usal.bulltect.web.dto.response.JwtAuthenticationResponseDTO;
+import es.bisite.usal.bulltect.web.security.exception.AccountPendingToBeRemoveException;
 import es.bisite.usal.bulltect.web.security.jwt.JwtTokenUtil;
 import es.bisite.usal.bulltect.web.security.userdetails.CommonUserDetailsAware;
 
@@ -55,6 +56,9 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         
         CommonUserDetailsAware<ObjectId> userDetails = (CommonUserDetailsAware<ObjectId>) authentication.getPrincipal();
+        
+        if(userDetails.isPendingDelete())
+    		throw new AccountPendingToBeRemoveException();
 
 		final String token = jwtTokenUtil.generateToken(userDetails, device);
 		
@@ -73,8 +77,12 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
         
+        CommonUserDetailsAware<ObjectId> userDetails = (CommonUserDetailsAware<ObjectId>) authentication.getPrincipal();
+        
+        if(userDetails.isPendingDelete())
+    		throw new AccountPendingToBeRemoveException();
      
-		final String token = jwtTokenUtil.generateToken((UserDetails)authentication.getDetails(), device);
+		final String token = jwtTokenUtil.generateToken(userDetails, device);
         
         return new JwtAuthenticationResponseDTO(token);
 	}

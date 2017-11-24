@@ -20,6 +20,7 @@ import es.bisite.usal.bulltect.persistence.repository.TaskRepository;
 import es.bisite.usal.bulltect.web.dto.response.SonDTO;
 import es.bisite.usal.bulltect.web.uploads.service.IUploadFilesService;
 import io.jsonwebtoken.lang.Assert;
+
 import javax.annotation.PostConstruct;
 
 @Service
@@ -92,13 +93,30 @@ public class SonServiceImpl implements ISonService {
     public void deleteById(String id) {
         Assert.notNull(id, "Id can not be null");
         Assert.isTrue(ObjectId.isValid(id), "Id should be a valid Object Id");
-        alertRepository.deleteBySonId(new ObjectId(id));
-        commentRepository.deleteBySonEntity(new ObjectId(id));
-        socialMediaRepository.deleteBySonEntityId(new ObjectId(id));
-        taskRepository.deleteBySonEntity(new ObjectId(id));
-        sonRepository.delete(new ObjectId(id));
-        uploadFilesService.deleteProfileImage(getProfileImage(new ObjectId(id)));
+        deleteById(new ObjectId(id));
     }
+    
+    @Override
+    public void deleteById(ObjectId id) {
+    	Assert.notNull(id, "Id can not be null");
+    	uploadFilesService.deleteProfileImage(getProfileImage(id));
+    	alertRepository.deleteBySonId(id);
+        commentRepository.deleteBySonEntity(id);
+        socialMediaRepository.deleteBySonEntityId(id);
+        taskRepository.deleteBySonEntity(id);
+        sonRepository.delete(id);
+    }
+    
+    
+    @Override
+	public void deleteAllOfParent(ObjectId id) {
+    	Assert.notNull(id, "Id can not be null");
+    	final Iterable<SonEntity> sonEntities = sonRepository.findByParentId(id);
+    	for(SonEntity son: sonEntities)
+    		deleteById(son.getId());
+    	
+		
+	}
     
     @PostConstruct
     protected void init() {

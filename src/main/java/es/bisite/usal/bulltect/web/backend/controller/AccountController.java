@@ -1,9 +1,6 @@
 package es.bisite.usal.bulltect.web.backend.controller;
 
 import java.io.IOException;
-
-import javax.servlet.http.HttpServletResponse;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -11,8 +8,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-
 import es.bisite.usal.bulltect.domain.service.IParentsService;
+import es.bisite.usal.bulltect.exception.ParentNotFoundException;
 import es.bisite.usal.bulltect.web.rest.controller.BaseController;
 
 @Controller("AccountController")
@@ -56,9 +53,12 @@ public class AccountController extends BaseController {
 	public String delete(@RequestParam("token") String token, Model model) {
 		
 		try {
-			Long count = parentService.deleteAccount(token);
+			parentService.deleteAccount(token);
 			model.addAttribute("message", messageSourceResolver.resolver("accounts.delete.success"));
+		} catch (ParentNotFoundException ex) {
+			model.addAttribute("message", messageSourceResolver.resolver("accounts.delete.token.not.valid"));
 		} catch (Exception ex) {
+			ex.printStackTrace();
 			logger.error(ex.toString());
 			model.addAttribute("message", messageSourceResolver.resolver("accounts.generic.error"));
 		}
@@ -72,6 +72,8 @@ public class AccountController extends BaseController {
 		try {
 			parentService.cancelAccountDeletionProcess(token);
 			model.addAttribute("message", messageSourceResolver.resolver("accounts.delete.canceled"));
+		} catch(ParentNotFoundException ex) {
+			model.addAttribute("message", messageSourceResolver.resolver("accounts.generic.error"));
 		} catch (Exception ex) {
 			logger.error(ex.toString());
 			model.addAttribute("message", messageSourceResolver.resolver("accounts.generic.error"));
