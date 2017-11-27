@@ -10,25 +10,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationResults;
-import org.springframework.data.mongodb.core.aggregation.TypedAggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 
-import com.google.common.collect.Lists;
-import com.mongodb.BasicDBObject;
-
 import es.bisite.usal.bulltect.persistence.entity.AlertEntity;
 import es.bisite.usal.bulltect.persistence.entity.AlertLevelEnum;
-import es.bisite.usal.bulltect.persistence.entity.CommentEntity;
 import es.bisite.usal.bulltect.persistence.repository.AlertRepositoryCustom;
-import es.bisite.usal.bulltect.web.dto.response.AlertDTO;
-import es.bisite.usal.bulltect.web.dto.response.AlertsStatisticsDTO;
 import io.jsonwebtoken.lang.Assert;
-
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
 /**
  * @author sergio
@@ -96,25 +85,4 @@ public class AlertRepositoryImpl implements AlertRepositoryCustom {
 			query.limit(count);
         return  mongoTemplate.find(query, AlertEntity.class);
 	}   
-
-	@Override
-	public List<AlertsStatisticsDTO> getAlertsBySon(List<String> sonIds) {
-
-		
-		TypedAggregation<AlertEntity> alertsAggregation = 
-				Aggregation.newAggregation(AlertEntity.class,
-						unwind("$son"),
-						Aggregation.group("$son", "$level").count().as("count"),
-						Aggregation.group("$_id.son")
-							.addToSet(new BasicDBObject("level", "$_id.level").append("count", "$count")).as("alerts"));
-		
-		// Aggregation.match(Criteria.where("_id").in(sonIds)
-	        
-	        AggregationResults<AlertsStatisticsDTO> results = mongoTemplate.
-	             aggregate(alertsAggregation, AlertsStatisticsDTO.class);
-
-	        List<AlertsStatisticsDTO> alertsBySonResultsList = results.getMappedResults();
-
-	        return alertsBySonResultsList;
-	}
 }

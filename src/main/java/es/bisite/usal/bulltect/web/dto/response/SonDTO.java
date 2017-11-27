@@ -1,8 +1,13 @@
 package es.bisite.usal.bulltect.web.dto.response;
 
 import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.hateoas.ResourceSupport;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import es.bisite.usal.bulltect.persistence.entity.AlertLevelEnum;
 
 public class SonDTO extends ResourceSupport implements Serializable{
 	
@@ -23,11 +28,12 @@ public class SonDTO extends ResourceSupport implements Serializable{
     private SchoolDTO school;
 	@JsonProperty("profile_image")
     private String profileImage;
+	@JsonProperty("alert_statistics")
+	private Map<AlertLevelEnum, Long> alertsStatistics;
 	
     public SonDTO(){}
    
-
-	public SonDTO(String identity, String firstName, String lastName, String birthdate, Integer age, SchoolDTO school, String profileImage) {
+	public SonDTO(String identity, String firstName, String lastName, String birthdate, Integer age, SchoolDTO school, String profileImage, Map<AlertLevelEnum, Long> alertsStatistics) {
 		super();
 		this.identity = identity;
 		this.firstName = firstName;
@@ -36,6 +42,7 @@ public class SonDTO extends ResourceSupport implements Serializable{
 		this.age = age;
 		this.school = school;
 		this.profileImage = profileImage;
+		this.alertsStatistics = alertsStatistics;
 	}
 
 	public String getBirthdate() {
@@ -93,9 +100,14 @@ public class SonDTO extends ResourceSupport implements Serializable{
     public void setProfileImage(String profileImage) {
         this.profileImage = profileImage;
     }
+    
+	public Map<AlertLevelEnum, Long> getAlertsStatistics() {
+		return alertsStatistics;
+	}
 
-	
-
+	public void setAlertsStatistics(Map<AlertLevelEnum, Long> alertsStatistics) {
+		this.alertsStatistics = alertsStatistics;
+	}
 
 	@Override
 	public String toString() {

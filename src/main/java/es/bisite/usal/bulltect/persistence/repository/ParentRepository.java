@@ -38,7 +38,7 @@ public interface ParentRepository extends MongoRepository<ParentEntity, ObjectId
     
     ParentEntity findByProfileImage(String profileImageId);
     
-    List<ParentEntity> findByPreferencesPushNotificationsEnabled(Boolean value);
+    List<ParentEntity> findByPreferencesPushNotificationsEnabledAndActiveTrueAndLockedFalseAndPendingDeletionFalse(Boolean value);
     
     
     

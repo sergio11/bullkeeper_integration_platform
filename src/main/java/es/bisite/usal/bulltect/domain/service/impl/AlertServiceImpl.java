@@ -29,6 +29,7 @@ import es.bisite.usal.bulltect.persistence.entity.ParentEntity;
 import es.bisite.usal.bulltect.persistence.entity.SonEntity;
 import es.bisite.usal.bulltect.persistence.repository.AlertRepository;
 import es.bisite.usal.bulltect.persistence.repository.SonRepository;
+import es.bisite.usal.bulltect.util.Utils;
 import es.bisite.usal.bulltect.web.dto.request.AddAlertDTO;
 import es.bisite.usal.bulltect.web.dto.response.AlertDTO;
 import es.bisite.usal.bulltect.web.dto.response.AlertsStatisticsDTO;
@@ -221,6 +222,20 @@ public class AlertServiceImpl implements IAlertService {
 				messageSourceResolverService.resolver("statistics.alerts.title", new Object[] { pt.format(from) }), 
 				alertsData);
     	
+	}
+    
+    @Override
+	public Map<AlertLevelEnum, Long> getTotalAlertsBySon(ObjectId sonId) {
+    	Assert.notNull(sonId, "Son id can not be null");
+		
+    	final Date from = Utils.getDateNDaysAgo(1);
+    	
+    	Map<AlertLevelEnum, Long> alertsByLevel = alertRepository.findBySonIdAndCreateAtGreaterThanEqual(sonId, from)	
+    		.parallelStream()
+    		.collect(Collectors.groupingBy(AlertEntity::getLevel, Collectors.counting()));
+    	
+    	
+    	return alertsByLevel;
 	}
     
     @Override

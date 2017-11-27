@@ -5,6 +5,7 @@ import es.bisite.usal.bulltect.persistence.entity.AlertCategoryEnum;
 import es.bisite.usal.bulltect.persistence.entity.AlertLevelEnum;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
@@ -60,4 +61,6 @@ public interface IAlertService {
     void createInvalidAccessTokenAlert(String payload, ParentEntity parent, SonEntity son);
     
     AlertsStatisticsDTO getAlertsStatistics(ObjectId parentId, List<ObjectId> sonIds, Date from);
+    
+    Map<AlertLevelEnum, Long> getTotalAlertsBySon(ObjectId SonId);
 }

@@ -51,7 +51,7 @@ public class AlertItemReader extends AbstractItemCountingItemStreamItemReader<Al
 	@Override
 	protected void doOpen() throws Exception {
 		logger.debug("AlertItemReader doOpen called ...");
-		parents = parentRepository.findByPreferencesPushNotificationsEnabled(Boolean.TRUE);
+		parents = parentRepository.findByPreferencesPushNotificationsEnabledAndActiveTrueAndLockedFalseAndPendingDeletionFalse(Boolean.TRUE);
 		setMaxItemCount(parents.size()); 
 		
 	}
