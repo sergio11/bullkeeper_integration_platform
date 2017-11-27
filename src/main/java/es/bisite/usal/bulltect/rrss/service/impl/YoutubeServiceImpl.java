@@ -26,7 +26,7 @@ import com.google.api.services.youtube.model.CommentThreadListResponse;
 import es.bisite.usal.bulltect.exception.GetCommentsProcessException;
 import es.bisite.usal.bulltect.exception.InvalidAccessTokenException;
 import es.bisite.usal.bulltect.i18n.service.IMessageSourceResolverService;
-import es.bisite.usal.bulltect.mapper.IYoutubeCommentMapper;
+import es.bisite.usal.bulltect.mapper.YoutubeCommentMapper;
 import es.bisite.usal.bulltect.persistence.entity.CommentEntity;
 import es.bisite.usal.bulltect.persistence.entity.SocialMediaTypeEnum;
 import es.bisite.usal.bulltect.rrss.service.IYoutubeService;
@@ -49,10 +49,10 @@ public class YoutubeServiceImpl implements IYoutubeService {
     private Logger logger = LoggerFactory.getLogger(YoutubeServiceImpl.class);
     
     private final ApplicationContext appCtx;
-    private final IYoutubeCommentMapper youtubeCommentMapper;
+    private final YoutubeCommentMapper youtubeCommentMapper;
     private final IMessageSourceResolverService messageSourceResolver;
 
-    public YoutubeServiceImpl(ApplicationContext appCtx, IYoutubeCommentMapper youtubeCommentMapper, IMessageSourceResolverService messageSourceResolver) {
+    public YoutubeServiceImpl(ApplicationContext appCtx, YoutubeCommentMapper youtubeCommentMapper, IMessageSourceResolverService messageSourceResolver) {
         this.appCtx = appCtx;
         this.youtubeCommentMapper = youtubeCommentMapper;
         this.messageSourceResolver = messageSourceResolver;

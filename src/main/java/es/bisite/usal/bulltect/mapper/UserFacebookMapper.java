@@ -4,8 +4,11 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.Named;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.restfb.types.User;
 
+import es.bisite.usal.bulltect.i18n.service.I18NService;
 import es.bisite.usal.bulltect.web.dto.request.RegisterParentByFacebookDTO;
 
 /**
@@ -13,6 +16,9 @@ import es.bisite.usal.bulltect.web.dto.request.RegisterParentByFacebookDTO;
  */
 @Mapper(unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE)
 public abstract class UserFacebookMapper {
+	
+	@Autowired
+	protected I18NService i18nService;
 
 	@Mappings({
 		@Mapping(source = "userFacebook.firstName", target = "firstName"),
@@ -22,7 +28,7 @@ public abstract class UserFacebookMapper {
 		@Mapping(source = "userFacebook.id", target = "fbId"),
 		@Mapping(source = "userFacebook.id", target = "passwordClear"),
 		@Mapping(source = "userFacebook.id", target = "confirmPassword"),
-		@Mapping(expression="java(new java.util.Locale(userFacebook.getLocale()  != null ? userFacebook.getLocale().replace('-', '_'): \"en\" ))", target = "locale")
+		@Mapping(expression="java(i18nService.parseLocaleOrDefault(userFacebook.getLocale()))", target = "locale")
 	})
     @Named("userFacebookToRegisterParentByFacebookDTO")
     public abstract RegisterParentByFacebookDTO userFacebookToRegisterParentByFacebookDTO(User userFacebook);

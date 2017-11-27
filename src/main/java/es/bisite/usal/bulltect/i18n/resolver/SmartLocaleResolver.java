@@ -1,29 +1,25 @@
 package es.bisite.usal.bulltect.i18n.resolver;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
-
 import javax.servlet.http.HttpServletRequest;
-
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
+
+import es.bisite.usal.bulltect.i18n.service.I18NService;
 
 public class SmartLocaleResolver extends AcceptHeaderLocaleResolver {
 	
-	List<Locale> LOCALES = Arrays.asList(new Locale("en"),
-            new Locale("es"),
-            new Locale("es-US"),
-            new Locale("fr"));
+	private final I18NService i18NService;
 	
+	
+	public SmartLocaleResolver(I18NService i18nService) {
+		super();
+		i18NService = i18nService;
+	}
+
+
 	@Override
     public Locale resolveLocale(HttpServletRequest request) {
-            if (StringUtils.isBlank(request.getHeader("Accept-Language"))) {
-            	return Locale.getDefault();
-            }
-            List<Locale.LanguageRange> list = Locale.LanguageRange.parse(request.getHeader("Accept-Language"));
-            Locale locale = Locale.lookup(list, LOCALES);
-            return locale ;
+		return i18NService.parseRangeLocaleOrDefault(request.getHeader("Accept-Language"));
     }
 
 }

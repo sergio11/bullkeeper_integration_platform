@@ -1,31 +1,24 @@
 package es.bisite.usal.bulltect.mapper;
 
 import java.util.List;
-import java.util.Locale;
 
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.Named;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.api.services.oauth2.model.Userinfoplus;
+
+import es.bisite.usal.bulltect.i18n.service.I18NService;
 import es.bisite.usal.bulltect.web.dto.request.RegisterParentByGoogleDTO;
 
 @Mapper(unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE)
 public abstract class GoogleMapper {
 	
-	protected Locale parseLocale(String locale) {
-		
-		Locale userLocale = new Locale("es");
-		
-		if(locale != null) {
-			
-			
-		}
-		
-		
-	}
+	@Autowired
+	protected I18NService i18nService;
 	
 	@Mappings({
 		@Mapping(source = "userInfo.givenName", target = "firstName"),
@@ -34,7 +27,7 @@ public abstract class GoogleMapper {
 		@Mapping(source = "userInfo.id", target = "googleId"),
 		@Mapping(source = "userInfo.id", target = "passwordClear"),
 		@Mapping(source = "userInfo.id", target = "confirmPassword"),
-		@Mapping(expression="java(new java.util.Locale(userInfo.getLocale() != null ? userInfo.getLocale().replace('-', '_'): \"en\"))", target = "locale")
+		@Mapping(expression="java(i18nService.parseLocaleOrDefault(userInfo.getLocale()))", target = "locale")
 	})
     @Named("userInfoPlusToRegisterParentByGoogleDTO")
 	public abstract RegisterParentByGoogleDTO userInfoPlusToRegisterParentByGoogleDTO(Userinfoplus userInfo); 

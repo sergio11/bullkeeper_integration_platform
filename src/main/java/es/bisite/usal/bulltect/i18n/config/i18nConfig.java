@@ -1,7 +1,13 @@
 
 package es.bisite.usal.bulltect.i18n.config;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.MissingResourceException;
+
 import javax.annotation.PostConstruct;
+
 import org.ocpsoft.prettytime.PrettyTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,8 +21,8 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
-
 import es.bisite.usal.bulltect.i18n.resolver.SmartLocaleResolver;
+import es.bisite.usal.bulltect.i18n.service.I18NService;
 
 @Configuration
 public class i18nConfig {
@@ -31,6 +37,7 @@ public class i18nConfig {
     
     @Value("${i18n.paramname}")
     private String paramName;
+    
 
     @Bean(name="messageSource")
     public MessageSource  provideMessageSource() {
@@ -51,8 +58,8 @@ public class i18nConfig {
     }
     
     @Bean(name = "localeResolver")
-    public LocaleResolver localeResolver() {
-        return new SmartLocaleResolver();
+    public LocaleResolver localeResolver(I18NService i18nService) {
+        return new SmartLocaleResolver(i18nService);
     }
     
     @Bean(name = "prettyTime")
@@ -65,6 +72,8 @@ public class i18nConfig {
     @PostConstruct
     protected void init(){
     	logger.debug("init i18nConfig ...");
+    	
+    	
     }
 
 }

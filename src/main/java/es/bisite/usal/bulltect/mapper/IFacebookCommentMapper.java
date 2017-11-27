@@ -1,9 +1,7 @@
 package es.bisite.usal.bulltect.mapper;
 
 import com.restfb.types.Comment;
-
 import es.bisite.usal.bulltect.persistence.entity.CommentEntity;
-
 import java.util.List;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
