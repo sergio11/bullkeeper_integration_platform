@@ -25,9 +25,6 @@ import es.bisite.usal.bulltect.persistence.entity.SocialMediaTypeEnum;
 import es.bisite.usal.bulltect.rrss.service.IFacebookService;
 import es.bisite.usal.bulltect.util.StreamUtils;
 import es.bisite.usal.bulltect.web.dto.request.RegisterParentByFacebookDTO;
-
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -75,21 +72,33 @@ public class FacebookServiceImpl implements IFacebookService {
      * @param filter
      * @return
      */
-    private Stream<Comment> getCommentsByObject(final FacebookClient facebookClient, final String objectId, final Predicate<Comment> filter) {
+    private Stream<Comment> getCommentsByObject(final FacebookClient facebookClient, final String objectId, final Integer offset,
+    		final Integer limit, final Predicate<Comment> filter) {
     	Assert.notNull(facebookClient, "Facebook Client should be not null");
     	Assert.notNull(objectId, "ObjectId should be not null");
+    	Assert.notNull(offset, "Offset can not be null");
+    	Assert.notNull(limit, "Limit can not be null");
+    	Assert.isTrue(offset >= 0, "offset should be greater than zero");
+    	Assert.isTrue(limit > 0, "limit should be greater than zero");
     	Assert.notNull(filter, "Filter should be not null");
+    	
     
     	Connection<Comment> commentConnection
          	= facebookClient.fetchConnection(objectId + "/comments", Comment.class,
-                 Parameter.with("fields", "id, comment_count, created_time, from, message, like_count"));
-    	
+                 Parameter.with("fields", "id, comment_count, created_time, from, message, like_count"),
+                 Parameter.with("limit", limit),
+                 Parameter.with("offset", offset));
+
     	return StreamUtils.asStream(commentConnection.iterator())
     	         .flatMap(List::stream)
     	         .flatMap(comment -> comment.getCommentCount() > 0 ? StreamUtils.concat(
 	            		 getCommentsByObject(facebookClient, comment.getId(), filter), comment)
 	                     : Stream.of(comment)).filter(filter);
     	
+    }
+    
+    private Stream<Comment> getCommentsByObject(final FacebookClient facebookClient, final String objectId,  final Predicate<Comment> filter) {
+    	return getCommentsByObject(facebookClient, objectId, 0, 100000, filter);
     }
 
     /**
@@ -100,10 +109,16 @@ public class FacebookServiceImpl implements IFacebookService {
      * @return
      */
     private Stream<Comment> getAllCommentsFromPostsReceived(final FacebookClient facebookClient, final Date startDate, User user) {
-        Connection<Post> userFeed = facebookClient.fetchConnection("me/feed", Post.class);
-        // Iterate over the feed to access the particular pages
+        Connection<Post> userFeed = facebookClient.fetchConnection("me/feed", 
+        		Post.class, Parameter.with("fields", "comments.summary(true)"));
+        
         return StreamUtils.asStream(userFeed.iterator())
                 .flatMap(List::stream)
+                .filter(post -> {
+                	logger.debug("Post " + post.getCaption() +  " Total Comments " + post.getCommentsCount());
+                	return post.getCommentsCount() > 0;
+                	
+                })
                 .flatMap(post -> getCommentsByObject(facebookClient, post.getId(), comment -> !comment.getFrom().getId().equals(user.getId())
            	         && (startDate != null ? comment.getCreatedTime().after(startDate) : true)));
 
@@ -145,12 +160,12 @@ public class FacebookServiceImpl implements IFacebookService {
             // Get Information about access token owner
             User user = facebookClient.fetchObject("me", User.class);
             logger.debug("Get Comments For User : " + user.getName() + " after than " + startDate);
+            
             comments = StreamUtils.concat(
             		getAllCommentsFromPostsReceived(facebookClient, startDate, user),
             		getAllCommentsFromAlbumsReceived(facebookClient, startDate, user)
-            )
-                    .map(comment -> facebookCommentMapper.facebookCommentToCommentEntity(comment))
-                    .collect(Collectors.toSet());
+            ).map(comment -> facebookCommentMapper.facebookCommentToCommentEntity(comment))
+             .collect(Collectors.toSet());
 
             logger.debug("Total Facebook comments : " + comments.size());
             
