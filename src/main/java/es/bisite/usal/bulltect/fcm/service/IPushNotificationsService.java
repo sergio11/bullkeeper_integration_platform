@@ -10,17 +10,17 @@ import org.springframework.http.ResponseEntity;
 
 public interface IPushNotificationsService {
 
-    CompletableFuture<ResponseEntity<Map<String, String>>> createNotificationGroup(String userid, List<String> deviceTokens);
+    CompletableFuture<ResponseEntity<Map<String, String>>> createNotificationGroup(String notificationGroupName, List<String> deviceTokens);
 
-    CompletableFuture<String> addDevicesToGroup(String userid, String notificationGroupKey, List<String> deviceTokens);
+    CompletableFuture<ResponseEntity<Map<String, String>>> addDevicesToGroup(String notificationGroupName, String notificationGroupKey, List<String> deviceTokens);
 
-    CompletableFuture<String> addDeviceToGroup(String userid, String notificationGroupKey, String deviceToken);
+    CompletableFuture<ResponseEntity<Map<String, String>>> addDeviceToGroup(String notificationGroupName, String notificationGroupKey, String deviceToken);
 
-    CompletableFuture<String> removeDevicesFromGroup(String userid, String notificationGroupKey, List<String> deviceTokens);
+    CompletableFuture<ResponseEntity<Map<String, String>>> removeDevicesFromGroup(String notificationGroupName, String notificationGroupKey, List<String> deviceTokens);
 
-    CompletableFuture<String> removeDeviceFromGroup(String userid, String notificationGroupKey, String deviceToken);
+    CompletableFuture<ResponseEntity<Map<String, String>>> removeDeviceFromGroup(String notificationGroupName, String notificationGroupKey, String deviceToken);
 
     CompletableFuture<ResponseEntity<FirebaseResponse>> send(FCMNotificationOperation fcmNotificationOperation);
 
-    CompletableFuture<Void> updateDeviceToken(String userid, String notificationGroupKey, String oldDeviceToken, String newDeviceToken);
+    CompletableFuture<Void> updateDeviceToken(String notificationGroupName, String notificationGroupKey, String oldDeviceToken, String newDeviceToken);
 }

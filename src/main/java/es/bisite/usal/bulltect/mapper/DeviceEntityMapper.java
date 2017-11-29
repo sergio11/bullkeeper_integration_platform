@@ -18,7 +18,8 @@ public abstract class DeviceEntityMapper {
     @Mappings({
     	@Mapping(source = "deviceEntity.createAt", target = "createAt", dateFormat = "yyyy/MM/dd"),
     	@Mapping(source = "deviceEntity.deviceGroup.notificationKeyName", target = "notificationKeyName"),
-    	@Mapping(source = "deviceEntity.deviceGroup.notificationKey", target = "notificationKey")
+    	@Mapping(source = "deviceEntity.deviceGroup.notificationKey", target = "notificationKey"),
+    	@Mapping(expression="java(deviceEntity.getDeviceGroup().getOwner().getId().toString())", target = "owner")
     })
     @Named("deviceEntityToDeviceDTO")
     public abstract DeviceDTO deviceEntityToDeviceDTO(DeviceEntity deviceEntity); 

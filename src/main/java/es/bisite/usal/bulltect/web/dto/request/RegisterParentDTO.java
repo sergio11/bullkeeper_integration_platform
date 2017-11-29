@@ -54,7 +54,7 @@ public  class RegisterParentDTO {
     @JsonProperty("confirm_password")
     protected String confirmPassword;
 
-	@ValidPhoneNumber(message = "user.telephone.not.valid")
+	@ValidPhoneNumber(message = "{user.telephone.not.valid}")
 	@JsonProperty("telephone")
 	@JsonDeserialize(using = PhoneNumberDeserializer.class)
 	protected PhoneNumber telephone;

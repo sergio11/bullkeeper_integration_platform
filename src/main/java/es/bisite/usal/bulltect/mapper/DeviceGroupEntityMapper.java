@@ -14,9 +14,11 @@ import es.bisite.usal.bulltect.web.dto.response.DeviceGroupDTO;
  */
 @Mapper(unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE)
 public abstract class DeviceGroupEntityMapper {
+	
     @Mappings({
     	@Mapping(expression="java(deviceGroupEntity.getId().toString())", target = "identity" ),
-    	@Mapping(source = "deviceGroupEntity.createAt", target = "createAt", dateFormat = "yyyy/MM/dd")
+    	@Mapping(source = "deviceGroupEntity.createAt", target = "createAt", dateFormat = "yyyy/MM/dd"),
+    	@Mapping(expression="java(deviceGroupEntity.getOwner().getId().toString())", target = "owner")
     })
     @Named("deviceGroupEntityToDeviceGroupDTO")
     public abstract DeviceGroupDTO deviceGroupEntityToDeviceGroupDTO(DeviceGroupEntity deviceGroupEntity); 

@@ -12,7 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
  * @author sergio
  * Represents the information of an email that failed to be delivered.
  */
-@Document(collection = ImageEntity.COLLECTION_NAME)
+@Document(collection = EmailEntity.COLLECTION_NAME)
 public class EmailEntity {
     
     public final static String COLLECTION_NAME = "failed_emails";

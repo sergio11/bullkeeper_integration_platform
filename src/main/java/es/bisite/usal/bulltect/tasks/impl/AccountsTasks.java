@@ -14,9 +14,12 @@ import org.springframework.stereotype.Component;
 
 import es.bisite.usal.bulltect.domain.service.IParentsService;
 import es.bisite.usal.bulltect.domain.service.IPasswordResetTokenService;
+import es.bisite.usal.bulltect.helper.IDeviceHelper;
 import es.bisite.usal.bulltect.mail.service.IMailClientService;
 import es.bisite.usal.bulltect.persistence.entity.EmailEntity;
+import es.bisite.usal.bulltect.persistence.entity.PendingDeviceEntity;
 import es.bisite.usal.bulltect.persistence.repository.EmailRepository;
+import es.bisite.usal.bulltect.persistence.repository.PendingDeviceRepository;
 import io.jsonwebtoken.lang.Assert;
 
 @Component
@@ -28,17 +31,22 @@ public class AccountsTasks {
 	private final IParentsService parentService;
 	private final EmailRepository emailRepository;
 	private final IMailClientService mailClientService;
+	private final PendingDeviceRepository pendingDeviceRepository;
+	private final IDeviceHelper deviceHelper;
 	
 	@Value("${task.account.unsuccessful.mail.forwarding.number.of.emails.to.forward}")
     private Integer numberOfEmailsToForwarding;
 	
 	@Autowired
 	public AccountsTasks(IPasswordResetTokenService passwordResetTokenService, 
-			IParentsService parentService, EmailRepository emailRepository, IMailClientService mailClientService){
+			IParentsService parentService, EmailRepository emailRepository, IMailClientService mailClientService,
+			PendingDeviceRepository pendingDeviceRepository, IDeviceHelper deviceHelper){
 		this.passwordResetTokenService = passwordResetTokenService;
 		this.parentService = parentService;
 		this.emailRepository = emailRepository;
 		this.mailClientService = mailClientService;
+		this.pendingDeviceRepository = pendingDeviceRepository;
+		this.deviceHelper = deviceHelper;
 	}
 	
 	
@@ -70,12 +78,23 @@ public class AccountsTasks {
                     emailToForward.getSubject(), emailToForward.getContent());
     }
     
+    @Scheduled(cron = "${task.account.register.pending.devices}")
+    public void registerPendingDevices() {
+    	 logger.debug("Register Pending Devices ...");
+    	 final List<PendingDeviceEntity> pendingDevices = pendingDeviceRepository.findAll();
+    	 for(PendingDeviceEntity pendingDevice: pendingDevices)
+    		 deviceHelper.createOrUpdateDevice(pendingDevice.getOwner(), pendingDevice.getDeviceId(), pendingDevice.getRegistrationToken());
+    }
+    
     @PostConstruct
     protected void init() {
         Assert.notNull(passwordResetTokenService, "Password Reset Token Service can not be null");
         Assert.notNull(parentService, "Parent Service can not be null");
         Assert.notNull(emailRepository, "Email Repository can not be null");
         Assert.notNull(mailClientService, "Mail Client Service can not be null");
+        Assert.notNull(pendingDeviceRepository, "PendingDeviceRepository can not be null");
+        Assert.notNull(deviceHelper, "DeviceHelper can not be null");
+        
         logger.debug("init Account Tasks ...");
     }
 

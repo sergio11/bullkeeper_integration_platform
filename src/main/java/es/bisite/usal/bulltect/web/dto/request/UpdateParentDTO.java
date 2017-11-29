@@ -32,7 +32,7 @@ public final class UpdateParentDTO {
 	@JsonProperty("last_name")
 	@JsonDeserialize(using = ClearStringDeserializer.class)
     private String lastName;
-	@InDateRange(min = "1960-1-1", max = "2000-1-1", message="{user.birthdate.invalid}")
+	@InDateRange(min = "1-1-1960", max = "1-1-2000", message="{user.birthdate.invalid}")
 	@JsonProperty("birthdate")
 	@JsonDeserialize(using = BirthdayDeserializer.class)
     private Date birthdate;

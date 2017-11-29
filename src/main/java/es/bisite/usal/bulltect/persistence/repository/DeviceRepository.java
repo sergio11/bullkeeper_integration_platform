@@ -23,4 +23,8 @@ public interface DeviceRepository extends MongoRepository<DeviceEntity, ObjectId
     Long countByDeviceId(String deviceId);
     
     DeviceEntity findByDeviceId(String deviceId);
+    
+    Long countByDeviceGroupId(ObjectId deviceGroupId);
+    
+    Long deleteByDeviceGroup(DeviceGroupEntity deviceGroup);
 }

@@ -17,11 +17,13 @@ public class DeviceDTO extends ResourceSupport {
 	private String notificationKeyName;
 	@JsonProperty("notification_key")
 	private String notificationKey;
+	@JsonProperty("owner")
+	private String owner;
 	
 	public DeviceDTO(){}
 	
 	public DeviceDTO(String deviceId, String registrationToken, String type, 
-			String createAt, String notificationKeyName, String notificationKey) {
+			String createAt, String notificationKeyName, String notificationKey, String owner) {
 		super();
 		this.deviceId = deviceId;
 		this.registrationToken = registrationToken;
@@ -29,6 +31,7 @@ public class DeviceDTO extends ResourceSupport {
 		this.createAt = createAt;
 		this.notificationKeyName = notificationKeyName;
 		this.notificationKey = notificationKey;
+		this.owner = owner;
 	}
 
 	public String getDeviceId() {
@@ -78,4 +81,13 @@ public class DeviceDTO extends ResourceSupport {
 	public void setNotificationKey(String notificationKey) {
 		this.notificationKey = notificationKey;
 	}
+
+	public String getOwner() {
+		return owner;
+	}
+
+	public void setOwner(String owner) {
+		this.owner = owner;
+	}
+	
 }

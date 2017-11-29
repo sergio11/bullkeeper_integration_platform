@@ -13,6 +13,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.PhoneNumberUtil.PhoneNumberFormat;
+
+import es.bisite.usal.bulltect.domain.service.IDeviceGroupsService;
 import es.bisite.usal.bulltect.domain.service.IParentsService;
 import es.bisite.usal.bulltect.domain.service.ISonService;
 import es.bisite.usal.bulltect.exception.EmailAlreadyExistsException;
@@ -24,6 +26,7 @@ import es.bisite.usal.bulltect.persistence.entity.ParentEntity;
 import es.bisite.usal.bulltect.persistence.entity.PreferencesEntity.RemoveAlertsEveryEnum;
 import es.bisite.usal.bulltect.persistence.entity.SonEntity;
 import es.bisite.usal.bulltect.persistence.repository.ParentRepository;
+import es.bisite.usal.bulltect.persistence.repository.PendingDeviceRepository;
 import es.bisite.usal.bulltect.persistence.repository.SchoolRepository;
 import es.bisite.usal.bulltect.persistence.repository.SonRepository;
 import es.bisite.usal.bulltect.web.dto.request.RegisterParentByFacebookDTO;
@@ -53,11 +56,12 @@ public class ParentsServiceImpl implements IParentsService {
     private final PreferencesEntityMapper preferencesEntityMapper;
     private final ISonService sonService;
     private final IUploadFilesService uploadFilesService;
+    private final IDeviceGroupsService deviceGroupsService;
 
     @Autowired
     public ParentsServiceImpl(ParentRepository parentRepository, ParentEntityMapper parentEntityMapper, SonEntityMapper sonEntityMapper,
             SonRepository sonRepository, PasswordEncoder passwordEncoder, SchoolRepository schoolRepository, PreferencesEntityMapper preferencesEntityMapper,
-            ISonService sonService, IUploadFilesService uploadFilesService) {
+            ISonService sonService, IUploadFilesService uploadFilesService, IDeviceGroupsService deviceGroupsService) {
         super();
         this.parentRepository = parentRepository;
         this.parentEntityMapper = parentEntityMapper;
@@ -68,6 +72,7 @@ public class ParentsServiceImpl implements IParentsService {
         this.preferencesEntityMapper = preferencesEntityMapper;
         this.sonService = sonService;
         this.uploadFilesService = uploadFilesService;
+        this.deviceGroupsService = deviceGroupsService;
     }
 
     @Override
@@ -245,6 +250,7 @@ public class ParentsServiceImpl implements IParentsService {
     		throw new ParentNotFoundException();
     	uploadFilesService.deleteProfileImage(parentRepository.getProfileImageIdByUserId(parent.getId()));
 		parentRepository.delete(parent);
+		deviceGroupsService.removeDeviceGroupOf(parent.getId());
 		sonService.deleteAllOfParent(parent.getId());
 		
     }
@@ -314,6 +320,8 @@ public class ParentsServiceImpl implements IParentsService {
         Assert.notNull(passwordEncoder, "Password Encoder can not be null");
         Assert.notNull(schoolRepository, "School Repository can not be null");
         Assert.notNull(preferencesEntityMapper, "Preferences Entity Mapper can not be null");
+        Assert.notNull(deviceGroupsService, "DeviceGroupsService can not be null");
+        
         
     }
 

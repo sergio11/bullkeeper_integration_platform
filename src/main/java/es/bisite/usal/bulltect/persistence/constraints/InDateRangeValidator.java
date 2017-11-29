@@ -9,7 +9,6 @@ import javax.validation.ConstraintValidatorContext;
 
 public class InDateRangeValidator implements ConstraintValidator<InDateRange, java.util.Date> {
     
-    private static final SimpleDateFormat dateParser = new SimpleDateFormat("dd-MM-yyyy");
     
     private InDateRange constraintAnnotation;
     
@@ -21,6 +20,7 @@ public class InDateRangeValidator implements ConstraintValidator<InDateRange, ja
     @Override
     public boolean isValid(java.util.Date value, ConstraintValidatorContext context) {
         try {
+        	final SimpleDateFormat dateParser = new SimpleDateFormat(constraintAnnotation.format());
             final Date min = dateParser.parse(constraintAnnotation.min());
             final Date max = dateParser.parse(constraintAnnotation.max());
             return value == null ||

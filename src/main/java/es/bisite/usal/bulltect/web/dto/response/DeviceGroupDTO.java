@@ -14,15 +14,18 @@ public class DeviceGroupDTO extends ResourceSupport {
 	private String notificationKey;
 	@JsonProperty("create_at")
 	private String createAt;
+	@JsonProperty("owner")
+	private String owner;
 	
 	public DeviceGroupDTO(){}
 	
-	public DeviceGroupDTO(String identity, String notificationKeyName, String notificationKey, String createAt) {
+	public DeviceGroupDTO(String identity, String notificationKeyName, String notificationKey, String createAt, String owner) {
 		super();
 		this.identity = identity;
 		this.notificationKeyName = notificationKeyName;
 		this.notificationKey = notificationKey;
 		this.createAt = createAt;
+		this.owner = owner;
 	}
 
 	public String getIdentity() {
@@ -55,6 +58,14 @@ public class DeviceGroupDTO extends ResourceSupport {
 
 	public void setCreateAt(String createAt) {
 		this.createAt = createAt;
+	}
+
+	public String getOwner() {
+		return owner;
+	}
+
+	public void setOwner(String owner) {
+		this.owner = owner;
 	}
 
 	@Override

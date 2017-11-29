@@ -17,6 +17,8 @@ public @interface InDateRange {
  String message() default "{validation.date.InDateRange.message}";
  Class<?>[] groups() default {};
  Class<? extends Payload>[] payload() default {};
+//min value, we for now just a string
+String format() default "dd-MM-yyyy";
  // min value, we for now just a string
  String min() default "01-01-1900";
  // max date value we support
