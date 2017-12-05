@@ -31,6 +31,12 @@ public class SocialMediaEntity {
     @Field("social_media_type")
     private SocialMediaTypeEnum type;
     
+    @Field("user_social_name")
+    private String userSocialName;
+    
+    @Field("user_picture")
+    private String userPicture;
+    
     @Field("invalid_token")
     private Boolean invalidToken = Boolean.FALSE;
     
@@ -47,21 +53,32 @@ public class SocialMediaEntity {
     
     public SocialMediaEntity(){}
     
-    public SocialMediaEntity(String accessToken, SocialMediaTypeEnum type, SonEntity sonEntity) {
+    public SocialMediaEntity(String accessToken, SocialMediaTypeEnum type,  SonEntity sonEntity) {
 		super();
 		this.accessToken = accessToken;
 		this.type = type;
 		this.sonEntity = sonEntity;
 		this.scheduledFor = new Date().getTime();
 	}
+    
+    public SocialMediaEntity(String accessToken, SocialMediaTypeEnum type, String userSocialName,  SonEntity sonEntity) {
+		super();
+		this.accessToken = accessToken;
+		this.type = type;
+		this.userSocialName = userSocialName;
+		this.sonEntity = sonEntity;
+		this.scheduledFor = new Date().getTime();
+	}
 
     @PersistenceConstructor
-    public SocialMediaEntity(String accessToken, String refreshToken, SocialMediaTypeEnum type, Boolean invalidToken, Long scheduledFor,
+    public SocialMediaEntity(String accessToken, String refreshToken, SocialMediaTypeEnum type, String userSocialName, String userPicture, Boolean invalidToken, Long scheduledFor,
 			Date lastProbing, SonEntity sonEntity) {
 		super();
 		this.accessToken = accessToken;
 		this.refreshToken = refreshToken;
 		this.type = type;
+		this.userSocialName = userSocialName;
+		this.userPicture = userPicture;
 		this.invalidToken = invalidToken;
 		this.scheduledFor = scheduledFor;
 		this.lastProbing = lastProbing;
@@ -101,8 +118,24 @@ public class SocialMediaEntity {
     public void setType(SocialMediaTypeEnum type) {
         this.type = type;
     }
+    
+	public String getUserSocialName() {
+		return userSocialName;
+	}
 
-    public Boolean isInvalidToken() {
+	public void setUserSocialName(String userSocialName) {
+		this.userSocialName = userSocialName;
+	}
+	
+	public String getUserPicture() {
+		return userPicture;
+	}
+
+	public void setUserPicture(String userPicture) {
+		this.userPicture = userPicture;
+	}
+
+	public Boolean isInvalidToken() {
         return invalidToken;
     }
 
@@ -165,7 +198,10 @@ public class SocialMediaEntity {
 	@Override
 	public String toString() {
 		return "SocialMediaEntity [id=" + id + ", accessToken=" + accessToken + ", refreshToken=" + refreshToken
-				+ ", type=" + type + ", invalidToken=" + invalidToken + ", scheduledFor=" + scheduledFor
-				+ ", lastProbing=" + lastProbing + ", sonEntity=" + sonEntity + "]";
+				+ ", type=" + type + ", userSocialName=" + userSocialName + ", userPicture=" + userPicture
+				+ ", invalidToken=" + invalidToken + ", scheduledFor=" + scheduledFor + ", lastProbing=" + lastProbing
+				+ ", sonEntity=" + sonEntity + "]";
 	}
+
+	
 }

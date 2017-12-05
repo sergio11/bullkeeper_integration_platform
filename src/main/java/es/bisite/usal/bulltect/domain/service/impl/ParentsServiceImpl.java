@@ -26,7 +26,6 @@ import es.bisite.usal.bulltect.persistence.entity.ParentEntity;
 import es.bisite.usal.bulltect.persistence.entity.PreferencesEntity.RemoveAlertsEveryEnum;
 import es.bisite.usal.bulltect.persistence.entity.SonEntity;
 import es.bisite.usal.bulltect.persistence.repository.ParentRepository;
-import es.bisite.usal.bulltect.persistence.repository.PendingDeviceRepository;
 import es.bisite.usal.bulltect.persistence.repository.SchoolRepository;
 import es.bisite.usal.bulltect.persistence.repository.SonRepository;
 import es.bisite.usal.bulltect.web.dto.request.RegisterParentByFacebookDTO;

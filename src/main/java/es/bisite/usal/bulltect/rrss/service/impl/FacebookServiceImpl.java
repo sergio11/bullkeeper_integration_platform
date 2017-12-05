@@ -19,6 +19,7 @@ import es.bisite.usal.bulltect.exception.InvalidAccessTokenException;
 import es.bisite.usal.bulltect.exception.InvalidFacebookIdException;
 import es.bisite.usal.bulltect.i18n.service.IMessageSourceResolverService;
 import es.bisite.usal.bulltect.mapper.IFacebookCommentMapper;
+import es.bisite.usal.bulltect.mapper.IFacebookPostMapper;
 import es.bisite.usal.bulltect.mapper.UserFacebookMapper;
 import es.bisite.usal.bulltect.persistence.entity.CommentEntity;
 import es.bisite.usal.bulltect.persistence.entity.SocialMediaTypeEnum;
@@ -55,12 +56,14 @@ public class FacebookServiceImpl implements IFacebookService {
     private String appSecret;
 
     private final IFacebookCommentMapper facebookCommentMapper;
+    private final IFacebookPostMapper facebookPostMapper;
     private final IMessageSourceResolverService messageSourceResolver;
     private final UserFacebookMapper userFacebookMapper;
 
-    public FacebookServiceImpl(IFacebookCommentMapper facebookCommentMapper,
+    public FacebookServiceImpl(IFacebookCommentMapper facebookCommentMapper, IFacebookPostMapper facebookPostMapper,
             IMessageSourceResolverService messageSourceResolver, UserFacebookMapper userFacebookMapper) {
         this.facebookCommentMapper = facebookCommentMapper;
+        this.facebookPostMapper = facebookPostMapper;
         this.messageSourceResolver = messageSourceResolver;
         this.userFacebookMapper = userFacebookMapper;
     }
@@ -108,19 +111,48 @@ public class FacebookServiceImpl implements IFacebookService {
      * @param user
      * @return
      */
-    private Stream<Comment> getAllCommentsFromPostsReceived(final FacebookClient facebookClient, final Date startDate, User user) {
-        Connection<Post> userFeed = facebookClient.fetchConnection("me/feed", 
-        		Post.class, Parameter.with("fields", "comments.summary(true)"));
+    private Stream<CommentEntity> getAllCommentsFromPostsReceived(final FacebookClient facebookClient, final Date startDate, User user) {
         
+    	Connection<Post> userFeed = facebookClient.fetchConnection("me/feed", 
+        		Post.class, Parameter.with("fields", "message, link, from, created_time, comments.summary(true) , likes.limit(1).summary(true)"));
+    	
+
         return StreamUtils.asStream(userFeed.iterator())
                 .flatMap(List::stream)
-                .filter(post -> {
-                	logger.debug("Post " + post.getCaption() +  " Total Comments " + post.getCommentsCount());
-                	return post.getCommentsCount() > 0;
+                .filter(post -> ( !post.getFrom().getId().equals(user.getId()) &&
+                		( post.getMessage() != null && !post.getMessage().isEmpty()) ) || 
+                		post.getCommentsCount() > 0)
+                .flatMap(post -> {
                 	
-                })
-                .flatMap(post -> getCommentsByObject(facebookClient, post.getId(), comment -> !comment.getFrom().getId().equals(user.getId())
-           	         && (startDate != null ? comment.getCreatedTime().after(startDate) : true)));
+                	Stream<CommentEntity> streamComments;
+                	
+                	
+                	if((!post.getFrom().getId().equals(user.getId()) &&
+                    		( post.getMessage() != null && !post.getMessage().isEmpty())) && post.getCommentsCount() > 0) {
+                		
+                		// Obtemos texto de la publicación y sus comentarios
+                		
+                		streamComments = StreamUtils.concat(Stream.of(facebookPostMapper.facebookPostToCommentEntity(post)), getCommentsByObject(facebookClient, post.getId(), comment -> !comment.getFrom().getId().equals(user.getId())
+                     	         && (startDate != null ? comment.getCreatedTime().after(startDate) : true)).map(comment -> facebookCommentMapper.facebookCommentToCommentEntity(comment)));
+                		
+                	} else {
+                		
+                		if(post.getCommentsCount() > 0){
+                			
+                			streamComments = getCommentsByObject(facebookClient, post.getId(), comment -> !comment.getFrom().getId().equals(user.getId())
+                          	         && (startDate != null ? comment.getCreatedTime().after(startDate) : true)).map(comment -> facebookCommentMapper.facebookCommentToCommentEntity(comment));
+                			
+                		} else {
+                			
+                			streamComments = Stream.of(facebookPostMapper.facebookPostToCommentEntity(post));
+                		}
+                	
+                	}
+                	
+                	return streamComments;
+                	
+                	
+                });
 
     }
     
@@ -132,7 +164,7 @@ public class FacebookServiceImpl implements IFacebookService {
      * @param user
      * @return
      */
-    private Stream<Comment> getAllCommentsFromAlbumsReceived(FacebookClient facebookClient, Date startDate, User user) {
+    private Stream<CommentEntity> getAllCommentsFromAlbumsReceived(FacebookClient facebookClient, Date startDate, User user) {
         Connection<Album> userAlbums = facebookClient.fetchConnection("me/albums", Album.class);
         // Iterate over the albums to access the particular pages
         return StreamUtils.asStream(userAlbums.iterator())
@@ -141,7 +173,7 @@ public class FacebookServiceImpl implements IFacebookService {
                     logger.debug("Album -> " + album.getName() + "Description " + album.getDescription());
                     return getCommentsByObject(facebookClient, album.getId(), comment -> !comment.getFrom().getId().equals(user.getId())
                   	         && (startDate != null ? comment.getCreatedTime().after(startDate) : true));
-                });
+                }).map(comment -> facebookCommentMapper.facebookCommentToCommentEntity(comment));
     }
     
     
@@ -164,7 +196,7 @@ public class FacebookServiceImpl implements IFacebookService {
             comments = StreamUtils.concat(
             		getAllCommentsFromPostsReceived(facebookClient, startDate, user),
             		getAllCommentsFromAlbumsReceived(facebookClient, startDate, user)
-            ).map(comment -> facebookCommentMapper.facebookCommentToCommentEntity(comment))
+            )
              .collect(Collectors.toSet());
 
             logger.debug("Total Facebook comments : " + comments.size());
@@ -251,12 +283,23 @@ public class FacebookServiceImpl implements IFacebookService {
     	AccessToken extendedAccessToken = facebookClient.obtainExtendedAccessToken(appKey, appSecret, shortLivedToken);
     	return extendedAccessToken.getAccessToken();
 	}
+    
+    @Override
+	public String getUserNameForAccessToken(String accessToken) throws FacebookOAuthException {
+    	Assert.notNull(accessToken, "Token can not be null");
+        Assert.hasLength(accessToken, "Token can not be empty");
+        
+        FacebookClient facebookClient = new DefaultFacebookClient(accessToken, Version.VERSION_2_8);
+        User user = facebookClient.fetchObject("me", User.class, Parameter.with("fields", "name"));
+        return user != null ? user.getName() : "";
+	}
 
     @PostConstruct
     protected void init() {
         Assert.notNull(appKey, "The app key can not be null");
         Assert.notNull(appSecret, "The app secret can not be null");
         Assert.notNull(facebookCommentMapper, "The Facebook Comment Mapper can not be null");
+        Assert.notNull(facebookPostMapper, "The Facebook Post Mapper can not be null");
         Assert.notNull(messageSourceResolver, "The Message Source Resolver can not be null");
     }
 }

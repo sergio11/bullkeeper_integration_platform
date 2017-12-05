@@ -164,8 +164,14 @@ public class DeviceHelperImpl implements IDeviceHelper {
 			if(pendingDevice == null) {
 				pendingDevice = new PendingDeviceEntity(deviceId, registrationToken, owner);
 			} else {
-				pendingDevice.setFailedAttempts(pendingDevice.getFailedAttempts() + 1);
-				pendingDevice.setLastTimeTried(new Date());
+				if(pendingDevice.getFailedAttempts() < 5) {
+					pendingDevice.setFailedAttempts(pendingDevice.getFailedAttempts() + 1);
+					pendingDevice.setLastTimeTried(new Date());
+				} else {
+					pendingDeviceRepository.delete(pendingDevice);
+					
+				}
+				
 			}
 			
 			pendingDeviceRepository.save(pendingDevice);
