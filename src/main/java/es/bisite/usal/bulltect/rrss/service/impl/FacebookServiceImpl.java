@@ -12,6 +12,7 @@ import com.restfb.types.Comment;
 import com.restfb.types.Post;
 import com.restfb.types.ProfilePictureSource;
 import com.restfb.types.User;
+import com.restfb.types.Photo;
 
 import es.bisite.usal.bulltect.exception.GetCommentsProcessException;
 import es.bisite.usal.bulltect.exception.GetInformationFromFacebookException;
@@ -156,6 +157,8 @@ public class FacebookServiceImpl implements IFacebookService {
 
     }
     
+   
+    
  
     /**
      * Get All Comments From Albums Received After Than
@@ -170,9 +173,21 @@ public class FacebookServiceImpl implements IFacebookService {
         return StreamUtils.asStream(userAlbums.iterator())
                 .flatMap(List::stream)
                 .flatMap(album -> {
-                    logger.debug("Album -> " + album.getName() + "Description " + album.getDescription());
-                    return getCommentsByObject(facebookClient, album.getId(), comment -> !comment.getFrom().getId().equals(user.getId())
-                  	         && (startDate != null ? comment.getCreatedTime().after(startDate) : true));
+                	logger.debug("Album -> " + album.getName() + "Description " + album.getDescription());
+                	
+                	final Connection<Photo> photosFromAlbum = facebookClient.fetchConnection(album.getId() + "/photos", 
+                			Photo.class, Parameter.with("fields", "comments.summary(true)"));
+                	
+                	final Stream<Comment> commentsByPhotoStream = StreamUtils
+	    				.asStream(photosFromAlbum.iterator())
+	    				.flatMap(List::stream)
+	        			.flatMap(photo -> getCommentsByObject(facebookClient, photo.getId(), comment ->  !comment.getFrom().getId().equals(user.getId())
+                    	         && (startDate != null ? comment.getCreatedTime().after(startDate) : true)));
+                	
+                	// Obtenemos comentarios del album y de todas las fotos del album
+                	return StreamUtils.concat(commentsByPhotoStream,
+                			getCommentsByObject(facebookClient, album.getId(), comment -> !comment.getFrom().getId().equals(user.getId())
+                         	         && (startDate != null ? comment.getCreatedTime().after(startDate) : true))); 
                 }).map(comment -> facebookCommentMapper.facebookCommentToCommentEntity(comment));
     }
     
