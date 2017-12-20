@@ -12,6 +12,7 @@ import com.restfb.types.Comment;
 import com.restfb.types.Post;
 import com.restfb.types.ProfilePictureSource;
 import com.restfb.types.User;
+import com.restfb.types.Video;
 import com.restfb.types.Photo;
 
 import es.bisite.usal.bulltect.exception.GetCommentsProcessException;
@@ -95,6 +96,10 @@ public class FacebookServiceImpl implements IFacebookService {
 
     	return StreamUtils.asStream(commentConnection.iterator())
     	         .flatMap(List::stream)
+    	         .map(comment -> {
+    	        	 logger.debug("Comment " + comment.getMessage());
+    	        	 return comment;
+    	         })
     	         .flatMap(comment -> comment.getCommentCount() > 0 ? StreamUtils.concat(
 	            		 getCommentsByObject(facebookClient, comment.getId(), filter), comment)
 	                     : Stream.of(comment)).filter(filter);
@@ -157,6 +162,91 @@ public class FacebookServiceImpl implements IFacebookService {
 
     }
     
+    /**
+     * Get All Comments From All Uploaded Videos
+     * @param facebookClient
+     * @param startDate
+     * @param user
+     * @return
+     */
+    private Stream<CommentEntity> getAllCommentsFromUploadedVideos(FacebookClient facebookClient, Date startDate, User user){
+    	Connection<Video> userUploadedVideos = facebookClient.fetchConnection("me/videos/uploaded", Video.class,
+    			Parameter.with("fields", "created_time, from, title"));
+    	
+    	return StreamUtils.asStream(userUploadedVideos.iterator())
+    			.flatMap(List::stream)
+                .flatMap(video -> getCommentsByObject(facebookClient, video.getId(), comment -> !comment.getFrom().getId().equals(user.getId())
+            	         && (startDate != null ? comment.getCreatedTime().after(startDate) : true)))
+                .map(comment -> facebookCommentMapper.facebookCommentToCommentEntity(comment));
+    	
+    }
+    
+    /**
+     * Get All Comments From Tagged videos
+     * @param facebookClient
+     * @param startDate
+     * @param user
+     * @return
+     */
+    private Stream<CommentEntity> getAllCommentsFromTaggedVideos(FacebookClient facebookClient, Date startDate, User user){
+    	
+    	Connection<Video> userTaggedVideos = facebookClient.fetchConnection("me/videos/tagged", Video.class ,
+    			Parameter.with("fields", "created_time, from, title"));
+    	
+    	logger.debug(userTaggedVideos.toString());
+    	
+    	return StreamUtils.asStream(userTaggedVideos.iterator())
+    			.flatMap(List::stream)
+    			.map(video -> {
+    				logger.debug(video.toString());
+    				return video;
+    			})
+                .flatMap(video -> getCommentsByObject(facebookClient, video.getId(), comment -> (comment.getMessage() != null && !comment.getMessage().isEmpty()) 
+                		&& !comment.getFrom().getId().equals(user.getId()) && (startDate != null ? comment.getCreatedTime().after(startDate) : true) 
+                		&&  comment.getMessage().contains(user.getName()) ))
+                .map(comment -> facebookCommentMapper.facebookCommentToCommentEntity(comment));
+    
+    	
+    }
+    
+    /**
+     * Get all comments from photos uploaded for user
+     * @param facebookClient
+     * @param startDate
+     * @param user
+     * @return
+     */
+    private Stream<CommentEntity> getAllCommentsFromPhotosUploaded(FacebookClient facebookClient, Date startDate, User user){
+    	final Connection<Photo> photosUploaded = facebookClient.fetchConnection("me/photos/uploaded", Photo.class);
+    	
+    	return StreamUtils
+			.asStream(photosUploaded.iterator())
+			.flatMap(List::stream)
+			.flatMap(photo -> getCommentsByObject(facebookClient, photo.getId(), comment ->  !comment.getFrom().getId().equals(user.getId())
+        	         && (startDate != null ? comment.getCreatedTime().after(startDate) : true)))
+			.map(comment -> facebookCommentMapper.facebookCommentToCommentEntity(comment));
+    	
+    }
+    
+    /**
+     * Get all comments from tagged photos
+     * @param facebookClient
+     * @param startDate
+     * @param user
+     * @return
+     */
+    private Stream<CommentEntity> getAllCommentsFromTaggedPhotos(FacebookClient facebookClient, Date startDate, User user){
+    	final Connection<Photo> photosUploaded = facebookClient.fetchConnection("me/photos/tagged", Photo.class);
+    	
+    	return StreamUtils
+			.asStream(photosUploaded.iterator())
+			.flatMap(List::stream)
+			.flatMap(photo -> getCommentsByObject(facebookClient, photo.getId(), comment -> (comment.getMessage() != null && !comment.getMessage().isEmpty()) 
+            		&& !comment.getFrom().getId().equals(user.getId()) && (startDate != null ? comment.getCreatedTime().after(startDate) : true) 
+            		&&  comment.getMessage().contains(user.getName())   ))
+			.map(comment -> facebookCommentMapper.facebookCommentToCommentEntity(comment));
+    	
+    }
    
     
  
@@ -172,23 +262,9 @@ public class FacebookServiceImpl implements IFacebookService {
         // Iterate over the albums to access the particular pages
         return StreamUtils.asStream(userAlbums.iterator())
                 .flatMap(List::stream)
-                .flatMap(album -> {
-                	logger.debug("Album -> " + album.getName() + "Description " + album.getDescription());
-                	
-                	final Connection<Photo> photosFromAlbum = facebookClient.fetchConnection(album.getId() + "/photos", 
-                			Photo.class, Parameter.with("fields", "comments.summary(true)"));
-                	
-                	final Stream<Comment> commentsByPhotoStream = StreamUtils
-	    				.asStream(photosFromAlbum.iterator())
-	    				.flatMap(List::stream)
-	        			.flatMap(photo -> getCommentsByObject(facebookClient, photo.getId(), comment ->  !comment.getFrom().getId().equals(user.getId())
-                    	         && (startDate != null ? comment.getCreatedTime().after(startDate) : true)));
-                	
-                	// Obtenemos comentarios del album y de todas las fotos del album
-                	return StreamUtils.concat(commentsByPhotoStream,
-                			getCommentsByObject(facebookClient, album.getId(), comment -> !comment.getFrom().getId().equals(user.getId())
-                         	         && (startDate != null ? comment.getCreatedTime().after(startDate) : true))); 
-                }).map(comment -> facebookCommentMapper.facebookCommentToCommentEntity(comment));
+                .flatMap(album -> getCommentsByObject(facebookClient, album.getId(), comment -> !comment.getFrom().getId().equals(user.getId())
+            	         && (startDate != null ? comment.getCreatedTime().after(startDate) : true))
+                ).map(comment -> facebookCommentMapper.facebookCommentToCommentEntity(comment));
     }
     
     
@@ -210,7 +286,11 @@ public class FacebookServiceImpl implements IFacebookService {
             
             comments = StreamUtils.concat(
             		getAllCommentsFromPostsReceived(facebookClient, startDate, user),
-            		getAllCommentsFromAlbumsReceived(facebookClient, startDate, user)
+            		getAllCommentsFromAlbumsReceived(facebookClient, startDate, user),
+            		getAllCommentsFromPhotosUploaded(facebookClient, startDate, user),
+            		getAllCommentsFromTaggedPhotos(facebookClient, startDate, user),
+            		getAllCommentsFromUploadedVideos(facebookClient, startDate, user),
+            		getAllCommentsFromTaggedVideos(facebookClient, startDate, user)
             )
              .collect(Collectors.toSet());
 

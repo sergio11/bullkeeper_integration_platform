@@ -1,10 +1,7 @@
 package es.bisite.usal.bulltect.web.rest.controller;
 
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 import javax.annotation.PostConstruct;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
@@ -20,23 +17,16 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.common.collect.Iterables;
 
 import es.bisite.usal.bulltect.domain.service.IDeviceGroupsService;
-import es.bisite.usal.bulltect.domain.service.ITokenGeneratorService;
 import es.bisite.usal.bulltect.exception.DeviceAddToGroupFailedException;
-import es.bisite.usal.bulltect.exception.DeviceGroupCreateFailedException;
-import es.bisite.usal.bulltect.exception.DeviceGroupNotFoundException;
 import es.bisite.usal.bulltect.exception.NoDevicesIntoTheGroupException;
 import es.bisite.usal.bulltect.exception.RemoveDeviceFromGroupFailedException;
 import es.bisite.usal.bulltect.exception.UpdateDeviceFailedException;
-import es.bisite.usal.bulltect.fcm.properties.FCMCustomProperties;
-import es.bisite.usal.bulltect.fcm.service.IPushNotificationsService;
 import es.bisite.usal.bulltect.helper.IDeviceHelper;
 import es.bisite.usal.bulltect.persistence.constraints.DeviceShouldExists;
-import es.bisite.usal.bulltect.util.Unthrow;
 import es.bisite.usal.bulltect.web.dto.request.AddDeviceDTO;
 import es.bisite.usal.bulltect.web.dto.request.SaveDeviceDTO;
 import es.bisite.usal.bulltect.web.dto.request.UpdateDeviceDTO;
 import es.bisite.usal.bulltect.web.dto.response.DeviceDTO;
-import es.bisite.usal.bulltect.web.dto.response.DeviceGroupDTO;
 import es.bisite.usal.bulltect.web.rest.ApiHelper;
 import es.bisite.usal.bulltect.web.rest.response.APIResponse;
 import es.bisite.usal.bulltect.web.rest.response.DeviceGroupResponseCode;

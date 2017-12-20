@@ -155,6 +155,8 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     	return rest;
     }
     
+    
+    
     @PostConstruct
     protected void init(){
     	logger.debug("init WebConfig ...");

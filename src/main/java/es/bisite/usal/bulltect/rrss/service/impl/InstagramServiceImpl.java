@@ -27,6 +27,7 @@ import es.bisite.usal.bulltect.mapper.IInstagramCommentMapper;
 import es.bisite.usal.bulltect.persistence.entity.CommentEntity;
 import es.bisite.usal.bulltect.persistence.entity.SocialMediaTypeEnum;
 import es.bisite.usal.bulltect.rrss.service.IInstagramService;
+import es.bisite.usal.bulltect.util.Unthrow;
 
 /**
  *
@@ -63,59 +64,25 @@ public class InstagramServiceImpl implements IInstagramService {
         Set<CommentEntity> userComments = new HashSet<>();
         
         try {
-        	Instagram instagram = new Instagram(accessToken, appSecret);
+        	
+        	final Instagram instagram = new Instagram(accessToken, appSecret);
  
-            UserInfoData userInfo = instagram.getCurrentUserInfo().getData();
-            
-        	logger.debug("User Fullname -> " + userInfo.getUsername());
-            logger.debug("User Id -> " + userInfo.getId());
-            
-            MediaFeed mediaFeed = instagram.getUserRecentMedia();
-            
-            logger.debug("MediaFeed -> " + mediaFeed.toString());
-            
-            for(final MediaFeedData mediaFeedData: mediaFeed.getData()){
-            	logger.debug("Media Feed Data -> " + mediaFeedData.toString());
-            	logger.debug("Comments -> " + mediaFeedData.getComments());
-            	
-            }
+            final UserInfoData userInfo = instagram.getCurrentUserInfo().getData();
 
-            /*userComments = instagram
+            userComments = instagram
             	.getUserRecentMedia()
             	.getData()
             	.stream()
-            	.map(mediaFeed -> {
-            		
-            		if(mediaFeed != null) {
-            			logger.debug("Media Feed " + mediaFeed.getId() + mediaFeed.getCaption().getText());
-            			
-            		}
-            		
-            		return mediaFeed.getComments();
-            		
-            	})
-            	.map(comments -> {
-            		if(comments != null) {
-            			logger.debug("Comments -> " + comments.getCount());
-            		}
-            		return comments.getComments();
-            		
-            	})
+            	.map(mediaFeed -> Unthrow.wrap(() -> instagram.getMediaComments(mediaFeed.getId())))
+            	.map(mediaCommentsFeed -> mediaCommentsFeed.getCommentDataList())
             	.flatMap(List::stream)
             	.filter(commentData -> !commentData.getCommentFrom().getId().equals(userInfo.getId()) && 
                 		( startDate != null ? new Date(Long.parseLong(commentData.getCreatedTime())).after(startDate) : true ))
-            	.map(commentData -> {
-            		
-            		logger.debug("Comment Id -> " + commentData.getId() + " Text -> " + commentData.getText());
-            		logger.debug("Comment From -> " + commentData.getCommentFrom().getFullName());
-            		
-            		return instagramMapper.instagramCommentToCommentEntity(commentData);
-            	})
-            	.collect(Collectors.toSet());*/
+            	.map(commentData -> instagramMapper.instagramCommentToCommentEntity(commentData))
+            	.collect(Collectors.toSet());
             
             
-            
-            //logger.debug("Total Instagram Comments: " + userComments.size());
+            logger.debug("Total Instagram Comments: " + userComments.size());
         } catch (InstagramBadRequestException  e) {
         	throw new InvalidAccessTokenException(
             		messageSourceResolver.resolver("invalid.access.token", new Object[]{ SocialMediaTypeEnum.INSTAGRAM.name() }),
@@ -125,8 +92,7 @@ public class InstagramServiceImpl implements IInstagramService {
             throw new GetCommentsProcessException(e.toString());
         }
   
-        //return userComments;
-        return Collections.emptySet();
+        return userComments;
 	}
     
     @PostConstruct

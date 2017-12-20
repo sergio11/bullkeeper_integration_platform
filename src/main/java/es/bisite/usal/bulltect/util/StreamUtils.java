@@ -37,6 +37,11 @@ public class StreamUtils {
         return Stream.concat(lhs, Stream.of(rhs));
     }
     
+    @SafeVarargs
+	public static <T> Stream<T> concat(Stream<? extends T>... streams) {
+        return Stream.of(streams).flatMap(s -> s);
+    }
+    
 	public static <T> T uncheckCall(Callable<T> callable) {
 		try {
 			return callable.call();
