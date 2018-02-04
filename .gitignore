@@ -23,4 +23,5 @@ dist/
 nbdist/
 .nb-gradle/
 
-src/main/resources/client_secret.json
+##src/main/resources/client_secret.json
+src/main/webapp/images
