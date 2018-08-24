@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<!--[if IE 8]> <html lang="en" class="ie8 no-js"  xmlns:th="http://www.thymeleaf.org"> <![endif]-->
+<!--[if IE 9]> <html lang="en" class="ie9 no-js"  xmlns:th="http://www.thymeleaf.org"> <![endif]-->
+<!--[if !IE]><!-->
+<html lang="en"  
+    xmlns:th="http://www.thymeleaf.org"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" >
+<!--<![endif]-->
+    <head th:fragment="site-head">
+        <title>Dashboard</title>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta content="Admin Dashboard" name="description"/>
+        <meta content="Spring MVC Spring Integration Thymeleaf" name="keywords"/>
+        <meta content="sergio" name="author"/>
+       	<meta name="ctx" th:content="${#httpServletRequest.getContextPath()}" />
+        <th:block th:replace="fragments/common::common-styles" />
+        <style layout:fragment="custom-css-inline"></style>
+        
+    </head>
+    <body>
+        <div id="wrapper">
+            <!-- Navigation -->
+            <th:block th:replace="fragments/common::navigation" />
+            <div id="page-wrapper">
+                <div class="container-fluid">
+                    <th:block layout:fragment="content"></th:block>
+                </div>
+            </div>
+        </div>
+        
+        <th:block th:replace="fragments/common::common-scripts" />
+        <script type="text/javascript">
+            jQuery(document).ready(function() {
+                _ctx = $("meta[name='ctx']").attr("content");
+                console.log("Este es el contexto", _ctx);
+            });
+        </script>
+        <th:block layout:fragment="page-scripts"></th:block>
+    </body>
+</html>
