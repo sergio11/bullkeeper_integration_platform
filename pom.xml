@@ -4,11 +4,11 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>sanchez.sanchez.sergio</groupId>
-    <artifactId>bulltect-integration-platform</artifactId>
+    <artifactId>masoc-integration-platform</artifactId>
     <version>0.0.90-SNAPSHOT</version>
     <packaging>${packaging.type}</packaging>
-    <name>BullTect Integration Platform</name>
-    <description>BullTect Integration Platform. EIPs patterns with Spring Integration.</description>
+    <name>MASOC Integration Platform</name>
+    <description>MASOC Integration Platform. EIPs patterns with Spring Integration.</description>
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
@@ -45,7 +45,7 @@
 			<properties>
 				<packaging.type>war</packaging.type>
         		<activatedProperties>prod</activatedProperties>
-        		<start-class>es.bisite.usal.bulltect.BullTectIntegrationPlatformProductionApplication</start-class>
+        		<start-class>sanchez.sanchez.sergio.masoc.MasocIntegrationPlatformProductionApplication</start-class>
         		<!-- asciidoctor -->
 		        <asciidoctor.input.directory>${project.basedir}/src/docs/asciidoc</asciidoctor.input.directory>
 		        <asciidoctor.html.output.directory>${project.build.directory}/asciidoc/html</asciidoctor.html.output.directory>
@@ -63,7 +63,7 @@
 			<dependencies>
 				<dependency>
 		            <groupId>org.springframework.boot</groupId>
-		            <artifactId>spring-boot-starter-tomcat</artifactId>
+		            <artifactId>spring-boot-starter-jetty</artifactId>
 		            <scope>provided</scope>
 		        </dependency>
 		        <dependency>
@@ -84,7 +84,7 @@
 			
 			<build>
 			
-				<finalName>bulltect-integration-platform</finalName>
+				<finalName>masoc-integration-platform</finalName>
 			
 				<resources>
 			        <resource>
@@ -118,12 +118,12 @@
 		                    <apiSources>
 		                        <apiSource>
 		                            <springmvc>true</springmvc>
-		                            <locations>es.bisite.usal.bulltect.web.rest.controller</locations>
+		                            <locations>sanchez.sanchez.sergio.masoc.web.rest.controller</locations>
 		                            <schemes>http,https</schemes>
-		                            <host>bulltect-integration-platform</host>
+		                            <host>masoc-integration-platform</host>
 		                            <basePath>/api</basePath>
 		                            <info>
-		                                <title>REST API for BullTect</title>
+		                                <title>REST API for MASOC Proyect</title>
 		                                <version>v1</version>
 		                                <description>
 		                                	La plataforma ofrece iteroperabilidad con otros sistemas, permite que la información de los medios sociales, usuarios objeto del análisis, padres, colegios. 
@@ -132,9 +132,8 @@
 		                                </description>
 		                                <termsOfService>TOS</termsOfService>
 		                                <contact>
-		                                    <email>bisite@usal.es</email>
-		                                    <name>BISITE Research Group - University of Salamanca</name>
-		                                    <url>https://bisite.usal.es/es</url>
+		                                    <email>sanchezsanchezsergio@gmail.com</email>
+		                                    <name>Sergio Sánchez Sánchez</name>
 		                                </contact>
 		                                <license>
 		                                    <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
@@ -314,7 +313,7 @@
 			<properties>
 				<packaging.type>jar</packaging.type>
 				<activatedProperties>dev</activatedProperties>
-				<start-class>es.bisite.usal.bulltect.BullTectIntegrationPlatformDevelopmentApplication</start-class>
+				<start-class>sanchez.sanchez.sergio.masoc.MasocIntegrationPlatformDevelopmentApplication</start-class>
 			</properties>
 			<dependencies>
 				<dependency>
@@ -323,7 +322,7 @@
 		        </dependency>
 		        <dependency>
 		            <groupId>org.springframework.boot</groupId>
-		            <artifactId>spring-boot-starter-tomcat</artifactId>
+		            <artifactId>spring-boot-starter-jetty</artifactId>
 		            <exclusions>
 			            <exclusion>
 			                <groupId>commons-io</groupId>
@@ -388,6 +387,12 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
+            <exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-tomcat</artifactId>
+				</exclusion>
+			</exclusions>
         </dependency>
         <!-- and the 'Thymeleaf Layout Dialect'  -->
         <dependency>
@@ -514,6 +519,13 @@
 		   <artifactId>prettytime</artifactId>
 		   <version>3.2.7.Final</version>
 		</dependency>
+		
+		<dependency>
+	     	<groupId>javax.servlet</groupId>
+	     	<artifactId>javax.servlet-api</artifactId>
+	     	<version>4.0.0</version>
+	     	<scope>provided</scope>
+	  	</dependency>
         
     </dependencies>
     
