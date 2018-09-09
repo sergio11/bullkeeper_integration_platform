@@ -40,10 +40,14 @@ public interface AlertRepository extends MongoRepository<AlertEntity, ObjectId>,
     Integer countByParentIdAndCreateAtGreaterThanEqual(ObjectId id, Date lastAccessToAlerts);
 
     Long deleteByParentId(ObjectId parent);
+    
+    Long deleteByParentIdAndLevel(ObjectId parent, final AlertLevelEnum level);
 
     List<AlertEntity> findBySonIdOrderByCreateAtDesc(ObjectId id);
 
     Long deleteBySonId(ObjectId son);
+    
+    Long deleteBySonIdAndLevel(ObjectId son, AlertLevelEnum level);
 
     List<AlertEntity> findByParentIdOrderByCreateAtDesc(ObjectId id);
     

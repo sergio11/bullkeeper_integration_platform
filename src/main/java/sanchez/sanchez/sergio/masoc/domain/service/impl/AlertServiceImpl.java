@@ -280,12 +280,122 @@ public class AlertServiceImpl implements IAlertService {
 		return alertMapper.alertEntitiesToAlertDTO(alertRepository.findSonAlerts(id, count, from, levels));
 	}
 
-    @PostConstruct
+    
+	/**
+	 * Find Parent Warning Alerts
+	 */
+	@Override
+	public Iterable<AlertDTO> findParentWarningAlerts(ObjectId id, Integer count, Date from) {
+		Assert.notNull(id, "Id can not be null");
+    	Assert.notNull(count, "Count cannot be null");
+		Assert.notNull(from, "From can not be null");
+		Assert.isTrue(from.before(new Date()), "From should be a date before the current time");
+    	return alertMapper.alertEntitiesToAlertDTO(alertRepository.findParentWarningAlerts(id, count, from));
+	}
+
+	@Override
+	public Iterable<AlertDTO> findParentDangerAlerts(ObjectId id, Integer count, Date from) {
+		Assert.notNull(id, "Id can not be null");
+    	Assert.notNull(count, "Count cannot be null");
+		Assert.notNull(from, "From can not be null");
+		Assert.isTrue(from.before(new Date()), "From should be a date before the current time");
+    	return alertMapper.alertEntitiesToAlertDTO(alertRepository.findParentDangerAlerts(id, count, from));
+	}
+
+	@Override
+	public Iterable<AlertDTO> findParentInformationAlerts(ObjectId id, Integer count, Date from) {
+		Assert.notNull(id, "Id can not be null");
+    	Assert.notNull(count, "Count cannot be null");
+		Assert.notNull(from, "From can not be null");
+		Assert.isTrue(from.before(new Date()), "From should be a date before the current time");
+    	return alertMapper.alertEntitiesToAlertDTO(alertRepository.findParentInformationAlerts(id, count, from));
+	}
+
+	@Override
+	public Iterable<AlertDTO> findParentSuccessAlerts(ObjectId id, Integer count, Date from) {
+		Assert.notNull(id, "Id can not be null");
+    	Assert.notNull(count, "Count cannot be null");
+		Assert.notNull(from, "From can not be null");
+		Assert.isTrue(from.before(new Date()), "From should be a date before the current time");
+    	return alertMapper.alertEntitiesToAlertDTO(alertRepository.findParentSuccessAlerts(id, count, from));
+	}
+	
+
+	@Override
+	public Long deleteWarningAlertsOfParent(ObjectId parent) {
+		Assert.notNull(parent, "Parent can not be null");
+		return alertRepository.deleteByParentIdAndLevel(parent, AlertLevelEnum.WARNING);
+	}
+
+	@Override
+	public Long deleteInfoAlertsOfParent(ObjectId parent) {
+		Assert.notNull(parent, "Parent can not be null");
+		return alertRepository.deleteByParentIdAndLevel(parent, AlertLevelEnum.INFO);
+	}
+
+	@Override
+	public Long deleteDangerAlertsOfParent(ObjectId parent) {
+		Assert.notNull(parent, "Parent can not be null");
+		return alertRepository.deleteByParentIdAndLevel(parent, AlertLevelEnum.DANGER);
+	}
+
+	@Override
+	public Long deleteSuccessAlertsOfParent(ObjectId parent) {
+		Assert.notNull(parent, "Parent can not be null");
+		return alertRepository.deleteByParentIdAndLevel(parent, AlertLevelEnum.SUCCESS);
+	}
+	
+
+
+	@Override
+	public Iterable<AlertDTO> findSonWarningAlerts(ObjectId id, Integer count, Date from) {
+		Assert.notNull(id, "Id can not be null");
+		Assert.notNull(count, "Count cannot be null");
+		Assert.notNull(from, "From can not be null");
+		Assert.isTrue(from.before(new Date()), "From should be a date before the current time");
+		return alertMapper.alertEntitiesToAlertDTO(alertRepository.findSonAlerts(id, count, from, AlertLevelEnum.WARNING));
+	}
+
+	@Override
+	public Iterable<AlertDTO> findInformationSonAlerts(ObjectId id, Integer count, Date from) {
+		Assert.notNull(id, "Id can not be null");
+		Assert.notNull(count, "Count cannot be null");
+		Assert.notNull(from, "From can not be null");
+		Assert.isTrue(from.before(new Date()), "From should be a date before the current time");
+		return alertMapper.alertEntitiesToAlertDTO(alertRepository.findSonAlerts(id, count, from, AlertLevelEnum.INFO));
+	}
+
+	@Override
+	public Iterable<AlertDTO> findDangerSonAlerts(ObjectId id, Integer count, Date from) {
+		Assert.notNull(id, "Id can not be null");
+		Assert.notNull(count, "Count cannot be null");
+		Assert.notNull(from, "From can not be null");
+		Assert.isTrue(from.before(new Date()), "From should be a date before the current time");
+		return alertMapper.alertEntitiesToAlertDTO(alertRepository.findSonAlerts(id, count, from, AlertLevelEnum.DANGER));
+	}
+
+	@Override
+	public Iterable<AlertDTO> findSuccessSonAlerts(ObjectId id, Integer count, Date from) {
+		Assert.notNull(id, "Id can not be null");
+		Assert.notNull(count, "Count cannot be null");
+		Assert.notNull(from, "From can not be null");
+		Assert.isTrue(from.before(new Date()), "From should be a date before the current time");
+		return alertMapper.alertEntitiesToAlertDTO(alertRepository.findSonAlerts(id, count, from, AlertLevelEnum.SUCCESS));
+	}
+	
+	@Override
+	public Long clearChildAlertsByLevel(ObjectId son, AlertLevelEnum level) {
+		return alertRepository.deleteBySonIdAndLevel(son, level);
+	}
+	
+	@PostConstruct
     protected void init() {
         Assert.notNull(alertRepository, "Alert Repository cannot be null");
         Assert.notNull(alertMapper, "Alert Mapper cannot be null");
         Assert.notNull(messageSourceResolverService, "Message Source Resolver Service cannot be null");
         
     }
+
+	
 	
 }

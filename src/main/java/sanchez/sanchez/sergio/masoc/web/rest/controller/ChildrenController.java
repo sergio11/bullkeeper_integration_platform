@@ -75,13 +75,9 @@ import sanchez.sanchez.sergio.masoc.web.security.utils.CurrentUser;
 import sanchez.sanchez.sergio.masoc.web.security.utils.OnlyAccessForAdmin;
 import sanchez.sanchez.sergio.masoc.web.uploads.models.RequestUploadFile;
 import sanchez.sanchez.sergio.masoc.web.uploads.service.IUploadFilesService;
-
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -542,6 +538,197 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
         
     }
     
+    @RequestMapping(value = "/{id}/alerts/warning", method = RequestMethod.GET)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
+    @ApiOperation(value = "GET_WARNING_ALERTS_BY_SON", nickname = "GET_WARNING_ALERTS_BY_SON", notes = "Get Warning Alerts By Son Id",
+            response = AlertDTO.class)
+    public ResponseEntity<APIResponse<Iterable<AlertDTO>>> getWarningAlertsBySonId(
+            @ApiParam(name = "id", value = "Identificador del hijo", required = true)
+            	@Valid @ValidObjectId(message = "{son.id.notvalid}")
+             		@PathVariable String id,
+             @ApiParam(name = "count", value = "Number of alerts", required = false)
+    				@RequestParam(name = "count", defaultValue = "0", required = false) Integer count,
+            @ApiParam(name = "days_ago", value = "Days Ago", required = false)
+				@RequestParam(name = "days_ago", defaultValue = "1", required = false) Date from) throws Throwable {
+        
+    	logger.debug("Get WArning Alerts by Son with id: " + id);
+    	logger.debug("Count -> " + count);
+    	logger.debug("From -> " + from);
+        
+        Iterable<AlertDTO> alerts = alertService.findSonWarningAlerts(new ObjectId(id), count, from);
+        
+        if(Iterables.size(alerts) == 0)
+            throw new NoAlertsBySonFoundException();
+
+        return ApiHelper.<Iterable<AlertDTO>>createAndSendResponse(ChildrenResponseCode.WARNING_ALERTS_BY_SON, 
+        		HttpStatus.OK, alerts);
+        
+    }
+    
+    @RequestMapping(value = "/{id}/alerts/info", method = RequestMethod.GET)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
+    @ApiOperation(value = "GET_INFO_ALERTS_BY_SON", nickname = "GET_INFO_ALERTS_BY_SON",
+    notes = "Get Information Alerts By Son Id",
+            response = AlertDTO.class)
+    public ResponseEntity<APIResponse<Iterable<AlertDTO>>> getInformationAlertsBySonId(
+            @ApiParam(name = "id", value = "Identificador del hijo", required = true)
+            	@Valid @ValidObjectId(message = "{son.id.notvalid}")
+             		@PathVariable String id,
+             @ApiParam(name = "count", value = "Number of alerts", required = false)
+    				@RequestParam(name = "count", defaultValue = "0", required = false) Integer count,
+            @ApiParam(name = "days_ago", value = "Days Ago", required = false)
+				@RequestParam(name = "days_ago", defaultValue = "1", required = false) Date from) throws Throwable {
+        
+    	logger.debug("Get Information Alerts by Son with id: " + id);
+    	logger.debug("Count -> " + count);
+    	logger.debug("From -> " + from);
+        
+        Iterable<AlertDTO> alerts = alertService.findInformationSonAlerts(new ObjectId(id), count, from);
+        
+        if(Iterables.size(alerts) == 0)
+            throw new NoAlertsBySonFoundException();
+
+        return ApiHelper.<Iterable<AlertDTO>>createAndSendResponse(ChildrenResponseCode.INFO_ALERTS_BY_SON, 
+        		HttpStatus.OK, alerts);
+        
+    }
+    
+    @RequestMapping(value = "/{id}/alerts/danger", method = RequestMethod.GET)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
+    @ApiOperation(value = "GET_DANGER_ALERTS_BY_SON", nickname = "GET_DANGER_ALERTS_BY_SON",
+    notes = "Get Danger Alerts By Son Id",
+            response = AlertDTO.class)
+    public ResponseEntity<APIResponse<Iterable<AlertDTO>>> getDangerAlertsBySonId(
+            @ApiParam(name = "id", value = "Identificador del hijo", required = true)
+            	@Valid @ValidObjectId(message = "{son.id.notvalid}")
+             		@PathVariable String id,
+             @ApiParam(name = "count", value = "Number of alerts", required = false)
+    				@RequestParam(name = "count", defaultValue = "0", required = false) Integer count,
+            @ApiParam(name = "days_ago", value = "Days Ago", required = false)
+				@RequestParam(name = "days_ago", defaultValue = "1", required = false) Date from) throws Throwable {
+        
+    	logger.debug("Get Danger Alerts by Son with id: " + id);
+    	logger.debug("Count -> " + count);
+    	logger.debug("From -> " + from);
+        
+        Iterable<AlertDTO> alerts = alertService.findDangerSonAlerts(new ObjectId(id), count, from);
+        
+        if(Iterables.size(alerts) == 0)
+            throw new NoAlertsBySonFoundException();
+
+        return ApiHelper.<Iterable<AlertDTO>>createAndSendResponse(ChildrenResponseCode.DANGER_ALERTS_BY_SON, 
+        		HttpStatus.OK, alerts);
+        
+    }
+    
+    
+    
+    @RequestMapping(value = "/{id}/alerts/success", method = RequestMethod.GET)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
+    @ApiOperation(value = "GET_SUCCESS_ALERTS_BY_SON", nickname = "GET_SUCCESS_ALERTS_BY_SON",
+    notes = "Get Success Alerts By Son Id",
+            response = AlertDTO.class)
+    public ResponseEntity<APIResponse<Iterable<AlertDTO>>> getSuccessAlertsBySonId(
+            @ApiParam(name = "id", value = "Identificador del hijo", required = true)
+            	@Valid @ValidObjectId(message = "{son.id.notvalid}")
+             		@PathVariable String id,
+             @ApiParam(name = "count", value = "Number of alerts", required = false)
+    				@RequestParam(name = "count", defaultValue = "0", required = false) Integer count,
+            @ApiParam(name = "days_ago", value = "Days Ago", required = false)
+				@RequestParam(name = "days_ago", defaultValue = "1", required = false) Date from) throws Throwable {
+        
+    	logger.debug("Get Success Alerts by Son with id: " + id);
+    	logger.debug("Count -> " + count);
+    	logger.debug("From -> " + from);
+        
+        Iterable<AlertDTO> alerts = alertService.findSuccessSonAlerts(new ObjectId(id), count, from);
+        
+        if(Iterables.size(alerts) == 0)
+            throw new NoAlertsBySonFoundException();
+
+        return ApiHelper.<Iterable<AlertDTO>>createAndSendResponse(ChildrenResponseCode.SUCCESS_ALERTS_BY_SON, 
+        		HttpStatus.OK, alerts);
+        
+    }
+    
+    @RequestMapping(value = "/{id}/alerts/warning", method = RequestMethod.DELETE)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
+    @ApiOperation(value = "CLEAR_CHILD_WARNING_ALERTS",
+    	nickname = "CLEAR_CHILD_WARNING_ALERTS", notes = "Clear Child Warning Alerts",
+            response = Long.class)
+    public ResponseEntity<APIResponse<String>> clearChildWarningAlerts(
+            @ApiParam(name = "id", value = "Identificador del hijo", required = true)
+            	@Valid @ValidObjectId(message = "{son.id.notvalid}")
+             		@PathVariable String id) throws Throwable {
+        
+    	logger.debug("Clear alerts of son with id: " + id);
+        
+        Long alertsDeleted = alertService.clearChildAlertsByLevel(new ObjectId(id), AlertLevelEnum.WARNING);
+       
+        return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.CHILD_WARNING_ALERTS_CLEANED, 
+        		HttpStatus.OK, alertsDeleted.toString());
+        
+    }
+    
+    @RequestMapping(value = "/{id}/alerts/info", method = RequestMethod.DELETE)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
+    @ApiOperation(value = "CLEAR_CHILD_INFO_ALERTS", nickname = "CLEAR_CHILD_INFO_ALERTS",
+    notes = "Clear INfo Child Alerts",
+            response = Long.class)
+    public ResponseEntity<APIResponse<String>> clearChildInfoAlerts(
+            @ApiParam(name = "id", value = "Identificador del hijo", required = true)
+            	@Valid @ValidObjectId(message = "{son.id.notvalid}")
+             		@PathVariable String id) throws Throwable {
+        
+    	logger.debug("Clear Info alerts of son with id: " + id);
+        
+        Long alertsDeleted = alertService.clearChildAlertsByLevel(new ObjectId(id), AlertLevelEnum.INFO);
+       
+        return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.CHILD_INFO_ALERTS_CLEANED, 
+        		HttpStatus.OK, alertsDeleted.toString());
+        
+    }
+    
+    @RequestMapping(value = "/{id}/alerts/danger", method = RequestMethod.DELETE)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
+    @ApiOperation(value = "CLEAR_CHILD_DANGER_ALERTS", nickname = "CLEAR_CHILD_DANGER_ALERTS",
+    notes = "Clear INfo Child Alerts",
+            response = Long.class)
+    public ResponseEntity<APIResponse<String>> clearChildDangerAlerts(
+            @ApiParam(name = "id", value = "Identificador del hijo", required = true)
+            	@Valid @ValidObjectId(message = "{son.id.notvalid}")
+             		@PathVariable String id) throws Throwable {
+        
+    	logger.debug("Clear Danger alerts of son with id: " + id);
+        
+        Long alertsDeleted = alertService.clearChildAlertsByLevel(new ObjectId(id), AlertLevelEnum.DANGER);
+       
+        return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.CHILD_DANGER_ALERTS_CLEANED, 
+        		HttpStatus.OK, alertsDeleted.toString());
+        
+    }
+    
+    
+    @RequestMapping(value = "/{id}/alerts/success", method = RequestMethod.DELETE)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
+    @ApiOperation(value = "CLEAR_CHILD_SUCCESS_ALERTS", nickname = "CLEAR_CHILD_SUCCESS_ALERTS",
+    notes = "Clear Success Child Alerts",
+            response = Long.class)
+    public ResponseEntity<APIResponse<String>> clearChildSuccessAlerts(
+            @ApiParam(name = "id", value = "Identificador del hijo", required = true)
+            	@Valid @ValidObjectId(message = "{son.id.notvalid}")
+             		@PathVariable String id) throws Throwable {
+        
+    	logger.debug("Clear Success alerts of son with id: " + id);
+        
+        Long alertsDeleted = alertService.clearChildAlertsByLevel(new ObjectId(id), AlertLevelEnum.SUCCESS);
+       
+        return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.CHILD_SUCCESS_ALERTS_CLEANED, 
+        		HttpStatus.OK, alertsDeleted.toString());
+        
+    }
+    
+    
     @RequestMapping(value = "/{id}/alerts", method = RequestMethod.DELETE)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     @ApiOperation(value = "CLEAR_CHILD_ALERTS", nickname = "CLEAR_CHILD_ALERTS", notes = "Clear Child Alerts",
@@ -583,7 +770,7 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
     
     @RequestMapping(value = "/{son}/alerts/{alert}", method = RequestMethod.DELETE)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#son) )")
-    @ApiOperation(value = "GET_ALERT_BY_ID", nickname = "GET_ALERT_BY_ID", notes = "Get alert by id",
+    @ApiOperation(value = "DELETE_ALERT_BY_ID", nickname = "DELETE_ALERT_BY_ID", notes = "Delete alert by id",
             response = AlertDTO.class)
     public ResponseEntity<APIResponse<String>> deleteAlertById(
             @ApiParam(name = "son", value = "Identificador del hijo", required = true)

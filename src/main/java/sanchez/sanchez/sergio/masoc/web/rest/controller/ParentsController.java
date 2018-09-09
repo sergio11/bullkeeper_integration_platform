@@ -504,6 +504,134 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
    
     }
     
+    @RequestMapping(value = "/self/alerts/warning", method = RequestMethod.GET)
+    @OnlyAccessForParent
+    @ApiOperation(value = "GET_WARNING_ALERTS_FOR_SELF_PARENT", nickname = "GET_WARNING_ALERTS_FOR_SELF_PARENT", 
+            notes = "Get Warning Alerts For Self Parent")
+    @ApiResponses(value = { 
+    		@ApiResponse(code = 200, message= "Alerts", response = AlertDTO.class)
+    })
+    public ResponseEntity<APIResponse<Iterable<AlertDTO>>> getWarningAlertsForSelfParent(
+    		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent,
+    		@ApiParam(name = "count", value = "Number of alerts", required = false)
+				@RequestParam(name = "count", defaultValue = "0", required = false) Integer count,
+    		@ApiParam(name = "days_ago", value = "Days Ago", required = false)
+				@RequestParam(name = "days_ago", defaultValue = "1", required = false) Date from
+				) throws Throwable {
+    	
+        logger.debug("Get Warning Alerts For Self Parent");
+        logger.debug("Count -> " + count);
+        logger.debug("From -> " + from);
+        
+        Iterable<AlertDTO> alerts = alertService
+        		.findParentWarningAlerts(selfParent.getUserId(), count, from);
+        
+        // Update Last Access To Alerts
+        //parentsService.updateLastAccessToAlerts(selfParent.getUserId());
+        
+        if(Iterables.size(alerts) == 0)
+        	throw new NoAlertsFoundException();
+  
+        return ApiHelper.<Iterable<AlertDTO>>createAndSendResponse(ParentResponseCode.ALERTS_FOR_SELF_PARENT, HttpStatus.OK, alerts);
+   
+    }
+    
+    @RequestMapping(value = "/self/alerts/info", method = RequestMethod.GET)
+    @OnlyAccessForParent
+    @ApiOperation(value = "GET_INFORMATION_ALERTS_FOR_SELF_PARENT", nickname = "GET_INFORMATION_ALERTS_FOR_SELF_PARENT", 
+            notes = "Get Information Alerts For Self Parent")
+    @ApiResponses(value = { 
+    		@ApiResponse(code = 200, message= "Alerts", response = AlertDTO.class)
+    })
+    public ResponseEntity<APIResponse<Iterable<AlertDTO>>> getInformationAlertsForSelfParent(
+    		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent,
+    		@ApiParam(name = "count", value = "Number of alerts", required = false)
+				@RequestParam(name = "count", defaultValue = "0", required = false) Integer count,
+    		@ApiParam(name = "days_ago", value = "Days Ago", required = false)
+				@RequestParam(name = "days_ago", defaultValue = "1", required = false) Date from
+				) throws Throwable {
+    	
+        logger.debug("Get Information Alerts For Self Parent");
+        logger.debug("Count -> " + count);
+        logger.debug("From -> " + from);
+        
+        Iterable<AlertDTO> alerts = alertService
+        		.findParentInformationAlerts(selfParent.getUserId(), count, from);
+        
+        // Update Last Access To Alerts
+        //parentsService.updateLastAccessToAlerts(selfParent.getUserId());
+        
+        if(Iterables.size(alerts) == 0)
+        	throw new NoAlertsFoundException();
+  
+        return ApiHelper.<Iterable<AlertDTO>>createAndSendResponse(ParentResponseCode.ALERTS_FOR_SELF_PARENT, HttpStatus.OK, alerts);
+   
+    }
+    
+    @RequestMapping(value = "/self/alerts/danger", method = RequestMethod.GET)
+    @OnlyAccessForParent
+    @ApiOperation(value = "GET_DANGER_ALERTS_FOR_SELF_PARENT", nickname = "GET_DANGER_ALERTS_FOR_SELF_PARENT", 
+            notes = "Get Danger Alerts For Self Parent")
+    @ApiResponses(value = { 
+    		@ApiResponse(code = 200, message= "Alerts", response = AlertDTO.class)
+    })
+    public ResponseEntity<APIResponse<Iterable<AlertDTO>>> getDangerAlertsForSelfParent(
+    		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent,
+    		@ApiParam(name = "count", value = "Number of alerts", required = false)
+				@RequestParam(name = "count", defaultValue = "0", required = false) Integer count,
+    		@ApiParam(name = "days_ago", value = "Days Ago", required = false)
+				@RequestParam(name = "days_ago", defaultValue = "1", required = false) Date from
+				) throws Throwable {
+    	
+        logger.debug("Get Danger Alerts For Self Parent");
+        logger.debug("Count -> " + count);
+        logger.debug("From -> " + from);
+        
+        Iterable<AlertDTO> alerts = alertService
+        		.findParentDangerAlerts(selfParent.getUserId(), count, from);
+        
+        // Update Last Access To Alerts
+        //parentsService.updateLastAccessToAlerts(selfParent.getUserId());
+        
+        if(Iterables.size(alerts) == 0)
+        	throw new NoAlertsFoundException();
+  
+        return ApiHelper.<Iterable<AlertDTO>>createAndSendResponse(ParentResponseCode.ALERTS_FOR_SELF_PARENT, HttpStatus.OK, alerts);
+   
+    }
+    
+    @RequestMapping(value = "/self/alerts/success", method = RequestMethod.GET)
+    @OnlyAccessForParent
+    @ApiOperation(value = "GET_SUCCESS_ALERTS_FOR_SELF_PARENT", nickname = "GET_SUCCESS_ALERTS_FOR_SELF_PARENT", 
+            notes = "Get Success Alerts For Self Parent")
+    @ApiResponses(value = { 
+    		@ApiResponse(code = 200, message= "Alerts", response = AlertDTO.class)
+    })
+    public ResponseEntity<APIResponse<Iterable<AlertDTO>>> getSuccessAlertsForSelfParent(
+    		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent,
+    		@ApiParam(name = "count", value = "Number of alerts", required = false)
+				@RequestParam(name = "count", defaultValue = "0", required = false) Integer count,
+    		@ApiParam(name = "days_ago", value = "Days Ago", required = false)
+				@RequestParam(name = "days_ago", defaultValue = "1", required = false) Date from
+				) throws Throwable {
+    	
+        logger.debug("Get Success Alerts For Self Parent");
+        logger.debug("Count -> " + count);
+        logger.debug("From -> " + from);
+        
+        Iterable<AlertDTO> alerts = alertService
+        		.findParentSuccessAlerts(selfParent.getUserId(), count, from);
+        
+        // Update Last Access To Alerts
+        //parentsService.updateLastAccessToAlerts(selfParent.getUserId());
+        
+        if(Iterables.size(alerts) == 0)
+        	throw new NoAlertsFoundException();
+  
+        return ApiHelper.<Iterable<AlertDTO>>createAndSendResponse(ParentResponseCode.ALERTS_FOR_SELF_PARENT, HttpStatus.OK, alerts);
+   
+    }
+    
     
     @RequestMapping(value = "/self/alerts/last", method = RequestMethod.GET)
     @OnlyAccessForParent
@@ -564,7 +692,81 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
    
     }
     
+    @RequestMapping(value = "/self/alerts/warning", method = RequestMethod.DELETE)
+    @OnlyAccessForParent
+    @ApiOperation(value = "DELETE_WARNING_ALERT_OF_SELF_PARENT", 
+    nickname = "DELETE_WARNING_ALERT_OF_SELF_PARENT", 
+            notes = "Delete warning alerts of self parent")
+    @ApiResponses(value = { 
+    		@ApiResponse(code = 200, message= "Number of alerts deleted", response = Long.class)
+    })
+    public ResponseEntity<APIResponse<Long>> deleteWarningAlertsOfSelfParent(
+    		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
+    	
+        Long countDeleted = alertService.deleteWarningAlertsOfParent(selfParent.getUserId());
+        
+        return ApiHelper.<Long>createAndSendResponse(ParentResponseCode.WARNING_ALERTS_OF_SELF_PARENT_DELETED, 
+        		HttpStatus.OK, countDeleted);
+   
+    }
     
+    @RequestMapping(value = "/self/alerts/info", method = RequestMethod.DELETE)
+    @OnlyAccessForParent
+    @ApiOperation(value = "DELETE_INFO_ALERT_OF_SELF_PARENT", 
+    nickname = "DELETE_INFO_ALERT_OF_SELF_PARENT", 
+            notes = "Delete info alerts of self parent")
+    @ApiResponses(value = { 
+    		@ApiResponse(code = 200, message= "Number of alerts deleted", response = Long.class)
+    })
+    public ResponseEntity<APIResponse<Long>> deleteInfoAlertsOfSelfParent(
+    		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
+    	
+        Long countDeleted = alertService.deleteInfoAlertsOfParent(selfParent.getUserId());
+        
+        return ApiHelper.<Long>createAndSendResponse(ParentResponseCode.INFO_ALERTS_OF_SELF_PARENT_DELETED, 
+        		HttpStatus.OK, countDeleted);
+   
+    }
+    
+   
+    @RequestMapping(value = "/self/alerts/danger", method = RequestMethod.DELETE)
+    @OnlyAccessForParent
+    @ApiOperation(value = "DELETE_DANGER_ALERT_OF_SELF_PARENT", 
+    nickname = "DELETE_DANGER_ALERT_OF_SELF_PARENT", 
+            notes = "Delete Danger alerts of self parent")
+    @ApiResponses(value = { 
+    		@ApiResponse(code = 200, message= "Number of alerts deleted", response = Long.class)
+    })
+    public ResponseEntity<APIResponse<Long>> deleteDangerAlertsOfSelfParent(
+    		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
+    	
+        Long countDeleted = alertService.deleteDangerAlertsOfParent(selfParent.getUserId());
+        
+        return ApiHelper.<Long>createAndSendResponse(ParentResponseCode.DANGER_ALERTS_OF_SELF_PARENT_DELETED, 
+        		HttpStatus.OK, countDeleted);
+   
+    }
+    
+    
+    @RequestMapping(value = "/self/alerts/success", method = RequestMethod.DELETE)
+    @OnlyAccessForParent
+    @ApiOperation(value = "DELETE_SUCCESS_ALERT_OF_SELF_PARENT", 
+    nickname = "DELETE_SUCCESS_ALERT_OF_SELF_PARENT", 
+            notes = "Delete Success alerts of self parent")
+    @ApiResponses(value = { 
+    		@ApiResponse(code = 200, message= "Number of alerts deleted", response = Long.class)
+    })
+    public ResponseEntity<APIResponse<Long>> deleteSuccessAlertsOfSelfParent(
+    		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
+    	
+        Long countDeleted = alertService.deleteSuccessAlertsOfParent(selfParent.getUserId());
+        
+        return ApiHelper.<Long>createAndSendResponse(ParentResponseCode.SUCCESS_ALERTS_OF_SELF_PARENT_DELETED, 
+        		HttpStatus.OK, countDeleted);
+   
+    }
+    
+   
     
     @RequestMapping(value = "/self/reset-password",  method = RequestMethod.POST)
     @OnlyAccessForParent

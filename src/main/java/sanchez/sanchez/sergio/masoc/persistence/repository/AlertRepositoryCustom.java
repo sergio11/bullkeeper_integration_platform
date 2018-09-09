@@ -15,5 +15,10 @@ public interface AlertRepositoryCustom {
 	void setAsDelivered(List<ObjectId> alertIds);
 	void setAsDelivered(ObjectId alertId);
 	Iterable<AlertEntity> findParentAlerts(ObjectId id, Integer count, Date from, AlertLevelEnum[] levels);
+	Iterable<AlertEntity> findParentWarningAlerts(ObjectId id, Integer count, Date from);
+	Iterable<AlertEntity> findParentInformationAlerts(ObjectId id, Integer count, Date from);
+	Iterable<AlertEntity> findParentSuccessAlerts(ObjectId id, Integer count, Date from);
+	Iterable<AlertEntity> findParentDangerAlerts(ObjectId id, Integer count, Date from);
 	Iterable<AlertEntity> findSonAlerts(ObjectId id, Integer count, Date from, AlertLevelEnum[] levels);
+	Iterable<AlertEntity> findSonAlerts(ObjectId id, Integer count, Date from, AlertLevelEnum level);
 }

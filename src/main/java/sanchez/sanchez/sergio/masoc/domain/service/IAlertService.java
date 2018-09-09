@@ -115,6 +115,42 @@ public interface IAlertService {
      * @return
      */
     Iterable<AlertDTO> findParentAlerts(ObjectId id, Integer count, Date from, AlertLevelEnum[] levels);
+    
+    /**
+     * Find Parent Warning Alerts
+     * @param id
+     * @param count
+     * @param from
+     * @return
+     */
+    Iterable<AlertDTO> findParentWarningAlerts(ObjectId id, Integer count, Date from);
+    
+    /**
+     * Find Parent Danger Alerts
+     * @param id
+     * @param count
+     * @param from
+     * @return
+     */
+    Iterable<AlertDTO> findParentDangerAlerts(ObjectId id, Integer count, Date from);
+    
+    /**
+     * Find Parent Information Alerts
+     * @param id
+     * @param count
+     * @param from
+     * @return
+     */
+    Iterable<AlertDTO> findParentInformationAlerts(ObjectId id, Integer count, Date from);
+    
+    /**
+     * Find Parent Success Alerts
+     * @param id
+     * @param count
+     * @param from
+     * @return
+     */
+    Iterable<AlertDTO> findParentSuccessAlerts(ObjectId id, Integer count, Date from);
 
     /**
      * Get Last Alerts
@@ -158,6 +194,42 @@ public interface IAlertService {
      * @return
      */
     Iterable<AlertDTO> findSonAlerts(ObjectId id,  Integer count, Date from, AlertLevelEnum[] levels);
+    
+    /**
+     * Find SOn Warning Alerts
+     * @param id
+     * @param count
+     * @param from
+     * @return
+     */
+    Iterable<AlertDTO> findSonWarningAlerts(ObjectId id,  Integer count, Date from);
+    
+    /**
+     * Find Information SOn Alerts
+     * @param id
+     * @param count
+     * @param from
+     * @return
+     */
+    Iterable<AlertDTO> findInformationSonAlerts(ObjectId id,  Integer count, Date from);
+    
+    /**
+     * Find Danger Son Alerts
+     * @param id
+     * @param count
+     * @param from
+     * @return
+     */
+    Iterable<AlertDTO> findDangerSonAlerts(ObjectId id,  Integer count, Date from);
+    
+    /**
+     * Find Success Son Alerts
+     * @param id
+     * @param count
+     * @param from
+     * @return
+     */
+    Iterable<AlertDTO> findSuccessSonAlerts(ObjectId id,  Integer count, Date from);
 
     /**
      * Clear Child Alerts
@@ -165,6 +237,13 @@ public interface IAlertService {
      * @return
      */
     Long clearChildAlerts(ObjectId son);
+    
+    /**
+     * Clear Child Alerts
+     * @param son
+     * @return
+     */
+    Long clearChildAlertsByLevel(ObjectId son, final AlertLevelEnum level);
     
     /**
      * Delete By Id
@@ -195,4 +274,36 @@ public interface IAlertService {
      * @return
      */
     Map<AlertLevelEnum, Long> getTotalAlertsBySon(ObjectId SonId);
+    
+    
+    /**
+     * Delete Warning Alerts Of Parent
+     * @param parent
+     * @return
+     */
+    Long deleteWarningAlertsOfParent(final ObjectId parent);
+    
+    /**
+     * Delete Info Alerts Of Parent
+     * @param parent
+     * @return
+     */
+    Long deleteInfoAlertsOfParent(final ObjectId parent);
+    
+    
+    /**
+     * Delete Danger Alerts Of Parent
+     * @param parent
+     * @return
+     */
+    Long deleteDangerAlertsOfParent(final ObjectId parent);
+    
+    /**
+     * Delete Success Alerts Of Parent
+     * @param parent
+     * @return
+     */
+    Long deleteSuccessAlertsOfParent(final ObjectId parent);
+    
+    
 }
