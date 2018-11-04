@@ -46,6 +46,12 @@ import sanchez.sanchez.sergio.masoc.web.security.utils.OnlyAccessForAdmin;
 import sanchez.sanchez.sergio.masoc.web.security.utils.OnlyAccessForParent;
 import springfox.documentation.annotations.ApiIgnore;
 
+
+/**
+ * Alert Controller
+ * @author sergiosanchezsanchez
+ *
+ */
 @RestController("RestAlertsController")
 @Validated
 @RequestMapping("/api/v1/alerts/")
@@ -56,11 +62,23 @@ public class AlertController extends BaseController {
 
     private final IAlertService alertService;
 
+    /**
+     * 
+     * @param alertService
+     */
     public AlertController(IAlertService alertService) {
         super();
         this.alertService = alertService;
     }
 
+    /**
+     * Get All Alerts
+     * @param pageable
+     * @param pagedAssembler
+     * @param delivered
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = {"/", "/all"}, method = RequestMethod.GET)
     @OnlyAccessForAdmin
     @ApiOperation(value = "GET_ALL_ALERT", nickname = "GET_ALL_ALERT", notes = "Get all alerts in the system",
@@ -81,6 +99,15 @@ public class AlertController extends BaseController {
                 HttpStatus.OK, pagedAssembler.toResource(alertsPage));
     }
 
+    /**
+     * Get All Self Alerts Paginated
+     * @param pageable
+     * @param pagedAssembler
+     * @param selfParent
+     * @param delivered
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = {"/self"}, method = RequestMethod.GET)
     @OnlyAccessForParent
     @ApiOperation(value = "GET_ALL_SELF_ALERT_PAGINATED", nickname = "GET_ALL_SELF_ALERT_PAGINATED", notes = "Get all alerts for the currently authenticated user",
@@ -102,6 +129,14 @@ public class AlertController extends BaseController {
                 HttpStatus.OK, pagedAssembler.toResource(alertsPage));
     }
 
+    
+    /**
+     * Get All Self Alerts
+     * @param selfParent
+     * @param delivered
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = {"/self/all"}, method = RequestMethod.GET)
     @OnlyAccessForParent
     @ApiOperation(value = "GET_ALL_SELF_ALERT", nickname = "GET_ALL_SELF_ALERT", notes = "Get all alerts for the currently authenticated user",
@@ -121,6 +156,13 @@ public class AlertController extends BaseController {
                 HttpStatus.OK, alertsPage);
     }
 
+    /**
+     * Create Alert
+     * @param alert
+     * @param delivered
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = "/", method = RequestMethod.POST)
     @ApiOperation(value = "CREATE_ALERT", nickname = "CREATE_ALERT", notes = "Create Alert",
             response = AlertDTO.class)
@@ -136,6 +178,15 @@ public class AlertController extends BaseController {
                 });
     }
 
+    /**
+     * Get Info Alerts
+     * @param pageable
+     * @param pagedAssembler
+     * @param selfParent
+     * @param delivered
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = "/info", method = RequestMethod.GET)
     @OnlyAccessForParent
     @ApiOperation(value = "GET_INFO_ALERTS", nickname = "GET_INFO_ALERTS", notes = "Get all info alerts for the currently authenticated user",
@@ -157,6 +208,15 @@ public class AlertController extends BaseController {
                 HttpStatus.OK, pagedAssembler.toResource(alertsPage));
     }
 
+    /**
+     * Get Warning Alerts
+     * @param pageable
+     * @param pagedAssembler
+     * @param selfParent
+     * @param delivered
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = "/warning", method = RequestMethod.GET)
     @OnlyAccessForParent
     @ApiOperation(value = "GET_WARNING_ALERTS", nickname = "GET_WARNING_ALERTS", notes = "Get warning alerts for the currently authenticated user",
@@ -178,6 +238,15 @@ public class AlertController extends BaseController {
                 HttpStatus.OK, pagedAssembler.toResource(alertsPage));
     }
 
+    /**
+     * Get Danger Alerts
+     * @param pageable
+     * @param pagedAssembler
+     * @param selfParent
+     * @param delivered
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = "/danger", method = RequestMethod.GET)
     @OnlyAccessForParent
     @ApiOperation(value = "GET_DANGER_ALERTS", nickname = "GET_DANGER_ALERTS", notes = "Get danger alerts for the currently authenticated user",
@@ -199,6 +268,15 @@ public class AlertController extends BaseController {
                 HttpStatus.OK, pagedAssembler.toResource(alertsPage));
     }
 
+    /**
+     * Get Success Alerts
+     * @param pageable
+     * @param pagedAssembler
+     * @param selfParent
+     * @param delivered
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = "/success", method = RequestMethod.GET)
     @OnlyAccessForParent
     @ApiOperation(value = "GET_SUCCESS_ALERTS", nickname = "GET_SUCCESS_ALERTS", notes = "Get success alerts for the currently authenticated user",
@@ -220,6 +298,14 @@ public class AlertController extends BaseController {
                 HttpStatus.OK, pagedAssembler.toResource(alertsPage));
     }
     
+    /**
+     * Get Alerts Statistics
+     * @param selfParent
+     * @param identities
+     * @param from
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = {"/statistics/alerts"}, method = RequestMethod.GET)
     @OnlyAccessForParent
     @ApiOperation(value = "GET_ALERTS_STATISTICS", nickname = "GET_ALERTS_STATISTICS", notes = "Get Alerts Statistics",

@@ -33,7 +33,7 @@ public abstract class SocialMediaEntityMapper {
     @Mappings({
         @Mapping(expression="java(socialMediaEntity.getId().toString())", target = "identity" ),
         @Mapping(expression="java(socialMediaEntity.getType().name())", target = "type" ),
-        @Mapping(source="socialMediaEntity.sonEntity.fullName", target = "user" )
+        @Mapping(expression="java(socialMediaEntity.getSonEntity().getId().toString())", target = "user" )
     })
     @Named("socialMediaEntityToSocialMediaDTO")
     public abstract SocialMediaDTO socialMediaEntityToSocialMediaDTO(SocialMediaEntity socialMediaEntity); 

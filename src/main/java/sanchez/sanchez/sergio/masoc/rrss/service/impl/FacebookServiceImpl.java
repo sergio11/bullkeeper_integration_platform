@@ -13,7 +13,6 @@ import com.restfb.types.Post;
 import com.restfb.types.ProfilePictureSource;
 import com.restfb.types.User;
 import com.restfb.types.Video;
-
 import sanchez.sanchez.sergio.masoc.exception.GetCommentsProcessException;
 import sanchez.sanchez.sergio.masoc.exception.GetInformationFromFacebookException;
 import sanchez.sanchez.sergio.masoc.exception.InvalidAccessTokenException;
@@ -104,7 +103,7 @@ public class FacebookServiceImpl implements IFacebookService {
     	         })
     	         .flatMap(comment -> comment.getCommentCount() > 0 ? StreamUtils.concat(
 	            		 getCommentsByObject(facebookClient, comment.getId(), filter), comment)
-	                     : Stream.of(comment)).filter(filter);
+	                     : Stream.of(comment));
     	
     }
     
@@ -290,12 +289,13 @@ public class FacebookServiceImpl implements IFacebookService {
             		getAllCommentsFromPostsReceived(facebookClient, startDate, user),
             		getAllCommentsFromAlbumsReceived(facebookClient, startDate, user),
             		getAllCommentsFromPhotosUploaded(facebookClient, startDate, user),
-            		getAllCommentsFromTaggedPhotos(facebookClient, startDate, user),
-            		getAllCommentsFromUploadedVideos(facebookClient, startDate, user),
-            		getAllCommentsFromTaggedVideos(facebookClient, startDate, user)
+            		getAllCommentsFromTaggedPhotos(facebookClient, startDate, user)
+            		//getAllCommentsFromUploadedVideos(facebookClient, startDate, user),
+            		//getAllCommentsFromTaggedVideos(facebookClient, startDate, user)
             )
              .collect(Collectors.toSet());
 
+            // 
             logger.debug("Total Facebook comments : " + comments.size());
             
             comments.forEach(commentToSaved -> {

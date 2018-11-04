@@ -14,6 +14,9 @@ import sanchez.sanchez.sergio.masoc.persistence.entity.AuthorityEnum;
 @Repository
 public interface AuthorityRepository extends MongoRepository<AuthorityEntity, ObjectId> {
 	
+	/*
+	 * 
+	 */
 	AuthorityEntity findByType(AuthorityEnum type);
 	
 }

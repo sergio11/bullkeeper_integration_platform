@@ -31,6 +31,7 @@ import sanchez.sanchez.sergio.masoc.domain.service.ICommentsService;
 import sanchez.sanchez.sergio.masoc.domain.service.ISocialMediaService;
 import sanchez.sanchez.sergio.masoc.domain.service.ISonService;
 import sanchez.sanchez.sergio.masoc.domain.service.IStatisticsService;
+import sanchez.sanchez.sergio.masoc.domain.service.ITerminalService;
 import sanchez.sanchez.sergio.masoc.exception.AlertNotFoundException;
 import sanchez.sanchez.sergio.masoc.exception.CommentsBySonNotFoundException;
 import sanchez.sanchez.sergio.masoc.exception.NoAlertsBySonFoundException;
@@ -39,10 +40,13 @@ import sanchez.sanchez.sergio.masoc.exception.NoCommunityStatisticsForThisPeriod
 import sanchez.sanchez.sergio.masoc.exception.NoDimensionsStatisticsForThisPeriodException;
 import sanchez.sanchez.sergio.masoc.exception.NoSentimentAnalysisStatisticsForThisPeriodException;
 import sanchez.sanchez.sergio.masoc.exception.NoSocialMediaActivityFoundForThisPeriodException;
+import sanchez.sanchez.sergio.masoc.exception.NoTerminalsFoundException;
 import sanchez.sanchez.sergio.masoc.exception.SocialMediaNotFoundException;
 import sanchez.sanchez.sergio.masoc.exception.SonNotFoundException;
+import sanchez.sanchez.sergio.masoc.exception.TerminalNotFoundException;
 import sanchez.sanchez.sergio.masoc.persistence.constraints.SocialMediaShouldExists;
 import sanchez.sanchez.sergio.masoc.persistence.constraints.SonShouldExists;
+import sanchez.sanchez.sergio.masoc.persistence.constraints.TerminalShouldExists;
 import sanchez.sanchez.sergio.masoc.persistence.constraints.ValidObjectId;
 import sanchez.sanchez.sergio.masoc.persistence.constraints.group.ICommonSequence;
 import sanchez.sanchez.sergio.masoc.persistence.entity.AdultLevelEnum;
@@ -53,6 +57,7 @@ import sanchez.sanchez.sergio.masoc.persistence.entity.SocialMediaTypeEnum;
 import sanchez.sanchez.sergio.masoc.persistence.entity.ViolenceLevelEnum;
 import sanchez.sanchez.sergio.masoc.util.ValidList;
 import sanchez.sanchez.sergio.masoc.web.dto.request.SaveSocialMediaDTO;
+import sanchez.sanchez.sergio.masoc.web.dto.request.SaveTerminalDTO;
 import sanchez.sanchez.sergio.masoc.web.dto.response.AlertDTO;
 import sanchez.sanchez.sergio.masoc.web.dto.response.CommentDTO;
 import sanchez.sanchez.sergio.masoc.web.dto.response.CommunitiesStatisticsDTO;
@@ -62,6 +67,7 @@ import sanchez.sanchez.sergio.masoc.web.dto.response.SentimentAnalysisStatistics
 import sanchez.sanchez.sergio.masoc.web.dto.response.SocialMediaActivityStatisticsDTO;
 import sanchez.sanchez.sergio.masoc.web.dto.response.SocialMediaDTO;
 import sanchez.sanchez.sergio.masoc.web.dto.response.SonDTO;
+import sanchez.sanchez.sergio.masoc.web.dto.response.TerminalDTO;
 import sanchez.sanchez.sergio.masoc.web.rest.ApiHelper;
 import sanchez.sanchez.sergio.masoc.web.rest.hal.ICommentHAL;
 import sanchez.sanchez.sergio.masoc.web.rest.hal.ISocialMediaHAL;
@@ -89,10 +95,17 @@ import org.springframework.data.domain.Page;
 import org.springframework.util.Assert;
 
 
+/**
+ * 
+ * @author sergiosanchezsanchez
+ *
+ */
 @RestController("RestUserController")
 @Validated
 @RequestMapping("/api/v1/children/")
-@Api(tags = "children", value = "/children/", description = "Punto de Entrada para el manejo de usuarios analizados", produces = "application/json")
+@Api(tags = "children", value = "/children/",
+description = "Punto de Entrada para el manejo de usuarios analizados", 
+produces = "application/json")
 public class ChildrenController extends BaseController implements ISonHAL, ICommentHAL, ISocialMediaHAL {
 
     private static Logger logger = LoggerFactory.getLogger(ChildrenController.class);
@@ -103,17 +116,37 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
     private final IUploadFilesService uploadFilesService;
     private final IAlertService alertService;
     private final IStatisticsService statisticsService;
+    private final ITerminalService terminalService;
     
+    /**
+     * 
+     * @param sonService
+     * @param commentService
+     * @param socialMediaService
+     * @param uploadFilesService
+     * @param alertService
+     * @param statisticsService
+     * @param terminalService
+     */
     public ChildrenController(ISonService sonService, ICommentsService commentService, ISocialMediaService socialMediaService,
-    		IUploadFilesService uploadFilesService, IAlertService alertService, IStatisticsService statisticsService) {
+    		IUploadFilesService uploadFilesService, IAlertService alertService, IStatisticsService statisticsService,
+    		final ITerminalService terminalService) {
         this.sonService = sonService;
         this.commentService = commentService;
         this.socialMediaService = socialMediaService;
         this.uploadFilesService = uploadFilesService;
         this.alertService = alertService;
         this.statisticsService = statisticsService;
+        this.terminalService = terminalService;
     }
     
+    /**
+     * Get All Children
+     * @param pageable
+     * @param pagedAssembler
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = {"/", "/all"}, method = RequestMethod.GET)
     @OnlyAccessForAdmin
     @ApiOperation(value = "GET_ALL_CHILDREN", nickname = "GET_ALL_CHILDREN", notes = "Get all Children", response = PagedResources.class)
@@ -130,6 +163,12 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
     }
     
 
+    /**
+     * Get Son By Id
+     * @param id
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     @ApiOperation(value = "GET_SON_BY_ID", nickname = "GET_SON_BY_ID", notes = "Get Son By Id", response = SonDTO.class)
@@ -137,7 +176,8 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
     		@ApiParam(name= "id", value = "Identificador del hijo", required = true)
     			@Valid @ValidObjectId(message = "{son.id.notvalid}")
     		 		@PathVariable String id) throws Throwable {
-        logger.debug("Get User with id: " + id);
+        
+    	logger.debug("Get User with id: " + id);
         
         return Optional.ofNullable(sonService.getSonById(id))
                 .map(sonResource -> addLinksToSon(sonResource))
@@ -145,6 +185,12 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
                 .orElseThrow(() -> { throw new SonNotFoundException(); });
     }
     
+    /**
+     * Delete Son By Id
+     * @param id
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     @ApiOperation(value = "DELETE_SON_BY_ID", nickname = "DELETE_SON_BY_ID", notes = "Delete Son By Id", response = SonDTO.class)
@@ -162,7 +208,19 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
                 HttpStatus.OK, messageSourceResolver.resolver("son.deleted.successfully"));
     }
     
-  
+    /**
+     * Get Comments By Son
+     * @param id
+     * @param author
+     * @param from
+     * @param socialMedias
+     * @param violence
+     * @param drugs
+     * @param bullying
+     * @param adult
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = "/{id}/comments", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     @ApiOperation(value = "GET_COMMENTS_BY_SON", nickname = "GET_COMMENTS_BY_SON", notes = "Get Comments By Son Id",
@@ -192,6 +250,7 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
     	logger.debug("Author's identifier -> " + author);
     	if(socialMedias != null && socialMedias.length > 0)
     		logger.debug("Social Media count -> " + socialMedias.length + " Medias -> "+ socialMedias.toString());
+    	
     	logger.debug("Days Ago -> " + from);
     	logger.debug("Violence -> " + violence);
     	logger.debug("Drugs -> " + drugs);
@@ -208,6 +267,14 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
         
     }
     
+    /**
+     * Upload Profile Image For Son
+     * @param id
+     * @param profileImage
+     * @param selfParent
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = "/{id}/image", method = RequestMethod.POST)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     @ApiOperation(value = "UPLOAD_PROFILE_IMAGE_FOR_SON", nickname = "UPLOAD_PROFILE_IMAGE_FOR_SON", notes = "Upload Profile Image For Son")
@@ -230,6 +297,12 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
 
     }
     
+    /**
+     * Download Son Profile Image
+     * @param id
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = "/{id}/image", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     @ApiOperation(value = "DOWNLOAD_SON_PROFILE_IMAGE", nickname = "DOWNLOAD_SON_PROFILE_IMAGE", notes = "Download Son Profile Image")
@@ -245,6 +318,12 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
         
     }
     
+    /**
+     * Get Social Media By Son Id
+     * @param id
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = { "/{id}/social", "/{id}/social/all"  }, method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     @ApiOperation(value = "GET_SOCIAL_MEDIA_BY_SON", nickname = "GET_SOCIAL_MEDIA_BY_SON", notes = "Get Social Madia By Son",
@@ -264,6 +343,12 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
         		HttpStatus.OK, addLinksToSocialMedia(socialMedia));
     }
     
+    /**
+     * Delete All Social Media
+     * @param socialMedia
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = "/social/add", method = RequestMethod.POST)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#socialMedia.son) )")
     @ApiOperation(value = "ADD_SOCIAL_MEDIA", nickname = "ADD_SOCIAL_MEDIA", notes = "Add Social Media",
@@ -279,7 +364,12 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
         		.orElseThrow(() -> { throw new SocialMediaNotFoundException(); });        
     }
     
-    
+    /**
+     * Update Social Media To SOn
+     * @param socialMedia
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = "/social/update", method = RequestMethod.POST)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     @ApiOperation(value = "UPDATE_SOCIAL_MEDIA", nickname = "UPDATE_SOCIAL_MEDIA", notes = "Update Social Media",
@@ -295,6 +385,12 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
         		.orElseThrow(() -> { throw new SocialMediaNotFoundException(); });        
     }
     
+    /**
+     * Save Social Media To Son
+     * @param socialMedia
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = "/social/save", method = RequestMethod.POST)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#socialMedia.son) )")
     @ApiOperation(value = "SAVE_SOCIAL_MEDIA", nickname = "SAVE_SOCIAL_MEDIA", notes = "Save Social Media",
@@ -310,6 +406,13 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
         		.orElseThrow(() -> { throw new SocialMediaNotFoundException(); });        
     }
     
+    /**
+     * Get Social Media Statistics Activity
+     * @param id
+     * @param from
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = "/{id}/statistics/social-activity", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     @ApiOperation(value = "SOCIAL_MEDIA_ACTIVITY_STATISTICS", nickname = "SOCIAL_MEDIA_ACTIVITY_STATISTICS", 
@@ -334,7 +437,13 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
 				HttpStatus.OK, socialMediaActivityStatistics);  
     }
     
-    
+    /**
+     * Get Sentiment Analysis Statistics
+     * @param id
+     * @param from
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = "/{id}/statistics/sentiment-analysis", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     @ApiOperation(value = "SENTIMENT_ANALYSIS_STATISTICS", nickname = "SENTIMENT_ANALYSIS_STATISTICS", 
@@ -358,6 +467,13 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
 				HttpStatus.OK, sentimentAnalysisStatistics);  
     }
     
+    /**
+     * Get Communities Statistics
+     * @param id
+     * @param from
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = "/{id}/statistics/communities", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     @ApiOperation(value = "COMMUNITIES_STATISTICS", nickname = "COMMUNITIES_STATISTICS", 
@@ -382,7 +498,13 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
 				HttpStatus.OK, communitiesStatistics);  
     }
     
-    
+    /**
+     * Get Four Dimensions Statistics
+     * @param id
+     * @param from
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = "/{id}/statistics/dimensions", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     @ApiOperation(value = "FOUR_DIMENSIONS_STATISTICS", nickname = "FOUR_DIMENSIONS_STATISTICS", 
@@ -409,7 +531,13 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
     
    
    
-    
+    /**
+     * Save All Social Media To Son
+     * @param id
+     * @param socialMedias
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = "/{id}/social/save/all", method = RequestMethod.POST)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     @ApiOperation(value = "SAVE_ALL_SOCIAL_MEDIA", nickname = "SAVE_ALL_SOCIAL_MEDIA", notes = "Save Social Media",
@@ -431,6 +559,12 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
 				HttpStatus.OK, addLinksToSocialMedia(socialMediaEntitiesSaved));    
     }
     
+    /**
+     * Delete All Social Media
+     * @param id
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = "/{id}/social/delete/all", method = RequestMethod.DELETE)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     @ApiOperation(value = "DELETE_ALL_SOCIAL_MEDIA", nickname = "DELETE_ALL_SOCIAL_MEDIA", notes = "Delete all social media of user",
@@ -447,6 +581,14 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
                 SocialMediaResponseCode.ALL_USER_SOCIAL_MEDIA_DELETED, HttpStatus.OK, socialMediaEntitiesDeleted);
     }
     
+    
+    /**
+     * Delete Social Media
+     * @param idson
+     * @param idsocial
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = "/{idson}/social/delete/{idsocial}", method = RequestMethod.DELETE)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#idson) )")
     @ApiOperation(value = "DELETE_SOCIAL_MEDIA", nickname = "DELETE_SOCIAL_MEDIA", notes = "Delete a single social media",
@@ -468,7 +610,12 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
                             SocialMediaResponseCode.USER_SOCIAL_MEDIA_NOT_DELETED, HttpStatus.NOT_FOUND, this.messageSourceResolver.resolver("social.media.not.deleted"));
     }
     
-   
+   /**
+    * Get Invalid Social Media By Son Id
+    * @param id
+    * @return
+    * @throws Throwable
+    */
     @RequestMapping(value = "/{id}/social/invalid", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     @ApiOperation(value = "GET_INVALID_SOCIAL_MEDIA_BY_SON", nickname = "GET_INVALID_SOCIAL_MEDIA_BY_SON", notes = "Get Social Madia By Son with invalid token",
@@ -486,7 +633,12 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
         		HttpStatus.OK, addLinksToSocialMedia(socialMedia));
     }
     
-    
+    /**
+     * Get Valid Social Media By Son ID
+     * @param id
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = "/{id}/social/valid", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     @ApiOperation(value = "GET_VALID_SOCIAL_MEDIA_BY_SON", nickname = "GET_VALID_SOCIAL_MEDIA_BY_SON", notes = "Get Social Madia By Son with valid token",
@@ -505,7 +657,15 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
         		HttpStatus.OK, addLinksToSocialMedia(socialMedia));
     }
     
-    
+    /**
+     * Ger Alerts BY Son Id
+     * @param id
+     * @param count
+     * @param from
+     * @param levels
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = "/{id}/alerts", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     @ApiOperation(value = "GET_ALERTS_BY_SON", nickname = "GET_ALERTS_BY_SON", notes = "Get Alerts By Son Id",
@@ -538,6 +698,14 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
         
     }
     
+    /**
+     * Get Warning Alerts By Son Id
+     * @param id
+     * @param count
+     * @param from
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = "/{id}/alerts/warning", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     @ApiOperation(value = "GET_WARNING_ALERTS_BY_SON", nickname = "GET_WARNING_ALERTS_BY_SON", notes = "Get Warning Alerts By Son Id",
@@ -565,6 +733,14 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
         
     }
     
+    /**
+     * Get Information Alerts By Son Id
+     * @param id
+     * @param count
+     * @param from
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = "/{id}/alerts/info", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     @ApiOperation(value = "GET_INFO_ALERTS_BY_SON", nickname = "GET_INFO_ALERTS_BY_SON",
@@ -593,6 +769,14 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
         
     }
     
+    /**
+     * Get Danger Alerts By Son Id
+     * @param id
+     * @param count
+     * @param from
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = "/{id}/alerts/danger", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     @ApiOperation(value = "GET_DANGER_ALERTS_BY_SON", nickname = "GET_DANGER_ALERTS_BY_SON",
@@ -622,7 +806,14 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
     }
     
     
-    
+    /**
+     * Get Success Alerts By Son Id
+     * @param id
+     * @param count
+     * @param from
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = "/{id}/alerts/success", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     @ApiOperation(value = "GET_SUCCESS_ALERTS_BY_SON", nickname = "GET_SUCCESS_ALERTS_BY_SON",
@@ -651,6 +842,12 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
         
     }
     
+    /**
+     * Clear Child Warning Alerts
+     * @param id
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = "/{id}/alerts/warning", method = RequestMethod.DELETE)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     @ApiOperation(value = "CLEAR_CHILD_WARNING_ALERTS",
@@ -670,6 +867,12 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
         
     }
     
+    /**
+     * Clear Child Info Alerts
+     * @param id
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = "/{id}/alerts/info", method = RequestMethod.DELETE)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     @ApiOperation(value = "CLEAR_CHILD_INFO_ALERTS", nickname = "CLEAR_CHILD_INFO_ALERTS",
@@ -689,6 +892,12 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
         
     }
     
+    /**
+     * Clear Child Danger Alerts
+     * @param id
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = "/{id}/alerts/danger", method = RequestMethod.DELETE)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     @ApiOperation(value = "CLEAR_CHILD_DANGER_ALERTS", nickname = "CLEAR_CHILD_DANGER_ALERTS",
@@ -708,7 +917,12 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
         
     }
     
-    
+    /**
+     * Clear Child Success Alerts
+     * @param id
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = "/{id}/alerts/success", method = RequestMethod.DELETE)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     @ApiOperation(value = "CLEAR_CHILD_SUCCESS_ALERTS", nickname = "CLEAR_CHILD_SUCCESS_ALERTS",
@@ -728,7 +942,12 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
         
     }
     
-    
+    /**
+     * Clear Child Alerts
+     * @param id
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = "/{id}/alerts", method = RequestMethod.DELETE)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#id) )")
     @ApiOperation(value = "CLEAR_CHILD_ALERTS", nickname = "CLEAR_CHILD_ALERTS", notes = "Clear Child Alerts",
@@ -747,6 +966,13 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
         
     }
     
+    /**
+     * Get Alert By Id
+     * @param son
+     * @param alert
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = "/{son}/alerts/{alert}", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#son) )")
     @ApiOperation(value = "GET_ALERT_BY_ID", nickname = "GET_ALERT_BY_ID", notes = "Get alert by id",
@@ -767,7 +993,13 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
         
     }
     
-    
+    /**
+     * Delete Alert By Id
+     * @param son
+     * @param alert
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = "/{son}/alerts/{alert}", method = RequestMethod.DELETE)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#son) )")
     @ApiOperation(value = "DELETE_ALERT_BY_ID", nickname = "DELETE_ALERT_BY_ID", notes = "Delete alert by id",
@@ -786,6 +1018,90 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
         
         return ApiHelper.<String>createAndSendResponse(
                 ChildrenResponseCode.ALERT_BY_ID_DELETED, HttpStatus.OK, messageSourceResolver.resolver("alert.deleted"));
+        
+    }
+    
+   
+    /**
+     * Get All Children
+     * @param pageable
+     * @param pagedAssembler
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{son}/terminal", method = RequestMethod.GET)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#son) )")
+    @ApiOperation(value = "GET_ALL_TERMINAL", nickname = "GET_ALL_TERMINAL", notes = "Get all Terminals", 
+    response = List.class)
+    public ResponseEntity<APIResponse<Iterable<TerminalDTO>>> getAllTerminals(
+    		@ApiParam(name = "son", value = "Identificador del hijo", required = true)
+        	@Valid @SonShouldExists(message = "{son.id.notvalid}")
+         		@PathVariable String son) 
+    		throws Throwable {
+        
+    	logger.debug("Get all Terminals");
+    	
+    	final Iterable<TerminalDTO> terminalsList = terminalService.getTerminalsByChildId(son);
+        
+    	if(Iterables.isEmpty(terminalsList))
+        	throw new NoTerminalsFoundException();
+    	
+        return ApiHelper.<Iterable<TerminalDTO>>createAndSendResponse(ChildrenResponseCode.ALL_TERMINALS, 
+            		HttpStatus.OK, terminalsList);
+    }
+    
+    
+    /**
+     * Save Terminal
+     * @param terminal
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{son}/terminal", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#son) )")
+    @ApiOperation(value = "SAVE_TERMINAL", nickname = "SAVE_TERMINAL", 
+    	notes = "Save Terminal",
+            response = TerminalDTO.class)
+    public ResponseEntity<APIResponse<TerminalDTO>> saveTerminal(
+    		@ApiParam(name = "son", value = "Identificador del hijo", required = true)
+        	@Valid @SonShouldExists(message = "{son.id.notvalid}")
+         		@PathVariable String son,
+            @ApiParam(value = "terminal", required = true) 
+				@Validated(ICommonSequence.class) 
+            		@RequestBody SaveTerminalDTO saveTerminalDTO) throws Throwable {
+    		
+        return Optional.ofNullable(terminalService.save(saveTerminalDTO))
+        		.map(terminalDTO -> ApiHelper.<TerminalDTO>createAndSendResponse(ChildrenResponseCode.TERMINAL_SAVED, 
+        				HttpStatus.OK, terminalDTO))
+        		.orElseThrow(() -> { throw new TerminalNotFoundException(); });        
+    }
+    
+    
+    /**
+     * Delete Terminal By Id
+     * @param son
+     * @param alert
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{son}/terminal/{terminal}", method = RequestMethod.DELETE)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#son) )")
+    @ApiOperation(value = "DELETE_TERMINAL_BY_ID", nickname = "DELETE_TERMINAL_BY_ID", notes = "Delete terminal by id",
+            response = String.class)
+    public ResponseEntity<APIResponse<String>> deleteTerminalById(
+            @ApiParam(name = "son", value = "Child Identity", required = true)
+            	@Valid @SonShouldExists(message = "{son.not.exists}")
+             		@PathVariable String son,
+             @ApiParam(name = "terminal", value = "Terminal Identity", required = true)
+            	@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
+             		@PathVariable String terminal) throws Throwable {
+        
+        logger.debug("Delete Terminal by id: " + terminal);
+        
+        terminalService.deleteById(new ObjectId(terminal));
+        
+        return ApiHelper.<String>createAndSendResponse(
+                ChildrenResponseCode.TERMINAL_BY_ID_DELETED, HttpStatus.OK, messageSourceResolver.resolver("terminal.deleted"));
         
     }
     

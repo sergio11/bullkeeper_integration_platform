@@ -20,6 +20,7 @@ import sanchez.sanchez.sergio.masoc.exception.NoCommunityStatisticsForThisPeriod
 import sanchez.sanchez.sergio.masoc.exception.NoDimensionsStatisticsForThisPeriodException;
 import sanchez.sanchez.sergio.masoc.exception.NoSentimentAnalysisStatisticsForThisPeriodException;
 import sanchez.sanchez.sergio.masoc.exception.NoSocialMediaActivityFoundForThisPeriodException;
+import sanchez.sanchez.sergio.masoc.exception.NoTerminalsFoundException;
 import sanchez.sanchez.sergio.masoc.exception.SonNotFoundException;
 import sanchez.sanchez.sergio.masoc.web.rest.ApiHelper;
 import sanchez.sanchez.sergio.masoc.web.rest.controller.BaseController;
@@ -37,6 +38,12 @@ import sanchez.sanchez.sergio.masoc.web.rest.response.CommentResponseCode;
 public class ChildrenErrorController extends BaseController {
 	
 
+	/**
+	 * Exception Handler for Son Not Found exception
+	 * @param resourceNotFound
+	 * @param request
+	 * @return
+	 */
     @ExceptionHandler(SonNotFoundException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleSonNotFoundException(SonNotFoundException resourceNotFound, HttpServletRequest request) {
@@ -44,14 +51,27 @@ public class ChildrenErrorController extends BaseController {
         		messageSourceResolver.resolver("son.not.found"));
     }
     
+    /**
+     * Exception Handler for comments by son not found exception
+     * @param commentsBySonNotFound
+     * @param request
+     * @return
+     */
     @ExceptionHandler(CommentsBySonNotFoundException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleCommentsBySonNotFoundException(CommentsBySonNotFoundException commentsBySonNotFound, HttpServletRequest request){
         return ApiHelper.<String>createAndSendErrorResponseWithHeader(CommentResponseCode.COMMENTS_BY_CHILD_NOT_FOUND, HttpStatus.NOT_FOUND,
         		messageSourceResolver.resolver("comments.by.son.not.found"));
     }
-   
     
+   
+   
+    /**
+     * Exception handler for no children found exception
+     * @param noChildrenFoundException
+     * @param request
+     * @return
+     */
     @ExceptionHandler(NoChildrenFoundException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleNoChildrenFoundException(NoChildrenFoundException noChildrenFoundException, HttpServletRequest request){
@@ -59,6 +79,12 @@ public class ChildrenErrorController extends BaseController {
         		messageSourceResolver.resolver("children.not.found"));
     }
     
+    /**
+     * Exception handler for no alerts by son found exception
+     * @param noAlertsBySonFoundException
+     * @param request
+     * @return
+     */
     @ExceptionHandler(NoAlertsBySonFoundException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleNoAlertsBySonFoundException(NoAlertsBySonFoundException noAlertsBySonFoundException, HttpServletRequest request){
@@ -66,6 +92,12 @@ public class ChildrenErrorController extends BaseController {
         		messageSourceResolver.resolver("alerts.by.son.founded"));
     }
     
+    /**
+     * Exception handler for alert not found exception
+     * @param alertNotFoundException
+     * @param request
+     * @return
+     */
     @ExceptionHandler(AlertNotFoundException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleAlertNotFoundException(AlertNotFoundException alertNotFoundException, HttpServletRequest request){
@@ -73,7 +105,12 @@ public class ChildrenErrorController extends BaseController {
         		messageSourceResolver.resolver("alert.not.found"));
     }
     
-    
+    /**
+     * Exception handler for no social media activity found for this period exception
+     * @param noSocialMediaActivityFoundForThisPeriodException
+     * @param request
+     * @return
+     */
     @ExceptionHandler(NoSocialMediaActivityFoundForThisPeriodException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleNoSocialMediaActivityFoundForThisPeriodException(NoSocialMediaActivityFoundForThisPeriodException noSocialMediaActivityFoundForThisPeriodException, HttpServletRequest request){
@@ -81,6 +118,12 @@ public class ChildrenErrorController extends BaseController {
         		messageSourceResolver.resolver("children.social.media.activity.statistics.not.found", new Object[] {  prettyTime.format(noSocialMediaActivityFoundForThisPeriodException.getFrom()) } ));
     }
     
+    /**
+     * Exception handler no sentiment analysis statistics for this period exception
+     * @param noSentimentAnalysisStatisticsForThisPeriodException
+     * @param request
+     * @return
+     */
     @ExceptionHandler(NoSentimentAnalysisStatisticsForThisPeriodException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleNoSentimentAnalysisStatisticsForThisPeriodException(NoSentimentAnalysisStatisticsForThisPeriodException noSentimentAnalysisStatisticsForThisPeriodException, HttpServletRequest request){
@@ -88,6 +131,12 @@ public class ChildrenErrorController extends BaseController {
         		messageSourceResolver.resolver("children.no.sentiment.analysis.statistics.for.this.period", new Object[] { prettyTime.format(noSentimentAnalysisStatisticsForThisPeriodException.getFrom()) }));
     }
     
+    /**
+     * Exception handler for no community statistics for this period exception
+     * @param noCommunityStatisticsForThisPeriodException
+     * @param request
+     * @return
+     */
     @ExceptionHandler(NoCommunityStatisticsForThisPeriodException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleNoCommunityStatisticsForThisPeriodException(NoCommunityStatisticsForThisPeriodException noCommunityStatisticsForThisPeriodException, HttpServletRequest request){
@@ -95,6 +144,12 @@ public class ChildrenErrorController extends BaseController {
         		messageSourceResolver.resolver("children.no.community.statistics.for.this.period", new Object[] { prettyTime.format(noCommunityStatisticsForThisPeriodException.getFrom())} ));
     }
     
+    /**
+     * Exception handler for no dimensions statistics for this period exception
+     * @param noDimensionsStatisticsForThisPeriodException
+     * @param request
+     * @return
+     */
     @ExceptionHandler(NoDimensionsStatisticsForThisPeriodException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleNoDimensionsStatisticsForThisPeriodException(NoDimensionsStatisticsForThisPeriodException noDimensionsStatisticsForThisPeriodException, HttpServletRequest request){
@@ -102,7 +157,7 @@ public class ChildrenErrorController extends BaseController {
         		messageSourceResolver.resolver("children.no.dimensions.statistics.for.this.period", new Object[] { prettyTime.format(noDimensionsStatisticsForThisPeriodException.getFrom())} ));
     }
     
-   
+ 
     
     @PostConstruct
     protected void init(){

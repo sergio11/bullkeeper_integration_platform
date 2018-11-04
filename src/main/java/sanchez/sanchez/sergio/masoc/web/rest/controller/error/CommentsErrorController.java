@@ -27,16 +27,22 @@ import sanchez.sanchez.sergio.masoc.web.rest.response.APIResponse;
 import sanchez.sanchez.sergio.masoc.web.rest.response.CommentResponseCode;
 
 /**
+ * 
+ * @author sergiosanchezsanchez
  *
- * @author sergio
  */
-
 @ControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class CommentsErrorController extends BaseController {
 	
     private static Logger logger = LoggerFactory.getLogger(CommentsErrorController.class);
 	
+    /**
+     * Exception Handler for No Comments Found Exception
+     * @param noCommentsFoundException
+     * @param request
+     * @return
+     */
     @ExceptionHandler(NoCommentsFoundException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleNoCommentsFoundException(NoCommentsFoundException noCommentsFoundException, HttpServletRequest request) {
@@ -44,6 +50,12 @@ public class CommentsErrorController extends BaseController {
         		messageSourceResolver.resolver("comments.not.found"));
     }
     
+    /**
+     * Exception Handler for Comment Not found exception
+     * @param commentNotFoundException
+     * @param request
+     * @return
+     */
     @ExceptionHandler(CommentNotFoundException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleCommentNotFoundException(CommentNotFoundException commentNotFoundException, HttpServletRequest request) {
@@ -51,7 +63,12 @@ public class CommentsErrorController extends BaseController {
         		messageSourceResolver.resolver("comment.not.found"));
     }
     
-    
+    /**
+     * No Comments extracted exception
+     * @param noCommentsExtractedException
+     * @param request
+     * @return
+     */
     @ExceptionHandler(NoCommentsExtractedException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleNoCommentsExtractedException(NoCommentsExtractedException noCommentsExtractedException, HttpServletRequest request) {
@@ -59,7 +76,12 @@ public class CommentsErrorController extends BaseController {
         		messageSourceResolver.resolver("no.comments.extracted", new Object[] { prettyTime.format(noCommentsExtractedException.getFrom()) }));
     }
     
-    
+    /**
+     * No Likes found in this period exception
+     * @param noLikesFoundInThisPeriodException
+     * @param request
+     * @return
+     */
     @ExceptionHandler(NoLikesFoundInThisPeriodException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleNoLikesFoundInThisPeriodException(NoLikesFoundInThisPeriodException noLikesFoundInThisPeriodException, HttpServletRequest request) {
@@ -67,6 +89,12 @@ public class CommentsErrorController extends BaseController {
         		messageSourceResolver.resolver("no.likes.found.in.this.period", new Object[] { prettyTime.format(noLikesFoundInThisPeriodException.getFrom()) }));
     }
     
+    /**
+     * Exception Handler for No Active friends in this period exception
+     * @param noActiveFriedsInThisPeriodException
+     * @param request
+     * @return
+     */
     @ExceptionHandler(NoActiveFriendsInThisPeriodException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleNoActiveFriendsInThisPeriodException(NoActiveFriendsInThisPeriodException noActiveFriedsInThisPeriodException, HttpServletRequest request) {
@@ -74,6 +102,12 @@ public class CommentsErrorController extends BaseController {
         		messageSourceResolver.resolver("no.active.friends.in.this.period", new Object[] { prettyTime.format(noActiveFriedsInThisPeriodException.getFrom()) }));
     }
     
+    /**
+     * Exception Handler for no new friends at this time exception
+     * @param noNewFriendsAtThisTimeException
+     * @param request
+     * @return
+     */
     @ExceptionHandler(NoNewFriendsAtThisTimeException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleNoNewFriendsAtThisTimeException(NoNewFriendsAtThisTimeException noNewFriendsAtThisTimeException, HttpServletRequest request) {
@@ -81,8 +115,7 @@ public class CommentsErrorController extends BaseController {
         		messageSourceResolver.resolver("no.active.friends.in.this.period", new Object[] { prettyTime.format(noNewFriendsAtThisTimeException.getFrom()) }));
     }
    
-   
-   
+  
     @PostConstruct
     protected void init(){
     	Assert.notNull(messageSourceResolver, "Message Source Resolver can not be null");

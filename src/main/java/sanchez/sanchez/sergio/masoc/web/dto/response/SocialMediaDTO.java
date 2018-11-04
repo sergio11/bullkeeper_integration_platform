@@ -24,20 +24,24 @@ public class SocialMediaDTO extends ResourceSupport implements Serializable {
     private Boolean invalidToken;
     @JsonProperty("user_social_name")
     private String userSocialName;
+    @JsonProperty("user_social_full_name")
+    private String userSocialFullName;
     @JsonProperty("user_picture")
     private String userPicture;
-    @JsonProperty("user")
+    @JsonProperty("son_identity")
     private String user;
     
     public SocialMediaDTO(){}
 
-    public SocialMediaDTO(String identity, String accessToken, String refreshToken, String type, Boolean invalidToken, String userSocialName, String userPicture, String user) {
+    public SocialMediaDTO(String identity, String accessToken, String refreshToken, String type, Boolean invalidToken, String userSocialName,
+    		String userSocialFullName, String userPicture, String user) {
         this.identity = identity;
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
         this.type = type;
         this.invalidToken = invalidToken;
         this.userSocialName = userSocialName;
+        this.userSocialFullName = userSocialFullName;
         this.userPicture = userPicture;
         this.user = user;
     }
@@ -88,6 +92,16 @@ public class SocialMediaDTO extends ResourceSupport implements Serializable {
 
 	public void setUserSocialName(String userSocialName) {
 		this.userSocialName = userSocialName;
+	}
+	
+	
+
+	public String getUserSocialFullName() {
+		return userSocialFullName;
+	}
+
+	public void setUserSocialFullName(String userSocialFullName) {
+		this.userSocialFullName = userSocialFullName;
 	}
 
 	public String getUserPicture() {

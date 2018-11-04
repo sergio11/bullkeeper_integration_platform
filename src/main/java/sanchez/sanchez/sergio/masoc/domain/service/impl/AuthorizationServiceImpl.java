@@ -22,6 +22,11 @@ import sanchez.sanchez.sergio.masoc.web.security.userdetails.CommonUserDetailsAw
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
+/**
+ * 
+ * @author sergiosanchezsanchez
+ *
+ */
 @Service("authorizationService")
 public class AuthorizationServiceImpl implements IAuthorizationService {
 
@@ -30,6 +35,11 @@ public class AuthorizationServiceImpl implements IAuthorizationService {
     private final SonRepository sonRepository;
     private final ParentRepository parentRepository;
 
+    /**
+     * 
+     * @param sonRepository
+     * @param parentRepository
+     */
     @Autowired
     public AuthorizationServiceImpl(SonRepository sonRepository, ParentRepository parentRepository) {
         super();
@@ -37,24 +47,36 @@ public class AuthorizationServiceImpl implements IAuthorizationService {
         this.parentRepository = parentRepository;
     }
 
+    /**
+     * Has Admin Role
+     */
     @Override
     public Boolean hasAdminRole() {
         return (SecurityContextHolder.getContext().getAuthentication().getAuthorities()
                 .contains(new SimpleGrantedAuthority(AuthoritiesConstants.ADMIN)));
     }
 
+    /**
+     * Has Parent Role
+     */
     @Override
     public Boolean hasParentRole() {
         return (SecurityContextHolder.getContext().getAuthentication().getAuthorities()
                 .contains(new SimpleGrantedAuthority(AuthoritiesConstants.PARENT)));
     }
 
+    /**
+     * Has Change Password Privilege
+     */
     @Override
     public Boolean hasChangePasswordPrivilege() {
         return (SecurityContextHolder.getContext().getAuthentication().getAuthorities()
                 .contains(new SimpleGrantedAuthority("CHANGE_PASSWORD_PRIVILEGE")));
     }
 
+    /**
+     * Get User Details
+     */
     @Override
     public CommonUserDetailsAware<ObjectId> getUserDetails() {
         CommonUserDetailsAware<ObjectId> userDetails = null;
@@ -65,6 +87,9 @@ public class AuthorizationServiceImpl implements IAuthorizationService {
         return userDetails;
     }
 
+    /**
+     * Is Your Son
+     */
     @SuppressWarnings("unchecked")
     @Override
     public Boolean isYourSon(String id) {

@@ -68,7 +68,7 @@ public class InstagramServiceImpl implements IInstagramService {
         	final Instagram instagram = new Instagram(accessToken, appSecret);
  
             final UserInfoData userInfo = instagram.getCurrentUserInfo().getData();
-
+      
             userComments = instagram
             	.getUserRecentMedia()
             	.getData()
@@ -76,7 +76,9 @@ public class InstagramServiceImpl implements IInstagramService {
             	.map(mediaFeed -> Unthrow.wrap(() -> instagram.getMediaComments(mediaFeed.getId())))
             	.map(mediaCommentsFeed -> mediaCommentsFeed.getCommentDataList())
             	.flatMap(List::stream)
-            	.filter(commentData -> !commentData.getCommentFrom().getId().equals(userInfo.getId()) && 
+            	.filter(commentData ->  ((commentData.getCommentFrom().getId() != null &&  userInfo.getId() != null
+            	&& !commentData.getCommentFrom().getId().equals(userInfo.getId())) || (commentData.getCommentFrom().getUsername() != null && userInfo.getUsername() != null 
+            	&& !commentData.getCommentFrom().getUsername().equals(userInfo.getUsername()))) &&
                 		( startDate != null ? new Date(Long.parseLong(commentData.getCreatedTime())).after(startDate) : true ))
             	.map(commentData -> instagramMapper.instagramCommentToCommentEntity(commentData))
             	.collect(Collectors.toSet());

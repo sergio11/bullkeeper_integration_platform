@@ -9,7 +9,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-
 import sanchez.sanchez.sergio.masoc.domain.service.ISocialMediaService;
 import sanchez.sanchez.sergio.masoc.integration.service.IIntegrationFlowService;
 import sanchez.sanchez.sergio.masoc.mapper.SocialMediaEntityMapper;
@@ -20,7 +19,6 @@ import sanchez.sanchez.sergio.masoc.rrss.service.IFacebookService;
 import sanchez.sanchez.sergio.masoc.rrss.service.IGoogleService;
 import sanchez.sanchez.sergio.masoc.web.dto.request.SaveSocialMediaDTO;
 import sanchez.sanchez.sergio.masoc.web.dto.response.SocialMediaDTO;
-
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

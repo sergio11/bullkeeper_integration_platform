@@ -28,6 +28,12 @@ import sanchez.sanchez.sergio.masoc.web.rest.response.SocialMediaResponseCode;
 public class SocialMediaErrorController extends BaseController {
 
 
+	/**
+	 * Exception handler for Social Media not found exception
+	 * @param socialMediaNotFoundException
+	 * @param request
+	 * @return
+	 */
     @ExceptionHandler(SocialMediaNotFoundException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleSocialMediaNotFoundException(SocialMediaNotFoundException socialMediaNotFoundException, HttpServletRequest request){

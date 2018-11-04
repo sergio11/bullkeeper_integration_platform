@@ -36,6 +36,11 @@ public class CommonErrorRestController extends BaseController {
     private static Logger logger = LoggerFactory.getLogger(CommonErrorRestController.class);
 	
 
+    /**
+     * Exception Handler for Method argument not valid exception
+     * @param ex
+     * @return
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseBody
     public ResponseEntity<APIResponse<ValidationErrorDTO>> handleValidationException(MethodArgumentNotValidException ex) {
@@ -44,12 +49,18 @@ public class CommonErrorRestController extends BaseController {
         List<FieldError> fieldErrors = result.getFieldErrors();
         ValidationErrorDTO validationErrorResource = new ValidationErrorDTO();
         for (FieldError fieldError: fieldErrors) {
+        	logger.debug("Field Not valid -> " + fieldError.getField() + " - " + fieldError.getDefaultMessage());
             validationErrorResource.addFieldError(fieldError.getField(), fieldError.getDefaultMessage());
         }
         
         return ApiHelper.<ValidationErrorDTO>createAndSendErrorResponseWithHeader(CommonErrorResponseCode.VALIDATION_ERROR, HttpStatus.BAD_REQUEST, validationErrorResource);
     }
     
+    /**
+     * Exception Handler Contraint Violation Exception
+     * @param ex
+     * @return
+     */
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseBody
     public ResponseEntity<APIResponse<List<String>>> handleConstraintViolationException(ConstraintViolationException ex) {
@@ -60,26 +71,44 @@ public class CommonErrorRestController extends BaseController {
 
     }
     
+    /**
+     * Exception Handler for locked exception
+     * @param ex
+     * @return
+     */
     @ExceptionHandler(LockedException.class)
     @ResponseBody
     public ResponseEntity<APIResponse<String>> handleLockedException(LockedException ex) {
     	return ApiHelper.<String>createAndSendErrorResponseWithHeader(CommonErrorResponseCode.ACCOUNT_LOCKED, HttpStatus.FORBIDDEN, ex.getMessage());
     }
     
+    /**
+     * Exception Handler for Access Denied Exception
+     * @param ex
+     * @return
+     */
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseBody
     public ResponseEntity<APIResponse<String>> handleAccessDeniedException(AccessDeniedException ex) {
     	return ApiHelper.<String>createAndSendErrorResponseWithHeader(CommonErrorResponseCode.ACCESS_DENIED, HttpStatus.FORBIDDEN, ex.getMessage());
     }
     
-    
+    /**
+     * Exception handler for Account pending to be remove exception
+     * @param ex
+     * @return
+     */
     @ExceptionHandler(AccountPendingToBeRemoveException.class)
     @ResponseBody
     public ResponseEntity<APIResponse<String>> handleAccountPendingToBeRemoveException(AccountPendingToBeRemoveException ex) {
     	return ApiHelper.<String>createAndSendErrorResponseWithHeader(CommonErrorResponseCode.ACCOUNT_PENDING_TO_BE_REMOVE, HttpStatus.FORBIDDEN, ex.getMessage());
     }
     
-    
+    /**
+     * Exception handler for http message not readable exception
+     * @param ex
+     * @return
+     */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<APIResponse<String>> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
     	logger.error(ex.getMessage());
@@ -87,6 +116,13 @@ public class CommonErrorRestController extends BaseController {
     			messageSourceResolver.resolver("message.not.readable"));
     }
     
+    /**
+     * Generic Exception handler
+     * @param exception
+     * @param request
+     * @param response
+     * @return
+     */
     @ExceptionHandler(Throwable.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleException(

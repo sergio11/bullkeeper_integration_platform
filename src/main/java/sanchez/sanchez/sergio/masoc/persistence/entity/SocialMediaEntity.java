@@ -34,6 +34,9 @@ public class SocialMediaEntity {
     @Field("user_social_name")
     private String userSocialName;
     
+    @Field("user_social_full_name")
+    private String userSocialFullName;
+    
     @Field("user_picture")
     private String userPicture;
     
@@ -71,12 +74,13 @@ public class SocialMediaEntity {
 	}
 
     @PersistenceConstructor
-    public SocialMediaEntity(String accessToken, String refreshToken, SocialMediaTypeEnum type, String userSocialName, String userPicture, Boolean invalidToken, Long scheduledFor,
+    public SocialMediaEntity(String accessToken, String refreshToken, SocialMediaTypeEnum type, String userSocialFullName, String userSocialName, String userPicture, Boolean invalidToken, Long scheduledFor,
 			Date lastProbing, SonEntity sonEntity) {
 		super();
 		this.accessToken = accessToken;
 		this.refreshToken = refreshToken;
 		this.type = type;
+		this.userSocialFullName = userSocialFullName;
 		this.userSocialName = userSocialName;
 		this.userPicture = userPicture;
 		this.invalidToken = invalidToken;
@@ -127,6 +131,16 @@ public class SocialMediaEntity {
 		this.userSocialName = userSocialName;
 	}
 	
+	
+	
+	public String getUserSocialFullName() {
+		return userSocialFullName;
+	}
+
+	public void setUserSocialFullName(String userSocialFullName) {
+		this.userSocialFullName = userSocialFullName;
+	}
+
 	public String getUserPicture() {
 		return userPicture;
 	}
