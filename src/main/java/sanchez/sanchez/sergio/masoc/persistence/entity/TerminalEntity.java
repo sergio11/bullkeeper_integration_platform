@@ -14,7 +14,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
  * @author sergiosanchezsanchez
  *
  */
-@Document(collection = DeviceEntity.COLLECTION_NAME)
+@Document(collection = TerminalEntity.COLLECTION_NAME)
 public class TerminalEntity implements Serializable {
 	
 	/**

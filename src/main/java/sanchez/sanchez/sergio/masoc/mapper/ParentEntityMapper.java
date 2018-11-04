@@ -36,6 +36,11 @@ public abstract class ParentEntityMapper {
 	@Autowired
 	protected AuthorityRepository authorityRepository;
     
+	/**
+	 * 
+	 * @param parentEntity
+	 * @return
+	 */
     @Mappings({
         @Mapping(expression="java(parentEntity.getId().toString())", target = "identity" ),
         @Mapping(expression="java(sonRepository.countByParentId(parentEntity.getId()))", target = "children" ),
@@ -48,9 +53,19 @@ public abstract class ParentEntityMapper {
     @Named("parentEntityToParentDTO")
     public abstract ParentDTO parentEntityToParentDTO(ParentEntity parentEntity); 
 	
+    /**
+     * 
+     * @param parentEntities
+     * @return
+     */
     @IterableMapping(qualifiedByName = "parentEntityToParentDTO")
     public abstract List<ParentDTO> parentEntitiesToParentDTOs(List<ParentEntity> parentEntities);
     
+    /**
+     * 
+     * @param registerParentDTO
+     * @return
+     */
     @Mappings({ 
 		@Mapping(expression="java(passwordEncoder.encode(registerParentDTO.getPasswordClear()))", target = "password"),
 		@Mapping(expression="java(authorityRepository.findByType(sanchez.sanchez.sergio.masoc.persistence.entity.AuthorityEnum.ROLE_PARENT))", target = "authority"),
@@ -58,6 +73,11 @@ public abstract class ParentEntityMapper {
 	})
     public abstract ParentEntity registerParentDTOToParentEntity(RegisterParentDTO registerParentDTO);
     
+    /**
+     * 
+     * @param registerParentByFacebookDTO
+     * @return
+     */
     @Mappings({ 
 		@Mapping(expression="java(passwordEncoder.encode(registerParentByFacebookDTO.getPasswordClear()))", target = "password"),
 		@Mapping(expression="java(authorityRepository.findByType(sanchez.sanchez.sergio.masoc.persistence.entity.AuthorityEnum.ROLE_PARENT))", target = "authority"),
@@ -65,6 +85,12 @@ public abstract class ParentEntityMapper {
 	})
     public abstract ParentEntity registerParentByFacebookDTOToParentEntity(RegisterParentByFacebookDTO registerParentByFacebookDTO);
     
+    
+    /**
+     * 
+     * @param registerParentByGoogleDTO
+     * @return
+     */
     @Mappings({ 
     	@Mapping(target = "telephone", ignore=true),
 		@Mapping(expression="java(passwordEncoder.encode(registerParentByGoogleDTO.getPasswordClear()))", target = "password"),

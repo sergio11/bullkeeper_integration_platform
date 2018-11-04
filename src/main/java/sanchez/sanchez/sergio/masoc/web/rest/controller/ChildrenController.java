@@ -35,6 +35,7 @@ import sanchez.sanchez.sergio.masoc.domain.service.ITerminalService;
 import sanchez.sanchez.sergio.masoc.exception.AlertNotFoundException;
 import sanchez.sanchez.sergio.masoc.exception.CommentsBySonNotFoundException;
 import sanchez.sanchez.sergio.masoc.exception.NoAlertsBySonFoundException;
+import sanchez.sanchez.sergio.masoc.exception.NoAppsInstalledFoundException;
 import sanchez.sanchez.sergio.masoc.exception.NoChildrenFoundException;
 import sanchez.sanchez.sergio.masoc.exception.NoCommunityStatisticsForThisPeriodException;
 import sanchez.sanchez.sergio.masoc.exception.NoDimensionsStatisticsForThisPeriodException;
@@ -56,9 +57,11 @@ import sanchez.sanchez.sergio.masoc.persistence.entity.DrugsLevelEnum;
 import sanchez.sanchez.sergio.masoc.persistence.entity.SocialMediaTypeEnum;
 import sanchez.sanchez.sergio.masoc.persistence.entity.ViolenceLevelEnum;
 import sanchez.sanchez.sergio.masoc.util.ValidList;
+import sanchez.sanchez.sergio.masoc.web.dto.request.SaveAppInstalledDTO;
 import sanchez.sanchez.sergio.masoc.web.dto.request.SaveSocialMediaDTO;
 import sanchez.sanchez.sergio.masoc.web.dto.request.SaveTerminalDTO;
 import sanchez.sanchez.sergio.masoc.web.dto.response.AlertDTO;
+import sanchez.sanchez.sergio.masoc.web.dto.response.AppInstalledDTO;
 import sanchez.sanchez.sergio.masoc.web.dto.response.CommentDTO;
 import sanchez.sanchez.sergio.masoc.web.dto.response.CommunitiesStatisticsDTO;
 import sanchez.sanchez.sergio.masoc.web.dto.response.DimensionsStatisticsDTO;
@@ -1105,8 +1108,135 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
         
     }
     
-   
     
+    /**
+     * Get All apps installed in the terminal
+     * @param pageable
+     * @param pagedAssembler
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{son}/terminal/{terminal}/apps", method = RequestMethod.GET)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#son) )")
+    @ApiOperation(value = "GET_ALL_APPS_INSTALLED_IN_THE_TERMINAL", nickname = "GET_ALL_APPS_INSTALLED_IN_THE_TERMINAL",
+    notes = "Get all apps installed in the terminal", 
+    response = List.class)
+    public ResponseEntity<APIResponse<Iterable<AppInstalledDTO>>> getAllAppsInstalledInTheTerminal(
+    		@ApiParam(name = "son", value = "Son id", required = true)
+        	@Valid @SonShouldExists(message = "{son.not.exists}")
+         		@PathVariable String son,
+         	@ApiParam(name = "terminal", value = "Terminal id", required = true)
+        	@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
+         		@PathVariable String terminal) 
+    		throws Throwable {
+        
+    	logger.debug("Get all apps installed in the terminal");
+    
+    	final Iterable<AppInstalledDTO> appInstalledTerminal =
+    			terminalService.getAllAppsInstalledInTheTerminal(new ObjectId(son), new ObjectId(terminal));
+        
+    	if(Iterables.isEmpty(appInstalledTerminal))
+        	throw new NoAppsInstalledFoundException();
+    	
+        return ApiHelper.<Iterable<AppInstalledDTO>>createAndSendResponse(ChildrenResponseCode.ALL_APPS_INSTALLED_IN_THE_TERMINAL, 
+            		HttpStatus.OK, appInstalledTerminal);
+    }
+    
+    
+    /**
+     * Save App installed
+     * @param id
+     * @param socialMedias
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{son}/terminal/{terminal}/apps", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#son) )")
+    @ApiOperation(value = "SAVE_APPS_INSTALLED_IN_THE_TERMINAL", nickname = "SAVE_APPS_INSTALLED_IN_THE_TERMINAL", 
+    	notes = "Save Apps installed in the terminal",
+            response = Iterable.class)
+    public ResponseEntity<APIResponse<Iterable<AppInstalledDTO>>> saveAppsInstalledInTheTerminal(
+    		@ApiParam(name = "id", value = "Son Identity", required = true)
+        	@Valid @SonShouldExists(message = "{son.not.exists}")
+         		@PathVariable String id,
+            @ApiParam(value = "apps", required = true) 
+				@Validated(ICommonSequence.class) 
+    				@RequestBody ValidList<SaveAppInstalledDTO> appsInstalled) throws Throwable {
+    	
+    	logger.debug("Save Apps installed int the terminal");
+    	
+    	// Save App INstalled
+    	Iterable<AppInstalledDTO> appInstalledSaved = terminalService.save(appsInstalled.getList());
+    	    	
+    	return ApiHelper.<Iterable<AppInstalledDTO>>createAndSendResponse(ChildrenResponseCode.APPS_INSTALLED_SAVED, 
+				HttpStatus.OK, appInstalledSaved);    
+    }
+    
+    /**
+     * Delete All Apps installed
+     * @param son
+     * @param alert
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{son}/terminal/{terminal}/apps", method = RequestMethod.DELETE)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#son) )")
+    @ApiOperation(value = "DELETE_ALL_APPS_INSTALLED", nickname = "DELETE_ALL_APPS_INSTALLED", 
+    	notes = "Delete all apps installed", response = String.class)
+    public ResponseEntity<APIResponse<String>> deleteAllAppsIstalled(
+            @ApiParam(name = "son", value = "Child Identity", required = true)
+            	@Valid @SonShouldExists(message = "{son.id.notvalid}")
+             		@PathVariable String son,
+            @ApiParam(name = "terminal", value = "Terminal id", required = true)
+        		@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
+         			@PathVariable String terminal) throws Throwable {
+        
+        logger.debug("Delete all apps installed by child identity " + son + " for terminal " + terminal);
+        // Delete Apps installed
+        terminalService.deleteAppsInstalledByChildIdAndTerminalId(new ObjectId(son), new ObjectId(terminal));
+      
+        return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.ALL_APPS_INSTALLED_DELETED, HttpStatus.OK, 
+        		messageSourceResolver.resolver("all.apps.installed.deleted"));
+        
+    }
+    
+    
+    /**
+     * Delete App installed by id
+     * @param son
+     * @param alert
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{son}/terminal/{terminal}/apps/{app}", method = RequestMethod.DELETE)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#son) )")
+    @ApiOperation(value = "DELETE_APP_INSTALLED_BY_ID", nickname = "DELETE_APP_INSTALLED_BY_ID", 
+    	notes = "Delete App installed by id", response = String.class)
+    public ResponseEntity<APIResponse<String>> deleteAppInstalledById(
+            @ApiParam(name = "son", value = "Child Identity", required = true)
+            	@Valid @SonShouldExists(message = "{son.id.notvalid}")
+             		@PathVariable String son,
+            @ApiParam(name = "terminal", value = "Terminal id", required = true)
+        		@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
+         			@PathVariable String terminal,
+         	@ApiParam(name = "app", value = "App id", required = true)
+    			@Valid @TerminalShouldExists(message = "{app.not.exists}")
+     				@PathVariable String app) throws Throwable {
+        
+        logger.debug("Delete app installed by " + app);
+        
+        // Delete App installed by id
+        terminalService.deleteAppInstalledById(new ObjectId(app));
+      
+        return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.ALL_APPS_INSTALLED_DELETED, HttpStatus.OK, 
+        		messageSourceResolver.resolver("app.installed.deleted"));
+        
+    }
+    
+    
+    /**
+     * 
+     */
     @PostConstruct
     protected void init() {
         Assert.notNull(sonService, "Son Service cannot be a null");

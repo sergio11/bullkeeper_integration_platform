@@ -1,9 +1,9 @@
 package sanchez.sanchez.sergio.masoc.domain.service;
 
 import org.bson.types.ObjectId;
-
+import sanchez.sanchez.sergio.masoc.web.dto.request.SaveAppInstalledDTO;
 import sanchez.sanchez.sergio.masoc.web.dto.request.SaveTerminalDTO;
-import sanchez.sanchez.sergio.masoc.web.dto.response.CommentDTO;
+import sanchez.sanchez.sergio.masoc.web.dto.response.AppInstalledDTO;
 import sanchez.sanchez.sergio.masoc.web.dto.response.TerminalDTO;
 
 /**
@@ -32,5 +32,41 @@ public interface ITerminalService {
      * @param id
      */
     void deleteById(final ObjectId id);
-
+    
+    /**
+     * 
+     * @param sonId
+     * @param terminalId
+     * @return
+     */
+    Iterable<AppInstalledDTO> getAllAppsInstalledInTheTerminal(final ObjectId sonId, final ObjectId terminalId);
+    
+    
+    /**
+     * Save
+     * @param saveAppInstalledDTO
+     * @return
+     */
+    AppInstalledDTO save(final SaveAppInstalledDTO saveAppInstalledDTO);
+    
+    /**
+     * 
+     * @param saveAppsInstalledDTO
+     * @return
+     */
+    Iterable<AppInstalledDTO> save(final Iterable<SaveAppInstalledDTO> saveAppsInstalledDTO);
+    
+    /**
+     * Delete Apps Installed By Child Id And Terminal Id
+     * @param childId
+     * @param terminalId
+     */
+    void deleteAppsInstalledByChildIdAndTerminalId(final ObjectId childId, final ObjectId terminalId);
+    
+    /**
+     * Delete App installed by child id
+     * @param appId
+     */
+    void deleteAppInstalledById(final ObjectId appId);
+    
 }

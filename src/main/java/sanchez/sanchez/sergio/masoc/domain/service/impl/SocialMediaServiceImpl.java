@@ -37,6 +37,14 @@ public class SocialMediaServiceImpl implements ISocialMediaService {
     private final IFacebookService facebookService;
     private final IGoogleService googleService;
 
+    /**
+     * 
+     * @param socialMediaRepository
+     * @param socialMediaMapper
+     * @param itegrationFlowService
+     * @param facebookService
+     * @param googleService
+     */
     public SocialMediaServiceImpl(SocialMediaRepository socialMediaRepository,
             SocialMediaEntityMapper socialMediaMapper, IIntegrationFlowService itegrationFlowService, 
             IFacebookService facebookService, IGoogleService googleService) {
@@ -47,19 +55,27 @@ public class SocialMediaServiceImpl implements ISocialMediaService {
         this.googleService = googleService;
     }
     
-
+	/**
+	 * Get Social Media By User
+	 */
     @Override
     public List<SocialMediaDTO> getSocialMediaByUser(String id) {
         List<SocialMediaEntity> socialMediaEntities = socialMediaRepository.findBySonEntityId(new ObjectId(id));
         return socialMediaMapper.socialMediaEntitiesToSocialMediaDTO(socialMediaEntities);
     }
 
+    /**
+     * Get Social Media By Id
+     */
     @Override
     public SocialMediaDTO getSocialMediaById(String id) {
         SocialMediaEntity socialMediaEntity = socialMediaRepository.findOne(new ObjectId(id));
         return socialMediaMapper.socialMediaEntityToSocialMediaDTO(socialMediaEntity);
     }
 
+    /**
+     * Create
+     */
     @Override
     public SocialMediaDTO create(SaveSocialMediaDTO addSocialMediaDTO) {
         SocialMediaEntity socialMediaEntityToSave = socialMediaMapper.addSocialMediaDTOToSocialMediaEntity(addSocialMediaDTO);
@@ -67,12 +83,18 @@ public class SocialMediaServiceImpl implements ISocialMediaService {
         return socialMediaMapper.socialMediaEntityToSocialMediaDTO(socialMediaEntitySaved);
     }
 
+    /**
+     * Get Invalid Social Media By ID
+     */
     @Override
     public List<SocialMediaDTO> getInvalidSocialMediaById(String id) {
         List<SocialMediaEntity> socialMediaEntities = socialMediaRepository.findByIdAndInvalidTokenTrue(new ObjectId(id));
         return socialMediaMapper.socialMediaEntitiesToSocialMediaDTO(socialMediaEntities);
     }
 
+    /**
+     * Find Paginated
+     */
     @Override
     public Page<SocialMediaDTO> findPaginated(Pageable pageable) {
         Page<SocialMediaEntity> socialMediaEntities = socialMediaRepository.findAll(pageable);
@@ -84,12 +106,18 @@ public class SocialMediaServiceImpl implements ISocialMediaService {
         });
     }
 
+    /**
+     * Get Social Media By Type And Son Id
+     */
     @Override
     public SocialMediaDTO getSocialMediaByTypeAndSonId(String type, String sonId) {
         return socialMediaMapper.socialMediaEntityToSocialMediaDTO(
                 socialMediaRepository.findByTypeAndSonEntityId(SocialMediaTypeEnum.valueOf(type), new ObjectId(sonId)));
     }
 
+    /**
+     * Update
+     */
     @Override
     public SocialMediaDTO update(SaveSocialMediaDTO socialMedia) {
         Assert.notNull(socialMedia, "Social Media can not be null");
@@ -109,6 +137,9 @@ public class SocialMediaServiceImpl implements ISocialMediaService {
         return socialMediaUpdated;
     }
 
+    /**
+     * Insert Or Update
+     */
     @Override
     public SocialMediaDTO insertOrUpdate(SaveSocialMediaDTO socialMedia) {
         Assert.notNull(socialMedia, "Social Media can not be null");
@@ -130,6 +161,9 @@ public class SocialMediaServiceImpl implements ISocialMediaService {
         return socialMediaMapper.socialMediaEntityToSocialMediaDTO(socialMediaEntitySaved);
     }
 
+    /**
+     * Insert Or Update
+     */
     @Override
     public Iterable<SocialMediaDTO> insertOrUpdate(Iterable<SaveSocialMediaDTO> socialMediaList) {
         List<SocialMediaDTO> socialMediaDTOs = new ArrayList<>();
@@ -139,6 +173,9 @@ public class SocialMediaServiceImpl implements ISocialMediaService {
         return socialMediaDTOs;
     }
 
+    /**
+     * Save
+     */
     @Override
     public Iterable<SocialMediaDTO> save(List<SaveSocialMediaDTO> socialMediaList, String sonId) {
         
