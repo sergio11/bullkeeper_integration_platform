@@ -6,19 +6,44 @@ import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import sanchez.sanchez.sergio.masoc.persistence.entity.SchoolEntity;
 
 
 /**
- *
+ * School Repository
  * @author sergio
  */
 @Repository
 public interface SchoolRepository extends MongoRepository<SchoolEntity, ObjectId>, SchoolRepositoryCustom {
-	Page<SchoolEntity> findAllByNameLikeIgnoreCase(String name, Pageable pageable);
-	List<SchoolEntity> findAllByNameLikeIgnoreCase(String name);
-	Long countByName(String name);
+	
+	/**
+	 * Find all by name like ignore case
+	 * @param name
+	 * @param pageable
+	 * @return
+	 */
+	Page<SchoolEntity> findAllByNameLikeIgnoreCase(final String name, final Pageable pageable);
+	
+	/**
+	 * Find all by name like ignore case
+	 * @param name
+	 * @return
+	 */
+	List<SchoolEntity> findAllByNameLikeIgnoreCase(final String name);
+	
+	/**
+	 * Count By Name Ignore Case
+	 * @param name
+	 * @return
+	 */
+	Long countByNameIgnoreCase(final String name);
+	
+	/**
+	 * Count By Email
+	 * @param email
+	 * @return
+	 */
+	Long countByEmail(final String email);
 }

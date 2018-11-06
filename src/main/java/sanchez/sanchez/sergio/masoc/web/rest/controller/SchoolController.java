@@ -20,9 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.google.common.collect.Iterables;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -31,6 +29,7 @@ import io.swagger.annotations.ApiResponses;
 import sanchez.sanchez.sergio.masoc.domain.service.ISchoolService;
 import sanchez.sanchez.sergio.masoc.exception.NoSchoolsFoundException;
 import sanchez.sanchez.sergio.masoc.exception.SchoolNotFoundException;
+import sanchez.sanchez.sergio.masoc.persistence.constraints.SchoolMustExists;
 import sanchez.sanchez.sergio.masoc.persistence.constraints.ValidObjectId;
 import sanchez.sanchez.sergio.masoc.persistence.constraints.group.ICommonSequence;
 import sanchez.sanchez.sergio.masoc.web.dto.request.AddSchoolDTO;
@@ -44,20 +43,40 @@ import sanchez.sanchez.sergio.masoc.web.rest.response.SchoolResponseCode;
 import sanchez.sanchez.sergio.masoc.web.security.utils.OnlyAccessForAdmin;
 import springfox.documentation.annotations.ApiIgnore;
 
+
+/**
+ * 
+ * School Controller
+ * @author sergiosanchezsanchez
+ *
+ */
 @RestController("RestSchoolController")
 @Validated
 @RequestMapping("/api/v1/schools/")
-@Api(tags = "schools", value = "/schools/", description = "Manejo de la información del Colegio", produces = "application/json")
+@Api(tags = "schools", value = "/schools/", 
+	description = "Manejo de la información del Colegio", 
+	produces = "application/json")
 public class SchoolController extends BaseController implements ISchoolHAL {
 
     private static Logger logger = LoggerFactory.getLogger(SchoolController.class);
     
     private final ISchoolService schoolService;
 
+    /**
+     * 
+     * @param schoolService
+     */
     public SchoolController(ISchoolService schoolService) {
         this.schoolService = schoolService;
     }
     
+    /**
+     * Get All Schools
+     * @param pageable
+     * @param pagedAssembler
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = "/all", method = RequestMethod.GET)
     @ApiOperation(value = "GET_ALL_SCHOOLS", nickname = "GET_ALL_SCHOOLS", notes = "Get all Schools",
             response = PagedResources.class)
@@ -75,6 +94,11 @@ public class SchoolController extends BaseController implements ISchoolHAL {
     	
     }
     
+    /**
+     * Get Total Number Of School
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = "/count", method = RequestMethod.GET)
     @ApiOperation(value = "GET_TOTAL_NUMBER_OF_SCHOOLS", nickname = "GET_TOTAL_NUMBER_OF_SCHOOLS", notes = "Get total number of schools",
             response = Long.class)
@@ -88,6 +112,11 @@ public class SchoolController extends BaseController implements ISchoolHAL {
     }
     
     
+    /**
+     * Get All School Names
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = "/all/names", method = RequestMethod.GET)
     @ApiOperation(value = "GET_ALL_SCHOOL_NAMES", nickname = "GET_ALL_SCHOOL_NAMES", notes = "Get all School Names",
             response = SchoolNameDTO.class)
@@ -103,6 +132,12 @@ public class SchoolController extends BaseController implements ISchoolHAL {
     }
     
     
+    /**
+     * Get Schools By Name
+     * @param name
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = "/", method = RequestMethod.GET)
     @ApiOperation(value = "FIND_SCHOOLS_BY_NAME", nickname = "FIND_SCHOOLS_BY_NAME", notes = "Find Schools by name",
             response = PagedResources.class)
@@ -120,6 +155,12 @@ public class SchoolController extends BaseController implements ISchoolHAL {
         		HttpStatus.OK, schools);
     }
     
+    /**
+     * Get School By ID
+     * @param id
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     @ApiOperation(value = "GET_SCHOOL_BY_ID", nickname = "GET_SCHOOL_BY_ID", notes = "Get School By Id")
     @ApiResponses(value = { 
@@ -138,6 +179,12 @@ public class SchoolController extends BaseController implements ISchoolHAL {
                 .orElseThrow(() -> { throw new SchoolNotFoundException(); });
     }
    
+    /**
+     * Save School
+     * @param school
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = "/", method = RequestMethod.POST)
     @ApiOperation(value = "CREATE_SCHOOL", nickname = "CREATE_SCHOOL", notes = "Create School")
     @ApiResponses(value = { 
@@ -154,6 +201,13 @@ public class SchoolController extends BaseController implements ISchoolHAL {
                 .orElseThrow(() -> { throw new SchoolNotFoundException(); });
     }
     
+    
+    /**
+     * Delete School
+     * @param id
+     * @return
+     * @throws Throwable
+     */
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     @OnlyAccessForAdmin
     @ApiOperation(value = "DELETE_SCHOOL", nickname = "DELETE_SCHOOL", notes = "Delete School")
@@ -162,7 +216,7 @@ public class SchoolController extends BaseController implements ISchoolHAL {
     })
     public ResponseEntity<APIResponse<SchoolDTO>> deleteSchool(
     		@ApiParam(name = "id", value = "Identificador del Centro escolar", required = true)
-    			@Valid @ValidObjectId(message = "{school.id.notvalid}")
+    			@Valid @SchoolMustExists(message = "{school.id.notvalid}")
     		 		@PathVariable String id) throws Throwable {        
     	
         return Optional.ofNullable(schoolService.delete(id))

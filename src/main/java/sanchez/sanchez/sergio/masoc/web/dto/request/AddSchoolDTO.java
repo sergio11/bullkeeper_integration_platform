@@ -1,36 +1,70 @@
 package sanchez.sanchez.sergio.masoc.web.dto.request;
 
 import javax.validation.constraints.Size;
-
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+import sanchez.sanchez.sergio.masoc.persistence.constraints.SchoolEmailShouldExistsIfPresent;
 import sanchez.sanchez.sergio.masoc.persistence.constraints.SchoolNameShouldNotExists;
 import sanchez.sanchez.sergio.masoc.persistence.constraints.group.Extended;
 import sanchez.sanchez.sergio.masoc.web.rest.deserializers.ClearStringDeserializer;
 
+
+/**
+ * Add School DTO
+ * @author sergiosanchezsanchez
+ *
+ */
 public class AddSchoolDTO {
 	
+	/**
+	 * School Name
+	 */
 	@NotBlank(message = "{school.name.notblank}")
-    @Size(min = 5, max = 30, message = "{school.name.size}")
+    @Size(min = 5, max = 30, message = "{school.name.size}", groups = Extended.class)
 	@SchoolNameShouldNotExists(message="{school.name.should.not.exists}", groups = Extended.class)
 	@JsonProperty("name")
 	@JsonDeserialize(using = ClearStringDeserializer.class)
 	private String schoolName;
+	
+	/**
+	 * Residence
+	 */
 	@NotBlank(message = "{school.residence.notblank}")
     @Size(min = 5, max = 100, message = "{school.residence.size}")
 	@JsonProperty("residence")
 	private String residence;
+	
+	/**
+	 * Latitude
+	 */
 	@JsonProperty("latitude")
 	private Double latitude;
+	
+	/**
+	 * Longitude
+	 */
 	@JsonProperty("longitude")
 	private Double longitude;
+	
+	/**
+	 * Province
+	 */
 	@JsonProperty("province")
 	private String province;
+	
+	/**
+	 * Tfno
+	 */
 	@JsonProperty("tfno")
 	private Integer tfno;
+	
+	/**
+	 * Email
+	 */
+	@SchoolEmailShouldExistsIfPresent(message="{school.email.not.unique}")
 	@Email(message="{school.email.invalid}")
 	@JsonProperty("email")
 	private String email;
