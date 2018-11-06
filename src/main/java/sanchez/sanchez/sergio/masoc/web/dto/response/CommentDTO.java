@@ -2,7 +2,6 @@ package sanchez.sanchez.sergio.masoc.web.dto.response;
 
 import java.io.Serializable;
 import org.springframework.hateoas.ResourceSupport;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 

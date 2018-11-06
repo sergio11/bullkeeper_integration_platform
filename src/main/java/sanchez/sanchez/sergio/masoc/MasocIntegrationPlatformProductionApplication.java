@@ -10,13 +10,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
-import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.hateoas.config.EnableHypermediaSupport;
 
 @SpringBootApplication
 @Profile("prod")
 @EnableHypermediaSupport(type = HAL)
-@EnableMongoRepositories( value = { "sanchez.sanchez.sergio.masoc.persistence.repository" } )
 @PropertySource({ "classpath:application.properties", "classpath:application-prod.properties"})
 public class MasocIntegrationPlatformProductionApplication extends SpringBootServletInitializer {
 	

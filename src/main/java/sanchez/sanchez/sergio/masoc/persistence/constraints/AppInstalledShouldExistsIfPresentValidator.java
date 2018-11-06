@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
  * @author sergiosanchezsanchez
  *
  */
-public class AppInstalledShouldExistsIfPresentValidator implements ConstraintValidator<DeviceShouldExists, String> {
+public class AppInstalledShouldExistsIfPresentValidator implements ConstraintValidator<AppInstalledShouldExistsIfPresent, String> {
     
     private static Logger logger = LoggerFactory.getLogger(AppInstalledShouldExistsIfPresentValidator.class);
     
@@ -27,7 +27,7 @@ public class AppInstalledShouldExistsIfPresentValidator implements ConstraintVal
      * 
      */
     @Override
-    public void initialize(DeviceShouldExists constraintAnnotation) {}
+    public void initialize(AppInstalledShouldExistsIfPresent constraintAnnotation) {}
 
     /**
      * Is valid

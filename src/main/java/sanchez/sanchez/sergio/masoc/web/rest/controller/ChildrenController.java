@@ -28,6 +28,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import sanchez.sanchez.sergio.masoc.domain.service.IAlertService;
 import sanchez.sanchez.sergio.masoc.domain.service.ICommentsService;
+import sanchez.sanchez.sergio.masoc.domain.service.IScheduledBlockService;
 import sanchez.sanchez.sergio.masoc.domain.service.ISocialMediaService;
 import sanchez.sanchez.sergio.masoc.domain.service.ISonService;
 import sanchez.sanchez.sergio.masoc.domain.service.IStatisticsService;
@@ -39,12 +40,14 @@ import sanchez.sanchez.sergio.masoc.exception.NoAppsInstalledFoundException;
 import sanchez.sanchez.sergio.masoc.exception.NoChildrenFoundException;
 import sanchez.sanchez.sergio.masoc.exception.NoCommunityStatisticsForThisPeriodException;
 import sanchez.sanchez.sergio.masoc.exception.NoDimensionsStatisticsForThisPeriodException;
+import sanchez.sanchez.sergio.masoc.exception.NoScheduledBlockFoundException;
 import sanchez.sanchez.sergio.masoc.exception.NoSentimentAnalysisStatisticsForThisPeriodException;
 import sanchez.sanchez.sergio.masoc.exception.NoSocialMediaActivityFoundForThisPeriodException;
 import sanchez.sanchez.sergio.masoc.exception.NoTerminalsFoundException;
 import sanchez.sanchez.sergio.masoc.exception.SocialMediaNotFoundException;
 import sanchez.sanchez.sergio.masoc.exception.SonNotFoundException;
 import sanchez.sanchez.sergio.masoc.exception.TerminalNotFoundException;
+import sanchez.sanchez.sergio.masoc.persistence.constraints.ScheduledBlockShouldExists;
 import sanchez.sanchez.sergio.masoc.persistence.constraints.SocialMediaShouldExists;
 import sanchez.sanchez.sergio.masoc.persistence.constraints.SonShouldExists;
 import sanchez.sanchez.sergio.masoc.persistence.constraints.TerminalShouldExists;
@@ -58,6 +61,7 @@ import sanchez.sanchez.sergio.masoc.persistence.entity.SocialMediaTypeEnum;
 import sanchez.sanchez.sergio.masoc.persistence.entity.ViolenceLevelEnum;
 import sanchez.sanchez.sergio.masoc.util.ValidList;
 import sanchez.sanchez.sergio.masoc.web.dto.request.SaveAppInstalledDTO;
+import sanchez.sanchez.sergio.masoc.web.dto.request.SaveScheduledBlockDTO;
 import sanchez.sanchez.sergio.masoc.web.dto.request.SaveSocialMediaDTO;
 import sanchez.sanchez.sergio.masoc.web.dto.request.SaveTerminalDTO;
 import sanchez.sanchez.sergio.masoc.web.dto.response.AlertDTO;
@@ -66,6 +70,7 @@ import sanchez.sanchez.sergio.masoc.web.dto.response.CommentDTO;
 import sanchez.sanchez.sergio.masoc.web.dto.response.CommunitiesStatisticsDTO;
 import sanchez.sanchez.sergio.masoc.web.dto.response.DimensionsStatisticsDTO;
 import sanchez.sanchez.sergio.masoc.web.dto.response.ImageDTO;
+import sanchez.sanchez.sergio.masoc.web.dto.response.ScheduledBlockDTO;
 import sanchez.sanchez.sergio.masoc.web.dto.response.SentimentAnalysisStatisticsDTO;
 import sanchez.sanchez.sergio.masoc.web.dto.response.SocialMediaActivityStatisticsDTO;
 import sanchez.sanchez.sergio.masoc.web.dto.response.SocialMediaDTO;
@@ -120,6 +125,7 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
     private final IAlertService alertService;
     private final IStatisticsService statisticsService;
     private final ITerminalService terminalService;
+    private final IScheduledBlockService scheduledBlockService;
     
     /**
      * 
@@ -130,10 +136,11 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
      * @param alertService
      * @param statisticsService
      * @param terminalService
+     * @param scheduledBlockService
      */
     public ChildrenController(ISonService sonService, ICommentsService commentService, ISocialMediaService socialMediaService,
     		IUploadFilesService uploadFilesService, IAlertService alertService, IStatisticsService statisticsService,
-    		final ITerminalService terminalService) {
+    		final ITerminalService terminalService, final IScheduledBlockService scheduledBlockService) {
         this.sonService = sonService;
         this.commentService = commentService;
         this.socialMediaService = socialMediaService;
@@ -141,6 +148,7 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
         this.alertService = alertService;
         this.statisticsService = statisticsService;
         this.terminalService = terminalService;
+        this.scheduledBlockService = scheduledBlockService;
     }
     
     /**
@@ -1230,6 +1238,122 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
       
         return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.ALL_APPS_INSTALLED_DELETED, HttpStatus.OK, 
         		messageSourceResolver.resolver("app.installed.deleted"));
+        
+    }
+    
+    /**
+     * Get All Scheduled Blocks
+     * @param pageable
+     * @param pagedAssembler
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{son}/scheduled-blocks", method = RequestMethod.GET)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#son) )")
+    @ApiOperation(value = "GET_ALL_SCHEDULED_BLOCKS", nickname = "GET_ALL_SCHEDULED_BLOCKS",
+    	notes = "Get all scheduled blocks", response = Iterable.class)
+    public ResponseEntity<APIResponse<Iterable<ScheduledBlockDTO>>> getAllScheduledBlocksConfigured(
+    		@ApiParam(name = "son", value = "Son id", required = true)
+        	@Valid @SonShouldExists(message = "{son.not.exists}")
+         		@PathVariable String son) 
+    		throws Throwable {
+        
+    	logger.debug("Get All Scheduled Blocks");
+    	
+    	// Get Scheduled Block By Child
+    	final Iterable<ScheduledBlockDTO> scheduledBlocksList = 
+    			scheduledBlockService.getScheduledBlockByChild(new ObjectId(son));
+    	
+    	if(Iterables.isEmpty(scheduledBlocksList))
+        	throw new NoScheduledBlockFoundException();
+    	
+        return ApiHelper.<Iterable<ScheduledBlockDTO>>createAndSendResponse(ChildrenResponseCode.ALL_SCHEDULED_BLOCKS, 
+            		HttpStatus.OK, scheduledBlocksList);
+    }
+    
+    
+    /**
+     * Save Scheduled Block
+     * @param id
+     * @param socialMedias
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{son}/scheduled-blocks", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#son) )")
+    @ApiOperation(value = "SAVE_SCHEDULED_BLOCK", nickname = "SAVE_SCHEDULED_BLOCK", 
+    	notes = "Save Scheduled Block",
+            response = ScheduledBlockDTO.class)
+    public ResponseEntity<APIResponse<ScheduledBlockDTO>> saveScheduledBlock(
+    		@ApiParam(name = "son", value = "Son Identity", required = true)
+        	@Valid @SonShouldExists(message = "{son.not.exists}")
+         		@PathVariable String son,
+            @ApiParam(value = "scheduled_block", required = true) 
+				@Validated(ICommonSequence.class) 
+    				@RequestBody SaveScheduledBlockDTO saveScheduledBlockDTO) throws Throwable {
+    	
+    	logger.debug("Save Scheduled Block");
+    	
+    	// Save Scheduled Block
+    	final ScheduledBlockDTO scheduledBlock = scheduledBlockService.save(saveScheduledBlockDTO);
+    	    	
+    	return ApiHelper.<ScheduledBlockDTO>createAndSendResponse(ChildrenResponseCode.SCHEDULED_BLOCK_SAVED, 
+				HttpStatus.OK, scheduledBlock);    
+    }
+    
+    /**
+     * Delete All Scheduled Block
+     * @param son
+     * @param alert
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{son}/scheduled-blocks", method = RequestMethod.DELETE)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#son) )")
+    @ApiOperation(value = "DELETE_ALL_SCHEDULED_BLOCK", nickname = "DELETE_ALL_SCHEDULED_BLOCK", 
+    	notes = "Delete all scheduled block", response = String.class)
+    public ResponseEntity<APIResponse<String>> deleteAllScheduledBlock(
+            @ApiParam(name = "son", value = "Child Identity", required = true)
+            	@Valid @SonShouldExists(message = "{son.id.notvalid}")
+             		@PathVariable String son) throws Throwable {
+        
+        logger.debug("Delete all scheduled block for son " + son);
+        
+        // Delete all scheduled block by child id
+        scheduledBlockService.deleteByChildId(new ObjectId(son));
+      
+        return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.ALL_SCHEDULED_BLOCK_DELETED, HttpStatus.OK, 
+        		messageSourceResolver.resolver("all.scheduled.blocks.deleted"));
+        
+    }
+    
+    
+    /**
+     * Delete Scheduled block by id
+     * @param son
+     * @param alert
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{son}/scheduled-blocks/{block}", method = RequestMethod.DELETE)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#son) )")
+    @ApiOperation(value = "DELETE_SCHEDULED_BLOCK_BY_ID", nickname = "DELETE_SCHEDULED_BLOCK_BY_ID", 
+    	notes = "Delete App installed by id", response = String.class)
+    public ResponseEntity<APIResponse<String>> deleteScheduledBlockById(
+            @ApiParam(name = "son", value = "Child Identity", required = true)
+            	@Valid @SonShouldExists(message = "{son.id.notvalid}")
+             		@PathVariable String son,
+         	@ApiParam(name = "block", value = "Block Id", required = true)
+    			@Valid @ScheduledBlockShouldExists(message = "{block.not.exists}")
+     				@PathVariable String block) throws Throwable {
+        
+        logger.debug("Delete Scheduled Block by id ");
+        
+        // Delete By Child ID
+        scheduledBlockService.delete(new ObjectId(block));
+      
+        return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.SCHEDULED_BLOCK_DELETED, HttpStatus.OK, 
+        		messageSourceResolver.resolver("scheduled.block.deleted"));
         
     }
     

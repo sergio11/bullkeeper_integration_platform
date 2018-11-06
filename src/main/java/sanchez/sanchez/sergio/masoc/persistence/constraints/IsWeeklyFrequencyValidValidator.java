@@ -1,0 +1,45 @@
+package sanchez.sanchez.sergio.masoc.persistence.constraints;
+
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import sanchez.sanchez.sergio.masoc.persistence.repository.IScheduledBlockRepository;
+
+/**
+ * Scheduled Block Validator
+ * @author sergiosanchezsanchez
+ *
+ */
+public class IsWeeklyFrequencyValidValidator implements ConstraintValidator<IsWeeklyFrequencyValid, int[]> {
+    
+	/**
+	 * Scheduled Block Repository
+	 */
+    @Autowired
+    private IScheduledBlockRepository scheduledBlockRepository;
+    
+    @Override
+    public void initialize(IsWeeklyFrequencyValid constraintAnnotation) {}
+
+    /**
+     * 
+     */
+    @Override
+    public boolean isValid(int[] weeklyFrequency, ConstraintValidatorContext context) {
+    	
+    	boolean isValid = true;
+    	
+    	if(weeklyFrequency != null && weeklyFrequency.length == 7 ) {
+    		for(final int dayOfWeek: weeklyFrequency) {
+    			if(dayOfWeek != 0 && dayOfWeek != 1) {
+    				isValid = false;
+    				break;
+    			}
+    		}
+    	} else {
+    		isValid = false;
+    	}
+    	
+    	return isValid;
+    }
+}

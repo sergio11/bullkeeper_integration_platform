@@ -17,7 +17,6 @@ import sanchez.sanchez.sergio.masoc.web.rest.interceptor.LoggingRequestIntercept
 @SpringBootApplication
 @Profile("dev")
 @EnableHypermediaSupport(type = HAL)
-@EnableMongoRepositories( value = { "sanchez.sanchez.sergio.masoc.persistence.repository" } )
 public class MasocIntegrationPlatformDevelopmentApplication {
 	
 	
