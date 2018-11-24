@@ -20,12 +20,21 @@ public class ImageEntity {
    
     public final static String COLLECTION_NAME = "images_metadata";
     
+    /**
+     * Id
+     */
     @Id
     private ObjectId id;
     
+    /**
+     * Name
+     */
     @Field("name")
     private String name;
     
+    /**
+     * Ext
+     */
     @Field("ext")
     private String ext;
     

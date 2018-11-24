@@ -111,7 +111,7 @@ public class ImagesController extends BaseController {
     public ResponseEntity<APIResponse<String>> deleteParentProfileImage(
             @ApiParam(name = "id", value = "Identificador de la Imagen", required = true) 
                 @Valid @PathVariable String id) {
-        uploadFilesService.deleteProfileImage(id);
+        uploadFilesService.deleteImage(id);
         return ApiHelper.<String>createAndSendResponse(ImageResponseCode.IMAGE_DELETED_SUCCESSFULLY, 
         		HttpStatus.OK, messageSourceResolver.resolver("image.deleted.successfully"));
     }
@@ -124,7 +124,7 @@ public class ImagesController extends BaseController {
     public ResponseEntity<APIResponse<String>> deleteSonProfileImage(
             @ApiParam(name = "id", value = "Identificador de la Imagen", required = true) 
                 @Valid @PathVariable String id) {
-        uploadFilesService.deleteProfileImage(id);
+        uploadFilesService.deleteImage(id);
         return ApiHelper.<String>createAndSendResponse(ImageResponseCode.IMAGE_DELETED_SUCCESSFULLY, 
         		HttpStatus.OK, messageSourceResolver.resolver("image.deleted.successfully"));
     }

@@ -6,29 +6,55 @@ import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+/**
+ * School Enity
+ * @author sergiosanchezsanchez
+ *
+ */
 @Document(collection = SchoolEntity.COLLECTION_NAME)
 public class SchoolEntity {
 	
 	public final static String COLLECTION_NAME = "schools";
 	
+	/**
+	 * Id
+	 */
 	@Id
     private ObjectId id;
 	
+	/**
+	 * Name
+	 */
 	@Field("name")
 	private String name;
 	
+	/**
+	 * Residence
+	 */
 	@Field("residence")
 	private String residence;
 	
+	/**
+	 * School Location
+	 */
 	@Field("location")
 	private SchoolLocation location = new SchoolLocation();
 	
+	/**
+	 * Province
+	 */
 	@Field("province")
 	private String province;
 	
+	/**
+	 * Tfno
+	 */
 	@Field("tfno")
 	private Integer tfno;
 	
+	/**
+	 * Email
+	 */
 	@Field("email")
 	private String email;
 

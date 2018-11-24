@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>sanchez.sanchez.sergio</groupId>
     <artifactId>masoc-integration-platform</artifactId>
-    <version>0.0.95-SNAPSHOT</version>
+    <version>0.0.96-SNAPSHOT</version>
     <packaging>${packaging.type}</packaging>
     <name>MASOC Integration Platform</name>
     <description>MASOC Integration Platform. EIPs patterns with Spring Integration.</description>

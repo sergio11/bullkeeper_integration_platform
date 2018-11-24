@@ -12,7 +12,7 @@ import sanchez.sanchez.sergio.masoc.persistence.entity.ScheduledBlockEntity;
  *
  */
 @Repository
-public interface IScheduledBlockRepository extends MongoRepository<ScheduledBlockEntity, ObjectId>{
+public interface ScheduledBlockRepository extends MongoRepository<ScheduledBlockEntity, ObjectId> ,ScheduledBlockRepositoryCustom {
 
 	/**
 	 * Find By Son Id
@@ -20,6 +20,16 @@ public interface IScheduledBlockRepository extends MongoRepository<ScheduledBloc
 	 * @return
 	 */
 	Iterable<ScheduledBlockEntity> findBySonId(final ObjectId id);
+	
+	
+	/**
+	 * Find By Id And Son Id
+	 * @param block
+	 * @param sonId
+	 * @return
+	 */
+	ScheduledBlockEntity findByIdAndSonId(final ObjectId block, final ObjectId sonId);
+	
 	
 	/**
 	 * Count By
@@ -48,5 +58,8 @@ public interface IScheduledBlockRepository extends MongoRepository<ScheduledBloc
 	 * @return
 	 */
 	Iterable<ScheduledBlockEntity> findAllByStartAtLessThanEqualAndEndAtGreaterThanEqual(final LocalTime localTime);
+
+
+	
 	
 }

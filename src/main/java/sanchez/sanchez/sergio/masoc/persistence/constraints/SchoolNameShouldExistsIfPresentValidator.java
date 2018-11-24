@@ -3,7 +3,7 @@ package sanchez.sanchez.sergio.masoc.persistence.constraints;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import sanchez.sanchez.sergio.masoc.persistence.repository.IAppInstalledRepository;
+import sanchez.sanchez.sergio.masoc.persistence.repository.AppInstalledRepository;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +21,7 @@ public class SchoolNameShouldExistsIfPresentValidator implements ConstraintValid
      * App installed Repository
      */
     @Autowired
-    private IAppInstalledRepository appInstalledRepository;
+    private AppInstalledRepository appInstalledRepository;
     
     /**
      * 

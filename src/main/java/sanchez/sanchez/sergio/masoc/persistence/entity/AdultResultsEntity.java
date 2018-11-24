@@ -9,9 +9,15 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @Document
 public class AdultResultsEntity extends ResultsEntity {
 	
+	/**
+	 * Total Comments Adult Content
+	 */
 	@Field("total_comments_adult_content")
 	private long totalCommentsAdultContent;
 	
+	/**
+	 * Total Comments No Adult Content
+	 */
 	@Field("total_comments_noadult_content")
 	private long totalCommentsNoAdultContent;
 	

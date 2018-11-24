@@ -21,27 +21,51 @@ public class IterationEntity {
     
     public final static String COLLECTION_NAME = "iterations";
 
+    /**
+     * Id
+     */
     @Id
     private ObjectId id;
     
+    /**
+     * Start Date
+     */
     @Field("start_date")
     private Date startDate;
     
+    /**
+     * Finish Date
+     */
     @Field("finish_date")
     private Date finishDate;
     
+    /**
+     * Duration
+     */
     @Field("duration")
     private Long duration;
     
+    /**
+     * Total Tasks
+     */
     @Field("total_tasks")
     private Integer totalTasks = 0;
     
+    /**
+     * Total Failed Tasks
+     */
     @Field("total_failed_tasks")
     private Integer totalFailedTasks = 0;
     
+    /**
+     * Total Comments
+     */
     @Field("total_comments")
     private Integer totalComments = 0;
     
+    /**
+     * Tasks
+     */
     @Field("tasks")
     @DBRef
     @CascadeSave

@@ -75,6 +75,12 @@ public class ScheduledBlockEntity implements Serializable {
 	private SonEntity son;
 	
 	/**
+	 * Image
+	 */
+	@Field("image")
+	private String image;
+	
+	/**
 	 * 
 	 */
 	public ScheduledBlockEntity() {}
@@ -89,10 +95,11 @@ public class ScheduledBlockEntity implements Serializable {
 	 * @param endAt
 	 * @param weeklyFrequency
 	 * @param son
+	 * @param image
 	 */
 	@PersistenceConstructor
 	public ScheduledBlockEntity(ObjectId id, String name, boolean enable, boolean repeatable, LocalTime startAt,
-			LocalTime endAt, int[] weeklyFrequency, SonEntity son) {
+			LocalTime endAt, int[] weeklyFrequency, SonEntity son, final String image) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -102,6 +109,7 @@ public class ScheduledBlockEntity implements Serializable {
 		this.endAt = endAt;
 		this.weeklyFrequency = weeklyFrequency;
 		this.son = son;
+		this.image = image;
 	}
 
 	public ObjectId getId() {
@@ -167,4 +175,14 @@ public class ScheduledBlockEntity implements Serializable {
 	public void setSon(SonEntity son) {
 		this.son = son;
 	}
+
+	public String getImage() {
+		return image;
+	}
+
+	public void setImage(String image) {
+		this.image = image;
+	}
+	
+	
 }

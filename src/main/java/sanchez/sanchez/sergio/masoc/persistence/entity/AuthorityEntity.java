@@ -7,22 +7,41 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.security.core.GrantedAuthority;
 
+/**
+ * Authority Entity
+ * @author sergiosanchezsanchez
+ *
+ */
 @Document(collection = AuthorityEntity.COLLECTION_NAME)
 public class AuthorityEntity implements GrantedAuthority {
 	
 	public final static String COLLECTION_NAME = "authorities";
 	
+	/**
+	 * ID
+	 */
 	@Id
     private ObjectId id;
 	
+	/**
+	 * Type
+	 */
 	@Field
     private AuthorityEnum type;
 	
+	/**
+	 * Description
+	 */
 	@Field
 	private String description;
 	
 	public AuthorityEntity(){}
 	
+	/**
+	 * 
+	 * @param type
+	 * @param description
+	 */
 	@PersistenceConstructor
 	public AuthorityEntity(AuthorityEnum type, String description) {
 		super();

@@ -1,5 +1,10 @@
 package sanchez.sanchez.sergio.masoc.persistence.entity;
 
+/**
+ * Drugs Level Enum
+ * @author sergiosanchezsanchez
+ *
+ */
 public enum DrugsLevelEnum {
 	NEGATIVE, POSITIVE, UNKNOWN;
 	

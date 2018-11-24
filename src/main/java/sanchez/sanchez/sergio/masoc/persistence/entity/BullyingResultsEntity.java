@@ -1,18 +1,27 @@
 package sanchez.sanchez.sergio.masoc.persistence.entity;
 
-
 import java.util.Date;
-
 import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+/**
+ * Bullying Results Entity
+ * @author sergiosanchezsanchez
+ *
+ */
 @Document
 public class BullyingResultsEntity extends ResultsEntity {
 	
+	/**
+	 * Total Comments Bullying
+	 */
 	@Field("total_comments_bullying")
 	private long totalCommentsBullying;
 	
+	/**
+	 * Total Comments No Bullying
+	 */
 	@Field("total_comments_nobullying")
 	private long totalCommentsNoBullying;
 	

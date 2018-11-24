@@ -17,27 +17,51 @@ public class EmailEntity {
     
     public final static String COLLECTION_NAME = "failed_emails";
     
+    /**
+     * Id
+     */
     @Id
     private ObjectId id;
     
+    /**
+     * Send To
+     */
     @Field("send_to")
     private String sendTo;
     
+    /*
+     * Subject
+     */
     @Field("subject")
     private String subject;
     
+    /**
+     * Content
+     */
     @Field("content")
     private String content;
     
+    /**
+     * Md5
+     */
     @Field("md5")
     private String md5;
     
+    /**
+     * Last Chance
+     */
     @Field("last_chance")
     private Date lastChance = new Date();
     
+    /**
+     * Error
+     */
     @Field("error")
     private String error;
     
+    /**
+     * Type
+     */
     @Field("type")
     private EmailTypeEnum type;
     

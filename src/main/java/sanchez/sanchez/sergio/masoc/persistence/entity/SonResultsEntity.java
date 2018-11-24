@@ -9,23 +9,37 @@ import sanchez.sanchez.sergio.masoc.persistence.utils.CascadeSave;
 @Document
 public class SonResultsEntity {
 	
-	
+	/**
+	 * Sentiment
+	 */
 	@Field("sentiment")
 	@CascadeSave
 	private SentimentResultsEntity sentiment = new SentimentResultsEntity();
 	
+	/**
+	 * Violence
+	 */
 	@Field("violence")
 	@CascadeSave
 	private ViolenceResultsEntity violence = new ViolenceResultsEntity();
 	
+	/**
+	 * Drugs
+	 */
 	@Field("drugs")
 	@CascadeSave
 	private DrugsResultsEntity drugs = new DrugsResultsEntity();
 	
+	/**
+	 * Adult
+	 */
 	@Field("adult")
 	@CascadeSave
 	private AdultResultsEntity adult = new AdultResultsEntity();
 	
+	/**
+	 * Bullying
+	 */
 	@Field("bullying")
 	@CascadeSave
 	private BullyingResultsEntity bullying = new BullyingResultsEntity();

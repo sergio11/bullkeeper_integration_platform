@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import io.jsonwebtoken.lang.Assert;
+import sanchez.sanchez.sergio.masoc.exception.AppInstalledNotFoundException;
 import sanchez.sanchez.sergio.masoc.exception.NoAppsInstalledFoundException;
 import sanchez.sanchez.sergio.masoc.web.rest.ApiHelper;
 import sanchez.sanchez.sergio.masoc.web.rest.controller.BaseController;
@@ -39,6 +40,22 @@ public class AppInstalledErrorController extends BaseController {
         return ApiHelper.<String>createAndSendErrorResponseWithHeader(ChildrenResponseCode.NO_APPS_INSTALLED_FOUND, HttpStatus.NOT_FOUND,
         		messageSourceResolver.resolver("app.installed.not.found"));
     }
+    
+    
+    /**
+	 * Exception Handler for App installed not found
+	 * @param resourceNotFound
+	 * @param request
+	 * @return
+	 */
+    @ExceptionHandler(AppInstalledNotFoundException.class)
+    @ResponseBody
+    protected ResponseEntity<APIResponse<String>> handleAppInstalledNotFoundExceptionException(AppInstalledNotFoundException resourceNotFound, HttpServletRequest request) {
+        return ApiHelper.<String>createAndSendErrorResponseWithHeader(ChildrenResponseCode.APP_INSTALLED_NOT_FOUND, HttpStatus.NOT_FOUND,
+        		messageSourceResolver.resolver("app.installed.not.found"));
+    }
+    
+    
     
     @PostConstruct
     protected void init(){

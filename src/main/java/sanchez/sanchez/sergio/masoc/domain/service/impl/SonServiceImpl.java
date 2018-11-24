@@ -101,7 +101,7 @@ public class SonServiceImpl implements ISonService {
     @Override
     public void deleteById(ObjectId id) {
     	Assert.notNull(id, "Id can not be null");
-    	uploadFilesService.deleteProfileImage(getProfileImage(id));
+    	uploadFilesService.deleteImage(getProfileImage(id));
     	alertRepository.deleteBySonId(id);
         commentRepository.deleteBySonEntity(id);
         socialMediaRepository.deleteBySonEntityId(id);

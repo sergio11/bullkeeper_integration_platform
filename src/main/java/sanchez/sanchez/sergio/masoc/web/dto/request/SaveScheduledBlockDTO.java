@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import sanchez.sanchez.sergio.masoc.persistence.constraints.IsWeeklyFrequencyValid;
 import sanchez.sanchez.sergio.masoc.persistence.constraints.LocalTimeCompare;
-import sanchez.sanchez.sergio.masoc.persistence.constraints.ScheduledBlockNameShouldBeUnique;
 import sanchez.sanchez.sergio.masoc.persistence.constraints.ScheduledBlockShouldExistsIfPresent;
 import sanchez.sanchez.sergio.masoc.persistence.constraints.SonShouldExists;
 import sanchez.sanchez.sergio.masoc.persistence.constraints.WeeklyFrequencyValidate;
@@ -45,7 +44,6 @@ public final class SaveScheduledBlockDTO implements Serializable {
 	 */
 	@NotBlank(message = "{scheduled.block.name.not.blank}")
     @Size(min = 5, max = 20, message = "{scheduled.block.name.size}", groups = Extended.class)
-	@ScheduledBlockNameShouldBeUnique(message = "{scheduled.block.name.not.unique}", groups = Extended.class)
 	@JsonProperty("name")
 	@JsonDeserialize(using = ClearStringDeserializer.class)
 	private String name;

@@ -18,18 +18,33 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 public abstract class PersonEntity {
 
+	/**
+	 * Id
+	 */
     @Id
     protected ObjectId id;
 
+    /**
+     * First Name
+     */
     @Field("first_name")
     protected String firstName;
 
+    /**
+     * Last Name
+     */
     @Field("last_name")
     protected String lastName;
 
+    /**
+     * Birth Date
+     */
     @Field("birthdate")
     protected Date birthdate;
 
+    /**
+     * PRofile Image
+     */
     @Field("profile_image")
     protected String profileImage;
 

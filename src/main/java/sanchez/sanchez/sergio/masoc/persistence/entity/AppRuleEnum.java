@@ -6,5 +6,7 @@ package sanchez.sanchez.sergio.masoc.persistence.entity;
  *
  */
 public enum AppRuleEnum {
-	ALWAYS_ALLOWED, NEVER_ALLOWED, PER_SCHEDULER;
+	ALWAYS_ALLOWED, 
+	NEVER_ALLOWED, 
+	PER_SCHEDULER;
 }

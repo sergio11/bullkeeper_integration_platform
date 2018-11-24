@@ -14,6 +14,11 @@ import org.springframework.http.client.ClientHttpRequestInterceptor;
 
 import sanchez.sanchez.sergio.masoc.web.rest.interceptor.LoggingRequestInterceptor;
 
+/**
+ * 
+ * @author sergiosanchezsanchez
+ *
+ */
 @SpringBootApplication
 @Profile("dev")
 @EnableHypermediaSupport(type = HAL)

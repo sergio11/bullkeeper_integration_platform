@@ -61,6 +61,12 @@ public class ScheduledBlockDTO extends ResourceSupport {
 	@JsonProperty("weekly_frequency")
 	private int[] weeklyFrequency;
 	
+	/**
+	 * IMage
+	 */
+	@JsonProperty("image")
+	private String image;
+	
 	
 	/**
 	 * Son
@@ -84,7 +90,7 @@ public class ScheduledBlockDTO extends ResourceSupport {
 	 * @param son
 	 */
 	public ScheduledBlockDTO(String identity, String name, boolean enable, boolean repeatable, LocalTime startAt,
-			LocalTime endAt, int[] weeklyFrequency, String son) {
+			LocalTime endAt, int[] weeklyFrequency, final String image, String son) {
 		super();
 		this.identity = identity;
 		this.name = name;
@@ -93,6 +99,7 @@ public class ScheduledBlockDTO extends ResourceSupport {
 		this.startAt = startAt;
 		this.endAt = endAt;
 		this.weeklyFrequency = weeklyFrequency;
+		this.image = image;
 		this.son = son;
 	}
 
@@ -172,8 +179,21 @@ public class ScheduledBlockDTO extends ResourceSupport {
 	}
 
 
+	public String getImage() {
+		return image;
+	}
+
+
+	public void setImage(String image) {
+		this.image = image;
+	}
+
+
 	public void setSon(String son) {
 		this.son = son;
 	}
+
+
+	
 	
 }

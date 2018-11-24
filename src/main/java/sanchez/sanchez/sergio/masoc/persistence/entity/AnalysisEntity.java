@@ -6,21 +6,41 @@ import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+/**
+ * Analysis Entity
+ * @author sergiosanchezsanchez
+ *
+ */
 @Document
 public class AnalysisEntity {
 	
+	/**
+	 * Type
+	 */
 	@Field("type")
 	private AnalysisTypeEnum type;
 	
+	/**
+	 * Start At
+	 */
 	@Field("start_at")
     private Date startAt;
     
+	/**
+	 * Finish At
+	 */
     @Field("finished_at")
     private Date finishAt;
     
+    /**
+     * Result
+     */
     @Field("result")
     private Integer result;
     
+    /**
+     * Status
+     */
     @Field("status")
     private AnalysisStatusEnum status = AnalysisStatusEnum.PENDING;
     

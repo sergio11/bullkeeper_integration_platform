@@ -6,17 +6,31 @@ import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+/**
+ * Preferences Entity
+ * @author sergiosanchezsanchez
+ *
+ */
 @Document
 public class PreferencesEntity {
 	
 	public enum RemoveAlertsEveryEnum { NEVER,  LAST_HOUR, LAST_DAY, LAST_MONTH }
 
+	/**
+	 * Id
+	 */
 	@Id
     private ObjectId id;
 	
+	/**
+	 * Push Notifications Enabled
+	 */
 	@Field("push_notifications_enabled")
     private Boolean pushNotificationsEnabled = Boolean.TRUE;
 	
+	/**
+	 * Remove Alerts Every
+	 */
 	@Field("remove_alerts_every")
     private RemoveAlertsEveryEnum removeAlertsEvery = RemoveAlertsEveryEnum.NEVER;
 	

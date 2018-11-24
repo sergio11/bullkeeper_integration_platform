@@ -247,7 +247,7 @@ public class ParentsServiceImpl implements IParentsService {
     	ParentEntity parent = parentRepository.findByConfirmationToken(confirmationToken);
     	if(parent == null)
     		throw new ParentNotFoundException();
-    	uploadFilesService.deleteProfileImage(parentRepository.getProfileImageIdByUserId(parent.getId()));
+    	uploadFilesService.deleteImage(parentRepository.getProfileImageIdByUserId(parent.getId()));
 		parentRepository.delete(parent);
 		deviceGroupsService.removeDeviceGroupOf(parent.getId());
 		sonService.deleteAllOfParent(parent.getId());

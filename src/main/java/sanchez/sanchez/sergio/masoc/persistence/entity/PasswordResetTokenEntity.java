@@ -8,6 +8,11 @@ import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+/**
+ * Password Reset Token Entity
+ * @author sergiosanchezsanchez
+ *
+ */
 @Document(collection = PasswordResetTokenEntity.COLLECTION_NAME)
 public class PasswordResetTokenEntity {
 	
@@ -15,14 +20,26 @@ public class PasswordResetTokenEntity {
 	
 	private static final int EXPIRATION = 60 * 24;
 	
+	/**
+	 * Id
+	 */
 	@Id
 	private ObjectId id;
 	
+	/**
+	 * Token
+	 */
 	@Field("token")
 	private String token;
 	
+	/**
+	 * User
+	 */
 	private ObjectId user;
 	
+	/**
+	 * Expiry Date
+	 */
 	@Field("expiry_date")
 	private Date expiryDate;
 

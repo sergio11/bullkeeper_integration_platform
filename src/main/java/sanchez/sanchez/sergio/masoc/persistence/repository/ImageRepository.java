@@ -11,5 +11,13 @@ import sanchez.sanchez.sergio.masoc.persistence.entity.ImageEntity;
  */
 @Repository
 public interface ImageRepository extends MongoRepository<ImageEntity, ObjectId> {
+	
+	
+	/**
+	 * Count By
+	 * @param id
+	 * @return
+	 */
+	long countById(final ObjectId id);
 
 }

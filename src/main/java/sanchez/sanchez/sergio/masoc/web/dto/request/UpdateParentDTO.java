@@ -20,28 +20,50 @@ import sanchez.sanchez.sergio.masoc.web.rest.deserializers.BirthdayDeserializer;
 import sanchez.sanchez.sergio.masoc.web.rest.deserializers.ClearStringDeserializer;
 import sanchez.sanchez.sergio.masoc.web.rest.deserializers.PhoneNumberDeserializer;
 
+/**
+ * Update Parent DTO
+ * @author sergiosanchezsanchez
+ *
+ */
 public final class UpdateParentDTO {
 	
+	/**
+	 * First Name
+	 */
 	@NotBlank(message = "{user.firstname.notnull}")
     @Size(min = 3, max = 15, message = "{user.firstname.size}", groups = Extended.class)
 	@JsonProperty("first_name")
 	@JsonDeserialize(using = ClearStringDeserializer.class)
 	private String firstName;
+	
+	/**
+	 * Last Name
+	 */
 	@NotBlank(message = "{user.firstname.notnull}")
     @Size(min = 3, max = 15, message = "{user.firstname.size}", groups = Extended.class)
 	@JsonProperty("last_name")
 	@JsonDeserialize(using = ClearStringDeserializer.class)
     private String lastName;
+	
+	/**
+	 * Birthdate
+	 */
 	@InDateRange(min = "1-1-1960", max = "1-1-2000", message="{user.birthdate.invalid}")
 	@JsonProperty("birthdate")
 	@JsonDeserialize(using = BirthdayDeserializer.class)
     private Date birthdate;
 	
+	/**
+	 * Email
+	 */
     @NotBlank(message="{user.email.notnull}")
     @Email(message="{user.email.invalid}")
     @NewParentEmailShouldNotExist(message="{user.email.unique}", groups = Extended.class)
     private String email;
     
+    /**
+     * Telephone
+     */
     @ValidPhoneNumber(message = "{user.telephone.not.valid}")
 	@JsonProperty("telephone")
 	@JsonDeserialize(using = PhoneNumberDeserializer.class)

@@ -44,9 +44,12 @@ import sanchez.sanchez.sergio.masoc.exception.NoScheduledBlockFoundException;
 import sanchez.sanchez.sergio.masoc.exception.NoSentimentAnalysisStatisticsForThisPeriodException;
 import sanchez.sanchez.sergio.masoc.exception.NoSocialMediaActivityFoundForThisPeriodException;
 import sanchez.sanchez.sergio.masoc.exception.NoTerminalsFoundException;
+import sanchez.sanchez.sergio.masoc.exception.ParentNotFoundException;
 import sanchez.sanchez.sergio.masoc.exception.SocialMediaNotFoundException;
 import sanchez.sanchez.sergio.masoc.exception.SonNotFoundException;
 import sanchez.sanchez.sergio.masoc.exception.TerminalNotFoundException;
+import sanchez.sanchez.sergio.masoc.persistence.constraints.AppInstalledShouldExists;
+import sanchez.sanchez.sergio.masoc.persistence.constraints.ImageShouldExists;
 import sanchez.sanchez.sergio.masoc.persistence.constraints.ScheduledBlockShouldExists;
 import sanchez.sanchez.sergio.masoc.persistence.constraints.SocialMediaShouldExists;
 import sanchez.sanchez.sergio.masoc.persistence.constraints.SonShouldExists;
@@ -54,6 +57,7 @@ import sanchez.sanchez.sergio.masoc.persistence.constraints.TerminalShouldExists
 import sanchez.sanchez.sergio.masoc.persistence.constraints.ValidObjectId;
 import sanchez.sanchez.sergio.masoc.persistence.constraints.group.ICommonSequence;
 import sanchez.sanchez.sergio.masoc.persistence.entity.AdultLevelEnum;
+import sanchez.sanchez.sergio.masoc.persistence.entity.AlertCategoryEnum;
 import sanchez.sanchez.sergio.masoc.persistence.entity.AlertLevelEnum;
 import sanchez.sanchez.sergio.masoc.persistence.entity.BullyingLevelEnum;
 import sanchez.sanchez.sergio.masoc.persistence.entity.DrugsLevelEnum;
@@ -61,7 +65,9 @@ import sanchez.sanchez.sergio.masoc.persistence.entity.SocialMediaTypeEnum;
 import sanchez.sanchez.sergio.masoc.persistence.entity.ViolenceLevelEnum;
 import sanchez.sanchez.sergio.masoc.util.ValidList;
 import sanchez.sanchez.sergio.masoc.web.dto.request.SaveAppInstalledDTO;
+import sanchez.sanchez.sergio.masoc.web.dto.request.SaveAppRulesDTO;
 import sanchez.sanchez.sergio.masoc.web.dto.request.SaveScheduledBlockDTO;
+import sanchez.sanchez.sergio.masoc.web.dto.request.SaveScheduledBlockStatusDTO;
 import sanchez.sanchez.sergio.masoc.web.dto.request.SaveSocialMediaDTO;
 import sanchez.sanchez.sergio.masoc.web.dto.request.SaveTerminalDTO;
 import sanchez.sanchez.sergio.masoc.web.dto.response.AlertDTO;
@@ -76,6 +82,7 @@ import sanchez.sanchez.sergio.masoc.web.dto.response.SocialMediaActivityStatisti
 import sanchez.sanchez.sergio.masoc.web.dto.response.SocialMediaDTO;
 import sanchez.sanchez.sergio.masoc.web.dto.response.SonDTO;
 import sanchez.sanchez.sergio.masoc.web.dto.response.TerminalDTO;
+import sanchez.sanchez.sergio.masoc.web.dto.response.TerminalDetailDTO;
 import sanchez.sanchez.sergio.masoc.web.rest.ApiHelper;
 import sanchez.sanchez.sergio.masoc.web.rest.hal.ICommentHAL;
 import sanchez.sanchez.sergio.masoc.web.rest.hal.ISocialMediaHAL;
@@ -88,6 +95,7 @@ import sanchez.sanchez.sergio.masoc.web.security.userdetails.CommonUserDetailsAw
 import sanchez.sanchez.sergio.masoc.web.security.utils.CurrentUser;
 import sanchez.sanchez.sergio.masoc.web.security.utils.OnlyAccessForAdmin;
 import sanchez.sanchez.sergio.masoc.web.uploads.models.RequestUploadFile;
+import sanchez.sanchez.sergio.masoc.web.uploads.models.UploadFileInfo;
 import sanchez.sanchez.sergio.masoc.web.uploads.service.IUploadFilesService;
 import java.util.Date;
 import java.util.List;
@@ -160,7 +168,8 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
      */
     @RequestMapping(value = {"/", "/all"}, method = RequestMethod.GET)
     @OnlyAccessForAdmin
-    @ApiOperation(value = "GET_ALL_CHILDREN", nickname = "GET_ALL_CHILDREN", notes = "Get all Children", response = PagedResources.class)
+    @ApiOperation(value = "GET_ALL_CHILDREN", nickname = "GET_ALL_CHILDREN",
+    	notes = "Get all Children", response = PagedResources.class)
     public ResponseEntity<APIResponse<PagedResources<Resource<SonDTO>>>> getAllChildren(
     		@ApiIgnore @PageableDefault Pageable pageable, 
     		@ApiIgnore PagedResourcesAssembler<SonDTO> pagedAssembler) throws Throwable {
@@ -1034,7 +1043,7 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
     
    
     /**
-     * Get All Children
+     * Get All Terminals
      * @param pageable
      * @param pagedAssembler
      * @return
@@ -1063,6 +1072,39 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
     
     
     /**
+     * Get Terminal Detail
+     * @param pageable
+     * @param pagedAssembler
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{son}/terminal/{terminal}", method = RequestMethod.GET)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#son) )")
+    @ApiOperation(value = "GET_TERMINAL_DETAIL", nickname = "GET_TERMINAL_DETAIL", notes = "Get Terminal Detail", 
+    	response = TerminalDetailDTO.class)
+    public ResponseEntity<APIResponse<TerminalDetailDTO>> getTerminalDetail(
+    		@ApiParam(name = "son", value = "Son Identifier", required = true)
+        		@Valid @SonShouldExists(message = "{son.id.notvalid}")
+         			@PathVariable String son,
+         	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
+    			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
+     				@PathVariable String terminal	) 
+    		throws Throwable {
+        
+    	logger.debug("Get Terminal Detail");
+    	
+    	// Get Terminal Detail
+    	final TerminalDetailDTO terminalDetailDTO = Optional.ofNullable(terminalService.getTerminalDetail(
+    			new ObjectId(son), terminal))
+    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+    
+    	
+        return ApiHelper.<TerminalDetailDTO>createAndSendResponse(ChildrenResponseCode.TERMINAL_DETAIL, 
+            		HttpStatus.OK, terminalDetailDTO);
+    }
+   
+    
+    /**
      * Save Terminal
      * @param terminal
      * @return
@@ -1082,6 +1124,17 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
             		@RequestBody SaveTerminalDTO saveTerminalDTO) throws Throwable {
     		
         return Optional.ofNullable(terminalService.save(saveTerminalDTO))
+        		.map(terminalDTO -> {
+        			
+        			// Save Alert
+        			alertService.save(AlertLevelEnum.WARNING, messageSourceResolver.resolver("terminal.saved.title"),
+        	    			messageSourceResolver.resolver("terminal.saved.description", 
+        	    					new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ), 
+        	    			new ObjectId(son), AlertCategoryEnum.TERMINALS);
+        			
+        			return terminalDTO;
+        			
+        		})
         		.map(terminalDTO -> ApiHelper.<TerminalDTO>createAndSendResponse(ChildrenResponseCode.TERMINAL_SAVED, 
         				HttpStatus.OK, terminalDTO))
         		.orElseThrow(() -> { throw new TerminalNotFoundException(); });        
@@ -1109,8 +1162,25 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
         
         logger.debug("Delete Terminal by id: " + terminal);
         
-        terminalService.deleteById(new ObjectId(terminal));
+        // Get Terminal
+        final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndChildId(
+    			new ObjectId(terminal), new ObjectId(son)))
+    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
         
+        // Delete Apps installed by child id an terminal id
+        terminalService.deleteAppsInstalledByChildIdAndTerminalId(new ObjectId(son), new ObjectId(terminalDTO.getIdentity()));
+        
+        // Delete terminal by id)
+        terminalService.deleteById(new ObjectId(terminalDTO.getIdentity()));
+       
+        
+        // Save Alert
+    	alertService.save(AlertLevelEnum.WARNING, messageSourceResolver.resolver("terminal.deleted.title"),
+    			messageSourceResolver.resolver("terminal.deleted.description", 
+    					new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ), 
+    			new ObjectId(son), AlertCategoryEnum.TERMINALS);
+        
+        // Create And Send Response
         return ApiHelper.<String>createAndSendResponse(
                 ChildrenResponseCode.TERMINAL_BY_ID_DELETED, HttpStatus.OK, messageSourceResolver.resolver("terminal.deleted"));
         
@@ -1139,13 +1209,20 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
     		throws Throwable {
         
     	logger.debug("Get all apps installed in the terminal");
+    	
+    	// Get Terminal
+    	final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndChildId(
+    			new ObjectId(terminal), new ObjectId(son)))
+    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
     
+    	// Get App installed in the terminal
     	final Iterable<AppInstalledDTO> appInstalledTerminal =
-    			terminalService.getAllAppsInstalledInTheTerminal(new ObjectId(son), new ObjectId(terminal));
+    			terminalService.getAllAppsInstalledInTheTerminal(new ObjectId(son), new ObjectId(terminalDTO.getIdentity()));
         
     	if(Iterables.isEmpty(appInstalledTerminal))
         	throw new NoAppsInstalledFoundException();
     	
+    	// Create And send response
         return ApiHelper.<Iterable<AppInstalledDTO>>createAndSendResponse(ChildrenResponseCode.ALL_APPS_INSTALLED_IN_THE_TERMINAL, 
             		HttpStatus.OK, appInstalledTerminal);
     }
@@ -1164,20 +1241,80 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
     	notes = "Save Apps installed in the terminal",
             response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<AppInstalledDTO>>> saveAppsInstalledInTheTerminal(
-    		@ApiParam(name = "id", value = "Son Identity", required = true)
+    		@ApiParam(name = "son", value = "Son Identity", required = true)
         	@Valid @SonShouldExists(message = "{son.not.exists}")
-         		@PathVariable String id,
+         		@PathVariable String son,
+         	@ApiParam(name = "terminal", value = "Terminal Identity", required = true)
+            	@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
+             		@PathVariable String terminal,
             @ApiParam(value = "apps", required = true) 
 				@Validated(ICommonSequence.class) 
     				@RequestBody ValidList<SaveAppInstalledDTO> appsInstalled) throws Throwable {
     	
     	logger.debug("Save Apps installed int the terminal");
     	
-    	// Save App INstalled
+    	// Get Terminal
+    	final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndChildId(
+    			new ObjectId(terminal), new ObjectId(son)))
+    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+    	
+    	// Save App installed in the terminal
     	Iterable<AppInstalledDTO> appInstalledSaved = terminalService.save(appsInstalled.getList());
-    	    	
+    	
+    	// Save Alert
+    	alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver("apps.installed.terminal.title", 
+    			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ),
+    			messageSourceResolver.resolver("apps.installed.terminal.description", 
+    					new Object[] { Iterables.size(appInstalledSaved) }), 
+    			new ObjectId(son), AlertCategoryEnum.APPS_INSTALLED);
+    	
+    	// Create and send response
     	return ApiHelper.<Iterable<AppInstalledDTO>>createAndSendResponse(ChildrenResponseCode.APPS_INSTALLED_SAVED, 
 				HttpStatus.OK, appInstalledSaved);    
+    }
+    
+    /**
+     * Save App Rules for apps in the terminal
+     * @param son
+     * @param terminal
+     * @return
+     */
+    @RequestMapping(value = "/{son}/terminal/{terminal}/apps/rules", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#son) )")
+    @ApiOperation(value = "SAVE_APP_RULES_FOR_APPS_IN_THE_TERMINAL", nickname = "SAVE_APP_RULES_FOR_APPS_IN_THE_TERMINAL", 
+    	notes = "Save App Rules",
+            response = Iterable.class)
+    public ResponseEntity<APIResponse<String>> saveAppRules(
+    	@ApiParam(name = "son", value = "Son Identity", required = true)
+    		@Valid @SonShouldExists(message = "{son.not.exists}")
+ 				@PathVariable String son,
+ 		@ApiParam(name = "terminal", value = "Terminal Identity", required = true)
+    		@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
+     			@PathVariable String terminal,
+     	@ApiParam(value = "apps", required = true) 
+			@Validated(ICommonSequence.class) 
+				@RequestBody ValidList<SaveAppRulesDTO> appRules) throws Throwable {
+    	
+    	logger.debug("Save App Rules in the terminal -> " + terminal);
+    	
+    	// Get Terminal
+    	final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndChildId(
+    			new ObjectId(terminal), new ObjectId(son)))
+    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+    	
+    	// Save App Rules
+    	terminalService.saveAppRules(appRules);
+    	
+    	// Save Alert
+    	alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver("apps.rules.saved.title"),
+    			messageSourceResolver.resolver("apps.rules.saved.description", 
+    					new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() }), 
+    			new ObjectId(son), AlertCategoryEnum.APPS_INSTALLED);
+    	
+    	// Create and send response
+    	return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.APP_RULES_WERE_APPLIED, 
+				HttpStatus.OK, messageSourceResolver.resolver("apps.rules.saved"));
+    
     }
     
     /**
@@ -1200,9 +1337,24 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
          			@PathVariable String terminal) throws Throwable {
         
         logger.debug("Delete all apps installed by child identity " + son + " for terminal " + terminal);
+        
+        // Get Terminal
+    	final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndChildId(
+    			new ObjectId(terminal), new ObjectId(son)))
+    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+        
+        
         // Delete Apps installed
-        terminalService.deleteAppsInstalledByChildIdAndTerminalId(new ObjectId(son), new ObjectId(terminal));
+        terminalService.deleteAppsInstalledByChildIdAndTerminalId(new ObjectId(son), new ObjectId(terminalDTO.getIdentity()));
       
+        // Save Alert
+    	alertService.save(AlertLevelEnum.WARNING, messageSourceResolver.resolver("apps.installed.all.deleted.title", 
+    			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ),
+    			messageSourceResolver.resolver("apps.installed.all.deleted.description", 
+    					new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() }), 
+    			new ObjectId(son), AlertCategoryEnum.APPS_INSTALLED);
+        
+        // Create and send response
         return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.ALL_APPS_INSTALLED_DELETED, HttpStatus.OK, 
         		messageSourceResolver.resolver("all.apps.installed.deleted"));
         
@@ -1228,16 +1380,67 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
         		@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
          			@PathVariable String terminal,
          	@ApiParam(name = "app", value = "App id", required = true)
-    			@Valid @TerminalShouldExists(message = "{app.not.exists}")
+    			@Valid @AppInstalledShouldExists(message = "{app.not.exists}")
      				@PathVariable String app) throws Throwable {
         
         logger.debug("Delete app installed by " + app);
         
+        // Get Terminal
+    	final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndChildId(
+    			new ObjectId(terminal), new ObjectId(son)))
+    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+    	
         // Delete App installed by id
         terminalService.deleteAppInstalledById(new ObjectId(app));
       
-        return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.ALL_APPS_INSTALLED_DELETED, HttpStatus.OK, 
+        return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.APP_INSTALLED_DELETED, HttpStatus.OK, 
         		messageSourceResolver.resolver("app.installed.deleted"));
+        
+    }
+    
+    
+    /**
+     * Save a new app installed
+     * @param son
+     * @param terminal
+     * @param appInstalledDTO
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{son}/terminal/{terminal}/apps/add", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#son) )")
+    @ApiOperation(value = "ADD_APP_INSTALLED", nickname = "ADD_APP_INSTALLED", 
+    	notes = "Add app installed", response = String.class)
+    public ResponseEntity<APIResponse<AppInstalledDTO>> addNewAppInstalled(
+            @ApiParam(name = "son", value = "Child Identity", required = true)
+            	@Valid @SonShouldExists(message = "{son.id.notvalid}")
+             		@PathVariable String son,
+            @ApiParam(name = "terminal", value = "Terminal id", required = true)
+        		@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
+         			@PathVariable String terminal,
+         	@ApiParam(value = "app", required = true) 
+				@Validated(ICommonSequence.class) 
+					@RequestBody SaveAppInstalledDTO appInstalledDTO) throws Throwable {
+        
+        logger.debug("Add a new app isntalled for terminal " + terminal);
+        
+        // Get Terminal
+    	final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndChildId(
+    			new ObjectId(terminal), new ObjectId(son)))
+    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+    	
+        // Save App Installed
+        final AppInstalledDTO appInstalled = terminalService.save(appInstalledDTO);
+        
+        // Save Alert
+    	alertService.save(AlertLevelEnum.WARNING, messageSourceResolver.resolver("apps.installed.added.title", 
+    			new Object[] { appInstalled.getAppName() } ),
+    			messageSourceResolver.resolver("apps.installed.added.description", 
+    					new Object[] { appInstalled.getAppName(), terminalDTO.getModel(), terminalDTO.getDeviceName() }), 
+    			new ObjectId(son), AlertCategoryEnum.APPS_INSTALLED);
+      
+        // Create and send response
+        return ApiHelper.<AppInstalledDTO>createAndSendResponse(ChildrenResponseCode.NEW_APP_INSTALLED_ADDED, HttpStatus.OK, appInstalled);
         
     }
     
@@ -1271,6 +1474,36 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
             		HttpStatus.OK, scheduledBlocksList);
     }
     
+    /**
+     * Get Scheduled Block by id
+     * @param pageable
+     * @param pagedAssembler
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{son}/scheduled-blocks/{block}", method = RequestMethod.GET)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#son) )")
+    @ApiOperation(value = "GET_SCHEDULED_BLOCK_BY_ID", nickname = "GET_SCHEDULED_BLOCK_BY_ID",
+    	notes = "Get Scheduled Block By Id", response = ScheduledBlockDTO.class)
+    public ResponseEntity<APIResponse<ScheduledBlockDTO>> getScheduledBlockById(
+    		@ApiParam(name = "son", value = "Son id", required = true)
+        	@Valid @SonShouldExists(message = "{son.not.exists}")
+         		@PathVariable String son,
+         	@ApiParam(name = "block", value = "Block id", required = true)
+        	@Valid @ScheduledBlockShouldExists(message = "{scheduled.block.not.exists}")
+         		@PathVariable String block) 
+    		throws Throwable {
+        
+    	logger.debug("Get Scheduled Block By id -> " + block);
+    	
+    	// Get Scheduled Block By Id
+    	final ScheduledBlockDTO scheduledBlockDTO =
+    			scheduledBlockService.getScheduledBlockById(new ObjectId(block));
+    
+    	
+        return ApiHelper.<ScheduledBlockDTO>createAndSendResponse(ChildrenResponseCode.SCHEDULED_BLOCK_DETAIL, 
+            		HttpStatus.OK, scheduledBlockDTO);
+    }
     
     /**
      * Save Scheduled Block
@@ -1299,6 +1532,35 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
     	    	
     	return ApiHelper.<ScheduledBlockDTO>createAndSendResponse(ChildrenResponseCode.SCHEDULED_BLOCK_SAVED, 
 				HttpStatus.OK, scheduledBlock);    
+    }
+    
+    
+    /**
+     * Save Scheduled Blocks status
+     * @param id
+     * @param socialMedias
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{son}/scheduled-blocks/status", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#son) )")
+    @ApiOperation(value = "SAVE_SCHEDULED_BLOCKS_STATUS", nickname = "SAVE_SCHEDULED_BLOCKS_STATUS", 
+    	notes = "Save Scheduled Block Status",
+            response = Iterable.class)
+    public ResponseEntity<APIResponse<String>> saveScheduledBlocksStatus(
+    		@ApiParam(name = "son", value = "Son Identity", required = true)
+        	@Valid @SonShouldExists(message = "{son.not.exists}")
+         		@PathVariable String son,
+         	@ApiParam(value = "scheduled_blocks", required = true) 
+				@Validated(ICommonSequence.class) 
+					@RequestBody ValidList<SaveScheduledBlockStatusDTO> saveScheduledBlockStatus) throws Throwable {
+    	
+    	logger.debug("Save Scheduled Block Status DTO");
+    	// Save Status
+    	scheduledBlockService.saveStatus(saveScheduledBlockStatus);
+    	    	
+    	return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.SCHEDULED_BLOCK_STATUS_SAVED, 
+				HttpStatus.OK, messageSourceResolver.resolver("scheduled.block.status.saved"));    
     }
     
     /**
@@ -1354,6 +1616,77 @@ public class ChildrenController extends BaseController implements ISonHAL, IComm
       
         return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.SCHEDULED_BLOCK_DELETED, HttpStatus.OK, 
         		messageSourceResolver.resolver("scheduled.block.deleted"));
+        
+    }
+    
+    /**
+     * Upload Scheduled Block Image
+     * @param id
+     * @param profileImage
+     * @param selfParent
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{son}/scheduled-blocks/{block}/image", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#son) )")
+    @ApiOperation(value = "UPLOAD_SCHEDULED_BLOCK_IMAGE", nickname = "UPLOAD_SCHEDULED_BLOCK_IMAGE",
+    notes = "Upload Scheduled Block Image")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message= "Scheduled Block Image", response = ImageDTO.class),
+    	@ApiResponse(code = 500, message= "Upload Failed")
+    })
+    public ResponseEntity<APIResponse<ImageDTO>> uploadScheduledBlockImage(
+    		@ApiParam(name = "son", value = "Child Identifier", required = true)
+         	@Valid @SonShouldExists(message = "{son.should.be.exists}")
+          		@PathVariable String son,
+          	@ApiParam(name = "block", value = "Scheduled Block Identifier", required = true)
+             	@Valid @ScheduledBlockShouldExists(message = "{scheduled.block.not.exists}")
+              		@PathVariable String block,
+            @RequestPart MultipartFile scheduledBlockImage,
+            @ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) throws Throwable {
+    	
+    	// Create Request Upload File
+    	final RequestUploadFile uploadScheduledBlockImage = new RequestUploadFile(scheduledBlockImage.getBytes(), 
+    			scheduledBlockImage.getContentType() != null ? scheduledBlockImage.getContentType() :
+    				MediaType.IMAGE_PNG_VALUE, scheduledBlockImage.getOriginalFilename());
+    	
+    	ImageDTO imageDTO = uploadFilesService.uploadScheduledBlockImage(new ObjectId(son),
+    			new ObjectId(block), uploadScheduledBlockImage);
+    	
+    	// Return Response
+        return ApiHelper.<ImageDTO>createAndSendResponse(ChildrenResponseCode.SCHEDULED_BLOCK_IMAGE_UPLOADED, 
+        		HttpStatus.OK, imageDTO);
+
+    }
+    
+    /**
+     * Download Scheduled Block Image
+     * @param id
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{son}/scheduled-blocks/{block}/image/{image}", method = RequestMethod.GET)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasParentRole() && @authorizationService.isYourSon(#son) )")
+    @ApiOperation(value = "DOWNLOAD_SCHEDULED_BLOCK_IMAGE", nickname = "DOWNLOAD_SCHEDULED_BLOCK_IMAGE",
+    notes = "Download Scheduled Block Image")
+    public ResponseEntity<byte[]> downloadScheduledBlockImage(
+    		@ApiParam(name = "son", value = "Child Identifier", required = true)
+         		@Valid @SonShouldExists(message = "{son.should.be.exists}")
+          			@PathVariable String son,
+          	@ApiParam(name = "block", value = "Scheduled Block Identifier", required = true)
+             	@Valid @ScheduledBlockShouldExists(message = "{scheduled.block.not.exists}")
+              		@PathVariable String block,
+            @ApiParam(name = "image", value = "Image Identifier", required = true)
+                  		@PathVariable String image
+              		) throws Throwable {
+        
+        final UploadFileInfo uploadFileInfo = uploadFilesService.getImage(image);
+        
+        return ResponseEntity.ok()
+        		.contentLength(uploadFileInfo.getSize())
+        		.contentType( uploadFileInfo.getContentType() != null ?  
+        				MediaType.parseMediaType(uploadFileInfo.getContentType()) : MediaType.IMAGE_PNG)
+        		.body(uploadFileInfo.getContent());
         
     }
     

@@ -6,7 +6,7 @@ import javax.validation.ConstraintValidatorContext;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import sanchez.sanchez.sergio.masoc.persistence.repository.IScheduledBlockRepository;
+import sanchez.sanchez.sergio.masoc.persistence.repository.ScheduledBlockRepository;
 
 /**
  * Scheduled Block Validator
@@ -19,7 +19,7 @@ public class ScheduledBlockShouldExistsValidator implements ConstraintValidator<
 	 * Scheduled Block Repository
 	 */
     @Autowired
-    private IScheduledBlockRepository scheduledBlockRepository;
+    private ScheduledBlockRepository scheduledBlockRepository;
     
     @Override
     public void initialize(ScheduledBlockShouldExists constraintAnnotation) {}

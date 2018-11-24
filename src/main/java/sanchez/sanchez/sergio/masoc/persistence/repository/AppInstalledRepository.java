@@ -11,8 +11,14 @@ import sanchez.sanchez.sergio.masoc.persistence.entity.AppInstalledEntity;
  *
  */
 @Repository
-public interface IAppInstalledRepository extends MongoRepository<AppInstalledEntity, Long> {
+public interface AppInstalledRepository extends MongoRepository<AppInstalledEntity, Long>, AppInstalledRepositoryCustom {
 
+	/**
+	 * Find By Id
+	 * @param id
+	 */
+	AppInstalledEntity findById(final ObjectId id);
+	
 	/**
 	 * Delete By Id
 	 * @param id
@@ -25,6 +31,14 @@ public interface IAppInstalledRepository extends MongoRepository<AppInstalledEnt
 	 * @return
 	 */
 	long countById(final ObjectId id);
+	
+	/**
+	 * Count By Id and Son Id
+	 * @param id
+	 * @param sonId
+	 * @return
+	 */
+	long countByIdAndSonId(final ObjectId id, final ObjectId sonId);
 	
 	/**
 	 * Find All By Terminal Id And Son Id
@@ -40,6 +54,14 @@ public interface IAppInstalledRepository extends MongoRepository<AppInstalledEnt
 	 * @param terminalId
 	 */
 	void deleteBySonIdAndTerminalId(final ObjectId sonId, final ObjectId terminalId);
+	
+	
+	/**
+	 * Find By Id collection
+	 * @param ids
+	 * @return
+	 */
+	Iterable<AppInstalledEntity> findByIdIn(final Iterable<ObjectId> ids);
 
 	
 }

@@ -1,6 +1,9 @@
 package sanchez.sanchez.sergio.masoc.domain.service.impl;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
@@ -8,18 +11,21 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-
 import sanchez.sanchez.sergio.masoc.domain.service.ITerminalService;
+import sanchez.sanchez.sergio.masoc.exception.AppInstalledNotFoundException;
 import sanchez.sanchez.sergio.masoc.mapper.AppInstalledEntityMapper;
 import sanchez.sanchez.sergio.masoc.mapper.TerminalEntityDataMapper;
 import sanchez.sanchez.sergio.masoc.persistence.entity.AppInstalledEntity;
+import sanchez.sanchez.sergio.masoc.persistence.entity.AppRuleEnum;
 import sanchez.sanchez.sergio.masoc.persistence.entity.TerminalEntity;
-import sanchez.sanchez.sergio.masoc.persistence.repository.IAppInstalledRepository;
+import sanchez.sanchez.sergio.masoc.persistence.repository.AppInstalledRepository;
 import sanchez.sanchez.sergio.masoc.persistence.repository.ITerminalRepository;
 import sanchez.sanchez.sergio.masoc.web.dto.request.SaveAppInstalledDTO;
+import sanchez.sanchez.sergio.masoc.web.dto.request.SaveAppRulesDTO;
 import sanchez.sanchez.sergio.masoc.web.dto.request.SaveTerminalDTO;
 import sanchez.sanchez.sergio.masoc.web.dto.response.AppInstalledDTO;
 import sanchez.sanchez.sergio.masoc.web.dto.response.TerminalDTO;
+import sanchez.sanchez.sergio.masoc.web.dto.response.TerminalDetailDTO;
 
 /**
  * Terminal Service
@@ -44,7 +50,7 @@ public final class TerminalServiceImpl implements ITerminalService {
 	/**
 	 * App Installed Repository
 	 */
-	private final IAppInstalledRepository appsInstalledRepository;
+	private final AppInstalledRepository appsInstalledRepository;
 	
 	/**
 	 * App Installed Entity data mapper
@@ -61,7 +67,7 @@ public final class TerminalServiceImpl implements ITerminalService {
 	 */
 	@Autowired
 	public TerminalServiceImpl(final TerminalEntityDataMapper terminalEntityDataMapper, 
-			final ITerminalRepository terminalRepository, final IAppInstalledRepository appsInstalledRepository,
+			final ITerminalRepository terminalRepository, final AppInstalledRepository appsInstalledRepository,
 			final AppInstalledEntityMapper appInstalledEntityDataMapper) {
 		super();
 		this.terminalEntityDataMapper = terminalEntityDataMapper;
@@ -181,11 +187,83 @@ public final class TerminalServiceImpl implements ITerminalService {
 	 * Delete app installed by child id
 	 */
 	@Override
-	public void deleteAppInstalledById(final ObjectId appId) {
+	public void deleteAppInstalledById(final ObjectId appId) throws Throwable {
 		Assert.notNull(appId, "App id can not be null");
 		
-		appsInstalledRepository.deleteById(appId);
+		// Find By Id
+		final AppInstalledEntity appInstalled = Optional.ofNullable(appsInstalledRepository.findById(appId))
+			.orElseThrow(() -> { throw new AppInstalledNotFoundException(); });
 		
+		// Deleted
+		appsInstalledRepository.delete(appInstalled);
+		
+	}
+
+	/**
+	 * Get Terminal By Id And Child Id
+	 */
+	@Override
+	public TerminalDTO getTerminalByIdAndChildId(final ObjectId terminalId, final ObjectId childId) {
+		Assert.notNull(terminalId, "Terminal id can not be null");
+		Assert.notNull(childId, "Child id can not be null");
+		
+		// Get terminal
+		final TerminalEntity terminalEntity = terminalRepository.findByIdAndSonEntityId(terminalId, childId);
+	
+		/**
+		 * Terminal Entity to terminal DTO
+		 */
+		return terminalEntityDataMapper.terminalEntityToTerminalDTO(terminalEntity);
+	}
+
+	/**
+	 * Save App Rules
+	 */
+	@Override
+	public void saveAppRules(Iterable<SaveAppRulesDTO> appRulesList) {
+		Assert.notNull(appRulesList, "App Rules can not be null");
+		
+		final Map<ObjectId, AppRuleEnum> appRulesMap = new HashMap<>();
+		for(final SaveAppRulesDTO appRule: appRulesList)
+			appRulesMap.put(new ObjectId(appRule.getIdentity()), 
+					AppRuleEnum.valueOf(appRule.getType()));
+		
+		// Update App Rules
+		appsInstalledRepository.updateAppRules(appRulesMap);
+		
+	}
+
+	
+	/**
+	 * Get Terminal Detail BY Child Id And Terminal Id
+	 */
+	@Override
+	public TerminalDetailDTO getTerminalDetail(final ObjectId childId, 
+			final String terminalId) {
+		Assert.notNull(childId, "Child id can not be null");
+		Assert.notNull(terminalId, "Terminal Id can not be null");
+		
+		
+		// Find By Id And Son Entity
+		final TerminalEntity terminalEntity = ObjectId.isValid(terminalId) ?
+				terminalRepository.findByIdAndSonEntityId(new ObjectId(terminalId), childId):
+					terminalRepository.findByDeviceIdAndSonEntityId(terminalId, childId);
+					
+		
+		// Transform to Terminal Detail
+		return terminalEntityDataMapper.terminalEntityToTerminalDetailDTO(terminalEntity);
+		
+	}
+
+	
+	/**
+	 * Get Count Apps Installed In The Terminal
+	 */
+	@Override
+	public long getCountAppsInstalledInTheTerminal(ObjectId sonId, ObjectId terminalId) {
+		Assert.notNull(sonId, "Child id can not be null");
+		Assert.notNull(terminalId, "Terminal Id can not be null");
+		return appsInstalledRepository.countByIdAndSonId(terminalId, sonId);
 	}
 
 }

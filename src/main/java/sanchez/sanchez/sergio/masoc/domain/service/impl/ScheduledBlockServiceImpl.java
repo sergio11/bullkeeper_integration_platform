@@ -1,5 +1,8 @@
 package sanchez.sanchez.sergio.masoc.domain.service.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -7,8 +10,9 @@ import io.jsonwebtoken.lang.Assert;
 import sanchez.sanchez.sergio.masoc.domain.service.IScheduledBlockService;
 import sanchez.sanchez.sergio.masoc.mapper.ScheduledBlockMapper;
 import sanchez.sanchez.sergio.masoc.persistence.entity.ScheduledBlockEntity;
-import sanchez.sanchez.sergio.masoc.persistence.repository.IScheduledBlockRepository;
+import sanchez.sanchez.sergio.masoc.persistence.repository.ScheduledBlockRepository;
 import sanchez.sanchez.sergio.masoc.web.dto.request.SaveScheduledBlockDTO;
+import sanchez.sanchez.sergio.masoc.web.dto.request.SaveScheduledBlockStatusDTO;
 import sanchez.sanchez.sergio.masoc.web.dto.response.ScheduledBlockDTO;
 
 /**
@@ -22,7 +26,7 @@ public final class ScheduledBlockServiceImpl implements IScheduledBlockService {
 	/**
 	 * Scheduled Block Repository
 	 */
-	private final IScheduledBlockRepository scheduledBlockRepository;
+	private final ScheduledBlockRepository scheduledBlockRepository;
 	
 	/**
 	 * Scheduled Block Mapper
@@ -35,7 +39,7 @@ public final class ScheduledBlockServiceImpl implements IScheduledBlockService {
 	 * @param scheduledBlockMapper
 	 */
 	@Autowired
-	public ScheduledBlockServiceImpl(final IScheduledBlockRepository scheduledBlockRepository,
+	public ScheduledBlockServiceImpl(final ScheduledBlockRepository scheduledBlockRepository,
 			final ScheduledBlockMapper scheduledBlockMapper) {
 		super();
 		this.scheduledBlockRepository = scheduledBlockRepository;
@@ -89,6 +93,53 @@ public final class ScheduledBlockServiceImpl implements IScheduledBlockService {
 		
 		scheduledBlockRepository.delete(id);
 	
+	}
+
+	/**
+	 * Get Scheduled Block By ID
+	 */
+	@Override
+	public ScheduledBlockDTO getScheduledBlockById(final ObjectId id) {
+		Assert.notNull(id, "Id can not be null");
+		
+		// Find Scheduled Block
+		final ScheduledBlockEntity scheduledBlockEntity = 
+				scheduledBlockRepository.findOne(id);
+		
+		// Map Scheduled Entity to Scheduled Block DTO
+		final ScheduledBlockDTO scheduledBlockDTO = 
+				scheduledBlockMapper.scheduledBlockEntityToScheduledBlockDTO(scheduledBlockEntity);
+		
+		return scheduledBlockDTO;
+	}
+
+	/**
+	 * Save Status
+	 */
+	@Override
+	public void saveStatus(Iterable<SaveScheduledBlockStatusDTO> scheduledStatus) {
+		Assert.notNull(scheduledStatus, "Scheduled Status can not be null");
+		
+		final List<ObjectId> scheduledBlocksToEnable = new ArrayList<ObjectId>(), 
+				scheduledBlockToDisable = new ArrayList<ObjectId>();
+		
+		for(final SaveScheduledBlockStatusDTO saveScheduled: scheduledStatus) {
+			
+			final ObjectId scheduledBlockId = new ObjectId(saveScheduled.getIdentity());
+			
+			if(saveScheduled.isEnable())
+				scheduledBlocksToEnable.add(scheduledBlockId);
+			else
+				scheduledBlockToDisable.add(scheduledBlockId);
+		
+		}
+		
+		if(!scheduledBlocksToEnable.isEmpty())
+			scheduledBlockRepository.enableScheduledBlocks(scheduledBlocksToEnable);
+		
+		if(!scheduledBlockToDisable.isEmpty())
+			scheduledBlockRepository.disableScheduledBlocks(scheduledBlockToDisable);
+		
 	}
 
 }

@@ -8,43 +8,82 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+
+/**
+ * Alert Entity
+ * @author sergiosanchezsanchez
+ *
+ */
 @Document(collection = AlertEntity.COLLECTION_NAME)
 public class AlertEntity {
 
     public final static String COLLECTION_NAME = "alerts";
 
+    /**
+     * Id
+     */
     @Id
     private ObjectId id;
 
+    /**
+     * Level
+     */
     @Field
     private AlertLevelEnum level = AlertLevelEnum.INFO;
 
+    /**
+     * Title
+     */
     @Field("title")
     private String title;
 
+    /**
+     * Payload
+     */
     @Field("payload")
     private String payload;
 
+    /**
+     * Create At
+     */
     @Field("create_at")
     private Date createAt = new Date();
 
+    /**
+     * Delivered At
+     */
     @Field("delivered_at")
     private Date deliveredAt;
 
+    /**
+     * Delivery Mode
+     */
     @Field("delivery_mode")
     private AlertDeliveryModeEnum deliveryMode = AlertDeliveryModeEnum.PUSH_NOTIFICATION;
     
+    /**
+     * Category
+     */
     @Field("category")
     private AlertCategoryEnum category = AlertCategoryEnum.DEFAULT;
 
+    /**
+     * Parent
+     */
     @Field("parent")
     @DBRef
     private ParentEntity parent;
 
+    /**
+     * Son
+     */
     @Field("son")
     @DBRef
     private SonEntity son;
 
+    /**
+     * Delivered
+     */
     private Boolean delivered = Boolean.FALSE;
 
     public AlertEntity() {

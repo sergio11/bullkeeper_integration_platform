@@ -1,6 +1,23 @@
 # BullyTect Integration Platform
 BullyTect Integration Platform. EIPs patterns with Spring Integration
 
+-> Relación chicos tutorizados (Niños/Adolescente - Tutor - Rol - solicitud confirmada)
+-> Se registrará una alerta para cada tutor del niño / adolescente
+-> Roles
+ -> Visualizador de datos (alertas, resultados). 
+ -> Editor de reglas de control parental.
+ -> Administrador (Podrá editar datos del niño/adolescente).
+
+ -> Los filtros de seguridad deberá comprobar que el propietario del token tutoriza al niño/adolescente al cual se solicita sus recursos.
+ 
+ 
+ Pantalla solicitudes pendientes de tutorización.
+ Buscador de usuarios del sistema para el envío de solicitudes.
+ 
+ 
+ 
+
+
 ## Deployment Guide
 
 ### Installing Apache Tomcat Server 8

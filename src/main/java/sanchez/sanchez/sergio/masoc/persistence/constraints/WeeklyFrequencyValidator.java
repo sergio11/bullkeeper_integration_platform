@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import sanchez.sanchez.sergio.masoc.persistence.entity.ScheduledBlockEntity;
-import sanchez.sanchez.sergio.masoc.persistence.repository.IScheduledBlockRepository;
+import sanchez.sanchez.sergio.masoc.persistence.repository.ScheduledBlockRepository;
 
 /**
  * Weekly Frequency Validator
@@ -31,7 +31,7 @@ public class WeeklyFrequencyValidator implements ConstraintValidator<WeeklyFrequ
 	 * Scheduled Block Repository
 	 */
 	@Autowired
-	protected IScheduledBlockRepository scheduledRepository;
+	protected ScheduledBlockRepository scheduledRepository;
 	
 	/**
 	 * Date Time Formatter

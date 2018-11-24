@@ -16,18 +16,33 @@ public class PendingDeviceEntity {
 	@Id
 	private ObjectId id;
 	
+	/**
+	 * Device ID
+	 */
 	@Field("device_id")
 	private String deviceId;
 	
+	/**
+	 * Registration Token
+	 */
 	@Field("registration_token")
 	private String registrationToken;
 	
+	/**
+	 * Owner
+	 */
 	@Field("owner")
 	private ObjectId owner;
 	
+	/**
+	 * Failed Attempts
+	 */
 	@Field("failed_attempts")
 	private Integer failedAttempts = 1;
 	
+	/**
+	 * Last Time Tried
+	 */
 	@Field("last_time_tried")
 	private Date lastTimeTried = new Date();
 

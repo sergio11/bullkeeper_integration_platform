@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author sergiosanchezsanchez
  *
  */
-public final class TerminalDTO implements Serializable {
+public class TerminalDTO implements Serializable {
 
 	
 	private static final long serialVersionUID = 1L;
@@ -19,81 +19,80 @@ public final class TerminalDTO implements Serializable {
 	 * Identity
 	 */
 	@JsonProperty("identity")
-	private String identity;
+	protected String identity;
 	
 	/**
 	 * App Version Name
 	 */
 	@JsonProperty("app_version_name")
-	private String appVersionName;
+	protected String appVersionName;
 	
 	
 	/**
 	 * App Version Code
 	 */
 	@JsonProperty("app_version_code")
-	private String appVersionCode;
+	protected String appVersionCode;
 	
 	/**
 	 * Os Version
 	 */
 	@JsonProperty("os_version")
-	private String osVersion;
+	protected String osVersion;
 	
 	/**
 	 * Sdk Version
 	 */
 	@JsonProperty("sdk_version")
-	private String sdkVersion;
+	protected String sdkVersion;
 	
 	/**
 	 * Manufacturer
 	 */
 	@JsonProperty("manufacturer")
-	private String manufacturer;
+	protected String manufacturer;
 	
 	/**
 	 * Market Name
 	 */
 	@JsonProperty("market_name")
-	private String marketName;
+	protected String marketName;
 	
 	/**
 	 * Model
 	 */
 	@JsonProperty("model")
-	private String model;
+	protected String model;
 	
 	/**
 	 * Code Name
 	 */
 	@JsonProperty("code_name")
-	private String codeName;
+	protected String codeName;
 	
 	
 	/**
 	 * Device Name
 	 */
 	@JsonProperty("device_name")
-	private String deviceName;
+	protected String deviceName;
+	
+	/**
+	 * Device Id
+	 */
+	@JsonProperty("device_id")
+	protected String deviceId;
 
 	
 	public TerminalDTO() {}
 	
-	/**
-	 * @param identity
-	 * @param appVersionName
-	 * @param appVersionCode
-	 * @param osVersion
-	 * @param sdkVersion
-	 * @param manufacturer
-	 * @param marketName
-	 * @param model
-	 * @param codeName
-	 * @param deviceName
-	 */
-	public TerminalDTO(String identity, String appVersionName, String appVersionCode, String osVersion, String sdkVersion,
-			String manufacturer, String marketName, String model, String codeName, String deviceName) {
+	
+	
+	
+
+	public TerminalDTO(String identity, String appVersionName, String appVersionCode, String osVersion,
+			String sdkVersion, String manufacturer, String marketName, String model, String codeName, String deviceName,
+			String deviceId) {
 		super();
 		this.identity = identity;
 		this.appVersionName = appVersionName;
@@ -105,9 +104,12 @@ public final class TerminalDTO implements Serializable {
 		this.model = model;
 		this.codeName = codeName;
 		this.deviceName = deviceName;
+		this.deviceId = deviceId;
 	}
-	
-	
+
+
+
+
 
 	public String getIdentity() {
 		return identity;
@@ -189,5 +191,14 @@ public final class TerminalDTO implements Serializable {
 		this.deviceName = deviceName;
 	}
 
+	public String getDeviceId() {
+		return deviceId;
+	}
+
+	public void setDeviceId(String deviceId) {
+		this.deviceId = deviceId;
+	}
+
+	
 
 }

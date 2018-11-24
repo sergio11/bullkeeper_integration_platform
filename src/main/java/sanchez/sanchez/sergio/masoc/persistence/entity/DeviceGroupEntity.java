@@ -14,18 +14,33 @@ public class DeviceGroupEntity {
 
 	public final static String COLLECTION_NAME = "devices_group";
 	
+	/**
+	 * Id
+	 */
 	@Id
 	private ObjectId id;
 	
+	/**
+	 * Notification Key Name
+	 */
 	@Field("notification_key_name")
 	private String notificationKeyName;
 	
+	/**
+	 * Notification Key
+	 */
 	@Field("notification_key")
 	private String notificationKey;
 	
+	/**
+	 * Create At
+	 */
 	@Field("create_at")
 	private Date createAt = new Date();
 	
+	/**
+	 * Owner
+	 */
 	@Field("owner")
 	@DBRef
 	private ParentEntity owner;

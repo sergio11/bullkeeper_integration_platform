@@ -3,6 +3,7 @@ package sanchez.sanchez.sergio.masoc.domain.service;
 import org.bson.types.ObjectId;
 
 import sanchez.sanchez.sergio.masoc.web.dto.request.SaveScheduledBlockDTO;
+import sanchez.sanchez.sergio.masoc.web.dto.request.SaveScheduledBlockStatusDTO;
 import sanchez.sanchez.sergio.masoc.web.dto.response.ScheduledBlockDTO;
 
 /**
@@ -36,4 +37,23 @@ public interface IScheduledBlockService {
 	 * @param id
 	 */
 	void delete(final ObjectId id);
+	
+	/**
+	 * Get Scheduled Block By ID
+	 * @param id
+	 * @return
+	 */
+	ScheduledBlockDTO getScheduledBlockById(final ObjectId id);
+	
+	
+	/**
+	 * Save Status
+	 * @param scheduledStatus
+	 * @return
+	 */
+	void saveStatus(final Iterable<SaveScheduledBlockStatusDTO> scheduledStatus);
+	
+	
+	
+	
 }

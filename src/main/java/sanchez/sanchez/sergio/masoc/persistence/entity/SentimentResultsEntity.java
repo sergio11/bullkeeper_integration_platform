@@ -5,15 +5,29 @@ import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+/**
+ * Sentiment Results Entity
+ * @author sergiosanchezsanchez
+ *
+ */
 @Document
 public class SentimentResultsEntity extends ResultsEntity {
 	
+	/**
+	 * Total Positive
+	 */
 	@Field("total_positive")
 	private long totalPositive;
 	
+	/**
+	 * Total Negative
+	 */
 	@Field("total_negative")
 	private long totalNegative;
 	
+	/**
+	 * Total Neutro
+	 */
 	@Field("total_neutro")
 	private long totalNeutro;
 	

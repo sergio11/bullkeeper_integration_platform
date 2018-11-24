@@ -26,8 +26,11 @@ public class SonRepositoryImpl implements SonRepositoryCustom {
     @Autowired
     private MongoTemplate mongoTemplate;
 
+    /**
+     * Set Profile Image Id
+     */
     @Override
-    public void setProfileImageId(ObjectId id, String profileImageId) {
+    public void setProfileImageId(final ObjectId id, final String profileImageId) {
         Assert.notNull(id, "id can not be null");
         Assert.notNull(profileImageId, "profileImageId can not be null");
 
@@ -39,8 +42,11 @@ public class SonRepositoryImpl implements SonRepositoryCustom {
 
     }
 
+    /**
+     * Get Profile Image Id By User Id
+     */
     @Override
-    public String getProfileImageIdByUserId(ObjectId id) {
+    public String getProfileImageIdByUserId(final ObjectId id) {
         Assert.notNull(id, "Id can not be null");
 
         Query query = new Query(Criteria.where("_id").is(id));
@@ -51,8 +57,12 @@ public class SonRepositoryImpl implements SonRepositoryCustom {
         return sonEntity.getProfileImage();
     }
 
+    /**
+     * Update Sentiment Result For
+     */
 	@Override
-	public void updateSentimentResultsFor(ObjectId id, long totalPositive, long totalNegative, long totalNeutro) {
+	public void updateSentimentResultsFor(final ObjectId id, final long totalPositive, 
+			final long totalNegative, final long totalNeutro) {
 		Assert.notNull(id, "Id can not be null");
 		
 		mongoTemplate.updateFirst(
@@ -66,8 +76,12 @@ public class SonRepositoryImpl implements SonRepositoryCustom {
 		
 	}
 
+	/**
+	 * Update Adult Result For
+	 */
 	@Override
-	public void updateAdultResultsFor(ObjectId id, long totalCommentsAdultContent, long totalCommentsNoAdultContent) {
+	public void updateAdultResultsFor(final ObjectId id, final long totalCommentsAdultContent, 
+			final long totalCommentsNoAdultContent) {
 		Assert.notNull(id, "Id can not be null");
 		
 		mongoTemplate.updateFirst(
@@ -80,8 +94,12 @@ public class SonRepositoryImpl implements SonRepositoryCustom {
 		
 	}
 
+	/**
+	 * Update Violence Result For
+	 */
 	@Override
-	public void updateViolenceResultsFor(ObjectId id, long totalViolentComments, long totalNonViolentComments) {
+	public void updateViolenceResultsFor(final ObjectId id, final long totalViolentComments, 
+			final long totalNonViolentComments) {
 		Assert.notNull(id, "Id can not be null");
 	
 		mongoTemplate.updateFirst(
@@ -93,8 +111,12 @@ public class SonRepositoryImpl implements SonRepositoryCustom {
                 	.set("results.violence.total_nonviolent_comments", totalNonViolentComments), SonEntity.class);
 	}
 
+	/**
+	 * Update Bullying Results For
+	 */
 	@Override
-	public void updateBullyingResultsFor(ObjectId id, long totalCommentsBullying, long totalCommentsNoBullying) {
+	public void updateBullyingResultsFor(final ObjectId id, final long totalCommentsBullying, 
+			final long totalCommentsNoBullying) {
 		Assert.notNull(id, "Id can not be null");
 		
 		mongoTemplate.updateFirst(
@@ -106,8 +128,12 @@ public class SonRepositoryImpl implements SonRepositoryCustom {
                 	.set("results.bullying.total_comments_nobullying", totalCommentsNoBullying), SonEntity.class);
 	}
 
+	/**
+	 * Update Drugs Results For
+	 */
 	@Override
-	public void updateDrugsResultsFor(ObjectId id, long totalCommentsDrugs, long totalCommentsNoDrugs) {
+	public void updateDrugsResultsFor(final ObjectId id, final long totalCommentsDrugs, 
+			final long totalCommentsNoDrugs) {
 		Assert.notNull(id, "Id can not be null");
 		
 		

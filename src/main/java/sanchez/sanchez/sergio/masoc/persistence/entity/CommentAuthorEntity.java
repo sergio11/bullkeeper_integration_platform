@@ -4,15 +4,29 @@ import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+/**
+ * Comment Author Entity
+ * @author sergiosanchezsanchez
+ *
+ */
 @Document
 public final class CommentAuthorEntity {
 	
+	/**
+	 * External Id
+	 */
 	@Field("external_id")
 	private String externalId;
 	
+	/**
+	 * Name
+	 */
 	@Field("name")
 	private String name;
 	
+	/**
+	 * Image
+	 */
 	@Field("image")
 	private String image;
 	

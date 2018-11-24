@@ -9,18 +9,31 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import sanchez.sanchez.sergio.masoc.persistence.utils.CascadeSave;
 
+/**
+ * Son Entity
+ * @author sergiosanchezsanchez
+ *
+ */
 @Document(collection = SonEntity.COLLECTION_NAME)
 public final class SonEntity extends PersonEntity {
 
     public final static String COLLECTION_NAME = "children";
 
+    /**
+     * School
+     */
     @DBRef
     private SchoolEntity school;
     
+    /**
+     * Parent
+     */
     @DBRef
     private ParentEntity parent;
     
-    
+    /**
+     * Results
+     */
     @Field("results")
     @CascadeSave
     private SonResultsEntity results = new SonResultsEntity();

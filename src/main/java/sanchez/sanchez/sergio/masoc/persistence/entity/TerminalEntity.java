@@ -87,6 +87,17 @@ public class TerminalEntity implements Serializable {
 	@Field("device_name")
 	private String deviceName;
 	
+	/**
+	 * Device ID
+	 */
+	@Field("device_id")
+	private String deviceId;
+	
+	/**
+	 * Last Time Used
+	 */
+	@Field("last_time_used")
+	private Date lastTimeUsed = new Date();
 
 	/**
 	 * Create At
@@ -114,13 +125,15 @@ public class TerminalEntity implements Serializable {
 	 * @param model
 	 * @param codeName
 	 * @param deviceName
+	 * @param deviceId
+	 * @param lastTimeUsed
 	 * @param createAt
 	 * @param sonEntity
 	 */
 	@PersistenceConstructor
 	public TerminalEntity(ObjectId id, String appVersionName, String appVersionCode, String osVersion,
-			String sdkVersion, String manufacturer, String marketName, String model, String codeName, String deviceName,
-			Date createAt, SonEntity sonEntity) {
+			String sdkVersion, String manufacturer, String marketName, String model, String codeName,
+			String deviceName, String deviceId, Date lastTimeUsed, Date createAt, SonEntity sonEntity) {
 		super();
 		this.id = id;
 		this.appVersionName = appVersionName;
@@ -132,6 +145,8 @@ public class TerminalEntity implements Serializable {
 		this.model = model;
 		this.codeName = codeName;
 		this.deviceName = deviceName;
+		this.deviceId = deviceId;
+		this.lastTimeUsed = lastTimeUsed;
 		this.createAt = createAt;
 		this.sonEntity = sonEntity;
 	}
@@ -214,6 +229,24 @@ public class TerminalEntity implements Serializable {
 
 	public void setDeviceName(String deviceName) {
 		this.deviceName = deviceName;
+	}
+	
+
+	public String getDeviceId() {
+		return deviceId;
+	}
+
+	public void setDeviceId(String deviceId) {
+		this.deviceId = deviceId;
+	}
+	
+
+	public Date getLastTimeUsed() {
+		return lastTimeUsed;
+	}
+
+	public void setLastTimeUsed(Date lastTimeUsed) {
+		this.lastTimeUsed = lastTimeUsed;
 	}
 
 	public Date getCreateAt() {

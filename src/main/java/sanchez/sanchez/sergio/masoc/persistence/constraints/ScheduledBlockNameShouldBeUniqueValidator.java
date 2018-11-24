@@ -3,7 +3,7 @@ package sanchez.sanchez.sergio.masoc.persistence.constraints;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import sanchez.sanchez.sergio.masoc.persistence.repository.IScheduledBlockRepository;
+import sanchez.sanchez.sergio.masoc.persistence.repository.ScheduledBlockRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +21,7 @@ public class ScheduledBlockNameShouldBeUniqueValidator
      * Scheduled Block Repository
      */
     @Autowired
-    private IScheduledBlockRepository scheduledBlockRepository;
+    private ScheduledBlockRepository scheduledBlockRepository;
     
     /**
      * 

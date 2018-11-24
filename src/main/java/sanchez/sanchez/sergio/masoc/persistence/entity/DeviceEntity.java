@@ -14,22 +14,40 @@ public class DeviceEntity {
 	
 	public final static String COLLECTION_NAME = "devices";
 	
+	/**
+	 * Id
+	 */
 	@Id
 	private ObjectId id;
 	
+	/**
+	 * Device ID
+	 */
 	@Field("device_id")
 	private String deviceId;
 	
+	/**
+	 * Registration Token
+	 */
 	@Field("registration_token")
 	private String registrationToken;
 	
+	/**
+	 * Device Type
+	 */
 	@Field("device_type")
 	private DeviceTypeEnum deviceTypeEnum = DeviceTypeEnum.MOBILE;
 	
+	/**
+	 * Device Group
+	 */
 	@Field("device_group")
 	@DBRef
 	private DeviceGroupEntity deviceGroup;
 	
+	/**
+	 * Create At
+	 */
 	@Field("create_at")
 	private Date createAt = new Date();
 	

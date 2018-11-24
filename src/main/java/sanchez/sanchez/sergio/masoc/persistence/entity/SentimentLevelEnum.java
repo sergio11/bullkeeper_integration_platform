@@ -1,5 +1,10 @@
 package sanchez.sanchez.sergio.masoc.persistence.entity;
 
+/**
+ * Sentiment Level Enum
+ * @author sergiosanchezsanchez
+ *
+ */
 public enum SentimentLevelEnum {
 	UNKNOWN, POSITIVE, NEGATIVE, NEUTRO;
 	

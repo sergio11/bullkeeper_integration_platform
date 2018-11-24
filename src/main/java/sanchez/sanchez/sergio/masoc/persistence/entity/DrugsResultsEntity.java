@@ -1,18 +1,28 @@
 package sanchez.sanchez.sergio.masoc.persistence.entity;
 
-
 import java.util.Date;
 
 import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+/**
+ * Drugs Results Entity
+ * @author sergiosanchezsanchez
+ *
+ */
 @Document
 public class DrugsResultsEntity extends ResultsEntity {
 	
+	/**
+	 * Total Comments Drugs
+	 */
 	@Field("total_comments_drugs")
 	private long totalCommentsDrugs;
 	
+	/**
+	 * Total Comments No Drugs
+	 */
 	@Field("total_comments_nodrugs")
 	private long totalCommentsNoDrugs;
 	

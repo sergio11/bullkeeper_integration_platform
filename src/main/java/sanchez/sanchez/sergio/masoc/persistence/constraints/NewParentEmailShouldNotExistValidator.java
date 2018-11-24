@@ -10,7 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import sanchez.sanchez.sergio.masoc.domain.service.IAuthorizationService;
 import sanchez.sanchez.sergio.masoc.persistence.repository.ParentRepository;
 
-
+/**
+ * 
+ * @author sergiosanchezsanchez
+ *
+ */
 public class NewParentEmailShouldNotExistValidator implements ConstraintValidator<NewParentEmailShouldNotExist, String> {
     
     private static Logger logger = LoggerFactory.getLogger(NewParentEmailShouldNotExistValidator.class);

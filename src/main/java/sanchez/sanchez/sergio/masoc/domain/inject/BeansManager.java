@@ -19,6 +19,7 @@ import sanchez.sanchez.sergio.masoc.domain.service.ISchoolService;
 import sanchez.sanchez.sergio.masoc.domain.service.ISocialMediaService;
 import sanchez.sanchez.sergio.masoc.domain.service.ISonService;
 import sanchez.sanchez.sergio.masoc.domain.service.IStatisticsService;
+import sanchez.sanchez.sergio.masoc.domain.service.ITerminalService;
 import sanchez.sanchez.sergio.masoc.domain.service.ITokenGeneratorService;
 import sanchez.sanchez.sergio.masoc.domain.service.IUserSystemService;
 
@@ -77,6 +78,9 @@ public class BeansManager {
 	
 	@Autowired
 	private IUserSystemService userSystemService;
+	
+	@Autowired
+	private ITerminalService terminalService;
 	
 	@Autowired
 	private Set<Injectable> injectables = new HashSet();
@@ -201,6 +205,15 @@ public class BeansManager {
 
 	public void setTokenGeneratorService(ITokenGeneratorService tokenGeneratorService) {
 		this.tokenGeneratorService = tokenGeneratorService;
+	}
+
+
+	public ITerminalService getTerminalService() {
+		return terminalService;
+	}
+
+	public void setTerminalService(ITerminalService terminalService) {
+		this.terminalService = terminalService;
 	}
 
 	public IUserSystemService getUserSystemService() {

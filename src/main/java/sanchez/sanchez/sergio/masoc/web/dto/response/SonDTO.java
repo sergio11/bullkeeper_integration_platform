@@ -14,26 +14,66 @@ public class SonDTO extends ResourceSupport implements Serializable{
 
 	private static final long serialVersionUID = 1L;
 	
+	/**
+	 * Identity
+	 */
 	@JsonProperty("identity")
 	private String identity;
+	
+	/**
+	 * Fist Name
+	 */
 	@JsonProperty("first_name")
     private String firstName;
+	
+	/**
+	 * Last Name
+	 */
 	@JsonProperty("last_name")
     private String lastName;
+	
+	/**
+	 * Birthdate
+	 */
 	@JsonProperty("birthdate")
     private String birthdate;
+	
+	/**
+	 * Age
+	 */
 	@JsonProperty("age")
     private Integer age;
+	
+	/**
+	 * School
+	 */
 	@JsonProperty("school")
     private SchoolDTO school;
+	
+	/**
+	 * Profile Image
+	 */
 	@JsonProperty("profile_image")
     private String profileImage;
+	
+	/**
+	 * Alert Statistics
+	 */
 	@JsonProperty("alert_statistics")
 	private Map<AlertLevelEnum, Long> alertsStatistics;
 	
+	/**
+	 * Terminals
+	 */
+	@JsonProperty("terminals")
+	private Iterable<TerminalDTO> terminals;
+	
+	
     public SonDTO(){}
    
-	public SonDTO(String identity, String firstName, String lastName, String birthdate, Integer age, SchoolDTO school, String profileImage, Map<AlertLevelEnum, Long> alertsStatistics) {
+	public SonDTO(String identity, String firstName, String lastName, 
+			String birthdate, Integer age, SchoolDTO school, String profileImage, 
+			Map<AlertLevelEnum, Long> alertsStatistics, Iterable<TerminalDTO> terminals) {
 		super();
 		this.identity = identity;
 		this.firstName = firstName;
@@ -43,6 +83,7 @@ public class SonDTO extends ResourceSupport implements Serializable{
 		this.school = school;
 		this.profileImage = profileImage;
 		this.alertsStatistics = alertsStatistics;
+		this.terminals = terminals;
 	}
 
 	public String getBirthdate() {
@@ -107,6 +148,16 @@ public class SonDTO extends ResourceSupport implements Serializable{
 
 	public void setAlertsStatistics(Map<AlertLevelEnum, Long> alertsStatistics) {
 		this.alertsStatistics = alertsStatistics;
+	}
+	
+	
+
+	public Iterable<TerminalDTO> getTerminals() {
+		return terminals;
+	}
+
+	public void setTerminals(Iterable<TerminalDTO> terminals) {
+		this.terminals = terminals;
 	}
 
 	@Override

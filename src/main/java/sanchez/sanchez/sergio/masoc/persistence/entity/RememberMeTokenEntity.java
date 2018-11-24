@@ -8,6 +8,12 @@ import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+
+/**
+ * Remember
+ * @author sergiosanchezsanchez
+ *
+ */
 @Document(collection = RememberMeTokenEntity.COLLECTION_NAME)
 public class RememberMeTokenEntity {
 	

@@ -5,21 +5,41 @@ import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+/**
+ * Comment Analysis Results Entity
+ * @author sergiosanchezsanchez
+ *
+ */
 @Document
 public class CommentAnalysisResultsEntity {
 
+	/**
+	 * Sentiment
+	 */
 	@Field("sentiment")
 	private AnalysisEntity sentiment = new AnalysisEntity(AnalysisTypeEnum.SENTIMENT);
 	
+	/**
+	 * Violence
+	 */
 	@Field("violence")
 	private AnalysisEntity violence = new AnalysisEntity(AnalysisTypeEnum.VIOLENCE);
 	
+	/**
+	 * Drugs
+	 */
 	@Field("drugs")
 	private AnalysisEntity drugs = new AnalysisEntity(AnalysisTypeEnum.DRUGS);
 	
+	/**
+	 * Adult
+	 */
 	@Field("adult")
 	private AnalysisEntity adult = new AnalysisEntity(AnalysisTypeEnum.ADULT);
 	
+	/**
+	 * Bullying
+	 */
 	@Field("bullying")
 	private AnalysisEntity bullying = new AnalysisEntity(AnalysisTypeEnum.BULLYING);
 	

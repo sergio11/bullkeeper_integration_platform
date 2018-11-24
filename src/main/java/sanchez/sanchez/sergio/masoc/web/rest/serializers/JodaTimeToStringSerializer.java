@@ -20,7 +20,8 @@ public class JodaTimeToStringSerializer extends JsonSerializer<LocalTime> {
 	/**
 	 * Date Time Formatter
 	 */
-	protected DateTimeFormatter fmt = DateTimeFormat.forPattern("hh:mm a");
+
+	protected DateTimeFormatter fmt = DateTimeFormat.forPattern("HH:mm:ss.SSS");
 	
 
 	/**

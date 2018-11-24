@@ -11,15 +11,27 @@ public final class ParentEntity extends UserSystemEntity {
 
     public final static String COLLECTION_NAME = "parents";
 
+    /**
+     * Telephone
+     */
     @Field("telephone")
     private String telephone;
 
+    /**
+     * FB Access Token
+     */
     @Field("fb_access_token")
     private String fbAccessToken;
 
+    /**
+     * FB Id
+     */
     @Field("fb_id")
     private String fbId;
     
+    /**
+     * Google Id
+     */
     @Field("google_id")
     private String googleId;
 

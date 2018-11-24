@@ -34,4 +34,35 @@ public interface ITerminalRepository extends MongoRepository<TerminalEntity, Obj
 	 */
 	Long countById(final ObjectId id);
 	
+	/**
+	 * Count By Device Id
+	 * @param deviceId
+	 * @return
+	 */
+	Long countByDeviceId(final String deviceId);
+	
+	/**
+	 * Find by id and Son Entity id
+	 * @param id
+	 * @param sonId
+	 * @return
+	 */
+	TerminalEntity findByIdAndSonEntityId(final ObjectId id, final ObjectId sonId);
+	
+	/**
+	 * Find By Device Id
+	 * @param deviceId
+	 * @return
+	 */
+	TerminalEntity findByDeviceId(final String deviceId);
+	
+	/**
+	 * Find By Device Id
+	 * @param deviceId
+	 * @param sonId
+	 * @return
+	 */
+	TerminalEntity findByDeviceIdAndSonEntityId(final String deviceId, final ObjectId sonId);
+	
+	
 }

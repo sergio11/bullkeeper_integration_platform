@@ -10,8 +10,10 @@ import org.springframework.util.Assert;
 
 import sanchez.sanchez.sergio.masoc.mapper.ImageUploadMapper;
 import sanchez.sanchez.sergio.masoc.persistence.entity.ParentEntity;
+import sanchez.sanchez.sergio.masoc.persistence.entity.ScheduledBlockEntity;
 import sanchez.sanchez.sergio.masoc.persistence.entity.SonEntity;
 import sanchez.sanchez.sergio.masoc.persistence.repository.ParentRepository;
+import sanchez.sanchez.sergio.masoc.persistence.repository.ScheduledBlockRepository;
 import sanchez.sanchez.sergio.masoc.persistence.repository.SonRepository;
 import sanchez.sanchez.sergio.masoc.web.dto.response.ImageDTO;
 import sanchez.sanchez.sergio.masoc.web.uploads.models.RequestUploadFile;
@@ -25,6 +27,11 @@ import java.net.URL;
 import org.apache.commons.io.IOUtils;
 import org.springframework.http.MediaType;
 
+/**
+ * Upload Files Service Impl
+ * @author sergiosanchezsanchez
+ *
+ */
 @Service
 public final class UploadFilesServiceImpl implements IUploadFilesService {
 
@@ -34,15 +41,30 @@ public final class UploadFilesServiceImpl implements IUploadFilesService {
     private final ParentRepository parentRepository;
     private final SonRepository sonRepository;
     private final ImageUploadMapper imageUploadMapper;
+    private final ScheduledBlockRepository scheduledRepository;
 
+    /**
+     * 
+     * @param uploadStrategy
+     * @param parentRepository
+     * @param imageUploadMapper
+     * @param sonRepository
+     * @param scheduledRepository
+     */
     public UploadFilesServiceImpl(IUploadStrategy<String, RequestUploadFile> uploadStrategy, 
-            ParentRepository parentRepository, ImageUploadMapper imageUploadMapper, SonRepository sonRepository) {
+            ParentRepository parentRepository, ImageUploadMapper imageUploadMapper,
+            SonRepository sonRepository, final ScheduledBlockRepository scheduledRepository) {
         this.uploadStrategy = uploadStrategy;
         this.parentRepository = parentRepository;
         this.imageUploadMapper = imageUploadMapper;
         this.sonRepository = sonRepository;
+        this.scheduledRepository = scheduledRepository;
     }
     
+    
+    /**
+     * Upload Parent Profile Image
+     */
     @Override
     public ImageDTO uploadParentProfileImage(ObjectId userId, RequestUploadFile requestUploadFile) {
         Assert.notNull(userId, "User Id can not be null");
@@ -57,6 +79,9 @@ public final class UploadFilesServiceImpl implements IUploadFilesService {
         return imageUploadMapper.uploadFileInfoToImageDTO(fileInfo);
     }
     
+    /**
+     * Upload Son Profile Image
+     */
     @Override
     public ImageDTO uploadSonProfileImage(ObjectId userId, RequestUploadFile requestUploadFile) {
         Assert.notNull(userId, "User Id can not be null");
@@ -71,16 +96,25 @@ public final class UploadFilesServiceImpl implements IUploadFilesService {
         return imageUploadMapper.uploadFileInfoToImageDTO(fileInfo);
     }
     
+    /**
+     * Get Profile Image
+     */
     @Override
-    public UploadFileInfo getProfileImage(String id) {
+    public UploadFileInfo getImage(String id) {
     	return uploadStrategy.get(id);
     }
     
+    /**
+     * Delete Profile Image
+     */
     @Override
-    public void deleteProfileImage(String id) {
+    public void deleteImage(String id) {
         uploadStrategy.delete(id);
     }
     
+    /**
+     * Upload Parent Profile Image From URL
+     */
     @Override
     public ImageDTO uploadParentProfileImageFromUrl(ObjectId userId, String imageUrl) {
         Assert.notNull(userId, "User Id can not be null");
@@ -100,11 +134,58 @@ public final class UploadFilesServiceImpl implements IUploadFilesService {
         }
         return null;
     }
+    
+    /**
+     * Upload Scheduled Block Image
+     */
+    @Override
+	public ImageDTO uploadScheduledBlockImage(final ObjectId childId, final ObjectId blockId,
+			final RequestUploadFile requestUploadFile) {
+    	Assert.notNull(childId, "Child Id can not be null");
+        Assert.notNull(blockId, "Block Id can not be null");
+        Assert.notNull(requestUploadFile, "Request Upload File can not be null");
+        
+        // Get Scheduled Block
+        final ScheduledBlockEntity scheduledBlockEntity = 
+        		scheduledRepository.findByIdAndSonId(blockId, childId);
+        
+        // Save File
+        final String scheduledBlockImage = uploadStrategy.save(requestUploadFile);
+        
+       
+        if(scheduledBlockEntity.getImage() != null)
+             uploadStrategy.delete(scheduledBlockEntity.getImage());
+        
+        scheduledBlockEntity.setImage(scheduledBlockImage);
+        
+        scheduledRepository.save(scheduledBlockEntity);
+        
+        // Get Upload file info
+        UploadFileInfo fileInfo = uploadStrategy.get(scheduledBlockImage);
+        
+        return imageUploadMapper.uploadFileInfoToImageDTO(fileInfo);
+     
+	}
+    
+    /**
+     * Get Scheduled Block Image
+     */
+    @Override
+	public UploadFileInfo getScheduledBlockImage(final ObjectId childId, final ObjectId blockId) {
+    	Assert.notNull(childId, "Child Id can not be null");
+        Assert.notNull(blockId, "Block Id can not be null");
+        
+        // Get Scheduled Block
+        final ScheduledBlockEntity scheduledBlockEntity = 
+        		scheduledRepository.findByIdAndSonId(blockId, childId);
+         
+        // Get Upload file info
+        return uploadStrategy.get(scheduledBlockEntity.getImage());
+       
+	}
 
     @PostConstruct
     protected void init() {
         Assert.notNull(uploadStrategy, "Upload Strategy can not be null");
     }
-
-    
 }

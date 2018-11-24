@@ -3,7 +3,7 @@ package sanchez.sanchez.sergio.masoc.persistence.constraints;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import sanchez.sanchez.sergio.masoc.persistence.repository.IScheduledBlockRepository;
+import sanchez.sanchez.sergio.masoc.persistence.repository.ScheduledBlockRepository;
 
 /**
  * Scheduled Block Validator
@@ -16,7 +16,7 @@ public class IsWeeklyFrequencyValidValidator implements ConstraintValidator<IsWe
 	 * Scheduled Block Repository
 	 */
     @Autowired
-    private IScheduledBlockRepository scheduledBlockRepository;
+    private ScheduledBlockRepository scheduledBlockRepository;
     
     @Override
     public void initialize(IsWeeklyFrequencyValid constraintAnnotation) {}

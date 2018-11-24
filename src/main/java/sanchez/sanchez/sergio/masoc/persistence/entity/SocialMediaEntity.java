@@ -19,37 +19,70 @@ public class SocialMediaEntity {
     
     public final static String COLLECTION_NAME = "social_media";
     
+    /**
+     * Id
+     */
     @Id
     private ObjectId id;
     
+    /**
+     * Access Token
+     */
     @Field("access_token")
     private String accessToken;
     
+    /**
+     * Refresh Token
+     */
     @Field("refresh_token")
     private String refreshToken;
     
+    /**
+     * Social Media Type
+     */
     @Field("social_media_type")
     private SocialMediaTypeEnum type;
     
+    /**
+     * User Social Name
+     */
     @Field("user_social_name")
     private String userSocialName;
     
+    /**
+     * User Social Full Name
+     */
     @Field("user_social_full_name")
     private String userSocialFullName;
     
+    /**
+     * User Picture
+     */
     @Field("user_picture")
     private String userPicture;
     
+    /**
+     * Invalid Token
+     */
     @Field("invalid_token")
     private Boolean invalidToken = Boolean.FALSE;
     
+    /**
+     * Scheduled For
+     */
     @Field("scheduled_for")
     private Long scheduledFor;
     
+    /**
+     * Last Probing
+     */
     @Field("last_probing")
     @DateTimeFormat(iso=ISO.DATE_TIME)
     private Date lastProbing;
     
+    /**
+     * Target
+     */
     @Field("target")
     @DBRef
     private SonEntity sonEntity;

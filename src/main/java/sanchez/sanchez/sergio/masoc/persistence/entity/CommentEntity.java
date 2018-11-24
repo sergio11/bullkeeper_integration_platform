@@ -19,37 +19,70 @@ public class CommentEntity {
 
     public final static String COLLECTION_NAME = "comments";
 
+    /**
+     * Id
+     */
     @Id
     private ObjectId id;
     
+    /**
+     * External ID
+     */
     @Field("external_id")
     private String externalId;
 
+    /**
+     * Message
+     */
     @Field("message")
     private String message;
 
+    /**
+     * Likes
+     */
     @Field("likes")
     private Long likes = 0l;
 
+    /**
+     * Created Time
+     */
     @Field("created_time")
     private Date createdTime;
     
+    /**
+     * Extracted At
+     */
     @Field("extracted_at")
     private Date extractedAt = new Date();
     
+    /**
+     * Extracted Times
+     */
     @Field("extracted_times")
     private Integer extractedTimes = 1;
 
+    /**
+     * Social Media
+     */
     @Field("social_media")
     private SocialMediaTypeEnum socialMedia;
     
+    /**
+     * Author
+     */
     @Field("author")
     private CommentAuthorEntity author = new CommentAuthorEntity();
 
+    /**
+     * Target
+     */
     @Field("target")
     @DBRef
     private SonEntity sonEntity;
     
+    /**
+     * Analysis Results
+     */
     @Field("analysis_results")
     @CascadeSave
     private CommentAnalysisResultsEntity analysisResults = new CommentAnalysisResultsEntity();

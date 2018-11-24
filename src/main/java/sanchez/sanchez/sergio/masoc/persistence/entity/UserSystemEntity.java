@@ -16,30 +16,57 @@ public class UserSystemEntity extends PersonEntity {
 
     public final static String COLLECTION_NAME = "users";
 
+    /**
+     * Email
+     */
     @Field("email")
     protected String email;
 
+    /**
+     * Password
+     */
     @Field("password")
     protected String password;
 
+    /**
+     * Password Request At
+     */
     @Field("password_requested_at")
     protected String passwordRequestedAt;
 
+    /**
+     * Is Active
+     */
     @Field("is_active")
     protected Boolean active = Boolean.TRUE;
 
+    /**
+     * Is Locked
+     */
     @Field("is_locked")
     protected Boolean locked = Boolean.FALSE;
 
+    /**
+     * Last Login Access
+     */
     @Field("last_login_access")
     protected Date lastLoginAccess;
 
+    /**
+     * Pending Deletion
+     */
     @Field("pending_deletion")
     protected Boolean pendingDeletion = Boolean.FALSE;
 
+    /**
+     * Locale
+     */
     @Field("locale")
     protected Locale locale = Locale.getDefault();
 
+    /**
+     * Last Password Reset Date
+     */
     @Field("last_password_reset_date")
     protected Date lastPasswordResetDate;
 
@@ -47,12 +74,21 @@ public class UserSystemEntity extends PersonEntity {
     @Field("confirmation_token")
     protected String confirmationToken;
 
+    /**
+     * Last Access To Alerts
+     */
     @Field("last_access_to_alerts")
     protected Date lastAccessToAlerts = new Date();
     
+    /**
+     * Preferences
+     */
     @Field("preferences")
     protected PreferencesEntity preferences = new PreferencesEntity();
 
+    /**
+     * Authority
+     */
     @DBRef
     protected AuthorityEntity authority;
 

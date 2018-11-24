@@ -43,7 +43,7 @@ public class ControllerHelper {
     	try {
             
             if(profileImageId != null && !profileImageId.isEmpty()) {
-                imageInfo = uploadFilesService.getProfileImage(profileImageId);
+                imageInfo = uploadFilesService.getImage(profileImageId);
                 if (imageInfo == null) {
                    imageInfo = getUserDefaultImage();
                 }

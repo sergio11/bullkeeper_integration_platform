@@ -6,9 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import sanchez.sanchez.sergio.masoc.persistence.constraints.SonShouldExists;
 
 /**
- * 
  * @author sergiosanchezsanchez
- *
  */
 public final class SaveTerminalDTO implements Serializable {
 
@@ -81,6 +79,12 @@ public final class SaveTerminalDTO implements Serializable {
 	@JsonProperty("device_name")
 	private String deviceName;
 	
+	/**
+	 * Device ID
+	 */
+	@NotBlank(message = "{terminal.device.id.notblank}")
+	@JsonProperty("device_id")
+	private String deviceId;
 	
 	/**
 	 * Son Should Exists
@@ -102,11 +106,12 @@ public final class SaveTerminalDTO implements Serializable {
 	 * @param model
 	 * @param codeName
 	 * @param deviceName
+	 * @param deviceId
 	 * @param sonId
 	 */
 	public SaveTerminalDTO(String appVersionName, String appVersionCode, String osVersion, String sdkVersion,
 			String manufacturer, String marketName, String model, String codeName, String deviceName,
-			String sonId) {
+			String deviceId, String sonId) {
 		super();
 		this.appVersionName = appVersionName;
 		this.appVersionCode = appVersionCode;
@@ -117,6 +122,7 @@ public final class SaveTerminalDTO implements Serializable {
 		this.model = model;
 		this.codeName = codeName;
 		this.deviceName = deviceName;
+		this.deviceId = deviceId;
 		this.sonId = sonId;
 	}
 
@@ -191,6 +197,15 @@ public final class SaveTerminalDTO implements Serializable {
 
 	public void setDeviceName(String deviceName) {
 		this.deviceName = deviceName;
+	}
+	
+
+	public String getDeviceId() {
+		return deviceId;
+	}
+
+	public void setDeviceId(String deviceId) {
+		this.deviceId = deviceId;
 	}
 
 	public String getSonId() {

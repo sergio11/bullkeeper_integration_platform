@@ -388,7 +388,7 @@ public class ParentsController extends BaseController implements IParentHAL, ISo
     public ResponseEntity<APIResponse<String>> deleteProfileImage(
             @ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent) {
         String profileImage = parentsService.getProfileImage(selfParent.getUserId());
-        uploadFilesService.deleteProfileImage(profileImage);
+        uploadFilesService.deleteImage(profileImage);
         return ApiHelper.<String>createAndSendResponse(ParentResponseCode.PROFILE_IMAGE_DELETED_SUCCESSFULLY, 
         		HttpStatus.OK, messageSourceResolver.resolver("image.deleted.successfully"));
     }
