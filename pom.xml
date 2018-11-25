@@ -4,11 +4,11 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>sanchez.sanchez.sergio</groupId>
-    <artifactId>masoc-integration-platform</artifactId>
-    <version>0.0.96-SNAPSHOT</version>
+    <artifactId>bullkeeper-integration-platform</artifactId>
+    <version>0.0.97-SNAPSHOT</version>
     <packaging>${packaging.type}</packaging>
-    <name>MASOC Integration Platform</name>
-    <description>MASOC Integration Platform. EIPs patterns with Spring Integration.</description>
+    <name>BullKeeper Integration Platform</name>
+    <description>BullKeeper Integration Platform. EIPs patterns with Spring Integration.</description>
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
@@ -45,7 +45,7 @@
 			<properties>
 				<packaging.type>war</packaging.type>
         		<activatedProperties>prod</activatedProperties>
-        		<start-class>sanchez.sanchez.sergio.masoc.MasocIntegrationPlatformProductionApplication</start-class>
+        		<start-class>sanchez.sanchez.sergio.masoc.BullKeeperIntegrationPlatformProductionApplication</start-class>
         		<!-- asciidoctor -->
 		        <asciidoctor.input.directory>${project.basedir}/src/docs/asciidoc</asciidoctor.input.directory>
 		        <asciidoctor.html.output.directory>${project.build.directory}/asciidoc/html</asciidoctor.html.output.directory>
@@ -84,7 +84,7 @@
 			
 			<build>
 			
-				<finalName>masoc-integration-platform</finalName>
+				<finalName>bullkeeper-integration-platform</finalName>
 			
 				<resources>
 			        <resource>
@@ -118,12 +118,12 @@
 		                    <apiSources>
 		                        <apiSource>
 		                            <springmvc>true</springmvc>
-		                            <locations>sanchez.sanchez.sergio.masoc.web.rest.controller</locations>
+		                            <locations>sanchez.sanchez.sergio.bullkeeper.web.rest.controller</locations>
 		                            <schemes>http,https</schemes>
 		                            <host>masoc-integration-platform</host>
 		                            <basePath>/api</basePath>
 		                            <info>
-		                                <title>REST API for MASOC Proyect</title>
+		                                <title>REST API for BullKeeper Proyect</title>
 		                                <version>v1</version>
 		                                <description>
 		                                	La plataforma ofrece iteroperabilidad con otros sistemas, permite que la información de los medios sociales, usuarios objeto del análisis, padres, colegios. 
@@ -313,7 +313,7 @@
 			<properties>
 				<packaging.type>jar</packaging.type>
 				<activatedProperties>dev</activatedProperties>
-				<start-class>sanchez.sanchez.sergio.masoc.MasocIntegrationPlatformDevelopmentApplication</start-class>
+				<start-class>sanchez.sanchez.sergio.masoc.BullKeeperIntegrationPlatformDevelopmentApplication</start-class>
 			</properties>
 			<dependencies>
 				<dependency>
