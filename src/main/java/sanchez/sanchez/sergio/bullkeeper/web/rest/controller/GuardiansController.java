@@ -33,6 +33,7 @@ import sanchez.sanchez.sergio.bullkeeper.domain.service.IAlertService;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IAuthenticationService;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IDeletePendingEmailService;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IGuardianService;
+import sanchez.sanchez.sergio.bullkeeper.domain.service.IKidService;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IPasswordResetTokenService;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.ITokenGeneratorService;
 import sanchez.sanchez.sergio.bullkeeper.events.AccountDeletionRequestEvent;
@@ -45,7 +46,12 @@ import sanchez.sanchez.sergio.bullkeeper.exception.NoAlertsFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoChildrenFoundForGuardianException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoChildrenFoundForSelfGuardianException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoGuardiansFoundException;
+import sanchez.sanchez.sergio.bullkeeper.exception.NoSupervisedChildrenConfirmedFoundException;
+import sanchez.sanchez.sergio.bullkeeper.exception.NoSupervisedChildrenNoConfirmedFoundException;
+import sanchez.sanchez.sergio.bullkeeper.exception.SupervisedChildrenNoConfirmedNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.GuardianShouldExists;
+import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.KidShouldExists;
+import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.SupervisedChildrenShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ValidObjectId;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.group.ICommonSequence;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.group.IResendActivationEmailSequence;
@@ -71,6 +77,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.response.GuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ImageDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.JwtAuthenticationResponseDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidGuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.PasswordResetTokenDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.SupervisedChildrenDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.UserSystemPreferencesDTO;
@@ -124,6 +131,7 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
     private final IAlertService alertService;
     private final IDeletePendingEmailService deletePendingEmailService;
     private final IGoogleService googleService;
+    private final IKidService kidService;
  
     /**
      * 
@@ -136,11 +144,13 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
      * @param alertService
      * @param deletePendingEmailService
      * @param googleService
+     * @param kidService
      */
     public GuardiansController(IGuardianService guardiansService, IPasswordResetTokenService passwordResetTokenService, 
     		IAuthenticationService authenticationService, IFacebookService facebookService, 
                 ITokenGeneratorService tokenGeneratorService, IUploadFilesService uploadFilesService, IAlertService alertService,
-                 IDeletePendingEmailService deletePendingEmailService, IGoogleService googleService) {
+                 IDeletePendingEmailService deletePendingEmailService, IGoogleService googleService,
+                 final IKidService kidService) {
         this.guardiansService = guardiansService;
         this.passwordResetTokenService = passwordResetTokenService;
         this.authenticationService = authenticationService;
@@ -150,6 +160,7 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
         this.alertService = alertService;
         this.deletePendingEmailService = deletePendingEmailService;
         this.googleService = googleService;
+        this.kidService = kidService;
     }
    
     
@@ -1237,6 +1248,252 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
     	return ApiHelper.<KidDTO>createAndSendResponse(GuardianResponseCode.SAVE_KID_INFORMATION, 
 				HttpStatus.OK, addLinksToKid(sonDTO));
     }
+    
+    
+    /**
+     * Get Supervised Children COnfirmed
+     * @param id
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/self/children/confirmed", method = RequestMethod.GET)
+    @OnlyAccessForGuardian
+    @ApiOperation(value = "GET_SUPERVISED_CHILDREN_CONFIRMED", 
+    	nickname = "GET_SUPERVISED_CHILDREN_CONFIRMED", notes = "Get Supervised Children Confirmed", 
+    	response = Iterable.class)
+    public ResponseEntity<APIResponse<Iterable<KidGuardianDTO>>> getSupervisedChildrenConfirmed(
+    		@ApiParam(hidden = true) 
+				@CurrentUser CommonUserDetailsAware<ObjectId> selfGuardian) throws Throwable {
+        
+    	logger.debug("Get Supervised Children Confirmed");
+    	
+    	// Get Supervised Children Confirmed
+    	final Iterable<KidGuardianDTO> supervisedChildrenList = 
+    			kidService.findSupervisedChildrenConfirmed(selfGuardian.getUserId());
+    	
+    	
+    	if(Iterables.isEmpty(supervisedChildrenList))
+    		throw new NoSupervisedChildrenConfirmedFoundException();
+    	
+    	
+    	// Create and send response
+    	return ApiHelper.<Iterable<KidGuardianDTO>>createAndSendResponse(GuardianResponseCode.GET_SUPERVISED_CHILDREN_CONFIRMED, 
+				HttpStatus.OK, supervisedChildrenList);
+    }
+    
+    /**
+     * Get Supervised Children No confirmed
+     * @param id
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/self/children/no-confirmed", method = RequestMethod.GET)
+    @OnlyAccessForGuardian
+    @ApiOperation(value = "GET_SUPERVISED_CHILDREN_NO_CONFIRMED", 
+    	nickname = "GET_SUPERVISED_CHILDREN_NO_CONFIRMED", notes = "Get Supervised Children No Confirmed", 
+    		response = Iterable.class)
+    public ResponseEntity<APIResponse<Iterable<KidGuardianDTO>>> getSupervisedChildrenNoConfirmed(
+    		@ApiParam(hidden = true) 
+				@CurrentUser CommonUserDetailsAware<ObjectId> selfGuardian) throws Throwable {
+        
+    	logger.debug("Get Supervised Children No Confirmed");
+    	
+    	// Get Supervised Children No Confirmed
+    	final Iterable<KidGuardianDTO> supervisedChildrenList = 
+    			kidService.findSupervisedChildrenNoConfirmed(selfGuardian.getUserId());
+    	
+    	if(Iterables.isEmpty(supervisedChildrenList))
+    		throw new NoSupervisedChildrenNoConfirmedFoundException();
+    	
+    	// Create and send response
+    	return ApiHelper.<Iterable<KidGuardianDTO>>createAndSendResponse(GuardianResponseCode.GET_SUPERVISED_CHILDREN_NO_CONFIRMED, 
+				HttpStatus.OK, supervisedChildrenList);
+    }
+    
+    /**
+     * Get Supervised Children No confirmed
+     * @param id
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/self/children/no-confirmed", method = RequestMethod.DELETE)
+    @OnlyAccessForGuardian
+    @ApiOperation(value = "DELETE_SUPERVISED_CHILDREN_NO_CONFIRMED", 
+    	nickname = "DELETE_SUPERVISED_CHILDREN_NO_CONFIRMED", 
+    		notes = "Delete Supervised Children No Confirmed", response = String.class)
+    public ResponseEntity<APIResponse<String>> deleteSupervisedChildrenNoConfirmed(
+    		@ApiParam(hidden = true) 
+				@CurrentUser CommonUserDetailsAware<ObjectId> selfGuardian) throws Throwable {
+        
+    	logger.debug("Delete Supervised Children No Confirmed");
+    	
+    	// Delete Supervised Children No Confirmed
+    	kidService.deleteSupervisedChildrenNoConfirmed(selfGuardian.getUserId());
+    	
+    	// Create and send response
+    	return ApiHelper.<String>createAndSendResponse(GuardianResponseCode.DELETE_SUPERVISED_CHILDREN_NO_CONFIRMED, 
+				HttpStatus.OK, messageSourceResolver.resolver("parents.delete.pending"));
+    }
+    
+    
+    /**
+     * Accept Supervised Children No confirmed
+     * @param id
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = { "/self/children/no-confirmed", "/self/children/no-confirmed/all" }, 
+    			method = RequestMethod.POST)
+    @OnlyAccessForGuardian
+    @ApiOperation(value = "ACCEPT_SUPERVISED_CHILDREN_NO_CONFIRMED", 
+    	nickname = "ACCEPT_SUPERVISED_CHILDREN_NO_CONFIRMED", 
+    		notes = "Accept Supervised Children No Confirmed", response = String.class)
+    public ResponseEntity<APIResponse<String>> acceptSupervisedChildrenNoConfirmed(
+    		@ApiParam(hidden = true) 
+				@CurrentUser CommonUserDetailsAware<ObjectId> selfGuardian) throws Throwable {
+        
+    	logger.debug("Accept Supervised Children No Confirmed");
+    	
+    	// Accept Supervised Children No Confirmed
+    	kidService.acceptSupervisedChildrenNoConfirmed(selfGuardian.getUserId());
+    	
+    	// Create and send response
+    	return ApiHelper.<String>createAndSendResponse(GuardianResponseCode.ACCEPT_SUPERVISED_CHILDREN_NO_CONFIRMED, 
+				HttpStatus.OK, messageSourceResolver.resolver("parents.delete.pending"));
+    }
+    
+    
+    /**
+     * Get Supervised Children No confirmed
+     * @param id
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/self/children/no-confirmed/{id}", method = RequestMethod.GET)
+    @OnlyAccessForGuardian
+    @ApiOperation(value = "GET_SUPERVISED_CHILDREN_NO_CONFIRMED_DETAIL", 
+    	nickname = "GET_SUPERVISED_CHILDREN_NO_CONFIRMED_DETAIL", 
+    		notes = "Get Supervised Children No Confirmed Detail", response = KidGuardianDTO.class)
+    public ResponseEntity<APIResponse<KidGuardianDTO>> getSupervisedChildrenNoConfirmedDetail(
+    		@ApiParam(name= "id", value = "Supervised Children Identifier", required = true)
+    			@Valid @SupervisedChildrenShouldExists(message = "{son.id.notvalid}")
+    		 		@PathVariable final String id) throws Throwable {
+        
+    	logger.debug("Get Supervised Children No Confirmed");
+    	
+    	return Optional.ofNullable(kidService.findSupervisedChildrenNoConfirmedById(new ObjectId(id)))
+    				.map(kidGuardianDTO -> ApiHelper.<KidGuardianDTO>createAndSendResponse(GuardianResponseCode.GET_SUPERVISED_CHILDREN_NO_CONFIRMED_DETAIL, 
+        		HttpStatus.OK, kidGuardianDTO))
+        .orElseThrow(() -> { throw new SupervisedChildrenNoConfirmedNotFoundException(); });
+    }
+    	
+    
+    /**
+     * Delete Supervised Children No confirmed
+     * @param id
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/self/children/no-confirmed/{id}", method = RequestMethod.DELETE)
+    @OnlyAccessForGuardian
+    @ApiOperation(value = "DELETE_SUPERVISED_CHILDREN_NO_CONFIRMED", 
+    	nickname = "DELETE_SUPERVISED_CHILDREN_NO_CONFIRMED", 
+    		notes = "Delete Supervised Children No Confirmed", response = String.class)
+    public ResponseEntity<APIResponse<String>> deleteSupervisedChildrenNoConfirmed(
+    		@ApiParam(name= "id", value = "Supervised Children Identifier", required = true)
+    			@Valid @SupervisedChildrenShouldExists(message = "{son.id.notvalid}")
+    		 		@PathVariable final String id) throws Throwable {
+        
+    	logger.debug("Delete Supervised Children No Confirmed");
+    	
+    	// Delete Supervised Children No Confirmed By Id
+    	kidService.deleteSupervisedChildrenNoConfirmedById(new ObjectId(id));
+    	
+    	// Create and send response
+    	return ApiHelper.<String>createAndSendResponse(GuardianResponseCode.DELETE_SUPERVISED_CHILDREN_NO_CONFIRMED_BY_ID, 
+				HttpStatus.OK, messageSourceResolver.resolver("parents.delete.pending"));
+    }
+    
+    /**
+     * Accept Supervised Children No confirmed
+     * @param id
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/self/children/no-confirmed/{id}", method = RequestMethod.POST)
+    @OnlyAccessForGuardian
+    @ApiOperation(value = "ACCEPT_SUPERVISED_CHILDREN_NO_CONFIRMED", 
+    	nickname = "ACCEPT_SUPERVISED_CHILDREN_NO_CONFIRMED", 
+    		notes = "Accept Supervised Children No Confirmed", response = String.class)
+    public ResponseEntity<APIResponse<String>> acceptSupervisedChildrenNoConfirmed(
+    		@ApiParam(name= "id", value = "Supervised Children Identifier", required = true)
+    			@Valid @SupervisedChildrenShouldExists(message = "{son.id.notvalid}")
+    		 		@PathVariable final String id) throws Throwable {
+        
+    	logger.debug("Accept Supervised Children No Confirmed");
+    	
+    	// Accept Supervised Children No Confirmed By Id
+    	kidService.acceptSupervisedChildrenNoConfirmedById(new ObjectId(id));
+    	
+    	// Create and send response
+    	return ApiHelper.<String>createAndSendResponse(GuardianResponseCode.ACCEPT_SUPERVISED_CHILDREN_NO_CONFIRMED_BY_ID, 
+				HttpStatus.OK, messageSourceResolver.resolver("parents.delete.pending"));
+    }
+    
+    
+    /**
+     * Get Supervised Children confirmed
+     * @param id
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/self/children/confirmed/{id}", method = RequestMethod.GET)
+    @OnlyAccessForGuardian
+    @ApiOperation(value = "GET_SUPERVISED_CHILDREN_CONFIRMED_DETAIL", 
+    	nickname = "GET_SUPERVISED_CHILDREN_CONFIRMED_DETAIL", 
+    		notes = "Get Supervised Children Confirmed Detail", response = KidGuardianDTO.class)
+    public ResponseEntity<APIResponse<KidGuardianDTO>> getSupervisedChildrenConfirmedDetail(
+    		@ApiParam(name= "id", value = "Supervised Children Identifier", required = true)
+    			@Valid @SupervisedChildrenShouldExists(message = "{son.id.notvalid}")
+    		 		@PathVariable final String id) throws Throwable {
+        
+    	logger.debug("Get Supervised Children Confirmed");
+    	
+    	return Optional.ofNullable(kidService.findSupervisedChildrenConfirmedById(new ObjectId(id)))
+				.map(kidGuardianDTO -> ApiHelper.<KidGuardianDTO>createAndSendResponse(GuardianResponseCode.GET_SUPERVISED_CHILDREN_CONFIRMED_DETAIL, 
+    		HttpStatus.OK, kidGuardianDTO))
+				.orElseThrow(() -> { throw new SupervisedChildrenNoConfirmedNotFoundException(); });
+    	
+   
+    }
+    
+    /**
+     * Delete Supervised Children confirmed
+     * @param id
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/self/children/confirmed/{id}", method = RequestMethod.DELETE)
+    @OnlyAccessForGuardian
+    @ApiOperation(value = "DELETE_SUPERVISED_CHILDREN_CONFIRMED", 
+    	nickname = "DELETE_SUPERVISED_CHILDREN_CONFIRMED", 
+    		notes = "Delete Supervised Children Confirmed", response = String.class)
+    public ResponseEntity<APIResponse<String>> deleteSupervisedChildrenConfirmed(
+    		@ApiParam(name= "id", value = "Supervised Children Identifier", required = true)
+    			@Valid @SupervisedChildrenShouldExists(message = "{son.id.notvalid}")
+    		 		@PathVariable final String id) throws Throwable {
+        
+    	logger.debug("Delete Supervised Children Confirmed");
+    	
+    	// Delete Supervised Children Confirmed By Id
+    	kidService.deleteSupervisedChildrenConfirmedById(new ObjectId(id));
+    	
+    	// Create and send response
+    	return ApiHelper.<String>createAndSendResponse(GuardianResponseCode.DELETE_SUPERVISED_CHILDREN_CONFIRMED_BY_ID, 
+				HttpStatus.OK, messageSourceResolver.resolver("parents.delete.pending"));
+    }
+    
+    
     
     /**
      * Save Preferences

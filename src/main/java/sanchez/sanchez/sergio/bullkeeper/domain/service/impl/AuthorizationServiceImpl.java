@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import io.jsonwebtoken.lang.Assert;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IAuthorizationService;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.GuardianEntity;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.GuardianRolesEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.GuardianRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.SupervisedChildrenRepository;
 import sanchez.sanchez.sergio.bullkeeper.web.security.AuthoritiesConstants;
@@ -104,7 +105,8 @@ public class AuthorizationServiceImpl implements IAuthorizationService {
             
         	// Check is your guardian
             isYourGuardian = supervisedChildrenRepository
-            	.countByGuardianIdAndIsConfirmed(new ObjectId(id), true) > 0;
+            	.countByGuardianIdAndKidIdAndIsConfirmedTrue(userDetails.getUserId(), 
+            			new ObjectId(id)) > 0;
             
         }
         return isYourGuardian;
@@ -172,6 +174,46 @@ public class AuthorizationServiceImpl implements IAuthorizationService {
         }
         return itIsAProfileImageOfYourSupervisedKid;
     }
+   
+    /**
+     * is your guardian and can edit parental control rules
+     */
+    @Override
+	public Boolean isYourGuardianAndCanEditParentalControlRules(String id) {
+		Assert.notNull(id, "Id can not be null");
+		
+		boolean isAllowed = Boolean.FALSE;
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (!(auth instanceof AnonymousAuthenticationToken)) {
+            CommonUserDetailsAware<ObjectId> userDetails = (CommonUserDetailsAware<ObjectId>) auth.getPrincipal();
+            isAllowed = 
+            		supervisedChildrenRepository
+            		.countByGuardianIdAndKidIdAndRoleInAndIsConfirmedTrue(userDetails.getUserId(), new ObjectId(id),
+            				Arrays.asList(GuardianRolesEnum.ADMIN, GuardianRolesEnum.PARENTAL_CONTROL_RULE_EDITOR)) > 0;
+        }
+        return isAllowed;
+       
+	}
+
+    /**
+     * Is Your Guardian and can edit kid information
+     */
+	@Override
+	public Boolean isYourGuardianAndCanEditKidInformation(String id) {
+		Assert.notNull(id, "Id can not be null");
+		
+		boolean isAllowed = Boolean.FALSE;
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (!(auth instanceof AnonymousAuthenticationToken)) {
+            CommonUserDetailsAware<ObjectId> userDetails = (CommonUserDetailsAware<ObjectId>) auth.getPrincipal();
+            
+            isAllowed = 
+            		supervisedChildrenRepository
+            			.countByGuardianIdAndKidIdAndRoleInAndIsConfirmedTrue(userDetails.getUserId(), new ObjectId(id),
+            					Arrays.asList(GuardianRolesEnum.ADMIN)) > 0;
+        }
+        return isAllowed;
+	}
 
     /**
      * Init
@@ -182,5 +224,4 @@ public class AuthorizationServiceImpl implements IAuthorizationService {
         Assert.notNull(guardianRepository, "Guardian Repository can not be null");
 
     }
-
 }

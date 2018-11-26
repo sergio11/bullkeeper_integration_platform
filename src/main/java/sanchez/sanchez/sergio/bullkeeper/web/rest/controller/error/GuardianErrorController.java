@@ -24,6 +24,10 @@ import sanchez.sanchez.sergio.bullkeeper.exception.InvalidFacebookIdException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoChildrenFoundForGuardianException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoChildrenFoundForSelfGuardianException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoGuardiansFoundException;
+import sanchez.sanchez.sergio.bullkeeper.exception.NoSupervisedChildrenConfirmedFoundException;
+import sanchez.sanchez.sergio.bullkeeper.exception.NoSupervisedChildrenNoConfirmedFoundException;
+import sanchez.sanchez.sergio.bullkeeper.exception.SupervisedChildrenConfirmedNotFoundException;
+import sanchez.sanchez.sergio.bullkeeper.exception.SupervisedChildrenNoConfirmedNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.ApiHelper;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.controller.BaseController;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.response.APIResponse;
@@ -206,7 +210,58 @@ public class GuardianErrorController extends BaseController{
     			messageSourceResolver.resolver("parent.email.already.exists"));
     }
     
+    /**
+     * 
+     * @param noSupervisedChildrenConfirmedFoundException
+     * @param request
+     * @return
+     */
+    @ExceptionHandler(NoSupervisedChildrenConfirmedFoundException.class)
+    @ResponseBody
+    protected ResponseEntity<APIResponse<String>> handleNoSupervisedChildrenConfirmedFoundException(NoSupervisedChildrenConfirmedFoundException noSupervisedChildrenConfirmedFoundException, HttpServletRequest request) {
+    	return ApiHelper.<String>createAndSendErrorResponseWithHeader(GuardianResponseCode.NO_SUPERVISED_CHILDREN_CONFIRMED_FOUND, 
+    			HttpStatus.NOT_FOUND, messageSourceResolver.resolver("parent.email.already.exists"));
+    }
     
+    /**
+     * 
+     * @param noSupervisedChildrenNoConfirmedFoundException
+     * @param request
+     * @return
+     */
+    @ExceptionHandler(NoSupervisedChildrenNoConfirmedFoundException.class)
+    @ResponseBody
+    protected ResponseEntity<APIResponse<String>> handleNoSupervisedChildrenNoConfirmedFoundException(NoSupervisedChildrenNoConfirmedFoundException noSupervisedChildrenNoConfirmedFoundException, HttpServletRequest request) {
+    	return ApiHelper.<String>createAndSendErrorResponseWithHeader(GuardianResponseCode.NO_SUPERVISED_CHILDREN_NO_CONFIRMED_FOUND, 
+    			HttpStatus.NOT_FOUND, messageSourceResolver.resolver("parent.email.already.exists"));
+    }
+    
+    /**
+     * 
+     * @param supervisedChildrenConfirmedNotFoundException
+     * @param request
+     * @return
+     */
+    @ExceptionHandler(SupervisedChildrenConfirmedNotFoundException.class)
+    @ResponseBody
+    protected ResponseEntity<APIResponse<String>> handleSupervisedChildrenConfirmedNotFoundException(SupervisedChildrenConfirmedNotFoundException supervisedChildrenConfirmedNotFoundException, HttpServletRequest request) {
+    	return ApiHelper.<String>createAndSendErrorResponseWithHeader(GuardianResponseCode.SUPERVISED_CHILDREN_CONFIRMED_NOT_FOUND_EXCEPTION, 
+    			HttpStatus.NOT_FOUND, messageSourceResolver.resolver("parent.email.already.exists"));
+    }
+    
+    
+    /**
+     * 
+     * @param supervisedChildrenConfirmedNotFoundException
+     * @param request
+     * @return
+     */
+    @ExceptionHandler(SupervisedChildrenNoConfirmedNotFoundException.class)
+    @ResponseBody
+    protected ResponseEntity<APIResponse<String>> handleSupervisedChildrenNoConfirmedNotFoundException(SupervisedChildrenNoConfirmedNotFoundException supervisedChildrenNoConfirmedNotFoundException, HttpServletRequest request) {
+    	return ApiHelper.<String>createAndSendErrorResponseWithHeader(GuardianResponseCode.SUPERVISED_CHILDREN_NOT_CONFIRMED_NOT_FOUND_EXCEPTION, 
+    			HttpStatus.NOT_FOUND, messageSourceResolver.resolver("parent.email.already.exists"));
+    }
     
     /**
      * 

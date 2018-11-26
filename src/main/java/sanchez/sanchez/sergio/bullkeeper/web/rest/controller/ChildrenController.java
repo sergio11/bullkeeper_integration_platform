@@ -66,6 +66,7 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ViolenceLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.util.ValidList;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppInstalledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppRulesDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveGuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveScheduledBlockDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveScheduledBlockStatusDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveSocialMediaDTO;
@@ -77,6 +78,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CommunitiesStatisticsD
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.DimensionsStatisticsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ImageDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidGuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ScheduledBlockDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.SentimentAnalysisStatisticsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.SocialMediaActivityStatisticsDTO;
@@ -217,7 +219,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#id) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && "
+    		+ "@authorizationService.isYourGuardianAndCanEditKidInformation(#id) )")
     @ApiOperation(value = "DELETE_KID_BY_ID", nickname = "DELETE_KID_BY_ID", notes = "Delete KId By Id", 
     		response = KidDTO.class)
     public ResponseEntity<APIResponse<String>> deleteKidById(
@@ -228,12 +231,48 @@ public class ChildrenController extends BaseController
         
         logger.debug("Delete Kid with id: " + id);
         
+        
+        // Delete Kid By Id
         kidService.deleteById(id);
         
+        // Create and send response
         return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.CHILD_DELETED_SUCCESSFULLY,
                 HttpStatus.OK, messageSourceResolver.resolver("son.deleted.successfully"));
     }
     
+   
+    /**
+     * Save Guardians
+     * @param id
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{id}/guardians", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && "
+    		+ "@authorizationService.isYourGuardianAndCanEditKidInformation(#id) )")
+    @ApiOperation(value = "SAVE_GUARDIANS_FOR_KID", nickname = "SAVE_GUARDIANS_FOR_KID", 
+    	notes = "Save Guardians for kid", response = Iterable.class)
+    public ResponseEntity<APIResponse<Iterable<KidGuardianDTO>>> saveGuardians(
+    		@ApiParam(name= "id", value = "Kid identified", required = true)
+    			@Valid @KidShouldExists(message = "{son.id.notvalid}")
+    		 		@PathVariable String id,
+    		@ApiParam(value = "guardians", required = true) 
+				@Validated(ICommonSequence.class)
+    				@RequestBody final ValidList<SaveGuardianDTO> guardians) throws Throwable {
+    	
+    	logger.debug("Save Guardians -> " + guardians.size());
+    	
+    	
+    	
+    	
+    	
+    	return null;
+    }
+    
+    
+
+   
+ 
     /**
      * Get Comments By Kid
      * @param id
@@ -302,7 +341,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{id}/image", method = RequestMethod.POST)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#id) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole()"
+    		+ " && @authorizationService.isYourGuardianAndCanEditKidInformation(#id) )")
     @ApiOperation(value = "UPLOAD_PROFILE_IMAGE_FOR_KID", nickname = "UPLOAD_PROFILE_IMAGE_FOR_KID",
     	notes = "Upload Profile Image For Kid")
     @ApiResponses(value = {
@@ -380,7 +420,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/social/add", method = RequestMethod.POST)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#socialMedia.kid) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardianAndCanEditKidInformation(#socialMedia.kid) )")
     @ApiOperation(value = "ADD_SOCIAL_MEDIA", nickname = "ADD_SOCIAL_MEDIA", notes = "Add Social Media",
             response = SocialMediaDTO.class)
     public ResponseEntity<APIResponse<SocialMediaDTO>> deleteAllSocialMedia(
@@ -401,7 +442,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/social/update", method = RequestMethod.POST)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#socialMedia.kid) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && "
+    		+ "@authorizationService.isYourGuardianAndCanEditKidInformation(#socialMedia.kid) )")
     @ApiOperation(value = "UPDATE_SOCIAL_MEDIA", nickname = "UPDATE_SOCIAL_MEDIA", notes = "Update Social Media",
             response = SocialMediaDTO.class)
     public ResponseEntity<APIResponse<SocialMediaDTO>> updateSocialMediaToSon(
@@ -422,7 +464,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/social/save", method = RequestMethod.POST)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#socialMedia.kid) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() &&"
+    		+ " @authorizationService.isYourGuardianAndCanEditKidInformation(#socialMedia.kid) )")
     @ApiOperation(value = "SAVE_SOCIAL_MEDIA", nickname = "SAVE_SOCIAL_MEDIA", notes = "Save Social Media",
             response = SocialMediaDTO.class)
     public ResponseEntity<APIResponse<SocialMediaDTO>> saveSocialMediaToSon(
@@ -569,7 +612,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{id}/social/save/all", method = RequestMethod.POST)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#id) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardianAndCanEditKidInformation(#id) )")
     @ApiOperation(value = "SAVE_ALL_SOCIAL_MEDIA", nickname = "SAVE_ALL_SOCIAL_MEDIA", notes = "Save Social Media",
             response = SocialMediaDTO.class)
     public ResponseEntity<APIResponse<Iterable<SocialMediaDTO>>> saveAllSocialMediaToSon(
@@ -580,12 +624,13 @@ public class ChildrenController extends BaseController
 				@Validated(ICommonSequence.class) 
     		@RequestBody ValidList<SaveSocialMediaDTO> socialMedias) throws Throwable {
     	
-    	
+    	// Save Social Media information
     	Iterable<SocialMediaDTO> socialMediaEntitiesSaved = socialMediaService.save(socialMedias.getList(), id);
     	
     	if(Iterables.size(socialMediaEntitiesSaved) == 0)
     		throw new SocialMediaNotFoundException();
     	
+    	// Create and send response
     	return ApiHelper.<Iterable<SocialMediaDTO>>createAndSendResponse(SocialMediaResponseCode.ALL_SOCIAL_MEDIA_SAVED, 
 				HttpStatus.OK, addLinksToSocialMedia(socialMediaEntitiesSaved));    
     }
@@ -597,7 +642,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{id}/social/delete/all", method = RequestMethod.DELETE)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#id) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardianAndCanEditKidInformation(#id) )")
     @ApiOperation(value = "DELETE_ALL_SOCIAL_MEDIA", nickname = "DELETE_ALL_SOCIAL_MEDIA", 
     	notes = "Delete all social media of kid", response = List.class)
     //@OnlyAccessForAdminOrGuardianOfTheKid(son = "#id")
@@ -622,7 +668,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{kid}/social/delete/{social}", method = RequestMethod.DELETE)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardianAndCanEditKidInformation(#kid) )")
     @ApiOperation(value = "DELETE_SOCIAL_MEDIA", nickname = "DELETE_SOCIAL_MEDIA", 
     	notes = "Delete a single social media", response = SocialMediaDTO.class)
     public ResponseEntity<APIResponse<String>> deleteSocialMedia(
@@ -895,8 +942,10 @@ public class ChildrenController extends BaseController
         
     	logger.debug("Clear alerts of son with id: " + id);
         
+    	// Clear Kid Alerts By Level
         Long alertsDeleted = alertService.clearKidAlertsByLevel(new ObjectId(id), AlertLevelEnum.WARNING);
        
+        // Create and send response
         return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.CHILD_WARNING_ALERTS_CLEANED, 
         		HttpStatus.OK, alertsDeleted.toString());
         
