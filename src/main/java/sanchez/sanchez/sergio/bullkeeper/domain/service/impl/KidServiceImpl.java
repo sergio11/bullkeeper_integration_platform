@@ -10,11 +10,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.google.common.collect.Iterables;
+
 import io.jsonwebtoken.lang.Assert;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IKidService;
 import sanchez.sanchez.sergio.bullkeeper.mapper.KidEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.SupervisedChildrenEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.KidEntity;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SocialMediaEntity;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SocialMediaTypeEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SupervisedChildrenEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.AlertRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.CommentRepository;
@@ -23,11 +27,15 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.repository.SocialMediaRepos
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.SupervisedChildrenRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.TaskRepository;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveGuardianDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveSocialMediaDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidGuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.uploads.service.IUploadFilesService;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
@@ -165,19 +173,103 @@ public class KidServiceImpl implements IKidService {
      * Save Guardians
      */
     @Override
-	public Iterable<KidGuardianDTO> save(List<SaveGuardianDTO> guardians) {
+	public Iterable<KidGuardianDTO> save(List<SaveGuardianDTO> guardians, final ObjectId kid) {
     	Assert.notNull(guardians, "Guardians can not be null");
+    	Assert.notNull(kid, "Kid can not be null");
     	
-    	final Iterable<SupervisedChildrenEntity> supervisedChildrenEntitiesToSave = 
-    			supervisedChildrenEntityMapper.saveGuardianDTOToSupervisedChildrenEntity(guardians);
-		
-    	// Save Supervised Children
-    	final Iterable<SupervisedChildrenEntity> supervisedChildrenEntitiesSaved = 
-    			supervisedChildrenRepository.save(supervisedChildrenEntitiesToSave);
+    	Iterable<KidGuardianDTO> result = new ArrayList<KidGuardianDTO>();
     	
-    	return supervisedChildrenEntityMapper
-    			.supervisedChildrenEntityToKidGuardiansDTO(supervisedChildrenEntitiesSaved);
-    	
+    	// Guardians To Save
+    	final Iterable<SupervisedChildrenEntity> guardiansToSave = 
+    			supervisedChildrenEntityMapper
+    				.saveGuardianDTOToSupervisedChildrenEntity(guardians);
+        
+    	// Get Current Guardians
+        final List<SupervisedChildrenEntity> guardiansSaved = supervisedChildrenRepository
+        		.findByKidId(kid);
+        
+        
+        if(guardiansSaved.isEmpty()) {
+        	// Save Guardians
+        	final List<SupervisedChildrenEntity> supervisedChildrenSaved = 
+        			supervisedChildrenRepository.save(guardiansToSave);
+        	
+        	result = supervisedChildrenEntityMapper
+        				.supervisedChildrenEntityToKidGuardiansDTO(supervisedChildrenSaved);
+        	
+        } else if (Iterables.size(guardiansToSave) == 0) {
+        	// Delete all by kid id
+        	supervisedChildrenRepository.deleteByKidId(kid);
+        } else {
+        	
+        	final List<SupervisedChildrenEntity> supervisedChildToSave = 
+    				new ArrayList<>();
+        	
+        	if(guardiansSaved.size() > Iterables.size(guardiansToSave)) {
+   
+        		
+        		for(final SupervisedChildrenEntity supervisedChildren: guardiansSaved) {
+        			final Iterator<SupervisedChildrenEntity> iterator = guardiansToSave.iterator();
+        			while(iterator.hasNext()) {
+        				final SupervisedChildrenEntity currentSupervisedChild = iterator.next();
+        				if(currentSupervisedChild.getId() != null) {
+        					if(supervisedChildren.getId()
+        							.equals(currentSupervisedChild.getId())) {
+            					// Set Role
+            					supervisedChildren
+            						.setRole(currentSupervisedChild.getRole());
+            					
+            					supervisedChildToSave.add(supervisedChildren);
+        					}
+        				} else
+        					supervisedChildToSave.add(currentSupervisedChild);
+        			}
+        			
+        		}
+        		
+        	} else {
+        		
+        		final Iterator<SupervisedChildrenEntity> iterator = guardiansToSave.iterator();
+    			while(iterator.hasNext()) {
+    				// Current Supervised Child
+    				final SupervisedChildrenEntity currentSupervisedChild = iterator.next();
+    				
+    				if(currentSupervisedChild.getId() != null) {
+    					
+    					boolean isFound = false;
+    					for(final SupervisedChildrenEntity supervisedChildren: guardiansSaved) {
+        					
+        					if(currentSupervisedChild.getId()
+        							.equals(supervisedChildren.getId())) {
+        						isFound = true;
+        						// Set Role
+        						supervisedChildren.setRole(currentSupervisedChild.getRole());
+        						supervisedChildToSave.add(supervisedChildren);
+        						break;
+        					}
+        					
+        				}
+    					
+    					if(!isFound)
+    						supervisedChildToSave.add(currentSupervisedChild);
+    					
+    				} else {
+    					supervisedChildToSave.add(currentSupervisedChild);
+    				}
+    		
+    			}
+        		
+        	}
+        	
+        	supervisedChildrenRepository.deleteByKidId(kid);
+        	// Save Supervised Child
+    		result = supervisedChildrenEntityMapper
+    				.supervisedChildrenEntityToKidGuardiansDTO(
+    						supervisedChildrenRepository.save(supervisedChildToSave));
+        	
+        }
+        
+        return result;
 	}
     
     /**

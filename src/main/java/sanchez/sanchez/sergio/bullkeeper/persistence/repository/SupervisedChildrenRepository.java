@@ -30,6 +30,13 @@ public interface SupervisedChildrenRepository extends
 	 */
 	List<SupervisedChildrenEntity> findByGuardianId(final ObjectId id);
 	
+	/**
+	 * Find by kid Id
+	 * @param id
+	 * @return
+	 */
+	List<SupervisedChildrenEntity> findByKidId(final ObjectId id);
+	
 	
 	/**
 	 * Find By Guardian Id And Role And Is Confirmed
@@ -181,4 +188,28 @@ public interface SupervisedChildrenRepository extends
 	SupervisedChildrenEntity findByIdAndIsConfirmedFalse(final ObjectId id);
 	
 	
+	/**
+	 * Count By Guardian Id
+	 * @param id
+	 * @param isConfirmed
+	 * @return
+	 */
+	long countByGuardianId(final ObjectId guardian);
+	
+	/**
+	 * Count By Guardian Id And Is Confirmed True
+	 * @param id
+	 * @param isConfirmed
+	 * @return
+	 */
+	long countByGuardianIdAndIsConfirmedTrue(final ObjectId guardian);
+	
+	/**
+	 * Count By Guardian Id And Is Confirmed False
+	 * @param id
+	 * @param isConfirmed
+	 * @return
+	 */
+	long countByGuardianIdAndIsConfirmedFalse(final ObjectId guardian);
+
 }

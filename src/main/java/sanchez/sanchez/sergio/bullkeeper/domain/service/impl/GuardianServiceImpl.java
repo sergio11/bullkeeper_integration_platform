@@ -4,6 +4,9 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 import org.bson.types.ObjectId;
+import org.mapstruct.Mapping;
+import org.mapstruct.Mappings;
+import org.mapstruct.Named;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +45,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.request.RegisterKidDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveUserSystemPreferencesDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.UpdateGuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.UpdateKidDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ChildrenOfGuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.GuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.SupervisedChildrenDTO;
@@ -150,15 +154,29 @@ public class GuardianServiceImpl implements IGuardianService {
      * Get Kids Of Guardian
      */
     @Override
-    public Iterable<SupervisedChildrenDTO> getKidsOfGuardian(String id) {
+    public ChildrenOfGuardianDTO getKidsOfGuardian(String id) {
     	Assert.notNull(id, "Id can not be null");
     	
     	// Get Supervised Children
     	final Iterable<SupervisedChildrenEntity> supervisedChildrenEntities = supervisedChildrenRepository
     			.findByGuardianId(new ObjectId(id));
     	
-    	return supervisedChildrenEntityMapper
-    			.supervisedChildrenEntitiesToSupervisedChildrenDTOs(supervisedChildrenEntities);
+    	
+    	final ChildrenOfGuardianDTO childrenOfGuardianDTO = new ChildrenOfGuardianDTO();
+    	// Set Total
+    	childrenOfGuardianDTO.setTotal(supervisedChildrenRepository
+    			.countByGuardianId(new ObjectId(id)));
+    	// Set No Confirmed
+    	childrenOfGuardianDTO.setNoConfirmed(supervisedChildrenRepository
+    			.countByGuardianIdAndIsConfirmedFalse(new ObjectId(id)));
+    	// Set Confirmed
+    	childrenOfGuardianDTO.setConfirmed(supervisedChildrenRepository
+    			.countByGuardianIdAndIsConfirmedTrue(new ObjectId(id)));
+    	// Set Supervised Children
+    	childrenOfGuardianDTO.setSupervisedChildren(
+    			supervisedChildrenEntityMapper.supervisedChildrenEntitiesToSupervisedChildrenDTOs(supervisedChildrenEntities));
+    	
+    	return childrenOfGuardianDTO;
     }
 
     /**

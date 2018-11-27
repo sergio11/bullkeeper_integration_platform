@@ -12,6 +12,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.request.RegisterKidDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveUserSystemPreferencesDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.UpdateGuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.UpdateKidDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ChildrenOfGuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.GuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.SupervisedChildrenDTO;
@@ -60,11 +61,11 @@ public interface IGuardianService {
     GuardianDTO getGuardianById(final ObjectId id);
     
     /**
-     * Get Kids of Guardian
+     * Get Kids Of Guardian
      * @param id
      * @return
      */
-    Iterable<SupervisedChildrenDTO> getKidsOfGuardian(final String id);
+    ChildrenOfGuardianDTO getKidsOfGuardian(final String id);
     
     /**
      * Save

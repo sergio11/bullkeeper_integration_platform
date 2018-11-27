@@ -72,9 +72,10 @@ public interface IKidService {
     /**
      * Save Guardian
      * @param guardians
+     * @param kid
      * @return
      */
-    Iterable<KidGuardianDTO> save(final List<SaveGuardianDTO> guardians);
+    Iterable<KidGuardianDTO> save(final List<SaveGuardianDTO> guardians, final ObjectId kid);
     
     /**
      * Find Supervised Children Confirmed
@@ -161,5 +162,7 @@ public interface IKidService {
      * @return
      */
     KidGuardianDTO findSupervisedChildrenConfirmedById(final ObjectId id);
+    
+   
     
 }

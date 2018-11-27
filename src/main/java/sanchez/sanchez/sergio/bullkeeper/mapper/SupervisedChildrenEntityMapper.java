@@ -6,10 +6,10 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SupervisedChildrenEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.GuardianRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.KidRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.SupervisedChildrenRepository;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveGuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidGuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.SupervisedChildrenDTO;
@@ -47,6 +47,13 @@ public abstract class SupervisedChildrenEntityMapper {
 	protected GuardianRepository guardianRepository;
 	
 	/**
+	 * Supervised Children Repository
+	 */
+	@Autowired
+	protected SupervisedChildrenRepository supervisedChildrenRepository;
+
+	
+	/**
 	 * 
 	 * @param supervisedChildrenEntity
 	 * @return
@@ -54,7 +61,6 @@ public abstract class SupervisedChildrenEntityMapper {
 	@Mappings({
         @Mapping(expression="java(supervisedChildrenEntity.getId().toString())", target = "identity" ),
         @Mapping(expression="java(kidEntityMapper.kidEntityToKidDTO(supervisedChildrenEntity.getKid()))", target = "kid" ),
-        @Mapping(source = "supervisedChildrenEntity.requestAt", target = "requestAt", dateFormat = "yyyy/MM/dd"),
         @Mapping(expression="java(supervisedChildrenEntity.getRole().name())", target = "role" )
     })
     @Named("supervisedChildrenEntityToSupervisedChildrenDTO")
@@ -68,6 +74,7 @@ public abstract class SupervisedChildrenEntityMapper {
      */
     @IterableMapping(qualifiedByName = "supervisedChildrenEntityToSupervisedChildrenDTO")
     public abstract Iterable<SupervisedChildrenDTO> supervisedChildrenEntitiesToSupervisedChildrenDTOs(final Iterable<SupervisedChildrenEntity> supervisedChildrenEntities);
+    
     
     
     /**

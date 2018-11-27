@@ -73,6 +73,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.request.UpdateGuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.UpdateKidDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AlertDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AlertsPageDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ChildrenOfGuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.GuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ImageDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.JwtAuthenticationResponseDTO;
@@ -330,7 +331,7 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
     				@PathVariable String id) throws Throwable {
         logger.debug("Get Guardian with id: " + id);
         return Optional.ofNullable(guardiansService.getGuardianById(id))
-                .map(guardianResource -> addLinksToParent(guardianResource))
+                .map(guardianResource -> addLinksToGuardian(guardianResource))
                 .map(guardianResource -> ApiHelper.<GuardianDTO>createAndSendResponse(GuardianResponseCode.SINGLE_GUARDIAN, 
                 		HttpStatus.OK, guardianResource))
                 .orElseThrow(() -> { throw new GuardianNotFoundException(); });
@@ -413,7 +414,7 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
         final GuardianDTO parentDTO = guardiansService.update(new ObjectId(id), updateGuardian);
         // Create and Send Response
         return ApiHelper.<GuardianDTO>createAndSendResponse(GuardianResponseCode.GUARDIAN_UPDATED_SUCCESSFULLY, 
-        				HttpStatus.OK, addLinksToParent(parentDTO));
+        				HttpStatus.OK, addLinksToGuardian(parentDTO));
     }
     
     
@@ -536,7 +537,7 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
         applicationEventPublisher.publishEvent(new ParentRegistrationSuccessEvent(guardianDTO.getIdentity(), this));
         // Create and Send Response
         return ApiHelper.<GuardianDTO>createAndSendResponse(GuardianResponseCode.GUARDIAN_REGISTERED_SUCCESSFULLY, 
-        				HttpStatus.OK, addLinksToParent(guardianDTO));
+        				HttpStatus.OK, addLinksToGuardian(guardianDTO));
     }
     
     /**
@@ -563,63 +564,7 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
                 messageSourceResolver.resolver("account.activation.email.sent"));
     }
     
-    /**
-     * 
-     * @param id
-     * @return
-     * @throws Throwable
-     */
-    @RequestMapping(value = "/{id}/children", method = RequestMethod.GET)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isTheAuthenticatedUser(#id) )")
-    @ApiOperation(value = "GET_CHILDREN_OF_GUARDIAN", nickname = "GET_CHILDREN_OF_GUARDIAN", 
-            notes = "Get Children of Guardian", response = ResponseEntity.class)
-    public ResponseEntity<APIResponse<Iterable<SupervisedChildrenDTO>>> getChildrenOfGuardian(
-    		@ApiParam(name = "id", value = "Guardian Identfier", required = true)
-    			@Valid @ValidObjectId(message = "{parent.id.notvalid}") 
-    				@GuardianShouldExists(message = "{parent.not.exists}")
-    					@PathVariable String id) throws Throwable {
-        logger.debug("Get Children of Guardian with id: " + id);
-        // Get Kids Of Guardian
-        Iterable<SupervisedChildrenDTO> supervisedChildren = guardiansService.getKidsOfGuardian(id);
-        // check list
-        if(Iterables.size(supervisedChildren) == 0)
-        	throw new NoChildrenFoundForGuardianException();
-        // Create and Send Response
-        return ApiHelper.<Iterable<SupervisedChildrenDTO>>createAndSendResponse(GuardianResponseCode.CHILDREN_OF_GUARDIAN, 
-        		HttpStatus.OK, addLinksToSupervisedChildren((supervisedChildren)));
-        
-    }
-    
-    /**
-     * Get Children of self Guardian
-     * @param selfGuardian
-     * @return
-     * @throws Throwable
-     */
-    @RequestMapping(value = "/self/children", method = RequestMethod.GET)
-    @OnlyAccessForGuardian
-    @ApiOperation(value = "GET_CHILDREN_OF_SELF_GUARDIAN", nickname = "GET_CHILDREN_OF_SELF_GUARDIAN", 
-            notes = "Get Children for the currently authenticated guardian")
-    @ApiResponses(value = { 
-    		@ApiResponse(code = 200, message= "Children of Guardian", response = KidDTO.class)
-    })
-    public ResponseEntity<APIResponse<Iterable<SupervisedChildrenDTO>>> getChildrenOfSelfGuardian(
-    		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfGuardian) throws Throwable {
-        
-    	logger.debug("Get Children of Self Guardian");
-        
-        // Get Supervised Children
-        Iterable<SupervisedChildrenDTO> supervisedChildrenList = 
-        		guardiansService.getKidsOfGuardian(selfGuardian.getUserId().toString());
-        
-        if(Iterables.size(supervisedChildrenList) == 0)
-        	throw new NoChildrenFoundForSelfGuardianException();
-        
-        // Create and Send Response
-        return ApiHelper.<Iterable<SupervisedChildrenDTO>>createAndSendResponse(GuardianResponseCode.CHILDREN_OF_SELF_GUARDIAN, 
-        		HttpStatus.OK, addLinksToSupervisedChildren((supervisedChildrenList)));
    
-    }
     
     /**
      * Get Alerts For Self Guardian
@@ -1117,7 +1062,7 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
         final GuardianDTO guardianDTO = guardiansService.update(selfGuardian.getUserId(), guardian);
         // Create and send response
         return ApiHelper.<GuardianDTO>createAndSendResponse(GuardianResponseCode.SELF_GUARDIAN_UPDATED_SUCCESSFULLY, 
-        				HttpStatus.OK, addLinksToParent(guardianDTO));
+        				HttpStatus.OK, addLinksToGuardian(guardianDTO));
     }
     
     /**
@@ -1151,6 +1096,65 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
     	// Create and Send Response
         return ApiHelper.<String>createAndSendResponse(GuardianResponseCode.SUCCESSFUL_ACCOUNT_DELETION_REQUEST, 
         				HttpStatus.OK, messageSourceResolver.resolver("parents.delete.pending"));
+    }
+    
+    /**
+     * 
+     * @param id
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{id}/children", method = RequestMethod.GET)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isTheAuthenticatedUser(#id) )")
+    @ApiOperation(value = "GET_CHILDREN_OF_GUARDIAN", nickname = "GET_CHILDREN_OF_GUARDIAN", 
+            notes = "Get Children of Guardian", response = ResponseEntity.class)
+    public ResponseEntity<APIResponse<ChildrenOfGuardianDTO>> getChildrenOfGuardian(
+    		@ApiParam(name = "id", value = "Guardian Identfier", required = true)
+    			@Valid @ValidObjectId(message = "{parent.id.notvalid}") 
+    				@GuardianShouldExists(message = "{parent.not.exists}")
+    					@PathVariable String id) throws Throwable {
+        logger.debug("Get Children of Guardian with id: " + id);
+        // Get Kids Of Guardian
+        final ChildrenOfGuardianDTO childrenOfGuardian = 
+        		guardiansService.getKidsOfGuardian(id);
+        // check list
+        if(childrenOfGuardian.getTotal() == 0)
+        	throw new NoChildrenFoundForGuardianException();
+        // Create and Send Response
+        return ApiHelper.<ChildrenOfGuardianDTO>createAndSendResponse(GuardianResponseCode.CHILDREN_OF_GUARDIAN, 
+        		HttpStatus.OK, childrenOfGuardian);
+        
+    }
+    
+    /**
+     * Get Children of self Guardian
+     * @param selfGuardian
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/self/children", method = RequestMethod.GET)
+    @OnlyAccessForGuardian
+    @ApiOperation(value = "GET_CHILDREN_OF_SELF_GUARDIAN", nickname = "GET_CHILDREN_OF_SELF_GUARDIAN", 
+            notes = "Get Children for the currently authenticated guardian")
+    @ApiResponses(value = { 
+    		@ApiResponse(code = 200, message= "Children of Guardian", response = KidDTO.class)
+    })
+    public ResponseEntity<APIResponse<ChildrenOfGuardianDTO>> getChildrenOfSelfGuardian(
+    		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfGuardian) throws Throwable {
+        
+    	logger.debug("Get Children of Self Guardian");
+        
+        // Get Supervised Children
+        final ChildrenOfGuardianDTO childrenOfGuardian  = 
+        		guardiansService.getKidsOfGuardian(selfGuardian.getUserId().toString());
+        
+        if(childrenOfGuardian.getTotal() == 0)
+        	throw new NoChildrenFoundForSelfGuardianException();
+        
+        // Create and Send Response
+        return ApiHelper.<ChildrenOfGuardianDTO>createAndSendResponse(GuardianResponseCode.CHILDREN_OF_SELF_GUARDIAN, 
+        		HttpStatus.OK, childrenOfGuardian);
+   
     }
     
     /**

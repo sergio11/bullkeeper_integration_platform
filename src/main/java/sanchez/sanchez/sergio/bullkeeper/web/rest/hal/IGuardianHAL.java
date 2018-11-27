@@ -7,9 +7,11 @@ import org.springframework.hateoas.Resource;
 import org.springframework.http.ResponseEntity;
 
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AlertDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ChildrenOfGuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.GuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ImageDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidGuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.SupervisedChildrenDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.controller.AlertController;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.controller.GuardiansController;
@@ -24,20 +26,51 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
  */
 public interface IGuardianHAL {
 
-    default GuardianDTO addLinksToParent(final GuardianDTO guardianResource) {
+	
+	/**
+	 * Add Links To Guardian
+	 * @param guardianResource
+	 * @return
+	 */
+    default GuardianDTO addLinksToGuardian(final GuardianDTO guardianResource) {
     	
         Link selfLink = linkTo(GuardiansController.class).slash(guardianResource.getIdentity())
         		.withSelfRel();
         
         guardianResource.add(selfLink);
         try {
-            if (guardianResource.getChildren() > 0) {
-                ResponseEntity<APIResponse<Iterable<SupervisedChildrenDTO>>> methodLinkBuilder = 
+            
+        	if (guardianResource.getChildren() > 0) {
+        		
+        		
+        		// Children Of Guardian Method link
+                ResponseEntity<APIResponse<ChildrenOfGuardianDTO>> childrenOfGuardianMethodLinkBuilder = 
                 		methodOn(GuardiansController.class)
                         .getChildrenOfGuardian(guardianResource.getIdentity());
                 
-                Link childrenLink = linkTo(methodLinkBuilder).withRel("children");
-                guardianResource.add(childrenLink);
+                Link childrenOfGuardianList = linkTo(childrenOfGuardianMethodLinkBuilder).withRel("children");
+                
+                guardianResource.add(childrenOfGuardianList);
+                
+                // Supervised Children Method Link
+                ResponseEntity<APIResponse<Iterable<KidGuardianDTO>>> supervisedChildrenConfirmedMethodLinkBuilder = 
+                		methodOn(GuardiansController.class)
+                        .getSupervisedChildrenConfirmed(null);
+                
+                Link supervisedChildrenConfirmed = linkTo(supervisedChildrenConfirmedMethodLinkBuilder).withRel("children_confirmed");
+                
+                guardianResource.add(supervisedChildrenConfirmed);
+                
+                
+                // Supervised Children Method Link
+                ResponseEntity<APIResponse<Iterable<KidGuardianDTO>>> supervisedChildrenNoConfirmedMethodLinkBuilder = 
+                		methodOn(GuardiansController.class)
+                        .getSupervisedChildrenNoConfirmed(null);
+                
+                Link supervisedChildrenNoConfirmed = linkTo(supervisedChildrenNoConfirmedMethodLinkBuilder).withRel("children_noconfirmed");
+                
+                guardianResource.add(supervisedChildrenNoConfirmed);
+                
             }
 
             ResponseEntity<APIResponse<KidDTO>> methodLinkBuilder = methodOn(GuardiansController.class)
@@ -51,11 +84,16 @@ public interface IGuardianHAL {
         return guardianResource;
     }
 
+    /**
+     * Add Links To Self Guardian
+     * @param guardianResource
+     * @return
+     */
     default GuardianDTO addLinksToSelfGuardian(final GuardianDTO guardianResource) {
         Link selfLink = linkTo(GuardiansController.class).slash("self").withSelfRel();
         guardianResource.add(selfLink);
         try {
-            if (guardianResource.getChildren() > 0) {
+            /*if (guardianResource.getChildren() > 0) {
 
                 ResponseEntity<APIResponse<Iterable<SupervisedChildrenDTO>>> methodLinkBuilder = 
                 		methodOn(GuardiansController.class)
@@ -63,7 +101,7 @@ public interface IGuardianHAL {
                 Link childrenLink = linkTo(methodLinkBuilder).withRel("children");
                 guardianResource.add(childrenLink);
 
-            }
+            }*/
             // All Alerts
             ResponseEntity<APIResponse<PagedResources<Resource<AlertDTO>>>> allAlertsLinkBuilder = methodOn(AlertController.class)
                     .getAllSelfAlerts(null, null, null, null);
@@ -111,16 +149,26 @@ public interface IGuardianHAL {
         return guardianResource;
     }
 
+    /**
+     * Add Links To Guardian
+     * @param guardiansResources
+     * @return
+     */
     default Iterable<GuardianDTO> addLinksToGuardians(final Iterable<GuardianDTO> guardiansResources) {
         for (GuardianDTO guardianResource : guardiansResources) {
-            addLinksToParent(guardianResource);
+            addLinksToGuardian(guardianResource);
         }
         return guardiansResources;
     }
 
+    /**
+     * Add Links To Guadian
+     * @param guardianPage
+     * @return
+     */
     default Page<GuardianDTO> addLinksToGuardian(final Page<GuardianDTO> guardianPage) {
         for (GuardianDTO parentResource : guardianPage.getContent()) {
-            addLinksToParent(parentResource);
+            addLinksToGuardian(parentResource);
         }
         return guardianPage;
     }

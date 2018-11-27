@@ -197,7 +197,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#id) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() "
+    		+ "|| ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#id) )")
     @ApiOperation(value = "GET_KID_BY_ID", nickname = "GET_KID_BY_ID", notes = "Get Kid By Id", response = KidDTO.class)
     public ResponseEntity<APIResponse<KidDTO>> getSonById(
     		@ApiParam(name= "id", value = "Kid identified", required = true)
@@ -262,17 +263,16 @@ public class ChildrenController extends BaseController
     	
     	logger.debug("Save Guardians -> " + guardians.size());
     	
+    	// Save Guardians
+    	final Iterable<KidGuardianDTO> kidGuardiansDTOs = 
+    			kidService.save(guardians.getList(), new ObjectId(id));
     	
-    	
-    	
-    	
-    	return null;
+    	// Create and send response
+        return ApiHelper.<Iterable<KidGuardianDTO>>createAndSendResponse(ChildrenResponseCode.CHILD_GUARDIANS_SAVED,
+                HttpStatus.OK, kidGuardiansDTOs);
     }
     
-    
-
    
- 
     /**
      * Get Comments By Kid
      * @param id
@@ -371,7 +371,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{id}/image", method = RequestMethod.GET)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#id) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() "
+    		+ "|| ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#id) )")
     @ApiOperation(value = "DOWNLOAD_KID_PROFILE_IMAGE", nickname = "DOWNLOAD_KID_PROFILE_IMAGE",
     	notes = "Download Kid Profile Image")
     public ResponseEntity<byte[]> downloadKidProfileImage(

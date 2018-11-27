@@ -56,7 +56,7 @@ public abstract class GuardianEntityMapper {
 	 */
     @Mappings({
         @Mapping(expression="java(guardianEntity.getId().toString())", target = "identity" ),
-        @Mapping(expression="java(supervisedChildrenRepository.countByGuardianIdAndIsConfirmed(guardianEntity.getId(), true))", 
+        @Mapping(expression="java(supervisedChildrenRepository.countByGuardianId(guardianEntity.getId()))", 
         	target = "children" ),
         @Mapping(source = "guardianEntity.birthdate", target = "birthdate", dateFormat = "yyyy/MM/dd"),
         @Mapping(source = "guardianEntity.age", target = "age"),
