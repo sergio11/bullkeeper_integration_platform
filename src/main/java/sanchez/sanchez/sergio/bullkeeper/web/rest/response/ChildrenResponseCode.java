@@ -54,7 +54,8 @@ public enum ChildrenResponseCode implements IResponseCodeTypes {
     SCHEDULED_BLOCK_DETAIL(148L),
     SCHEDULED_BLOCK_STATUS_SAVED(149L),
     SCHEDULED_BLOCK_IMAGE_UPLOADED(150L),
-    CHILD_GUARDIANS_SAVED(151L);
+    CHILD_GUARDIANS_SAVED(151L),
+    CHILD_GUARDIANS(152L);
 
     private Long code;
 

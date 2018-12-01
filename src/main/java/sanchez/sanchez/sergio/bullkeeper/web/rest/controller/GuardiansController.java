@@ -1,14 +1,17 @@
 package sanchez.sanchez.sergio.bullkeeper.web.rest.controller;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import org.bson.types.ObjectId;
+import org.hibernate.validator.constraints.NotBlank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -174,12 +177,12 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
      */
     @RequestMapping(value = {"/", "/all"}, method = RequestMethod.GET)
     @OnlyAccessForAdmin
-    @ApiOperation(value = "GET_ALL_PARENTS", nickname = "GET_ALL_PARENTS", 
-            notes = "Get all Parents")
+    @ApiOperation(value = "GET_ALL_GUARDIANS", nickname = "GET_ALL_GUARDIANS", 
+            notes = "Get all Guardians")
     @ApiResponses(value = { 
     		@ApiResponse(code = 200, message= "", response = PagedResources.class)
     })
-    public ResponseEntity<APIResponse<PagedResources<Resource<GuardianDTO>>>> getAllParents(
+    public ResponseEntity<APIResponse<PagedResources<Resource<GuardianDTO>>>> getAllGuardians(
     		@ApiIgnore @PageableDefault Pageable pageable, 
     		@ApiIgnore PagedResourcesAssembler<GuardianDTO> pagedAssembler) throws Throwable {
         logger.debug("Get all Parents");
@@ -193,6 +196,35 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
         		HttpStatus.OK, pagedAssembler.toResource(addLinksToGuardian((parentPage))));
     }
     
+    
+   /**
+    * 
+    * @param text
+    * @return
+    * @throws Throwable
+    */
+    @RequestMapping(value = "/search", method = RequestMethod.GET)
+    @ApiOperation(value = "SEARCH_GUARDIANS", nickname = "SEARCH_GUARDIANS", 
+            notes = "Find Guardians")
+    @ApiResponses(value = { 
+    		@ApiResponse(code = 200, message= "", response = List.class)
+    })
+    public ResponseEntity<APIResponse<Iterable<GuardianDTO>>> searchGuardians(
+    		@ApiParam(value = "text", required = true) 
+			@Valid @NotBlank(message = "{guardians.text.notblank}") 
+				@RequestParam(value = "text", required = false) final String text,
+			@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfGuardian) throws Throwable {
+        
+    	// Search Guardians
+    	final Iterable<GuardianDTO> resultSearch = guardiansService.search(text, Arrays.asList(
+    			selfGuardian.getUserId()));
+        
+        if(Iterables.size(resultSearch) == 0)
+        	throw new NoGuardiansFoundException();
+        
+        return ApiHelper.<Iterable<GuardianDTO>>createAndSendResponse(GuardianResponseCode.GUARDIANS_RESULT_SEARCH, 
+        		HttpStatus.OK, addLinksToGuardians(resultSearch));
+    }
     /**
      * 
      * @param credentials

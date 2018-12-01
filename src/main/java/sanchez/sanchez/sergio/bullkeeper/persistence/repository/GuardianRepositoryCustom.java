@@ -4,6 +4,7 @@ package sanchez.sanchez.sergio.bullkeeper.persistence.repository;
 import java.util.List;
 import org.bson.types.ObjectId;
 
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.GuardianEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.PreferencesEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.PreferencesEntity.RemoveAlertsEveryEnum;
 
@@ -125,4 +126,11 @@ public interface GuardianRepositoryCustom {
      * @return
      */
     PreferencesEntity getPreferences(ObjectId id);
+    
+    /**
+     * Search
+     * @param text
+     * @return
+     */
+    List<GuardianEntity> search(final String text, final List<ObjectId> exclude);
 }

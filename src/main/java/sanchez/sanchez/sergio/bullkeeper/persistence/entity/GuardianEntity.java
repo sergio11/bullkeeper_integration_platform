@@ -34,6 +34,12 @@ public final class GuardianEntity extends UserSystemEntity {
      */
     @Field("google_id")
     private String googleId;
+    
+    /**
+     * Visible
+     */
+    @Field("visible")
+    private boolean visible = false;
 
     public GuardianEntity() {
     }
@@ -42,7 +48,9 @@ public final class GuardianEntity extends UserSystemEntity {
     public GuardianEntity(String firstName, String lastName, Date birthdate, String profileImage, String email,
             String password, String passwordRequestedAt, Boolean active, Boolean locked, Date lastLoginAccess,
             Boolean pendingDeletion, Locale locale, Date lastPasswordResetDate, String confirmationToken,
-            Date lastAccessToAlerts, PreferencesEntity preferences, AuthorityEntity authority, String telephone, String fbAccessToken, String fbId, String googleId) {
+            Date lastAccessToAlerts, PreferencesEntity preferences, AuthorityEntity authority,
+            String telephone, String fbAccessToken, 
+            String fbId, String googleId, boolean visible) {
         super(firstName, lastName, birthdate, profileImage, email, password, passwordRequestedAt, active, locked,
                 lastLoginAccess, pendingDeletion, locale, lastPasswordResetDate, confirmationToken, lastAccessToAlerts,
                 preferences, authority);
@@ -50,6 +58,7 @@ public final class GuardianEntity extends UserSystemEntity {
         this.fbAccessToken = fbAccessToken;
         this.fbId = fbId;
         this.googleId = googleId;
+        this.visible = visible;
     }
 
     public GuardianEntity(String firstName, String lastName, Date birthdate, String email, String password,
@@ -87,6 +96,15 @@ public final class GuardianEntity extends UserSystemEntity {
 
 	public void setGoogleId(String googleId) {
 		this.googleId = googleId;
+	}
+	
+
+	public boolean isVisible() {
+		return visible;
+	}
+
+	public void setVisible(boolean visible) {
+		this.visible = visible;
 	}
 
 	@Override

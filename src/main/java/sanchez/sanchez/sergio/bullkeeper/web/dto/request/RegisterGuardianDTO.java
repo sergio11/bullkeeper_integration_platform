@@ -88,6 +88,14 @@ public  class RegisterGuardianDTO {
 	@JsonDeserialize(using = PhoneNumberDeserializer.class)
 	protected PhoneNumber telephone;
 	
+	
+	/**
+	 * Visible
+	 */
+	@JsonProperty("visible")
+	protected boolean visible;
+	
+	
 	/**
 	 * Locale
 	 */
@@ -109,9 +117,11 @@ public  class RegisterGuardianDTO {
      * @param confirmPassword
      * @param telephone
      * @param locale
+     * @param visible
      */
 	public RegisterGuardianDTO(String firstName, String lastName, Date birthdate, String email, String passwordClear,
-			String confirmPassword, PhoneNumber telephone, Locale locale) {
+			String confirmPassword, PhoneNumber telephone, Locale locale,
+			boolean visible) {
 		super();
 		this.firstName = firstName;
 		this.lastName = lastName;
@@ -121,6 +131,7 @@ public  class RegisterGuardianDTO {
 		this.confirmPassword = confirmPassword;
 		this.telephone = telephone;
 		this.locale = locale;
+		this.visible = visible;
 	}
 
 
@@ -189,7 +200,14 @@ public  class RegisterGuardianDTO {
 	public void setLocale(Locale locale) {
 		this.locale = locale;
 	}
+	
+	public boolean isVisible() {
+		return visible;
+	}
 
+	public void setVisible(boolean visible) {
+		this.visible = visible;
+	}
 
 	@Override
 	public String toString() {

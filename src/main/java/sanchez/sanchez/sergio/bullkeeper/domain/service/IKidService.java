@@ -163,6 +163,13 @@ public interface IKidService {
      */
     KidGuardianDTO findSupervisedChildrenConfirmedById(final ObjectId id);
     
-   
+    /**
+     * Get Guardians
+     * @param id
+     * @return
+     */
+    Iterable<KidGuardianDTO> getGuardians(final ObjectId id);
+    
+  
     
 }

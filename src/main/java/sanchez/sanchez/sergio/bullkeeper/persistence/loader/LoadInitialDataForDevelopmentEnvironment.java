@@ -108,16 +108,22 @@ public class LoadInitialDataForDevelopmentEnvironment implements CommandLineRunn
     			"federico@gmail.com", "$2a$10$0eCQpFRdw8i6jJzjj/IuNuKpJYnLaO5Yp9xSJ3itcfPmQNXVhmNyu", 
     			guardianRole);
     	
+    	federico.setVisible(true);
+    	
     	guardianList.add(federico);
     	
     	GuardianEntity fernando = new GuardianEntity("Fernando", "Muñoz", guardiansBirthdate.getTime(),
     			"fernando@gmail.com", "$2a$10$0eCQpFRdw8i6jJzjj/IuNuKpJYnLaO5Yp9xSJ3itcfPmQNXVhmNyu",
     			guardianRole);
     	
+    	fernando.setVisible(true);
+    	
     	guardianList.add(fernando);
     	
     	GuardianEntity jaime = new GuardianEntity("Jaime", "Gómez", guardiansBirthdate.getTime(),
     			"jaime@gmail.com", "$2a$10$0eCQpFRdw8i6jJzjj/IuNuKpJYnLaO5Yp9xSJ3itcfPmQNXVhmNyu", guardianRole);
+    	
+    	jaime.setVisible(true);
     	
     	guardianList.add(jaime);
     	

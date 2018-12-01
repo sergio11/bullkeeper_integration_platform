@@ -3,6 +3,7 @@ package sanchez.sanchez.sergio.bullkeeper.persistence.repository.impl;
 
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.bson.types.ObjectId;
@@ -253,4 +254,34 @@ public class GuardianRepositoryImpl implements GuardianRepositoryCustom {
         		.collect(Collectors.toList());
 		
 	}
+   
+   /**
+    * Search
+    */
+   @Override
+   public List<GuardianEntity> search(String text, final List<ObjectId> exclude) {
+	   Assert.notNull(text, "Text can not be null");
+	   
+	   // First Name Criteria
+	   final Criteria firstNameCriteria = Criteria.where("first_name").regex(
+			   Pattern.compile(text, 
+					   Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE));
+	   
+	   // Last Name Criteria
+	   final Criteria lastNameCriteria = Criteria.where("last_name").regex(
+			   Pattern.compile(text, 
+					   Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE));
+	   
+	   // Email Criteria
+	   final Criteria emailCriteria = Criteria.where("email").regex(
+			   Pattern.compile(text, 
+					   Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE));
+
+	   final Criteria criteria = new Criteria();
+       criteria.orOperator(firstNameCriteria, lastNameCriteria, emailCriteria)
+       		.andOperator(Criteria.where("visible").is(true).and("_id").nin(exclude));
+	   
+	   return mongoTemplate.find(new Query(criteria), GuardianEntity.class);
+   }
+
 }

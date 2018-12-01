@@ -67,6 +67,12 @@ public final class UpdateGuardianDTO {
 	@JsonDeserialize(using = PhoneNumberDeserializer.class)
 	private PhoneNumber telephone;
     
+    /**
+     * Visible
+     */
+    @JsonProperty("visible")
+    private boolean visible;
+    
     public UpdateGuardianDTO(){}
    
     /**
@@ -76,14 +82,17 @@ public final class UpdateGuardianDTO {
      * @param birthdate
      * @param email
      * @param telephone
+     * @param visible
      */
-	public UpdateGuardianDTO(String firstName, String lastName, Date birthdate, String email, PhoneNumber telephone) {
+	public UpdateGuardianDTO(String firstName, String lastName, Date birthdate, 
+			String email, PhoneNumber telephone, boolean visible) {
 		super();
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.birthdate = birthdate;
 		this.email = email;
 		this.telephone = telephone;
+		this.visible = visible;
 	}
 
 	public String getFirstName() {
@@ -125,6 +134,12 @@ public final class UpdateGuardianDTO {
 	public void setTelephone(PhoneNumber telephone) {
 		this.telephone = telephone;
 	}
-    
-	
+
+	public boolean isVisible() {
+		return visible;
+	}
+
+	public void setVisible(boolean visible) {
+		this.visible = visible;
+	}
 }

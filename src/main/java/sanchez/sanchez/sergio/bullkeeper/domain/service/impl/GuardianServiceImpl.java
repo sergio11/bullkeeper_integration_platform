@@ -504,6 +504,17 @@ public class GuardianServiceImpl implements IGuardianService {
     	Assert.notNull(idParent, "Id Parent can not be null");
     	return preferencesEntityMapper.preferencesEntityToUserSystemPreferencesDTO(guardianRepository.getPreferences(idParent));
 	}
+    
+    /**
+     * Search Guardians
+     */
+    @Override
+	public Iterable<GuardianDTO> search(final String text, final List<ObjectId> exclude) {
+    	Assert.notNull(text, "Text can not be null");
+    	Assert.notNull(exclude, "exclude can not be null");
+    	final List<GuardianEntity> guardians = guardianRepository.search(text, exclude);
+    	return guardianEntityMapper.guardianEntitiesToGuardianDTOs(guardians);
+	}
 
     /**
      * 
@@ -519,4 +530,6 @@ public class GuardianServiceImpl implements IGuardianService {
         Assert.notNull(preferencesEntityMapper, "Preferences Entity Mapper can not be null");
         Assert.notNull(deviceGroupsService, "DeviceGroupsService can not be null");
     }
+
+	
 }

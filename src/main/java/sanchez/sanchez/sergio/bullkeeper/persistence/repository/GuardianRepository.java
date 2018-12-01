@@ -99,6 +99,7 @@ public interface GuardianRepository extends MongoRepository<GuardianEntity, Obje
      */
     List<GuardianEntity> findByPreferencesPushNotificationsEnabledAndActiveTrueAndLockedFalseAndPendingDeletionFalse(Boolean value);
     
+  
     
     
 }

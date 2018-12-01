@@ -1,6 +1,8 @@
 package sanchez.sanchez.sergio.bullkeeper.domain.service;
 
 
+import java.util.List;
+
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -224,4 +226,13 @@ public interface IGuardianService {
      * @return
      */
     UserSystemPreferencesDTO getPreferences(final ObjectId guardian);
+
+    /**
+     * Search
+     * @param text
+     * @param exclude
+     * @return
+     */
+    Iterable<GuardianDTO> search(final String text, final List<ObjectId> exclude);
+
 }

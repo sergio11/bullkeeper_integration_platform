@@ -42,6 +42,7 @@ import sanchez.sanchez.sergio.bullkeeper.exception.NoAppsInstalledFoundException
 import sanchez.sanchez.sergio.bullkeeper.exception.NoChildrenFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoCommunityStatisticsForThisPeriodException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoDimensionsStatisticsForThisPeriodException;
+import sanchez.sanchez.sergio.bullkeeper.exception.NoKidGuardianFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoScheduledBlockFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoSentimentAnalysisStatisticsForThisPeriodException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoSocialMediaActivityFoundForThisPeriodException;
@@ -270,6 +271,37 @@ public class ChildrenController extends BaseController
     	// Create and send response
         return ApiHelper.<Iterable<KidGuardianDTO>>createAndSendResponse(ChildrenResponseCode.CHILD_GUARDIANS_SAVED,
                 HttpStatus.OK, kidGuardiansDTOs);
+    }
+    
+    /**
+     * Get Guardians
+     * @param id
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{id}/guardians", method = RequestMethod.GET)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && "
+    		+ "@authorizationService.isYourGuardianAndCanEditKidInformation(#id) )")
+    @ApiOperation(value = "GET_GUARDIANS_FOR_KID", nickname = "GET_GUARDIANS_FOR_KID", 
+    	notes = "Get Guardians for kid", response = Iterable.class)
+    public ResponseEntity<APIResponse<Iterable<KidGuardianDTO>>> getGuardians(
+    		@ApiParam(name= "id", value = "Kid identified", required = true)
+    			@Valid @KidShouldExists(message = "{son.id.notvalid}")
+    		 		@PathVariable String id) throws Throwable {
+    	
+    	logger.debug("Get Guardians for -> " + id);
+    	
+    	// Save Guardians
+    	final Iterable<KidGuardianDTO> kidGuardiansDTOs = 
+    			kidService.getGuardians(new ObjectId(id));
+    	
+    	if(Iterables.size(kidGuardiansDTOs) == 0)
+    		throw new NoKidGuardianFoundException();
+    	
+    	// Create and send response
+        return ApiHelper.<Iterable<KidGuardianDTO>>createAndSendResponse(ChildrenResponseCode.CHILD_GUARDIANS,
+                HttpStatus.OK, kidGuardiansDTOs);
+    	
     }
     
    
