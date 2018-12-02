@@ -26,13 +26,13 @@ public final class SupervisedChildrenRepositoryImpl
 	 * Accept Supervised Children No Confirm
 	 */
 	@Override
-	public void acceptSupervisedChildrenNoConfirm(ObjectId guardian) {
-		Assert.notNull(guardian, "Guardian can not be null");
+	public void acceptSupervisedChildrenNoConfirm(ObjectId id) {
+		Assert.notNull(id, "id can not be null");
 		
 		mongoTemplate.updateMulti(
         		new Query(
-        				Criteria.where("guardian")
-        					.is(guardian)),
+        				Criteria.where("_id")
+        					.is(id)),
         		new Update()
         			.set("is_confirmed", true)
         			.set("request_at", null), 

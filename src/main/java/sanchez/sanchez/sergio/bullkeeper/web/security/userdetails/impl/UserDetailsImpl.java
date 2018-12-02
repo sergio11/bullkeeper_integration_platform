@@ -10,6 +10,12 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import sanchez.sanchez.sergio.bullkeeper.web.security.userdetails.CommonUserDetailsAware;
 
+/**
+ * 
+ * @author sergiosanchezsanchez
+ *
+ * @param <T>
+ */
 public class UserDetailsImpl<T> implements CommonUserDetailsAware<T> {
 
     private static Logger logger = LoggerFactory.getLogger(UserDetailsImpl.class);
@@ -28,6 +34,7 @@ public class UserDetailsImpl<T> implements CommonUserDetailsAware<T> {
     private Date lastAccessToAlerts;
     private Date lastLoginAccess;
     private Boolean pendingDeletion;
+    private Boolean isPublicProfile;
 
     public UserDetailsImpl() {}
 
@@ -45,10 +52,12 @@ public class UserDetailsImpl<T> implements CommonUserDetailsAware<T> {
      * @param lastAccessToAlerts
      * @param lastLoginAccess
      * @param pendingDeletion
+     * @param isPublicProfile
      */
     public UserDetailsImpl(T id, String email, String password, String firstName, String lastName,
             Boolean locked, Date lastPasswordResetDate, Boolean active,
-            Set<SimpleGrantedAuthority> grantedAuthorities, Date lastAccessToAlerts, Date lastLoginAccess, Boolean pendingDeletion) {
+            Set<SimpleGrantedAuthority> grantedAuthorities, Date lastAccessToAlerts,
+            Date lastLoginAccess, Boolean pendingDeletion, Boolean isPublicProfile) {
         super();
         this.id = id;
         this.email = email;
@@ -62,6 +71,7 @@ public class UserDetailsImpl<T> implements CommonUserDetailsAware<T> {
         this.lastAccessToAlerts = lastAccessToAlerts;
         this.lastLoginAccess = lastLoginAccess;
         this.pendingDeletion = pendingDeletion;
+        this.isPublicProfile = isPublicProfile;
     }
 
     public T getId() {
@@ -176,6 +186,11 @@ public class UserDetailsImpl<T> implements CommonUserDetailsAware<T> {
 	public Boolean isPendingDelete() {
 		return pendingDeletion;
 	}
+    
+    @Override
+	public Boolean isProfileVisible() {
+		return isPublicProfile;
+	}
 
     @Override
     public String toString() {
@@ -183,4 +198,5 @@ public class UserDetailsImpl<T> implements CommonUserDetailsAware<T> {
                 + ", lastName=" + lastName + ", locked=" + locked + ", grantedAuthorities=" + grantedAuthorities
                 + ", lastPasswordResetDate=" + lastPasswordResetDate + ", active=" + active + "]";
     }
+	
 }

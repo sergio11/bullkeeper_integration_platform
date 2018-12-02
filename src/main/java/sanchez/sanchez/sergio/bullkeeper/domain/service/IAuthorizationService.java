@@ -57,6 +57,12 @@ public interface IAuthorizationService {
      * @return
      */
     CommonUserDetailsAware<ObjectId> getUserDetails();
+    
+    /**
+     * Get Current User Id
+     * @return
+     */
+    ObjectId getCurrentUserId();
 
     /**
      * Is The Authenticated User
@@ -84,4 +90,12 @@ public interface IAuthorizationService {
      * @return
      */
     Boolean itIsAProfileImageOfSupervisedKid(final String id);
+    
+    /**
+     * Is Your Profile Public
+     * @param id
+     * @return
+     */
+    Boolean isYourProfilePublic(final String id);
+    
 }

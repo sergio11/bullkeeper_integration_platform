@@ -156,12 +156,25 @@ public class GuardianServiceImpl implements IGuardianService {
     @Override
     public ChildrenOfGuardianDTO getKidsOfGuardian(String id) {
     	Assert.notNull(id, "Id can not be null");
+    	return getKidsOfGuardian(id, null);
+    }
+    
+    /**
+     * Get Kids Of Guardian
+     * @param id
+     * @param patternText
+     */
+    @Override
+	public ChildrenOfGuardianDTO getKidsOfGuardian(final String id, final String patternText) {
+    	Assert.notNull(id, "Id can not be null");
+    	
     	
     	// Get Supervised Children
-    	final Iterable<SupervisedChildrenEntity> supervisedChildrenEntities = supervisedChildrenRepository
-    			.findByGuardianId(new ObjectId(id));
-    	
-    	
+    	final Iterable<SupervisedChildrenEntity> supervisedChildrenEntities = 
+    			patternText != null && !patternText.isEmpty() ? 
+    					supervisedChildrenRepository.findByGuardianIdAndIsConfirmedTrueAndKidFirstNameLikeIgnoreCase(new ObjectId(id), patternText) :
+    					supervisedChildrenRepository.findByGuardianIdAndIsConfirmedTrue(new ObjectId(id));
+    								
     	final ChildrenOfGuardianDTO childrenOfGuardianDTO = new ChildrenOfGuardianDTO();
     	// Set Total
     	childrenOfGuardianDTO.setTotal(supervisedChildrenRepository
@@ -177,7 +190,9 @@ public class GuardianServiceImpl implements IGuardianService {
     			supervisedChildrenEntityMapper.supervisedChildrenEntitiesToSupervisedChildrenDTOs(supervisedChildrenEntities));
     	
     	return childrenOfGuardianDTO;
-    }
+    	
+    
+	}
 
     /**
      * Save
@@ -531,5 +546,5 @@ public class GuardianServiceImpl implements IGuardianService {
         Assert.notNull(deviceGroupsService, "DeviceGroupsService can not be null");
     }
 
-	
+
 }

@@ -13,9 +13,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.GuardianRepository;
-import sanchez.sanchez.sergio.bullkeeper.web.security.exception.AccountPendingToBeRemoveException;
 import sanchez.sanchez.sergio.bullkeeper.web.security.userdetails.impl.UserDetailsImpl;
 
 import org.bson.types.ObjectId;
@@ -61,7 +59,8 @@ public class GuardiansDetailsServiceImpl implements UserDetailsService {
             	UserDetailsImpl<ObjectId> userDetails =  new UserDetailsImpl<ObjectId>(guardianEntity.getId(), guardianEntity.getEmail(),
                 		guardianEntity.getPassword(), guardianEntity.getFirstName(), guardianEntity.getLastName(), guardianEntity.isLocked(),
                 		guardianEntity.getLastPasswordResetDate(), guardianEntity.isActive(), grantedAuthorities, 
-                		guardianEntity.getLastAccessToAlerts(), guardianEntity.getLastLoginAccess(), guardianEntity.isPendingDeletion());
+                		guardianEntity.getLastAccessToAlerts(), guardianEntity.getLastLoginAccess(), guardianEntity.isPendingDeletion(),
+                		guardianEntity.isVisible());
 
                 return userDetails;
                 

@@ -214,6 +214,15 @@ public interface AlertRepository extends MongoRepository<AlertEntity, ObjectId>,
     List<AlertEntity> findByKidIdAndCreateAtGreaterThanEqual(ObjectId kid, Date from);
     
     /**
+     * @param kid
+     * @param guardian
+     * @param from
+     * @return
+     */
+    List<AlertEntity> findByKidIdAndGuardianIdAndCreateAtGreaterThanEqual(final ObjectId kid, 
+    		final ObjectId guardian, Date from);
+    
+    /**
      * 
      * @param ids
      * @param minimum

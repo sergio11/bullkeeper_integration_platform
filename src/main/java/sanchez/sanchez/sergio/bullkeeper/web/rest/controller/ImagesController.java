@@ -111,7 +111,8 @@ public class ImagesController extends BaseController {
      * @throws IOException
      */
     @RequestMapping(value = "/guardians/{id}", method = RequestMethod.GET)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourProfileImage(#id) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& (@authorizationService.isYourProfilePublic(#id) || @authorizationService.isYourProfileImage(#id) ))")
     @ApiOperation(value = "DOWNLOAD_GUARDIAN_PROFILE_IMAGE", 
     	nickname = "DOWNLOAD_GUARDIAN_PROFILE_IMAGE", notes = "Download Guardian Profile Image")
     public ResponseEntity<byte[]> downloadGuardianProfileImage(

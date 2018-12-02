@@ -15,7 +15,9 @@ import io.jsonwebtoken.lang.Assert;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IAuthorizationService;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.GuardianEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.GuardianRolesEnum;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.KidEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.GuardianRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.KidRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.SupervisedChildrenRepository;
 import sanchez.sanchez.sergio.bullkeeper.web.security.AuthoritiesConstants;
 import sanchez.sanchez.sergio.bullkeeper.web.security.userdetails.CommonUserDetailsAware;
@@ -34,18 +36,21 @@ public class AuthorizationServiceImpl implements IAuthorizationService {
 
     private final SupervisedChildrenRepository supervisedChildrenRepository;
     private final GuardianRepository guardianRepository;
+    private final KidRepository kidRepository;
 
     /**
      * 
      * @param supervisedChildrenRepository
      * @param guardianRepository
+     * @param kidRepository
      */
     @Autowired
     public AuthorizationServiceImpl(final SupervisedChildrenRepository supervisedChildrenRepository, 
-    		final GuardianRepository guardianRepository) {
+    		final GuardianRepository guardianRepository, final KidRepository kidRepository) {
         super();
         this.supervisedChildrenRepository = supervisedChildrenRepository;
         this.guardianRepository = guardianRepository;
+        this.kidRepository = kidRepository;
     }
 
     /**
@@ -168,9 +173,10 @@ public class AuthorizationServiceImpl implements IAuthorizationService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (!(auth instanceof AnonymousAuthenticationToken)) {
             CommonUserDetailsAware<ObjectId> userDetails = (CommonUserDetailsAware<ObjectId>) auth.getPrincipal();
+            final KidEntity kidEntity = kidRepository.findByProfileImage(id);
             itIsAProfileImageOfYourSupervisedKid = 
-            		supervisedChildrenRepository.countByGuardianIdAndKidProfileImage(
-            				userDetails.getUserId(), id) > 0;
+            		supervisedChildrenRepository.countByGuardianIdAndKidId(
+            				userDetails.getUserId(), kidEntity.getId()) > 0;
         }
         return itIsAProfileImageOfYourSupervisedKid;
     }
@@ -213,6 +219,36 @@ public class AuthorizationServiceImpl implements IAuthorizationService {
             					Arrays.asList(GuardianRolesEnum.ADMIN)) > 0;
         }
         return isAllowed;
+	}
+	
+	/**
+	 * Is Your Profile Public
+	 */
+	@Override
+	public Boolean isYourProfilePublic(final String id) {
+		Assert.notNull(id, "Id can not be null");
+		boolean isPublic = Boolean.FALSE;
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (!(auth instanceof AnonymousAuthenticationToken)) {
+        	logger.debug("ID -> " + id);
+        	final GuardianEntity guardianEntity = guardianRepository.findById(new ObjectId(id));
+        	if(guardianEntity != null) {
+        		isPublic = guardianEntity.isVisible();
+        		logger.debug("Guardian Entity is not null");
+        	} else {
+        		logger.debug("Guradian ENtity is null");
+        	}
+        }
+        return isPublic;
+	}
+	
+	/**
+	 * Get Current User ID
+	 */
+	@Override
+	public ObjectId getCurrentUserId() {
+		final CommonUserDetailsAware<ObjectId> userDetails = getUserDetails();
+		return userDetails.getUserId();
 	}
 
     /**

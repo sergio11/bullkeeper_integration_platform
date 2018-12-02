@@ -89,6 +89,19 @@ public interface IAlertService {
     		final ObjectId kid, final AlertCategoryEnum category);
     
     /**
+     * Save
+     * @param level
+     * @param title
+     * @param payload
+     * @param kid
+     * @param guardian
+     * @param category
+     * @return
+     */
+    void save(final AlertLevelEnum level, final String title, final String payload, 
+    		final ObjectId kid, final ObjectId guardian, final AlertCategoryEnum category);
+    
+    /**
      * Get Total Alerts
      * @return
      */
@@ -283,7 +296,7 @@ public interface IAlertService {
      * @param id
      * @return
      */
-    Map<AlertLevelEnum, Long> getTotalAlertsByKid(ObjectId id);
+    Map<AlertLevelEnum, Long> getTotalAlertsByKidAndGuardianId(final ObjectId kid, final ObjectId guardian);
     
     
     /**

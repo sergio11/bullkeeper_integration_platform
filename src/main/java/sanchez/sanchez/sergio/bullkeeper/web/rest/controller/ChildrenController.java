@@ -268,6 +268,17 @@ public class ChildrenController extends BaseController
     	final Iterable<KidGuardianDTO> kidGuardiansDTOs = 
     			kidService.save(guardians.getList(), new ObjectId(id));
     	
+    	for(final KidGuardianDTO kidGuardian: kidGuardiansDTOs) {
+    		
+    		if(!kidGuardian.isConfirmed())
+    			// Save Alert
+    			alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver("supervised.children.invitation.title"),
+        			messageSourceResolver.resolver("supervised.children.invitation.description"), 
+        			new ObjectId(kidGuardian.getKid().getIdentity()), 
+        			new ObjectId(kidGuardian.getGuardian().getIdentity()),  AlertCategoryEnum.INFORMATION_KID);
+    		
+    	}
+    	
     	// Create and send response
         return ApiHelper.<Iterable<KidGuardianDTO>>createAndSendResponse(ChildrenResponseCode.CHILD_GUARDIANS_SAVED,
                 HttpStatus.OK, kidGuardiansDTOs);

@@ -39,7 +39,7 @@ public final class GuardianEntity extends UserSystemEntity {
      * Visible
      */
     @Field("visible")
-    private boolean visible = false;
+    private Boolean visible = false;
 
     public GuardianEntity() {
     }
@@ -50,7 +50,7 @@ public final class GuardianEntity extends UserSystemEntity {
             Boolean pendingDeletion, Locale locale, Date lastPasswordResetDate, String confirmationToken,
             Date lastAccessToAlerts, PreferencesEntity preferences, AuthorityEntity authority,
             String telephone, String fbAccessToken, 
-            String fbId, String googleId, boolean visible) {
+            String fbId, String googleId, Boolean visible) {
         super(firstName, lastName, birthdate, profileImage, email, password, passwordRequestedAt, active, locked,
                 lastLoginAccess, pendingDeletion, locale, lastPasswordResetDate, confirmationToken, lastAccessToAlerts,
                 preferences, authority);
@@ -99,11 +99,11 @@ public final class GuardianEntity extends UserSystemEntity {
 	}
 	
 
-	public boolean isVisible() {
+	public Boolean isVisible() {
 		return visible;
 	}
 
-	public void setVisible(boolean visible) {
+	public void setVisible(Boolean visible) {
 		this.visible = visible;
 	}
 

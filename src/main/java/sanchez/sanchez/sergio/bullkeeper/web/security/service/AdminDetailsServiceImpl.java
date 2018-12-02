@@ -47,7 +47,8 @@ public class AdminDetailsServiceImpl implements UserDetailsService {
             	UserDetailsImpl<ObjectId> userDetails = new UserDetailsImpl<ObjectId>(userSystemEntity.getId(), userSystemEntity.getEmail(),
                 		userSystemEntity.getPassword(), userSystemEntity.getFirstName(), userSystemEntity.getLastName(), userSystemEntity.isLocked(),
                 		userSystemEntity.getLastPasswordResetDate(), userSystemEntity.isActive(), grantedAuthorities,
-                		userSystemEntity.getLastAccessToAlerts(), userSystemEntity.getLastLoginAccess(), userSystemEntity.isPendingDeletion());
+                		userSystemEntity.getLastAccessToAlerts(), userSystemEntity.getLastLoginAccess(),
+                		userSystemEntity.isPendingDeletion(), false);
             	
             	
             	return userDetails;

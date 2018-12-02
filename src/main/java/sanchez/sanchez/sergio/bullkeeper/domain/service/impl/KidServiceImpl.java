@@ -1,6 +1,7 @@
 package sanchez.sanchez.sergio.bullkeeper.domain.service.impl;
 
 
+import org.apache.commons.collections4.ListUtils;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,8 @@ import io.jsonwebtoken.lang.Assert;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IKidService;
 import sanchez.sanchez.sergio.bullkeeper.mapper.KidEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.SupervisedChildrenEntityMapper;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AlertCategoryEnum;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AlertLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.KidEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SocialMediaEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SocialMediaTypeEnum;
@@ -207,23 +210,30 @@ public class KidServiceImpl implements IKidService {
         	
         	if(guardiansSaved.size() > Iterables.size(guardiansToSave)) {
    
+        		logger.debug("uardiansSaved.size() > Iterables.size(guardiansToSave)");
         		
         		for(final SupervisedChildrenEntity supervisedChildren: guardiansSaved) {
+        			boolean isFound = false;
         			final Iterator<SupervisedChildrenEntity> iterator = guardiansToSave.iterator();
         			while(iterator.hasNext()) {
         				final SupervisedChildrenEntity currentSupervisedChild = iterator.next();
-        				if(currentSupervisedChild.getId() != null) {
-        					if(supervisedChildren.getId()
-        							.equals(currentSupervisedChild.getId())) {
-            					// Set Role
-            					supervisedChildren
-            						.setRole(currentSupervisedChild.getRole());
-            					
-            					supervisedChildToSave.add(supervisedChildren);
-        					}
-        				} else
-        					supervisedChildToSave.add(currentSupervisedChild);
+        				if(currentSupervisedChild.getKid().getId()
+    							.equals(supervisedChildren.getKid().getId()) && 
+    							currentSupervisedChild.getGuardian().getId()
+    							.equals(supervisedChildren.getGuardian().getId())) {
+        					// Set Role
+        					supervisedChildren
+        						.setRole(currentSupervisedChild.getRole());
+        					
+        					supervisedChildToSave.add(supervisedChildren);
+        					
+        					isFound = true;
+    					}
         			}
+        			
+        			if(!isFound)
+        				supervisedChildrenRepository.delete(supervisedChildren);
+        	
         			
         		}
         		
@@ -234,40 +244,64 @@ public class KidServiceImpl implements IKidService {
     				// Current Supervised Child
     				final SupervisedChildrenEntity currentSupervisedChild = iterator.next();
     				
-    				if(currentSupervisedChild.getId() != null) {
+    				boolean isFound = false;
+					for(final SupervisedChildrenEntity supervisedChildren: guardiansSaved) {
     					
-    					boolean isFound = false;
-    					for(final SupervisedChildrenEntity supervisedChildren: guardiansSaved) {
-        					
-        					if(currentSupervisedChild.getId()
-        							.equals(supervisedChildren.getId())) {
-        						isFound = true;
-        						// Set Role
-        						supervisedChildren.setRole(currentSupervisedChild.getRole());
-        						supervisedChildToSave.add(supervisedChildren);
-        						break;
-        					}
-        					
-        				}
+    					if(currentSupervisedChild.getKid().getId()
+    							.equals(supervisedChildren.getKid().getId()) && 
+    							currentSupervisedChild.getGuardian().getId()
+    							.equals(supervisedChildren.getGuardian().getId())) {
+    						isFound = true;
+    						// Set Role
+    						supervisedChildren.setRole(currentSupervisedChild.getRole());
+    						supervisedChildToSave.add(supervisedChildren);
+    						break;
+    					}
     					
-    					if(!isFound)
-    						supervisedChildToSave.add(currentSupervisedChild);
-    					
-    				} else {
-    					supervisedChildToSave.add(currentSupervisedChild);
     				}
+					
+					if(!isFound)
+						supervisedChildToSave.add(currentSupervisedChild);
     		
     			}
+    			
+    			
+    			
+    
+    			// Guardians to Delete
+    			final List<SupervisedChildrenEntity> guardiansToDelete = new ArrayList<>();
+    			
+    			for(final SupervisedChildrenEntity guardianSaved: guardiansSaved) {
+    				boolean isFound = false;
+    				for(final SupervisedChildrenEntity guardianToSave: supervisedChildToSave) {
+    					if(guardianSaved.getKid().getId()
+    							.equals(guardianToSave.getKid().getId()) && 
+    							guardianSaved.getGuardian().getId()
+    							.equals(guardianToSave.getGuardian().getId())) {
+    						isFound = true;
+    					}
+    				}
+    				
+    				if(!isFound)
+    					guardiansToDelete.add(guardianSaved);
+    				
+    			}
+    			
+    			logger.debug("Total Guardians To Save -> " + supervisedChildToSave.size());
+    			logger.debug("Total Guardians Saved -> " + guardiansSaved.size());
+    			logger.debug("Total Guardians To Delete -> " + guardiansToDelete.size());
         		
+    			supervisedChildrenRepository.delete(guardiansToDelete);
+    			
         	}
-        	
-        	supervisedChildrenRepository.deleteByKidId(kid);
+
         	// Save Supervised Child
     		result = supervisedChildrenEntityMapper
     				.supervisedChildrenEntityToKidGuardiansDTO(
     						supervisedChildrenRepository.save(supervisedChildToSave));
         	
         }
+        
         
         return result;
 	}

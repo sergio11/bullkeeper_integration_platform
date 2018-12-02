@@ -83,6 +83,9 @@ public abstract class SupervisedChildrenEntityMapper {
 	 * @return
 	 */
 	@Mappings({
+		@Mapping(expression="java(saveGuardianDTO.getIdentity() != null "
+				+ "&& !saveGuardianDTO.getIdentity().isEmpty() ? new org.bson.types.ObjectId(saveGuardianDTO.getIdentity()) : null)",
+				 target = "id" ),
 		 @Mapping(expression="java(kidRepository.findOne(new org.bson.types.ObjectId(saveGuardianDTO.getKid())))",
 				 target = "kid" ),
 		 @Mapping(expression="java(guardianRepository.findOne(new org.bson.types.ObjectId(saveGuardianDTO.getGuardian())))",

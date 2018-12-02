@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.google.common.collect.Iterables;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -53,7 +52,6 @@ import sanchez.sanchez.sergio.bullkeeper.exception.NoSupervisedChildrenConfirmed
 import sanchez.sanchez.sergio.bullkeeper.exception.NoSupervisedChildrenNoConfirmedFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.SupervisedChildrenNoConfirmedNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.GuardianShouldExists;
-import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.KidShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.SupervisedChildrenShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ValidObjectId;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.group.ICommonSequence;
@@ -83,7 +81,6 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.response.JwtAuthenticationRespo
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidGuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.PasswordResetTokenDTO;
-import sanchez.sanchez.sergio.bullkeeper.web.dto.response.SupervisedChildrenDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.UserSystemPreferencesDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ValidationErrorDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.ApiHelper;
@@ -108,7 +105,6 @@ import org.springframework.hateoas.Resource;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
-
 import springfox.documentation.annotations.ApiIgnore;
 
 /**
@@ -1172,13 +1168,15 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
     		@ApiResponse(code = 200, message= "Children of Guardian", response = KidDTO.class)
     })
     public ResponseEntity<APIResponse<ChildrenOfGuardianDTO>> getChildrenOfSelfGuardian(
+    		@ApiParam(value = "text", required = false) 
+				@RequestParam(value = "text", required = false) final String text,
     		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfGuardian) throws Throwable {
         
     	logger.debug("Get Children of Self Guardian");
         
         // Get Supervised Children
         final ChildrenOfGuardianDTO childrenOfGuardian  = 
-        		guardiansService.getKidsOfGuardian(selfGuardian.getUserId().toString());
+        		guardiansService.getKidsOfGuardian(selfGuardian.getUserId().toString(), text);
         
         if(childrenOfGuardian.getTotal() == 0)
         	throw new NoChildrenFoundForSelfGuardianException();

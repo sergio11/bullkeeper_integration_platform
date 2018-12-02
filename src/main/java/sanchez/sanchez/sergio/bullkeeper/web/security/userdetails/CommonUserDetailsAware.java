@@ -15,6 +15,7 @@ public interface CommonUserDetailsAware<T> extends UserDetails {
     final String LAST_ACCESS_TO_ALERTS = "LAST_ACCESS_TO_ALERTS";
     final String LAST_LOGIN_ACCESS = "LAST_LOGIN_ACCESS";
     final String IS_PENDING_DELETE = "IS_PENDING_DELETE";
+    final String IS_PROFILE_VISIBLE = "IS_PROFILE_VISIBLE";
 
     T getUserId();
 
@@ -35,6 +36,8 @@ public interface CommonUserDetailsAware<T> extends UserDetails {
     Date getLastLoginAccess();
     
     Boolean isPendingDelete();
+    
+    Boolean isProfileVisible();
     
     
 

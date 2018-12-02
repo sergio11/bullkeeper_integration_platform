@@ -16,6 +16,13 @@ public interface GuardianRepository extends MongoRepository<GuardianEntity, Obje
 	GuardianRepositoryCustom {
 
 	/**
+	 * Find By Id
+	 * @param id
+	 * @return
+	 */
+	GuardianEntity findById(final ObjectId id);
+	
+	/**
 	 * 
 	 * @param email
 	 * @return

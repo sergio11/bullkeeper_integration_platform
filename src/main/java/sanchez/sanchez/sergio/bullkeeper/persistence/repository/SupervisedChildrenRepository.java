@@ -108,13 +108,7 @@ public interface SupervisedChildrenRepository extends
 	 */
 	long countByGuardianIdAndKidIdAndIsConfirmedTrue(final ObjectId guardian, final ObjectId kid);
 	
-	/**
-	 * Count By Guardian Id And Kid Profile Image
-	 * @param id
-	 * @param profileImage
-	 * @return
-	 */
-	long countByGuardianIdAndKidProfileImage(final ObjectId id, final String profileImage);
+
 	
 	/**
 	 * 
@@ -144,6 +138,15 @@ public interface SupervisedChildrenRepository extends
 	 * @return
 	 */
 	List<SupervisedChildrenEntity> findByGuardianIdAndIsConfirmedTrue(final ObjectId guardian);
+	
+	
+	/**
+	 * Find By Guardian Id And Is Confirmed True
+	 * @param guardian
+	 * @param patternText
+	 * @return
+	 */
+	List<SupervisedChildrenEntity> findByGuardianIdAndIsConfirmedTrueAndKidFirstNameLikeIgnoreCase(final ObjectId guardian, final String patternText);
 	
 	/**
 	 * Find By Guardian Id And Is Confirmed False
@@ -191,10 +194,17 @@ public interface SupervisedChildrenRepository extends
 	/**
 	 * Count By Guardian Id
 	 * @param id
-	 * @param isConfirmed
 	 * @return
 	 */
 	long countByGuardianId(final ObjectId guardian);
+	
+	/**
+	 * Count By Guardian Id and Kid Id
+	 * @param id
+	 * @param kid
+	 * @return
+	 */
+	long countByGuardianIdAndKidId(final ObjectId guardian, final ObjectId kid);
 	
 	/**
 	 * Count By Guardian Id And Is Confirmed True

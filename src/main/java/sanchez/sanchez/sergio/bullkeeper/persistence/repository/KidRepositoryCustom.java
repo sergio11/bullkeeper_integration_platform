@@ -63,4 +63,6 @@ public interface KidRepositoryCustom {
      * @param totalCommentsNoDrugs
      */
     void updateDrugsResultsFor(ObjectId id, long totalCommentsDrugs, long totalCommentsNoDrugs);
+
+    
 }

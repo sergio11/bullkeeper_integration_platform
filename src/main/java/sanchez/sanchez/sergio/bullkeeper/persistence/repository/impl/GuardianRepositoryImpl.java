@@ -177,10 +177,12 @@ public class GuardianRepositoryImpl implements GuardianRepositoryCustom {
     public String getGuardianImageIdByUserId(final ObjectId id) {
     	Assert.notNull(id, "Id can not be null");
     	
-        final Query query = new Query(Criteria.where("_id")
-        		.is(id));
+    	// Create Query
+        final Query query = new Query(Criteria.where("_id").is(id));
+        
         query.fields().include("profile_image");     
-        final GuardianEntity parentEntity = mongoTemplate.findOne(query, GuardianEntity.class);
+        final GuardianEntity parentEntity = 
+        		mongoTemplate.findOne(query, GuardianEntity.class);
         return parentEntity.getProfileImage();
    }
 

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import sanchez.sanchez.sergio.bullkeeper.domain.inject.BeansManager;
 import sanchez.sanchez.sergio.bullkeeper.domain.inject.Injectable;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IAlertService;
+import sanchez.sanchez.sergio.bullkeeper.domain.service.IAuthorizationService;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.ITerminalService;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.KidEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.SchoolRepository;
@@ -45,13 +46,20 @@ public abstract class KidEntityMapper implements Injectable {
 	 */
 	@Autowired
 	protected ITerminalService terminalService;
+	
+	/**
+	 * Authorization Service
+	 */
+	@Autowired
+	protected IAuthorizationService authorizationService;
     
     @Mappings({
         @Mapping(expression="java(kidEntity.getId().toString())", target = "identity" ),
         @Mapping(expression="java(schoolEntityMapper.schoolEntityToSchoolDTO(kidEntity.getSchool()))", target = "school" ),
         @Mapping(source = "kidEntity.birthdate", target = "birthdate", dateFormat = "yyyy/MM/dd"),
         @Mapping(source = "kidEntity.age", target = "age"),
-        @Mapping(expression="java(alertservice.getTotalAlertsByKid(kidEntity.getId()))", target = "alertsStatistics" ),
+        @Mapping(expression="java(alertservice.getTotalAlertsByKidAndGuardianId("
+        		+ "kidEntity.getId(), authorizationService.getCurrentUserId()))", target = "alertsStatistics" ),
         @Mapping(expression="java(terminalService.getTerminalsByKidId(kidEntity.getId().toString()))", target="terminals")
     })
     @Named("kidEntityToKidDTO")

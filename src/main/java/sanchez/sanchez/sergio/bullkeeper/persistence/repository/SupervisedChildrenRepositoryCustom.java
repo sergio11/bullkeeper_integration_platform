@@ -11,9 +11,9 @@ public interface SupervisedChildrenRepositoryCustom {
 	
 
 	/**
-	 * @param guardian
+	 * @param id
 	 */
-	void acceptSupervisedChildrenNoConfirm(final ObjectId guardian);
+	void acceptSupervisedChildrenNoConfirm(final ObjectId id);
 	
 	
 	/**

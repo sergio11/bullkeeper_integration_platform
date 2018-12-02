@@ -70,6 +70,14 @@ public interface IGuardianService {
     ChildrenOfGuardianDTO getKidsOfGuardian(final String id);
     
     /**
+     * Get Kids Of Guardian
+     * @param id
+     * @param patternText
+     * @return
+     */
+    ChildrenOfGuardianDTO getKidsOfGuardian(final String id, final String patternText);
+    
+    /**
      * Save
      * @param registerGuardian
      * @return

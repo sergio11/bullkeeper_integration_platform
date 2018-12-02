@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class SupervisedChildrenShouldExistsValidator 
-		implements ConstraintValidator<SupervisedChildrenShouldExistsIfPresent, String> {
+		implements ConstraintValidator<SupervisedChildrenShouldExists, String> {
     
     private static Logger logger = LoggerFactory.getLogger(SupervisedChildrenShouldExistsValidator.class);
     
@@ -29,7 +29,7 @@ public class SupervisedChildrenShouldExistsValidator
      * 
      */
     @Override
-    public void initialize(SupervisedChildrenShouldExistsIfPresent constraintAnnotation) {}
+    public void initialize(SupervisedChildrenShouldExists constraintAnnotation) {}
 
     /**
      * Is valid

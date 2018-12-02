@@ -31,6 +31,7 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.GuardianEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.KidEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SupervisedChildrenEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.AlertRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.GuardianRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.KidRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.SupervisedChildrenRepository;
 import sanchez.sanchez.sergio.bullkeeper.util.Utils;
@@ -55,6 +56,7 @@ public class AlertServiceImpl implements IAlertService {
     private final AlertEntityMapper alertMapper;
     private final IMessageSourceResolverService messageSourceResolverService;
     private final KidRepository kidRepository;
+    private final GuardianRepository guardianRepository;
     private final SupervisedChildrenRepository supervisedChildrenRepository;
 
     /**
@@ -64,16 +66,20 @@ public class AlertServiceImpl implements IAlertService {
      * @param messageSourceResolverService
      * @param kidRepository
      * @param supervisedChildrenRepository
+     * @param guardianRepository
      */
     public AlertServiceImpl(AlertRepository alertRepository, AlertEntityMapper alertMapper,
             IMessageSourceResolverService messageSourceResolverService, 
-            final KidRepository kidRepository, final SupervisedChildrenRepository supervisedChildrenRepository) {
+            final KidRepository kidRepository, 
+            final SupervisedChildrenRepository supervisedChildrenRepository,
+            final GuardianRepository guardianRepository) {
         super();
         this.alertRepository = alertRepository;
         this.alertMapper = alertMapper;
         this.messageSourceResolverService = messageSourceResolverService;
         this.kidRepository = kidRepository;
         this.supervisedChildrenRepository = supervisedChildrenRepository;
+        this.guardianRepository = guardianRepository;
     }
     
     /**
@@ -299,12 +305,13 @@ public class AlertServiceImpl implements IAlertService {
      * 
      */
     @Override
-	public Map<AlertLevelEnum, Long> getTotalAlertsByKid(ObjectId kid) {
+	public Map<AlertLevelEnum, Long> getTotalAlertsByKidAndGuardianId(final ObjectId kid, final ObjectId guardian) {
     	Assert.notNull(kid, "Kid id can not be null");
+    	Assert.notNull(guardian, "Guardian can not be null");
 		
     	final Date from = Utils.getDateNDaysAgo(1);
     	
-    	Map<AlertLevelEnum, Long> alertsByLevel = alertRepository.findByKidIdAndCreateAtGreaterThanEqual(kid, from)	
+    	Map<AlertLevelEnum, Long> alertsByLevel = alertRepository.findByKidIdAndGuardianIdAndCreateAtGreaterThanEqual(kid, guardian, from)	
     		.parallelStream()
     		.collect(Collectors.groupingBy(AlertEntity::getLevel, Collectors.counting()));
     	
@@ -316,8 +323,8 @@ public class AlertServiceImpl implements IAlertService {
      * 
      */
     @Override
-	public void save(AlertLevelEnum level, String title, String payload, ObjectId sonId) {
-    	save(level, title, payload, sonId, AlertCategoryEnum.DEFAULT);
+	public void save(AlertLevelEnum level, String title, String payload, ObjectId kid) {
+    	save(level, title, payload, kid, AlertCategoryEnum.DEFAULT);
 	}
     
     /**
@@ -351,6 +358,33 @@ public class AlertServiceImpl implements IAlertService {
     	// Save Alerts
     	alertRepository.save(alertsToSave);
     
+	}
+    
+    /**
+     * 
+     */
+    @Override
+	public void save(AlertLevelEnum level, String title, String payload, ObjectId kid, ObjectId guardian,
+			AlertCategoryEnum category) {
+    	Assert.notNull(level, "Level can not be null");
+    	Assert.notNull(title, "Title can not be null");
+    	Assert.hasLength(title, "Title can not be empty");
+    	Assert.notNull(payload, "Payload can not be null");
+    	Assert.hasLength(payload, "Payload can not be empty");
+    	Assert.notNull(kid, "Kid can not be null");
+    	Assert.notNull(guardian, "Guardian can not be null");
+    	Assert.notNull(category, "category can not be null");
+    	
+    	
+    	// Find Kid Entity
+    	final KidEntity kidEntity = kidRepository.findOne(kid);
+    	// Find Guardian Entity
+    	final GuardianEntity guardianEntity = guardianRepository.findOne(guardian);
+    	// Create alert to save
+    	final AlertEntity alertToSave = new AlertEntity(level, title, payload, guardianEntity, kidEntity, category);
+    	// Save alert
+    	alertRepository.save(alertToSave);
+    	
 	}
     
     /**
@@ -526,7 +560,5 @@ public class AlertServiceImpl implements IAlertService {
         Assert.notNull(messageSourceResolverService, "Message Source Resolver Service cannot be null");
         
     }
-
-	
 	
 }
