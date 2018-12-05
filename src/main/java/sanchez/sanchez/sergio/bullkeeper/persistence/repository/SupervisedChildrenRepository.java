@@ -140,14 +140,7 @@ public interface SupervisedChildrenRepository extends
 	List<SupervisedChildrenEntity> findByGuardianIdAndIsConfirmedTrue(final ObjectId guardian);
 	
 	
-	/**
-	 * Find By Guardian Id And Is Confirmed True
-	 * @param guardian
-	 * @param patternText
-	 * @return
-	 */
-	List<SupervisedChildrenEntity> findByGuardianIdAndIsConfirmedTrueAndKidFirstNameLikeIgnoreCase(final ObjectId guardian, final String patternText);
-	
+
 	/**
 	 * Find By Guardian Id And Is Confirmed False
 	 * @param guardian

@@ -220,12 +220,13 @@ public class AlertServiceImpl implements IAlertService {
     
     
     /**
-     * 
+     * @param kid
+     * @param guardian
      */
     @Override
-    public Iterable<AlertDTO> findByKid(final ObjectId id) {
+    public Iterable<AlertDTO> findByKidAndGuardian(final ObjectId kid, final ObjectId guardian) {
        return this.alertMapper.alertEntitiesToAlertDTO(alertRepository
-    		   .findByKidIdOrderByCreateAtDesc(id));
+    		   .findByKidIdAndGuardianIdOrderByCreateAtDesc(kid, guardian));
     }
     
     /**
@@ -264,7 +265,8 @@ public class AlertServiceImpl implements IAlertService {
      */
     @Override
 	public Iterable<AlertDTO> findByGuardian(ObjectId id) {
-    	return alertMapper.alertEntitiesToAlertDTO(alertRepository.findByGuardianIdOrderByCreateAtDesc(id));
+    	return alertMapper.alertEntitiesToAlertDTO(
+    			alertRepository.findByGuardianIdOrderByCreateAtDesc(id));
 	}
     
     /**
@@ -482,18 +484,18 @@ public class AlertServiceImpl implements IAlertService {
 	 * Delete Danger Alerts Of Guardian
 	 */
 	@Override
-	public Long deleteDangerAlertsOfGuardian(final ObjectId parent) {
-		Assert.notNull(parent, "Parent can not be null");
-		return alertRepository.deleteByGuardianIdAndLevel(parent, AlertLevelEnum.DANGER);
+	public Long deleteDangerAlertsOfGuardian(final ObjectId guardian) {
+		Assert.notNull(guardian, "Guardian can not be null");
+		return alertRepository.deleteByGuardianIdAndLevel(guardian, AlertLevelEnum.DANGER);
 	}
 
 	/**
 	 * Delete Success Alerts Of Guardian
 	 */
 	@Override
-	public Long deleteSuccessAlertsOfGuardian(final ObjectId parent) {
-		Assert.notNull(parent, "Parent can not be null");
-		return alertRepository.deleteByGuardianIdAndLevel(parent, AlertLevelEnum.SUCCESS);
+	public Long deleteSuccessAlertsOfGuardian(final ObjectId guardian) {
+		Assert.notNull(guardian, "Guardian can not be null");
+		return alertRepository.deleteByGuardianIdAndLevel(guardian, AlertLevelEnum.SUCCESS);
 	}
 	
 	/**
@@ -505,7 +507,8 @@ public class AlertServiceImpl implements IAlertService {
 		Assert.notNull(count, "Count cannot be null");
 		Assert.notNull(from, "From can not be null");
 		Assert.isTrue(from.before(new Date()), "From should be a date before the current time");
-		return alertMapper.alertEntitiesToAlertDTO(alertRepository.findKidAlerts(id, count, from, AlertLevelEnum.WARNING));
+		return alertMapper.alertEntitiesToAlertDTO(alertRepository
+				.findKidAlerts(id, count, from, AlertLevelEnum.WARNING));
 	}
 
 	/**
@@ -530,7 +533,8 @@ public class AlertServiceImpl implements IAlertService {
 		Assert.notNull(count, "Count cannot be null");
 		Assert.notNull(from, "From can not be null");
 		Assert.isTrue(from.before(new Date()), "From should be a date before the current time");
-		return alertMapper.alertEntitiesToAlertDTO(alertRepository.findKidAlerts(id, count, from, AlertLevelEnum.DANGER));
+		return alertMapper.alertEntitiesToAlertDTO(alertRepository
+				.findKidAlerts(id, count, from, AlertLevelEnum.DANGER));
 	}
 
 	/**
@@ -542,11 +546,12 @@ public class AlertServiceImpl implements IAlertService {
 		Assert.notNull(count, "Count cannot be null");
 		Assert.notNull(from, "From can not be null");
 		Assert.isTrue(from.before(new Date()), "From should be a date before the current time");
-		return alertMapper.alertEntitiesToAlertDTO(alertRepository.findKidAlerts(id, count, from, AlertLevelEnum.SUCCESS));
+		return alertMapper.alertEntitiesToAlertDTO(alertRepository
+				.findKidAlerts(id, count, from, AlertLevelEnum.SUCCESS));
 	}
 	
 	/**
-	 * 
+	 * Clear Kid Alerts By Level
 	 */
 	@Override
 	public Long clearKidAlertsByLevel(ObjectId id, AlertLevelEnum level) {

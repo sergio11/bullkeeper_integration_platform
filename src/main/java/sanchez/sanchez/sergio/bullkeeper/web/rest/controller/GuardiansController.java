@@ -1087,7 +1087,8 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
     				@RequestBody final UpdateGuardianDTO guardian) throws Throwable {
     	
     	logger.debug("Update Guardian");
-        final GuardianDTO guardianDTO = guardiansService.update(selfGuardian.getUserId(), guardian);
+        final GuardianDTO guardianDTO = guardiansService
+        		.update(selfGuardian.getUserId(), guardian);
         // Create and send response
         return ApiHelper.<GuardianDTO>createAndSendResponse(GuardianResponseCode.SELF_GUARDIAN_UPDATED_SUCCESSFULLY, 
         				HttpStatus.OK, addLinksToGuardian(guardianDTO));

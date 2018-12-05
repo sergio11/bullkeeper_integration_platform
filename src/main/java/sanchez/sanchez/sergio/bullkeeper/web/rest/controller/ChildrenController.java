@@ -806,7 +806,7 @@ public class ChildrenController extends BaseController
 				@RequestParam(name = "days_ago", defaultValue = "1", required = false) Date from,
 			@ApiParam(name = "levels", value = "Alert Levels", required = false)	
 				@RequestParam(name="levels" , required=false)
-            	AlertLevelEnum[] levels) throws Throwable {
+            		AlertLevelEnum[] levels) throws Throwable {
         
     	logger.debug("Get Alerts by Kid with id: " + id);
     	logger.debug("Count -> " + count);

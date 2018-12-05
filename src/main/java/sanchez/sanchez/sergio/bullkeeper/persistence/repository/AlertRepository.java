@@ -136,11 +136,12 @@ public interface AlertRepository extends MongoRepository<AlertEntity, ObjectId>,
 
     
     /**
-     * 
-     * @param id
+     * Find By Kid Id And Guardian Id
+     * @param kid
+     * @param guardian
      * @return
      */
-    List<AlertEntity> findByKidIdOrderByCreateAtDesc(final ObjectId id);
+    List<AlertEntity> findByKidIdAndGuardianIdOrderByCreateAtDesc(final ObjectId kid, final ObjectId guardian);
 
     
     /**

@@ -31,12 +31,32 @@ public class GuardianDTO extends ResourceSupport {
     private String locale;
     @JsonProperty("profile_image")
     private String profileImage;
+    @JsonProperty("visible")
+    private boolean visible;
 
     public GuardianDTO() {
     }
 
+    /**
+     * 
+     * @param identity
+     * @param firstName
+     * @param lastName
+     * @param birthdate
+     * @param age
+     * @param email
+     * @param phonePrefix
+     * @param phoneNumber
+     * @param fbId
+     * @param googleId
+     * @param children
+     * @param locale
+     * @param profileImage
+     * @param visible
+     */
     public GuardianDTO(String identity, String firstName, String lastName, String birthdate, Integer age, String email,
-            String phonePrefix, Long phoneNumber, String fbId, String googleId, Long children, String locale, String profileImage) {
+            String phonePrefix, Long phoneNumber, String fbId, String googleId, 
+            Long children, String locale, String profileImage, boolean visible) {
         super();
         this.identity = identity;
         this.firstName = firstName;
@@ -51,6 +71,7 @@ public class GuardianDTO extends ResourceSupport {
         this.children = children;
         this.locale = locale;
         this.profileImage = profileImage;
+        this.visible = visible;
     }
 
     
@@ -159,4 +180,14 @@ public class GuardianDTO extends ResourceSupport {
     public void setProfileImage(String profileImage) {
         this.profileImage = profileImage;
     }
+
+	public boolean isVisible() {
+		return visible;
+	}
+
+	public void setVisible(boolean visible) {
+		this.visible = visible;
+	}
+    
+    
 }

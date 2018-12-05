@@ -1,7 +1,6 @@
 package sanchez.sanchez.sergio.bullkeeper.domain.service.impl;
 
 
-import org.apache.commons.collections4.ListUtils;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,11 +16,7 @@ import io.jsonwebtoken.lang.Assert;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IKidService;
 import sanchez.sanchez.sergio.bullkeeper.mapper.KidEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.SupervisedChildrenEntityMapper;
-import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AlertCategoryEnum;
-import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AlertLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.KidEntity;
-import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SocialMediaEntity;
-import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SocialMediaTypeEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SupervisedChildrenEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.AlertRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.CommentRepository;
@@ -30,16 +25,12 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.repository.SocialMediaRepos
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.SupervisedChildrenRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.TaskRepository;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveGuardianDTO;
-import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveSocialMediaDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidGuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.uploads.service.IUploadFilesService;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
-
 import javax.annotation.PostConstruct;
 
 /**

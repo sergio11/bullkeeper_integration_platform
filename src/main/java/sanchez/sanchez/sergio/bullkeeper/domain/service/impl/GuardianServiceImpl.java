@@ -1,6 +1,7 @@
 package sanchez.sanchez.sergio.bullkeeper.domain.service.impl;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import org.bson.types.ObjectId;
@@ -48,7 +49,6 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.request.UpdateKidDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ChildrenOfGuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.GuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidDTO;
-import sanchez.sanchez.sergio.bullkeeper.web.dto.response.SupervisedChildrenDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.UserSystemPreferencesDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.uploads.service.IUploadFilesService;
 
@@ -171,9 +171,11 @@ public class GuardianServiceImpl implements IGuardianService {
     	
     	// Get Supervised Children
     	final Iterable<SupervisedChildrenEntity> supervisedChildrenEntities = 
-    			patternText != null && !patternText.isEmpty() ? 
-    					supervisedChildrenRepository.findByGuardianIdAndIsConfirmedTrueAndKidFirstNameLikeIgnoreCase(new ObjectId(id), patternText) :
-    					supervisedChildrenRepository.findByGuardianIdAndIsConfirmedTrue(new ObjectId(id));
+    			supervisedChildrenRepository.findByGuardianIdAndIsConfirmedTrue(new ObjectId(id))
+    			.stream().filter(supervisedChildren -> patternText == null || patternText.isEmpty() || 
+    					supervisedChildren.getKid().getFullName()
+    					.toLowerCase().contains(patternText.toLowerCase()))
+    			.collect(Collectors.toList());
     								
     	final ChildrenOfGuardianDTO childrenOfGuardianDTO = new ChildrenOfGuardianDTO();
     	// Set Total
@@ -314,8 +316,10 @@ public class GuardianServiceImpl implements IGuardianService {
         guardianToUpdate.setLastName(updateGuardianDTO.getLastName());
         guardianToUpdate.setEmail(updateGuardianDTO.getEmail());
         guardianToUpdate.setBirthdate(updateGuardianDTO.getBirthdate());
-        guardianToUpdate.setTelephone(PhoneNumberUtil.getInstance().format(updateGuardianDTO.getTelephone(), PhoneNumberFormat.E164));
-
+        guardianToUpdate.setTelephone(PhoneNumberUtil.getInstance()
+        		.format(updateGuardianDTO.getTelephone(), PhoneNumberFormat.E164));
+        guardianToUpdate.setVisible(updateGuardianDTO.isVisible());
+       
         final GuardianEntity guardianUpdated = guardianRepository.save(guardianToUpdate);
         return guardianEntityMapper.guardianEntityToGuardianDTO(guardianUpdated);
     }

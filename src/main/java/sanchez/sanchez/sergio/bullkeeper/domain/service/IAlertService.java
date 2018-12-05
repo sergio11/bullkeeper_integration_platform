@@ -202,10 +202,11 @@ public interface IAlertService {
 
     /**
      * Find By Kid
-     * @param id
+     * @param kid
+     * @param guardian
      * @return
      */
-    Iterable<AlertDTO> findByKid(ObjectId id);
+    Iterable<AlertDTO> findByKidAndGuardian(final ObjectId kid, final ObjectId guardian);
     
     /**
      * Find Kid Alerts
