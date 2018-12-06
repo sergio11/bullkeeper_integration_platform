@@ -55,7 +55,9 @@ import springfox.documentation.annotations.ApiIgnore;
 @RestController("RestAlertsController")
 @Validated
 @RequestMapping("/api/v1/alerts/")
-@Api(tags = "alerts", value = "/alerts/", description = "Punto de entrada para el manejo de Alertas", produces = "application/json")
+@Api(tags = "alerts", value = "/alerts/", 
+description = "Administration of user alerts",
+produces = "application/json")
 public class AlertController extends BaseController {
 
     private static Logger logger = LoggerFactory.getLogger(AlertController.class);

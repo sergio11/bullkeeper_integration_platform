@@ -1,7 +1,6 @@
 package sanchez.sanchez.sergio.bullkeeper.persistence.entity;
 
 import java.util.Date;
-
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceConstructor;

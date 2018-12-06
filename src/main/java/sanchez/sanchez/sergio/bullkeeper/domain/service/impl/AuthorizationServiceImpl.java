@@ -16,6 +16,7 @@ import sanchez.sanchez.sergio.bullkeeper.domain.service.IAuthorizationService;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.GuardianEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.GuardianRolesEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.KidEntity;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.ConversationRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.GuardianRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.KidRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.SupervisedChildrenRepository;
@@ -37,6 +38,7 @@ public class AuthorizationServiceImpl implements IAuthorizationService {
     private final SupervisedChildrenRepository supervisedChildrenRepository;
     private final GuardianRepository guardianRepository;
     private final KidRepository kidRepository;
+    private final ConversationRepository conversationRepository;
 
     /**
      * 
@@ -46,11 +48,13 @@ public class AuthorizationServiceImpl implements IAuthorizationService {
      */
     @Autowired
     public AuthorizationServiceImpl(final SupervisedChildrenRepository supervisedChildrenRepository, 
-    		final GuardianRepository guardianRepository, final KidRepository kidRepository) {
+    		final GuardianRepository guardianRepository, 
+    		final KidRepository kidRepository, final ConversationRepository conversationRepository) {
         super();
         this.supervisedChildrenRepository = supervisedChildrenRepository;
         this.guardianRepository = guardianRepository;
         this.kidRepository = kidRepository;
+        this.conversationRepository = conversationRepository;
     }
 
     /**
@@ -249,6 +253,22 @@ public class AuthorizationServiceImpl implements IAuthorizationService {
 	public ObjectId getCurrentUserId() {
 		final CommonUserDetailsAware<ObjectId> userDetails = getUserDetails();
 		return userDetails.getUserId();
+	}
+	
+	/**
+	 * Is Your Conversation
+	 */
+	@Override
+	public Boolean isYourConversation(String id) {
+		boolean isAllowed = Boolean.FALSE;
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (!(auth instanceof AnonymousAuthenticationToken)) {
+        	CommonUserDetailsAware<ObjectId> userDetails = (CommonUserDetailsAware<ObjectId>) auth.getPrincipal();
+        	if(id != null && !id.isEmpty() && ObjectId.isValid(id))
+        		isAllowed = conversationRepository.
+        			countByIdAndSupervisedChildrenEntityGuardian(new ObjectId(id), userDetails.getUserId()) > 0;
+        }
+        return isAllowed;
 	}
 
     /**

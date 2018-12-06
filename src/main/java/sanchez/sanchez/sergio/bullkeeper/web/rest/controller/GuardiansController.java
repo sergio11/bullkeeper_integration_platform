@@ -33,6 +33,7 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponses;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IAlertService;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IAuthenticationService;
+import sanchez.sanchez.sergio.bullkeeper.domain.service.IConversationService;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IDeletePendingEmailService;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IGuardianService;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IKidService;
@@ -43,14 +44,17 @@ import sanchez.sanchez.sergio.bullkeeper.events.ParentRegistrationByFacebookSucc
 import sanchez.sanchez.sergio.bullkeeper.events.ParentRegistrationByGoogleSuccessEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.ParentRegistrationSuccessEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.PasswordResetEvent;
+import sanchez.sanchez.sergio.bullkeeper.exception.ConversationNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.GuardianNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoAlertsFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoChildrenFoundForGuardianException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoChildrenFoundForSelfGuardianException;
+import sanchez.sanchez.sergio.bullkeeper.exception.NoConversationFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoGuardiansFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoSupervisedChildrenConfirmedFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoSupervisedChildrenNoConfirmedFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.SupervisedChildrenNoConfirmedNotFoundException;
+import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ConversationShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.GuardianShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.SupervisedChildrenShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ValidObjectId;
@@ -75,6 +79,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.request.UpdateKidDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AlertDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AlertsPageDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ChildrenOfGuardianDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ConversationDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.GuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ImageDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.JwtAuthenticationResponseDTO;
@@ -106,6 +111,7 @@ import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 import springfox.documentation.annotations.ApiIgnore;
+import sanchez.sanchez.sergio.bullkeeper.web.rest.response.ConversationResponseEnum;
 
 /**
  * 
@@ -132,6 +138,7 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
     private final IDeletePendingEmailService deletePendingEmailService;
     private final IGoogleService googleService;
     private final IKidService kidService;
+    private final IConversationService conversationService;
  
     /**
      * 
@@ -145,12 +152,13 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
      * @param deletePendingEmailService
      * @param googleService
      * @param kidService
+     * @param conversationService
      */
     public GuardiansController(IGuardianService guardiansService, IPasswordResetTokenService passwordResetTokenService, 
     		IAuthenticationService authenticationService, IFacebookService facebookService, 
                 ITokenGeneratorService tokenGeneratorService, IUploadFilesService uploadFilesService, IAlertService alertService,
                  IDeletePendingEmailService deletePendingEmailService, IGoogleService googleService,
-                 final IKidService kidService) {
+                 final IKidService kidService, final IConversationService conversationService) {
         this.guardiansService = guardiansService;
         this.passwordResetTokenService = passwordResetTokenService;
         this.authenticationService = authenticationService;
@@ -161,6 +169,7 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
         this.deletePendingEmailService = deletePendingEmailService;
         this.googleService = googleService;
         this.kidService = kidService;
+        this.conversationService = conversationService;
     }
    
     
@@ -1529,6 +1538,118 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
     }
     
     
+    /**
+     * Get All Conversations
+     * @param id
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/self/conversation", method = RequestMethod.GET)
+    @OnlyAccessForGuardian
+    @ApiOperation(value = "GET_ALL_CONVERSATIONS", 
+    	nickname = "GET_ALL_CONVERSATIONS", 
+    		notes = "Get All Conversations", response = Iterable.class)
+    public ResponseEntity<APIResponse<Iterable<ConversationDTO>>> getAllCoversation(
+    		@ApiParam(hidden = true)  @CurrentUser 
+				final CommonUserDetailsAware<ObjectId> selfGuardian) throws Throwable {
+        
+    	logger.debug("Get Conversations");
+    	
+    	// Get Conversation List
+    	final Iterable<ConversationDTO> conversationList = 
+    			conversationService.getAllConversationsOfGuardian(selfGuardian.getUserId());
+    	
+    	
+    	if(Iterables.isEmpty(conversationList))
+    		throw new NoConversationFoundException();
+    	
+    	
+    	// Create and send response
+    	return ApiHelper.<Iterable<ConversationDTO>>createAndSendResponse(ConversationResponseEnum.ALL_SELF_CONVERSATIONS, 
+				HttpStatus.OK, conversationList);
+    
+    }
+    
+    
+    /**
+     * Get Conversation Detail
+     * @param id
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/self/conversation/{id}", method = RequestMethod.GET)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourConversation(#id) )")
+    @ApiOperation(value = "GET_CONVERSATION_DETAIL", 
+    	nickname = "GET_CONVERSATION_DETAIL", 
+    		notes = "Get Conversation Detail", response = ConversationDTO.class)
+    public ResponseEntity<APIResponse<ConversationDTO>> getConversationDetail(
+			@ApiParam(name= "id", value = "Conversation Identifier", required = true)
+				@Valid @ConversationShouldExists(message = "{conversation.id.notvalid}")
+		 			@PathVariable final String id) throws Throwable {
+        
+    	logger.debug("Get Conversation Detail");
+    	
+    	return Optional.ofNullable(conversationService.getConversationDetail(new ObjectId(id)))
+				.map(conversationDTO -> ApiHelper.<ConversationDTO>createAndSendResponse(ConversationResponseEnum.CONVERSATION_DETAIL, 
+    		HttpStatus.OK, conversationDTO))
+				.orElseThrow(() -> { throw new ConversationNotFoundException(); });
+    	
+    }
+    
+    
+    
+    /**
+     * Delete Conversation
+     * @param id
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/self/conversation/{id}", method = RequestMethod.DELETE)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourConversation(#id) )")
+    @ApiOperation(value = "DELETE_CONVERSATION", 
+    	nickname = "DELETE_CONVERSATION", 
+    		notes = "Delete Conversation", response = String.class)
+    public ResponseEntity<APIResponse<String>> deleteConversation(
+			@ApiParam(name= "id", value = "Conversation Identifier", required = true)
+				@Valid @ConversationShouldExists(message = "{conversation.id.notvalid}")
+		 			@PathVariable final String id) throws Throwable {
+        
+    	logger.debug("Delete Conversation");
+    	
+    	// Delete Conversation
+    	conversationService.delete(new ObjectId(id));
+    	
+    	// Create and send response
+    	return ApiHelper.<String>createAndSendResponse(ConversationResponseEnum.CONVERSATION_SUCCESSFULLY_DELETED, 
+        		HttpStatus.OK, messageSourceResolver.resolver("conversation.delete"));
+    }
+    
+    
+    /**
+     * Delete Conversation
+     * @param id
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/self/conversation", method = RequestMethod.DELETE)
+    @OnlyAccessForGuardian
+    @ApiOperation(value = "DELETE_ALL_CONVERSATION", 
+    	nickname = "DELETE_ALL_CONVERSATION", 
+    		notes = "Delete All Conversation", response = String.class)
+    public ResponseEntity<APIResponse<String>> deleteAllConversation(
+    		@ApiParam(hidden = true)  @CurrentUser 
+				final CommonUserDetailsAware<ObjectId> selfGuardian) throws Throwable {
+        
+    	logger.debug("Delete All Conversations");
+    	
+    	// Delete by guardian id
+    	conversationService.deleteByGuardianId(selfGuardian.getUserId());
+    	
+    	// Create and send response
+    	return ApiHelper.<String>createAndSendResponse(ConversationResponseEnum.ALL_CONVERSATIONS_SUCCESSFULLY_DELETED, 
+        		HttpStatus.OK, messageSourceResolver.resolver("all.conversation.deleted"));
+    }
+    
     
     /**
      * Save Preferences
@@ -1601,7 +1722,7 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
         Assert.notNull(uploadFilesService, "UploadFilesService can not be null");
         Assert.notNull(alertService, "Alert Service can not be null");
         Assert.notNull(deletePendingEmailService, "Delete Pending Email Service can not be null");
-
+        Assert.notNull(conversationService, "Conversation Service can not be null");
     }
     
 }

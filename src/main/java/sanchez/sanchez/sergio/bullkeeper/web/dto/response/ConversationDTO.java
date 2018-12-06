@@ -42,6 +42,13 @@ public final class ConversationDTO implements Serializable {
 	private KidGuardianDTO kidGuardian;
 	
 	
+	/**
+	 * Messages Count
+	 */
+	@JsonProperty("messages_count")
+	private long messagesCount;
+	
+	
 	public ConversationDTO() {}
 	
 	/**
@@ -50,13 +57,17 @@ public final class ConversationDTO implements Serializable {
 	 * @param createAt
 	 * @param updateAt
 	 * @param kidGuardian
+	 * @param messagesCount
 	 */
-	public ConversationDTO(String identity, String createAt, String updateAt, KidGuardianDTO kidGuardian) {
+	public ConversationDTO(final String identity, final String createAt,
+			final String updateAt, final KidGuardianDTO kidGuardian,
+			final long messagesCount) {
 		super();
 		this.identity = identity;
 		this.createAt = createAt;
 		this.updateAt = updateAt;
 		this.kidGuardian = kidGuardian;
+		this.messagesCount = messagesCount;
 	}
 
 
@@ -98,13 +109,20 @@ public final class ConversationDTO implements Serializable {
 	public void setKidGuardian(KidGuardianDTO kidGuardian) {
 		this.kidGuardian = kidGuardian;
 	}
+	
+
+	public long getMessagesCount() {
+		return messagesCount;
+	}
+
+	public void setMessagesCount(long messagesCount) {
+		this.messagesCount = messagesCount;
+	}
 
 	@Override
 	public String toString() {
 		return "ConversationDTO [identity=" + identity + ", createAt=" + createAt + ", updateAt=" + updateAt
-				+ ", kidGuardian=" + kidGuardian + "]";
+				+ ", kidGuardian=" + kidGuardian + ", messagesCount=" + messagesCount + "]";
 	}
-	
-	
 
 }

@@ -8,6 +8,7 @@ import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ConversationEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.MessageEntity;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.MessageRepository;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ConversationDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.MessageDTO;
 
@@ -25,6 +26,12 @@ public abstract class ConversationEntityMapper {
 	@Autowired
 	protected SupervisedChildrenEntityMapper supervisedChildrenEntityMapper;
 	
+	/**
+	 * Message Repository
+	 */
+	@Autowired
+	protected MessageRepository messageRepository;
+	
 	
 	/**
 	 * 
@@ -39,7 +46,10 @@ public abstract class ConversationEntityMapper {
         @Mapping(source = "conversationEntity.updateAt", target = "updateAt", 
     		dateFormat = "yyyy/MM/dd"),
         @Mapping(expression="java(supervisedChildrenEntityMapper"
-        		+ ".supervisedChildrenEntityToKidGuardiansDTO(conversationEntity.getSupervisedChildrenEntity()))", target = "kidGuardian")
+        		+ ".supervisedChildrenEntityToKidGuardiansDTO(conversationEntity.getSupervisedChildrenEntity()))", 
+        		target = "kidGuardian"),
+        @Mapping(expression = "java(messageRepository.countByConversationId(conversationEntity.getId()))",
+        	target = "messagesCount")
     })
     @Named("conversationEntityToConversationDTO")
     public abstract ConversationDTO conversationEntityToConversationDTO(

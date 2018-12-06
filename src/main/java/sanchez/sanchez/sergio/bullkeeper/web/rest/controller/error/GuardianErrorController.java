@@ -15,7 +15,6 @@ import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
-
 import sanchez.sanchez.sergio.bullkeeper.exception.EmailAlreadyExistsException;
 import sanchez.sanchez.sergio.bullkeeper.exception.GetInformationFromFacebookException;
 import sanchez.sanchez.sergio.bullkeeper.exception.GetInformationFromGoogleException;
@@ -262,6 +261,8 @@ public class GuardianErrorController extends BaseController{
     	return ApiHelper.<String>createAndSendErrorResponseWithHeader(GuardianResponseCode.SUPERVISED_CHILDREN_NOT_CONFIRMED_NOT_FOUND_EXCEPTION, 
     			HttpStatus.NOT_FOUND, messageSourceResolver.resolver("parent.email.already.exists"));
     }
+    
+    
     
     /**
      * 

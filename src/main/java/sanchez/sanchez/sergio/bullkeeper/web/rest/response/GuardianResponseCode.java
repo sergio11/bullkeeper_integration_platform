@@ -1,8 +1,5 @@
 package sanchez.sanchez.sergio.bullkeeper.web.rest.response;
 
-import sanchez.sanchez.sergio.bullkeeper.exception.NoSupervisedChildrenConfirmedFoundException;
-import sanchez.sanchez.sergio.bullkeeper.exception.SupervisedChildrenConfirmedNotFoundException;
-
 /**
  * 
  * @author sergiosanchezsanchez

@@ -98,4 +98,11 @@ public interface IAuthorizationService {
      */
     Boolean isYourProfilePublic(final String id);
     
+    /**
+     * Is Your Conversation
+     * @param id
+     * @return
+     */
+    Boolean isYourConversation(final String id);
+    
 }
