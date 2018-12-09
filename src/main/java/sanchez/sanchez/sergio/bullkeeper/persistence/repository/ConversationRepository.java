@@ -1,5 +1,7 @@
 package sanchez.sanchez.sergio.bullkeeper.persistence.repository;
 
+import java.util.List;
+
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
@@ -23,20 +25,6 @@ public interface ConversationRepository
 	
 	/**
 	 * 
-	 * @param kid
-	 * @param guardian
-	 * @return
-	 */
-	ConversationEntity findBySupervisedChildrenEntityKidAndSupervisedChildrenEntityGuardian(final ObjectId kid, final ObjectId guardian);
-	
-	/**
-	 * Find All Supervised Children Entity Guardian
-	 * @return
-	 */
-	Iterable<ConversationEntity> findAllBySupervisedChildrenEntityGuardian(final ObjectId guardian);
-	
-	/**
-	 * 
 	 * @param id
 	 * @return
 	 */
@@ -57,24 +45,26 @@ public interface ConversationRepository
 	long countById(final ObjectId id);
 	
 	/**
+	 * Delete 
+	 * @param ids
+	 */
+	void deleteBySupervisedChildrenEntityIdIn(final List<ObjectId> ids);
+	
+	/**
 	 * 
-	 * @param id
-	 * @param guardian
+	 * @param ids
 	 * @return
 	 */
-	long countByIdAndSupervisedChildrenEntityGuardian(final ObjectId id, final ObjectId guardian);
+	Iterable<ConversationEntity> findAllBySupervisedChildrenEntityIdIn(final List<ObjectId> ids);
 	
 	/**
-	 * Delete By Supervised Children Entity Guardian
-	 * @param guardian
+	 * 
+	 * @param id
+	 * @param ids
+	 * @return
 	 */
-	void deleteBySupervisedChildrenEntityGuardian(final ObjectId guardian);
+	long countByIdAndSupervisedChildrenEntityIdIn(final ObjectId id, final List<ObjectId> ids);
+
 	
-	/**
-	 * Delete By Kid And Guardian
-	 * @param kid
-	 * @param guardian
-	 */
-	void deleteBySupervisedChildrenEntityKidAndSupervisedChildrenEntityGuardian(final ObjectId kid, final ObjectId guardian);
 	
 }

@@ -62,6 +62,14 @@ public class ConversationEntity {
 		this.supervisedChildrenEntity = supervisedChildrenEntity;
 	}
 
+    /**
+     * 
+     * @param supervisedChildrenEntity
+     */
+    public ConversationEntity(final SupervisedChildrenEntity supervisedChildrenEntity) {
+    	this.supervisedChildrenEntity = supervisedChildrenEntity;
+    }
+    
 	public ObjectId getId() {
 		return id;
 	}

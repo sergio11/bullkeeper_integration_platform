@@ -1,18 +1,28 @@
 package sanchez.sanchez.sergio.bullkeeper.domain.service.impl;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import javax.annotation.PostConstruct;
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IConversationService;
 import sanchez.sanchez.sergio.bullkeeper.mapper.ConversationEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ConversationEntity;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.GuardianEntity;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.KidEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.MessageEntity;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SupervisedChildrenEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.ConversationRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.MessageRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.SupervisedChildrenRepository;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.MessageSavedSSE;
 import sanchez.sanchez.sergio.bullkeeper.sse.service.impl.SupportSseService;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.AddMessageDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ConversationDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.MessageDTO;
 
@@ -23,6 +33,8 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.response.MessageDTO;
  */
 @Service("ConversationService")
 public class ConversationServiceImpl implements IConversationService {
+	
+	private static Logger logger = LoggerFactory.getLogger(ConversationServiceImpl.class);
 	
 	/**
 	 * Message Sse service
@@ -44,21 +56,32 @@ public class ConversationServiceImpl implements IConversationService {
 	 */
 	private final MessageRepository messageRepository;
 	
+	/**
+	 * Supervised Children Repository
+	 */
+	private final SupervisedChildrenRepository supervisedChildrenRepository;
+
+	
 
 	/**
-	 * 
 	 * @param messageSseService
+	 * @param conversationRepository
+	 * @param conversationEntityMapper
+	 * @param messageRepository
+	 * @param supervisedChildrenRepository
 	 */
 	public ConversationServiceImpl(
 			final SupportSseService<MessageSavedSSE> messageSseService,
 			final ConversationRepository conversationRepository,
 			final ConversationEntityMapper conversationEntityMapper,
-			final MessageRepository messageRepository) {
+			final MessageRepository messageRepository,
+			final SupervisedChildrenRepository supervisedChildrenRepository) {
 		super();
 		this.messageSseService = messageSseService;
 		this.conversationRepository = conversationRepository;
 		this.conversationEntityMapper = conversationEntityMapper;
 		this.messageRepository = messageRepository;
+		this.supervisedChildrenRepository = supervisedChildrenRepository;
 	}
 	
 	/**
@@ -68,11 +91,28 @@ public class ConversationServiceImpl implements IConversationService {
 	public Iterable<ConversationDTO> getAllConversationsOfGuardian(final ObjectId guardian) {
 		Assert.notNull(guardian, "Guardian can not be null");
 		
-		// Get All Conversation
-		final Iterable<ConversationEntity> conversationList =
-				conversationRepository.findAllBySupervisedChildrenEntityGuardian(guardian);
-		// Transforms results
-		return conversationEntityMapper.conversationEntityToConversationDTOs(conversationList);
+		Iterable<ConversationDTO> conversationDTOs = new ArrayList<>();
+		
+		// Get Supervised Children
+		final List<SupervisedChildrenEntity> supervisedChildrenListSaved =
+					supervisedChildrenRepository.findByGuardianId(guardian);
+		
+		if(supervisedChildrenListSaved != null 
+				&& !supervisedChildrenListSaved.isEmpty()) {
+			
+			// Get All Conversation
+			final Iterable<ConversationEntity> conversationList =
+					conversationRepository.findAllBySupervisedChildrenEntityIdIn(
+							supervisedChildrenListSaved
+							.stream().map(model -> model.getId()).collect(Collectors.toList()));
+			
+			// Transforms results
+			conversationDTOs = conversationEntityMapper.conversationEntityToConversationDTOs(conversationList);
+			
+		}
+		
+		
+		return conversationDTOs;
 	}
 
 	/**
@@ -104,7 +144,15 @@ public class ConversationServiceImpl implements IConversationService {
 	public void deleteByGuardianId(final ObjectId guardian) {
 		Assert.notNull(guardian, "guardian can not be null");
 		
-		conversationRepository.deleteBySupervisedChildrenEntityGuardian(guardian);
+		// Get Supervised Children
+		final List<SupervisedChildrenEntity> supervisedChildrenListSaved =
+					supervisedChildrenRepository.findByGuardianId(guardian);
+				
+		if(supervisedChildrenListSaved != null &&
+				!supervisedChildrenListSaved.isEmpty())
+			conversationRepository
+					.deleteBySupervisedChildrenEntityIdIn(supervisedChildrenListSaved
+							.stream().map(model -> model.getId()).collect(Collectors.toList()));
 		
 	}
 	
@@ -116,8 +164,13 @@ public class ConversationServiceImpl implements IConversationService {
 		Assert.notNull(kid, "kid can not be null");
 		Assert.notNull(guardian, "guardian can not be null");
 		
-		conversationRepository
-			.deleteBySupervisedChildrenEntityKidAndSupervisedChildrenEntityGuardian(kid, guardian);
+		// Get Supervised Children
+		final SupervisedChildrenEntity supervisedChildrenSaved =
+						supervisedChildrenRepository.findByGuardianIdAndKidId(guardian, kid);
+		
+		if(supervisedChildrenSaved != null)
+			conversationRepository
+				.deleteBySupervisedChildrenEntityId(supervisedChildrenSaved.getId());
 		
 	}
 
@@ -129,10 +182,16 @@ public class ConversationServiceImpl implements IConversationService {
 		Assert.notNull(conversationId, "Conversation Id can not be null");
 		
 		// Get Message List
-		final Iterable<MessageEntity> messageList = 
+		final Iterable<MessageEntity> messagesEntities = 
 				messageRepository.findByConversationId(conversationId);
+		
+		// set viewed on true
+		messagesEntities.forEach(message -> message.setViewed(true));
+		
+		messageRepository.save(messagesEntities);
+		
 		// Map Results
-		return conversationEntityMapper.messageEntityToMessageDTOs(messageList);
+		return conversationEntityMapper.messageEntityToMessageDTOs(messagesEntities);
 		
 	}
 
@@ -159,13 +218,21 @@ public class ConversationServiceImpl implements IConversationService {
 		Assert.notNull(kid, "kid can not be null");
 		Assert.notNull(guardian, "guardian can not be null");
 		
-		final ConversationEntity conversationEntity = conversationRepository
-				.findBySupervisedChildrenEntityKidAndSupervisedChildrenEntityGuardian(kid, guardian);
+		// Get Supervised Children
+		final SupervisedChildrenEntity supervisedChildrenSaved =
+				supervisedChildrenRepository.findByGuardianIdAndKidId(guardian, kid);
 		
-		if(conversationEntity != null) {
-			messageRepository.deleteByConversationId(conversationEntity.getId());
+		if(supervisedChildrenSaved != null) {
+			
+			final ConversationEntity conversationEntity = conversationRepository
+					.findBySupervisedChildrenEntityId(supervisedChildrenSaved.getId());
+			
+			if(conversationEntity != null) {
+				messageRepository.deleteByConversationId(conversationEntity.getId());
+			}
+			
 		}
-		
+	
 	}
 
 	/**
@@ -176,12 +243,23 @@ public class ConversationServiceImpl implements IConversationService {
 		Assert.notNull(kid, "kid can not be null");
 		Assert.notNull(guardian, "guardian can not be null");
 		
+		ConversationDTO conversationDTO = null;
 		
-		final ConversationEntity conversationEntity = conversationRepository
-			.findBySupervisedChildrenEntityKidAndSupervisedChildrenEntityGuardian(kid, guardian);
-	
+		// Get Supervised Children
+		final SupervisedChildrenEntity supervisedChildrenSaved =
+				supervisedChildrenRepository.findByGuardianIdAndKidId(guardian, kid);
+		
+		if(supervisedChildrenSaved != null) {
+			
+			final ConversationEntity conversationEntity = conversationRepository
+					.findBySupervisedChildrenEntityId(supervisedChildrenSaved.getId());
+			
+			conversationDTO = conversationEntityMapper.conversationEntityToConversationDTO(conversationEntity);
+			
+		}
+		
 		// Map Results
-		return conversationEntityMapper.conversationEntityToConversationDTO(conversationEntity);
+		return conversationDTO;
 	}
 
 	/**
@@ -195,20 +273,164 @@ public class ConversationServiceImpl implements IConversationService {
 		// Messages
 		Iterable<MessageDTO> messages = new ArrayList<>();
 		
-		final ConversationEntity conversationEntity = conversationRepository
-				.findBySupervisedChildrenEntityKidAndSupervisedChildrenEntityGuardian(kid, guardian);
+		// Get Supervised Children
+		final SupervisedChildrenEntity supervisedChildrenSaved =
+					supervisedChildrenRepository.findByGuardianIdAndKidId(guardian, kid);
 		
-		if(conversationEntity != null) {
+		if(supervisedChildrenSaved != null) {
+		
+			final ConversationEntity conversationEntity = conversationRepository
+					.findBySupervisedChildrenEntityId(supervisedChildrenSaved.getId());
 			
-			// Find Messages by conversation id
-			final Iterable<MessageEntity> messagesEntities = 
-					messageRepository.findByConversationId(conversationEntity.getId());
+			if(conversationEntity != null) {
+				
+				logger.debug("Get Meesages for conversation id -> " + conversationEntity.getId().toString());
+				// Find Messages by conversation id
+				final Iterable<MessageEntity> messagesEntities = 
+						messageRepository.findByConversationId(conversationEntity.getId());
+				
+				// set viewed on true
+				messagesEntities.forEach(message -> message.setViewed(true));
+				
+				messageRepository.save(messagesEntities);
+				
+				// Map Result
+				messages = conversationEntityMapper.messageEntityToMessageDTOs(messagesEntities);
+			}
 			
-			// Map Result
-			messages = conversationEntityMapper.messageEntityToMessageDTOs(messagesEntities);
 		}
 		
 		return messages;
+	}
+	
+	/**
+	 * Save Message
+	 * @param conversationId
+	 * @param message
+	 */
+	@Override
+	public MessageDTO saveMessage(ObjectId conversationId, AddMessageDTO message) {
+		Assert.notNull(conversationId, "Conversation Id can not be null");
+		Assert.notNull(message, "Message can not be null");
+		Assert.notNull(message.getFrom(), "Message From can not be null");
+		Assert.notNull(message.getTo(), "Message To can not be null");
+		
+		// Get Conversation
+		final ConversationEntity conversationEntity = 
+				conversationRepository.findOne(conversationId);
+		
+		
+		// Create Message
+		final MessageEntity messageEntity = new MessageEntity();
+		messageEntity.setConversation(conversationEntity);
+		messageEntity.setText(message.getText());
+		
+		final GuardianEntity guardianEntity = conversationEntity
+				.getSupervisedChildrenEntity().getGuardian();
+		final KidEntity kidEntity = conversationEntity
+				.getSupervisedChildrenEntity().getKid();
+		
+		if(guardianEntity.getId()
+				.equals(new ObjectId(message.getFrom()))) {
+			messageEntity.setFrom(guardianEntity);
+			messageEntity.setTo(kidEntity);
+		} else {
+			messageEntity.setFrom(kidEntity);
+			messageEntity.setTo(guardianEntity);
+		}
+		
+		// Save Message
+		final MessageEntity messageEntitySaved = messageRepository
+				.save(messageEntity);
+		
+		
+		final String idFrom = messageEntitySaved.getFrom().getId().toString();
+	
+		// Push Event
+		final MessageSavedSSE messageSavedSSE = new MessageSavedSSE(
+				idFrom, idFrom, messageEntitySaved.getText());
+		
+		logger.debug("Message Saved SSE -> " + messageSavedSSE.toString());
+		
+		messageSseService.push(idFrom, messageSavedSSE);
+		
+		// Map results
+		return conversationEntityMapper
+				.messageEntityToMessageDTO(messageEntitySaved);
+		
+	}
+
+	/**
+	 * Create Conversation
+	 * @param guardian
+	 * @param kid
+	 */
+	@Override
+	public ConversationDTO createConversation(ObjectId guardian, ObjectId kid) {
+		Assert.notNull(guardian, "Guardian can not be null");
+		Assert.notNull(kid, "Kid can not be null");
+		
+		ConversationDTO conversationDTO = null;
+		
+		// Get Supervised Children
+		final SupervisedChildrenEntity supervisedChildrenSaved =
+				supervisedChildrenRepository.findByGuardianIdAndKidId(guardian, kid);
+		
+		if(supervisedChildrenSaved != null) {
+			final ConversationEntity conversationEntitySaved = conversationRepository
+				.save(new ConversationEntity(supervisedChildrenSaved));
+			conversationDTO = conversationEntityMapper
+					.conversationEntityToConversationDTO(conversationEntitySaved);
+		}
+			
+		return conversationDTO;
+	}
+	
+	/**
+	 * Delete Conversation Messages
+	 * @param conversationId
+	 * @param messageIds
+	 */
+	@Override
+	public void deleteConversationMessages(final ObjectId conversationId,
+			final List<ObjectId> messageIds) {
+		Assert.notNull(conversationId, "Conversation Id can not be null");
+		Assert.notNull(messageIds, "Message Ids can not be null");
+		
+		messageRepository
+			.deleteByConversationIdAndIdIn(conversationId, messageIds);
+		
+	}
+
+	/**
+	 * @param kid
+	 * @param guardian
+	 * @param messageIds
+	 */
+	@Override
+	public void deleteConversationMessagesByKidIdAndGuardianId(final ObjectId kid, 
+			final ObjectId guardian, final List<ObjectId> messageIds) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(guardian, "Guardian can not be null");
+		Assert.notNull(messageIds, "Message Ids can not be null");
+		
+		// Get Supervised Children
+		final SupervisedChildrenEntity supervisedChildrenSaved =
+				supervisedChildrenRepository.findByGuardianIdAndKidId(guardian, kid);
+				
+		if(supervisedChildrenSaved != null) {
+			
+			final ConversationEntity conversationEntity = conversationRepository
+					.findBySupervisedChildrenEntityId(supervisedChildrenSaved.getId());
+			
+			if(conversationEntity != null) {
+				messageRepository
+					.deleteByConversationIdAndIdIn(conversationEntity.getId(), messageIds);
+			}
+			
+		}
+			
+					
 	}
 	
 	/**
@@ -220,4 +442,5 @@ public class ConversationServiceImpl implements IConversationService {
 		Assert.notNull(conversationRepository, "Conversation Repository can not be null");
 		Assert.notNull(conversationEntityMapper, "Coversation ENtity can not be null");
 	}
+
 }

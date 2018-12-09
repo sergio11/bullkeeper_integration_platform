@@ -50,6 +50,12 @@ public final class KidGuardianDTO implements Serializable {
 	 */
 	@JsonProperty("request_at")
 	private String requestAt;
+	
+	/**
+	 * Pending Messages Count
+	 */
+	@JsonProperty("pending_messages_count")
+	private long pendingMessagesCount;
 
 	/**
 	 * 
@@ -63,10 +69,11 @@ public final class KidGuardianDTO implements Serializable {
 	 * @param isConfirmed
 	 * @param role
 	 * @param requestAt
+	 * @param pendingMessagesCount
 	 */
 	public KidGuardianDTO(final String identity, final KidDTO kid, final GuardianDTO guardian, 
 			final boolean isConfirmed, final String role,
-			final String requestAt) {
+			final String requestAt, final long pendingMessagesCount) {
 		super();
 		this.identity = identity;
 		this.kid = kid;
@@ -74,6 +81,7 @@ public final class KidGuardianDTO implements Serializable {
 		this.isConfirmed = isConfirmed;
 		this.role = role;
 		this.requestAt = requestAt;
+		this.pendingMessagesCount = pendingMessagesCount;
 	}
 	
 	
@@ -117,7 +125,6 @@ public final class KidGuardianDTO implements Serializable {
 		this.role = role;
 	}
 	
-
 	public String getRequestAt() {
 		return requestAt;
 	}
@@ -125,10 +132,21 @@ public final class KidGuardianDTO implements Serializable {
 	public void setRequestAt(String requestAt) {
 		this.requestAt = requestAt;
 	}
+	
+	public long getPendingMessagesCount() {
+		return pendingMessagesCount;
+	}
+
+	public void setPendingMessagesCount(long pendingMessagesCount) {
+		this.pendingMessagesCount = pendingMessagesCount;
+	}
 
 	@Override
 	public String toString() {
 		return "KidGuardianDTO [identity=" + identity + ", kid=" + kid + ", guardian=" + guardian + ", isConfirmed="
-				+ isConfirmed + ", role=" + role + ", requestAt=" + requestAt + "]";
+				+ isConfirmed + ", role=" + role + ", requestAt=" + requestAt + ", pendingMessagesCount="
+				+ pendingMessagesCount + "]";
 	}
+
+	
 }

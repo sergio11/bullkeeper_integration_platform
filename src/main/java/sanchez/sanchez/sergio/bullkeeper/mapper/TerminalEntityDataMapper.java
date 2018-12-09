@@ -63,7 +63,8 @@ public abstract class TerminalEntityDataMapper {
 	 * @return
 	 */
     @Mappings({
-        @Mapping(expression="java(terminalEntity.getId().toString())", target = "identity" )
+        @Mapping(expression="java(terminalEntity.getId().toString())", target = "identity" ),
+        @Mapping(expression="java(terminalEntity.getKid().getId().toString())", target = "kid" )
     })
     @Named("terminalEntityToTerminalDTO")
     public abstract TerminalDTO terminalEntityToTerminalDTO(final TerminalEntity terminalEntity); 
@@ -115,6 +116,7 @@ public abstract class TerminalEntityDataMapper {
        @Mappings({
            @Mapping(expression="java(terminalEntity.getId().toString())", 
            		target = "identity" ),
+           @Mapping(expression="java(terminalEntity.getKid().getId().toString())", target = "kid" ),
            @Mapping(expression="java(getCountAppsInstalledInTheTerminal(terminalEntity.getKid().getId(), terminalEntity.getId()))", 
            	target = "totalApps"),
            @Mapping(expression="java(prettyTime.format(terminalEntity.getLastTimeUsed()))", 

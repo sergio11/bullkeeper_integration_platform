@@ -34,6 +34,11 @@ public final class SupervisedChildrenDTO extends ResourceSupport
 	@JsonProperty("role")
 	private String role;
 	
+	/**
+	 * Pending Message Count
+	 */
+	@JsonProperty("pending_message_count")
+	private long pendingMessagesCount;
 	
 	public SupervisedChildrenDTO() {}
 
@@ -42,46 +47,54 @@ public final class SupervisedChildrenDTO extends ResourceSupport
 	 * @param identity
 	 * @param kid
 	 * @param role
+	 * @param pendingMessagesCount
 	 */
-	public SupervisedChildrenDTO(String identity, KidDTO kid, String role) {
+	public SupervisedChildrenDTO(String identity, KidDTO kid, String role, long pendingMessagesCount) {
 		super();
 		this.identity = identity;
 		this.kid = kid;
 		this.role = role;
+		this.pendingMessagesCount = pendingMessagesCount;
 	}
-
 
 	public String getIdentity() {
 		return identity;
 	}
 
-
 	public KidDTO getKid() {
 		return kid;
 	}
-
 
 	public String getRole() {
 		return role;
 	}
 
+	public long getPendingMessagesCount() {
+		return pendingMessagesCount;
+	}
 
 	public void setIdentity(String identity) {
 		this.identity = identity;
 	}
 
-
 	public void setKid(KidDTO kid) {
 		this.kid = kid;
 	}
-
 
 	public void setRole(String role) {
 		this.role = role;
 	}
 
+	public void setPendingMessagesCount(long pendingMessagesCount) {
+		this.pendingMessagesCount = pendingMessagesCount;
+	}
+
 	@Override
 	public String toString() {
-		return "SupervisedChildrenDTO [identity=" + identity + ", kid=" + kid + ", role=" + role + "]";
+		return "SupervisedChildrenDTO [identity=" + identity + ", kid=" + kid + ", role=" + role
+				+ ", pendingMessagesCount=" + pendingMessagesCount + "]";
 	}
+
+	
+	
 }

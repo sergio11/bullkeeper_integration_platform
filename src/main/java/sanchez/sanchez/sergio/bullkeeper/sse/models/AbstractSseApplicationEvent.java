@@ -18,9 +18,14 @@ public abstract class AbstractSseApplicationEvent extends ApplicationEvent {
 	 */
 	protected String subscriberId;
 	
-	
-	public AbstractSseApplicationEvent(Object source) {
+	/**
+	 * 
+	 * @param source
+	 * @param subscriberId
+	 */
+	public AbstractSseApplicationEvent(final Object source, final String subscriberId) {
 		super(source);
+		this.subscriberId = subscriberId;
 	}
 
 	public String getSubscriberId() {

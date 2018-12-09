@@ -70,7 +70,7 @@ public class SaveAppInstalledDTO implements Serializable {
 	 * App Name
 	 */
 	@NotBlank(message = "{app.appname.notblank}")
-    @Size(min = 5, message = "{app.appname.size}")
+    @Size(min = 2, message = "{app.appname.size}")
 	@JsonProperty("app_name")
 	private String appName;
 	

@@ -1,6 +1,9 @@
 package sanchez.sanchez.sergio.bullkeeper.domain.service.impl;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import javax.annotation.PostConstruct;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
@@ -16,6 +19,7 @@ import sanchez.sanchez.sergio.bullkeeper.domain.service.IAuthorizationService;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.GuardianEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.GuardianRolesEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.KidEntity;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SupervisedChildrenEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.ConversationRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.GuardianRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.KidRepository;
@@ -264,11 +268,46 @@ public class AuthorizationServiceImpl implements IAuthorizationService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (!(auth instanceof AnonymousAuthenticationToken)) {
         	CommonUserDetailsAware<ObjectId> userDetails = (CommonUserDetailsAware<ObjectId>) auth.getPrincipal();
-        	if(id != null && !id.isEmpty() && ObjectId.isValid(id))
-        		isAllowed = conversationRepository.
-        			countByIdAndSupervisedChildrenEntityGuardian(new ObjectId(id), userDetails.getUserId()) > 0;
+        	if(id != null && !id.isEmpty() && ObjectId.isValid(id)) {
+        		
+        		// Get Supervised Children
+        		final List<SupervisedChildrenEntity> supervisedChildrenListSaved =
+        					supervisedChildrenRepository.findByGuardianId(userDetails.getUserId());
+        		
+        		if(supervisedChildrenListSaved != null 
+        				&& !supervisedChildrenListSaved.isEmpty()) {
+        			
+        			isAllowed = conversationRepository
+        					.countByIdAndSupervisedChildrenEntityIdIn(new ObjectId(id), supervisedChildrenListSaved
+        							.stream().map(model -> model.getId()).collect(Collectors.toList())) > 0;
+        		}
+        		
+        	}
+
         }
         return isAllowed;
+	}
+	
+	/**
+	 * Is Your Guardian
+	 */
+	@Override
+	public Boolean isYourGuardian(final String guardian, final String kid) {
+		Assert.notNull(guardian, "Guardian can not be null");
+		Assert.notNull(kid, "Kid can not be null");
+		
+		boolean isYourGuardian = Boolean.FALSE;
+		final Authentication auth = 
+				SecurityContextHolder.getContext().getAuthentication();
+        if (!(auth instanceof AnonymousAuthenticationToken) 
+        		&& ObjectId.isValid(guardian) && ObjectId.isValid(kid) ) {
+        	// Check is your guardian
+            isYourGuardian = supervisedChildrenRepository
+            	.countByGuardianIdAndKidIdAndIsConfirmedTrue(new ObjectId(guardian), 
+            			new ObjectId(kid)) > 0;
+            
+        }
+        return isYourGuardian;
 	}
 
     /**

@@ -49,10 +49,10 @@ public final class TerminalDetailDTO extends TerminalDTO {
 	 */
 	public TerminalDetailDTO(String identity, String appVersionName, String appVersionCode, String osVersion,
 			String sdkVersion, String manufacturer, String marketName, String model, String codeName,
-			String deviceName, String deviceId, long totalApps, String lastTimeUsed) {
+			String deviceName, String deviceId, final String kid, long totalApps, String lastTimeUsed) {
 		super(identity, appVersionName, appVersionCode, osVersion, sdkVersion,
 				manufacturer, marketName, model, codeName,
-				deviceName, deviceId);
+				deviceName, deviceId, kid);
 		this.totalApps = totalApps;
 		this.lastTimeUsed = lastTimeUsed;
 	}

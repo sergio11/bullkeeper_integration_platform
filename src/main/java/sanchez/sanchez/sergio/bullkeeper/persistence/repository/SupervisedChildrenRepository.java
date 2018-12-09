@@ -214,5 +214,13 @@ public interface SupervisedChildrenRepository extends
 	 * @return
 	 */
 	long countByGuardianIdAndIsConfirmedFalse(final ObjectId guardian);
+	
+	/**
+	 * Find By Guardian Id And Kid ID
+	 * @param guardian
+	 * @param kid
+	 * @return
+	 */
+	SupervisedChildrenEntity findByGuardianIdAndKidId(final ObjectId guardian, final ObjectId kid);
 
 }

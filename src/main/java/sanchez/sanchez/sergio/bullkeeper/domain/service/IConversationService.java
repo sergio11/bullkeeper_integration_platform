@@ -1,7 +1,10 @@
 package sanchez.sanchez.sergio.bullkeeper.domain.service;
 
+import java.util.List;
+
 import org.bson.types.ObjectId;
 
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.AddMessageDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ConversationDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.MessageDTO;
 
@@ -64,6 +67,23 @@ public interface IConversationService {
 	 */
 	void deleteAllConversationMessagesByKidIdAndGuardianId(final ObjectId kid, final ObjectId guardian);
 	
+	
+	/**
+	 * Delete Conversation Messages
+	 * @param conversationId
+	 * @param messageIds
+	 */
+	void deleteConversationMessages(final ObjectId conversationId, final List<ObjectId> messageIds);
+	
+	/**
+	 * Delete Conversation Messages
+	 * @param kid
+	 * @param guardian
+	 * @param messageIds
+	 */
+	void deleteConversationMessagesByKidIdAndGuardianId(final ObjectId kid, final ObjectId guardian, final List<ObjectId> messageIds);
+	
+	
 	/**
 	 * Get Conversation By Kid and GUardian
 	 * @param kid
@@ -81,5 +101,20 @@ public interface IConversationService {
 	 */
 	Iterable<MessageDTO> getConversationMessagesByKidIdAndGuardianId(final ObjectId kid, final ObjectId guardian);
 	
-
+	/**
+	 * Save Message
+	 * @param conversationId
+	 * @param message
+	 * @return
+	 */
+	MessageDTO saveMessage(final ObjectId conversationId, final AddMessageDTO message);
+	
+	/**
+	 * Create Conversation
+	 * @param guardian
+	 * @param kid
+	 * @return
+	 */
+	ConversationDTO createConversation(final ObjectId guardian, final ObjectId kid);
+	
 }

@@ -32,6 +32,12 @@ public abstract class ConversationEntityMapper {
 	@Autowired
 	protected MessageRepository messageRepository;
 	
+	/**
+	 * Person Entity Mapper
+	 */
+	@Autowired
+	protected PersonEntityMapper personEntityMapper;
+	
 	
 	/**
 	 * 
@@ -75,7 +81,11 @@ public abstract class ConversationEntityMapper {
         @Mapping(source = "messageEntity.createAt", target = "createAt", 
         	dateFormat = "yyyy/MM/dd"),
         @Mapping(expression="java(messageEntity.getConversation()"
-        		+ ".getId().toString())", target = "conversation")
+        		+ ".getId().toString())", target = "conversation"),
+        @Mapping(expression="java(personEntityMapper.personEntityToPersonDTO(messageEntity.getFrom()))", 
+			target = "from" ),
+        @Mapping(expression="java(personEntityMapper.personEntityToPersonDTO(messageEntity.getTo()))", 
+			target = "to" )
     })
     @Named("messageEntityToMessageDTO")
     public abstract MessageDTO messageEntityToMessageDTO(

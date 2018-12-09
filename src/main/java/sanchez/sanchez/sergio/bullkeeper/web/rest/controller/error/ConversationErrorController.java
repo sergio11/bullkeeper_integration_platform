@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import sanchez.sanchez.sergio.bullkeeper.exception.ConversationNotFoundException;
+import sanchez.sanchez.sergio.bullkeeper.exception.MessageNotAllowedException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoConversationFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoMessagesFoundException;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.ApiHelper;
@@ -73,4 +74,19 @@ public class ConversationErrorController extends BaseController {
     	return ApiHelper.<String>createAndSendErrorResponseWithHeader(ConversationResponseEnum.NO_MESSAGES_FOUND, 
     			HttpStatus.NOT_FOUND, messageSourceResolver.resolver("parent.email.already.exists"));
     }
+    
+    /**
+     * 
+     * @param messageNotAllowedException
+     * @param request
+     * @return
+     */
+    @ExceptionHandler(MessageNotAllowedException.class)
+    @ResponseBody
+    protected ResponseEntity<APIResponse<String>> handleMessageNotAllowedException(MessageNotAllowedException messageNotAllowedException, HttpServletRequest request) {
+    	return ApiHelper.<String>createAndSendErrorResponseWithHeader(ConversationResponseEnum.MESSAGE_NOT_ALLOWED, 
+    			HttpStatus.INTERNAL_SERVER_ERROR, messageSourceResolver.resolver("parent.email.already.exists"));
+    }
+    
+    
 }

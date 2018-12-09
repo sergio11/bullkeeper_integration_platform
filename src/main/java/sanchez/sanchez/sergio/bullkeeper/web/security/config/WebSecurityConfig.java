@@ -129,7 +129,7 @@ public class WebSecurityConfig  {
 			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
 				.antMatchers(HttpMethod.OPTIONS, "/**")
 					.permitAll()
-				.antMatchers("/api/v1/guardians/auth/**", "/api/v1/admin/auth")
+				.antMatchers("/api/v1/guardians/auth/**", "/api/v1/admin/auth", "/api/v1/events/**")
 					.permitAll()
 				.antMatchers(HttpMethod.POST, "/api/v1/guardians/", "/api/v1/guardians/reset-password")
 					.permitAll()

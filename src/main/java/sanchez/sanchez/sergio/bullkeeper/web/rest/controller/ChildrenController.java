@@ -1187,7 +1187,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}", method = RequestMethod.GET)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
     @ApiOperation(value = "GET_TERMINAL_DETAIL", nickname = "GET_TERMINAL_DETAIL",
     	notes = "Get Terminal Detail", response = TerminalDetailDTO.class)
     public ResponseEntity<APIResponse<TerminalDetailDTO>> getTerminalDetail(

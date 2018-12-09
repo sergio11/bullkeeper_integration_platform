@@ -1,7 +1,6 @@
 package sanchez.sanchez.sergio.bullkeeper.persistence.entity;
 
 import java.util.Date;
-
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.PersistenceConstructor;
@@ -37,6 +36,26 @@ public class MessageEntity {
     @Field("text")
     private String text;
     
+    /**
+     * From
+     */
+    @Field("from")
+    @DBRef
+    private PersonEntity from;
+    
+    /**
+     * To
+     */
+    @Field("to")
+    @DBRef
+    private PersonEntity to;
+    
+    /**
+     * Viewed
+     */
+    @Field("viewed")
+    private boolean viewed = false;
+    
 	
 	/**
 	 * Conversation
@@ -55,14 +74,21 @@ public class MessageEntity {
 	 * @param id
 	 * @param createAt
 	 * @param text
+	 * @param from
+	 * @param to
+	 * @param viewed
 	 * @param conversation
 	 */
 	@PersistenceConstructor
-	public MessageEntity(ObjectId id, Date createAt, String text, ConversationEntity conversation) {
+	public MessageEntity(ObjectId id, Date createAt, String text, PersonEntity from, PersonEntity to, boolean viewed,
+			ConversationEntity conversation) {
 		super();
 		this.id = id;
 		this.createAt = createAt;
 		this.text = text;
+		this.from = from;
+		this.to = to;
+		this.viewed = viewed;
 		this.conversation = conversation;
 	}
 
@@ -76,6 +102,18 @@ public class MessageEntity {
 
 	public String getText() {
 		return text;
+	}
+
+	public PersonEntity getFrom() {
+		return from;
+	}
+
+	public PersonEntity getTo() {
+		return to;
+	}
+
+	public boolean isViewed() {
+		return viewed;
 	}
 
 	public ConversationEntity getConversation() {
@@ -94,7 +132,21 @@ public class MessageEntity {
 		this.text = text;
 	}
 
+	public void setFrom(PersonEntity from) {
+		this.from = from;
+	}
+
+	public void setTo(PersonEntity to) {
+		this.to = to;
+	}
+
+	public void setViewed(boolean viewed) {
+		this.viewed = viewed;
+	}
+
 	public void setConversation(ConversationEntity conversation) {
 		this.conversation = conversation;
 	}
+
+	
 }

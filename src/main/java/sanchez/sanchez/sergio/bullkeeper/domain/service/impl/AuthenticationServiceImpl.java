@@ -10,7 +10,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +20,11 @@ import sanchez.sanchez.sergio.bullkeeper.web.security.exception.AccountPendingTo
 import sanchez.sanchez.sergio.bullkeeper.web.security.jwt.JwtTokenUtil;
 import sanchez.sanchez.sergio.bullkeeper.web.security.userdetails.CommonUserDetailsAware;
 
+/**
+ * 
+ * @author sergiosanchezsanchez
+ *
+ */
 @Service
 public class AuthenticationServiceImpl implements IAuthenticationService {
 	
@@ -76,7 +80,7 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
 		logger.debug("Update Last login access and last access to alerts for user -> " + userDetails.getUserId().toString());
 		guardianRepository.updateLastLoginAccessAndLastAccessToAlerts(userDetails.getUserId());
         
-        return new JwtAuthenticationResponseDTO(token);
+        return new JwtAuthenticationResponseDTO(userDetails.getUserId().toString(), token);
 	}
 
 	@Override
@@ -95,7 +99,7 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
      
 		final String token = jwtTokenUtil.generateToken(userDetails, device);
         
-        return new JwtAuthenticationResponseDTO(token);
+        return new JwtAuthenticationResponseDTO(userDetails.getUserId().toString(), token);
 	}
 
 }

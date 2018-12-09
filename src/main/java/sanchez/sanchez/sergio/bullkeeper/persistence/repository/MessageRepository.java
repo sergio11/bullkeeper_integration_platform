@@ -34,4 +34,20 @@ public interface MessageRepository
 	 * @param id
 	 */
 	void deleteByConversationId(final ObjectId id);
+	
+	
+	/**
+	 * 
+	 * @param id
+	 * @return
+	 */
+	long countByToIdAndViewedTrue(final ObjectId to);
+	
+	/**
+	 * Delete By Conversation Id and Id in
+	 * @param conversationId
+	 * @param ids
+	 */
+	void deleteByConversationIdAndIdIn(final ObjectId conversationId, final List<ObjectId> ids);
+	
 }

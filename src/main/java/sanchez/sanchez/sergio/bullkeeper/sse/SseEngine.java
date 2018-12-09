@@ -32,25 +32,48 @@ public class SseEngine {
 	 */
 	private final Map<String, SseEmitter> emitters = new ConcurrentHashMap<>();
 	
+
+	
 	/**
 	 * Config
 	 * @param emitter
-	 * @param eventId
+	 * @param subscriberId
 	 */
-	private void config(final SseEmitter emitter, final String eventId) {
+	private void config(final SseEmitter emitter, final String subscriberId) {
 		Assert.notNull(emitter, "Emitter can not be null");
-		Assert.notNull(eventId, "Event id can not be null");
+		Assert.notNull(subscriberId, "Event id can not be null");
 		
 		if (emitter != null) {
 			emitter.onCompletion(() -> {
 				logger.debug("Emitter " + emitter.toString() + " COMPLETED!");
-				emitters.remove(eventId);
+				emitters.remove(subscriberId);
 			});
 			emitter.onTimeout(() -> {
 				logger.debug("Emitter " + emitter.toString() + " TIMEOUT!");
-				emitters.remove(eventId);
+				emitters.remove(subscriberId);
 			});
 		}
+	}
+	
+	/**
+	 * Create SSE Emitter
+	 * @param subscriberId
+	 * @return
+	 */
+	public SseEmitter createSseEmitter(final String subscriberId) {
+		Assert.notNull(subscriberId, "Subscriber ID");
+		
+		// Create Emitter
+		final SseEmitter emitter = new SseEmitter(getTimeout());
+		
+		// Put Emitter
+		emitters.put(subscriberId, emitter);
+		
+		// Config Emitter
+		config(emitter, subscriberId);
+		
+		return emitter;
+		
 	}
 	
 	/**
@@ -60,10 +83,16 @@ public class SseEngine {
 	 * @param eventData
 	 */
 	@Async
-	public <T extends AbstractSseData> void run(final ISseService<T> sseService, final T eventData) {
-		if(emitters.get(eventData.getSubscriberId()) != null){
-			config(emitters.get(eventData.getSubscriberId()), eventData.getSubscriberId());
+	public <T extends AbstractSseData> void run(final ISseService<T> sseService, final String target, final T eventData) {
+		Assert.notNull(sseService, "SSE Service can not be null");
+		Assert.notNull(target, "Target can not be null");
+		Assert.notNull(eventData, "Event Data can not be null");
+		if(emitters.get(target) != null){
+			logger.debug("Subscriber Found");
 			sseService.handle(eventData);
+		} else {
+			logger.debug("Subscriber not found -> " + eventData.getSubscriberId());
+			logger.debug("Current emitters -> " + emitters.size());
 		}
 	}
 	

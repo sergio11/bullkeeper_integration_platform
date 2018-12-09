@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SupervisedChildrenEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.GuardianRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.KidRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.MessageRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.SupervisedChildrenRepository;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveGuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidGuardianDTO;
@@ -51,6 +52,12 @@ public abstract class SupervisedChildrenEntityMapper {
 	 */
 	@Autowired
 	protected SupervisedChildrenRepository supervisedChildrenRepository;
+	
+	/**
+	 * Message Repository
+	 */
+	@Autowired
+	protected MessageRepository messageRepository;
 
 	
 	/**
@@ -61,7 +68,9 @@ public abstract class SupervisedChildrenEntityMapper {
 	@Mappings({
         @Mapping(expression="java(supervisedChildrenEntity.getId().toString())", target = "identity" ),
         @Mapping(expression="java(kidEntityMapper.kidEntityToKidDTO(supervisedChildrenEntity.getKid()))", target = "kid" ),
-        @Mapping(expression="java(supervisedChildrenEntity.getRole().name())", target = "role" )
+        @Mapping(expression="java(supervisedChildrenEntity.getRole().name())", target = "role" ),
+        @Mapping(expression="java(messageRepository.countByToIdAndViewedTrue(supervisedChildrenEntity.getGuardian().getId()))", 
+    		target = "pendingMessagesCount" )
     })
     @Named("supervisedChildrenEntityToSupervisedChildrenDTO")
     public abstract SupervisedChildrenDTO supervisedChildrenEntityToSupervisedChildrenDTO(
@@ -119,7 +128,10 @@ public abstract class SupervisedChildrenEntityMapper {
         @Mapping(expression="java(guardianEntityMapper.guardianEntityToGuardianDTO(supervisedChildrenEntity.getGuardian()))", 
         	target = "guardian" ),
         @Mapping(source = "supervisedChildrenEntity.requestAt", target = "requestAt", dateFormat = "yyyy/MM/dd"),
-        @Mapping(expression="java(supervisedChildrenEntity.getRole().name())", target = "role" )
+        @Mapping(expression="java(supervisedChildrenEntity.getRole().name())", 
+        	target = "role" ),
+        @Mapping(expression="java(messageRepository.countByToIdAndViewedTrue(supervisedChildrenEntity.getGuardian().getId()))", 
+    		target = "pendingMessagesCount" )
     })
     @Named("supervisedChildrenEntityToKidGuardiansDTO")
     public abstract KidGuardianDTO supervisedChildrenEntityToKidGuardiansDTO(

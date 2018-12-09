@@ -5,10 +5,13 @@ import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -51,8 +54,9 @@ public class EventController extends BaseController {
 	 * @param id
 	 * @return
 	 */
-	@RequestMapping(value = "/subscribe/{id}", method = RequestMethod.POST)
-    @OnlyAccessForGuardian
+	@RequestMapping(value = "/subscribe/{id}", 
+			method = RequestMethod.GET, produces = "text/event-stream;charset=UTF-8")
+    //@OnlyAccessForGuardian
     @ApiOperation(value = "SUBSCRIBE_TO_EVENTS", 
     	nickname = "SUBSCRIBE_TO_EVENTS", notes = "Subscribe to events")
     public SseEmitter subscribeToEvents(
@@ -61,11 +65,17 @@ public class EventController extends BaseController {
 				@Valid @GuardianShouldExists(message = "{guardian.id.notvalid}")
 		 		@PathVariable String id) {
 		
-		// Create Emitter
-		SseEmitter emitter = new SseEmitter(sseEngine.getTimeout());
-		// Put Emitter
-		sseEngine.getEmitters().put(id, emitter);
-		return emitter;
+		logger.debug("Subscriber with id -> " + id);
+		
+		return sseEngine.createSseEmitter(id);
     }
+	
+	
+	// handle normal "Async timeout", to avoid logging warn messages every 30s per client...
+	@ExceptionHandler(value = AsyncRequestTimeoutException.class)  
+	public String asyncTimeout(AsyncRequestTimeoutException e){
+		logger.debug("Async Request Timeout");
+	    return null; // "SSE timeout..OK";  
+	}
 
 }
