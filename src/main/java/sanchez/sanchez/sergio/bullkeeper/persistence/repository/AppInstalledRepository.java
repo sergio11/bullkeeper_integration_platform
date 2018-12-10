@@ -21,6 +21,14 @@ public interface AppInstalledRepository extends MongoRepository<AppInstalledEnti
 	AppInstalledEntity findById(final ObjectId id);
 	
 	/**
+	 * 
+	 * @param app
+	 * @param terminal
+	 * @return
+	 */
+	AppInstalledEntity findByIdAndTerminalId(final ObjectId app, final ObjectId terminal);
+	
+	/**
 	 * Delete By Id
 	 * @param id
 	 */

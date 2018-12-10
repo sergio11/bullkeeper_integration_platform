@@ -6,6 +6,8 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppInstalledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppRulesDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveTerminalDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CallDetailDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.SmsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.TerminalDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.TerminalDetailDTO;
 
@@ -102,5 +104,80 @@ public interface ITerminalService {
      * @param appRulesList
      */
     void saveAppRules(final Iterable<SaveAppRulesDTO> appRulesList);
+    
+    /**
+     * Get App Installed
+     * @param app
+     * @param terminal
+     * @return
+     */
+    AppInstalledDTO getAppInstalled(final ObjectId app, final ObjectId terminal);
+    
+    /**
+     * Get Detail Of Calls
+     * @param kid
+     * @param terminal
+     * @return
+     */
+    Iterable<CallDetailDTO> getDetailOfCalls(final ObjectId kid, final ObjectId terminal);
+    
+    
+    /**
+     * Get Detail of the call
+     * @param kid
+     * @param terminal
+     * @param call
+     * @return
+     */
+    CallDetailDTO getDetailOfTheCall(final ObjectId kid, final ObjectId terminal, final ObjectId call);
+
+    /**
+     * Delete All Call Details
+     * @param kid
+     * @param terminal
+     */
+    void deleteAllCallDetails(final ObjectId kid, final ObjectId terminal);
+    
+    /**
+     * Delete Call Detail
+     * @param kid
+     * @param terminal
+     * @param call
+     */
+    void deleteCallDetail(final ObjectId kid, final ObjectId terminal, final ObjectId call);
+    
+    
+    /**
+     * Get Sms List
+     * @param kid
+     * @param terminal
+     * @return
+     */
+    Iterable<SmsDTO> getSmsList(final ObjectId kid, final ObjectId terminal);
+    
+    
+    /**
+     * Get SMS Detail
+     * @param kid
+     * @param terminal
+     * @param sms
+     * @return
+     */
+    SmsDTO getSmsDetail(final ObjectId kid, final ObjectId terminal, final ObjectId sms);
+
+    /**
+     * Delete All SMS
+     * @param kid
+     * @param terminal
+     */
+    void deleteAllSms(final ObjectId kid, final ObjectId terminal);
+    
+    /**
+     * Delete single sms
+     * @param kid
+     * @param terminal
+     * @param sms
+     */
+    void deleteSms(final ObjectId kid, final ObjectId terminal, final ObjectId sms);
     
 }

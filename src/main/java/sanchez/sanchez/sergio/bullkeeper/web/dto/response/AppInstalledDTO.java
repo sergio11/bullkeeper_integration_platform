@@ -1,7 +1,6 @@
 package sanchez.sanchez.sergio.bullkeeper.web.dto.response;
 
 import org.springframework.hateoas.ResourceSupport;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -60,6 +59,24 @@ public class AppInstalledDTO extends ResourceSupport {
 	private String appRule;
 	
 	/**
+	 * Min SDK
+	 */
+	@JsonProperty("min_sdk")
+	private String minSdk;
+	
+	/**
+	 * Permissions
+	 */
+	@JsonProperty("permissions")
+	private String permissions;
+	
+	/**
+	 * Icon Encoded String
+	 */
+	@JsonProperty("icon_encoded_string")
+	private String iconEncodedString;
+	
+	/**
 	 * KId
 	 */
 	@JsonProperty("kid")
@@ -75,7 +92,7 @@ public class AppInstalledDTO extends ResourceSupport {
 	 * 
 	 */
 	public AppInstalledDTO() {}
-	
+
 	/**
 	 * 
 	 * @param identity
@@ -86,12 +103,15 @@ public class AppInstalledDTO extends ResourceSupport {
 	 * @param versionCode
 	 * @param appName
 	 * @param appRule
+	 * @param minSdk
+	 * @param permissions
+	 * @param iconEncodedString
 	 * @param kid
 	 * @param terminalId
 	 */
 	public AppInstalledDTO(String identity, String packageName, long firstInstallTime, long lastUpdateTime,
-			String versionName, String versionCode, String appName, String appRule, String kid,
-			String terminalId) {
+			String versionName, String versionCode, String appName, String appRule, String minSdk, String permissions,
+			String iconEncodedString, String kid, String terminalId) {
 		super();
 		this.identity = identity;
 		this.packageName = packageName;
@@ -101,6 +121,9 @@ public class AppInstalledDTO extends ResourceSupport {
 		this.versionCode = versionCode;
 		this.appName = appName;
 		this.appRule = appRule;
+		this.minSdk = minSdk;
+		this.permissions = permissions;
+		this.iconEncodedString = iconEncodedString;
 		this.kid = kid;
 		this.terminalId = terminalId;
 	}
@@ -135,6 +158,18 @@ public class AppInstalledDTO extends ResourceSupport {
 
 	public String getAppRule() {
 		return appRule;
+	}
+
+	public String getMinSdk() {
+		return minSdk;
+	}
+
+	public String getPermissions() {
+		return permissions;
+	}
+
+	public String getIconEncodedString() {
+		return iconEncodedString;
 	}
 
 	public String getKid() {
@@ -177,6 +212,18 @@ public class AppInstalledDTO extends ResourceSupport {
 		this.appRule = appRule;
 	}
 
+	public void setMinSdk(String minSdk) {
+		this.minSdk = minSdk;
+	}
+
+	public void setPermissions(String permissions) {
+		this.permissions = permissions;
+	}
+
+	public void setIconEncodedString(String iconEncodedString) {
+		this.iconEncodedString = iconEncodedString;
+	}
+
 	public void setKid(String kid) {
 		this.kid = kid;
 	}
@@ -185,6 +232,14 @@ public class AppInstalledDTO extends ResourceSupport {
 		this.terminalId = terminalId;
 	}
 
+	@Override
+	public String toString() {
+		return "AppInstalledDTO [identity=" + identity + ", packageName=" + packageName + ", firstInstallTime="
+				+ firstInstallTime + ", lastUpdateTime=" + lastUpdateTime + ", versionName=" + versionName
+				+ ", versionCode=" + versionCode + ", appName=" + appName + ", appRule=" + appRule + ", minSdk="
+				+ minSdk + ", permissions=" + permissions + ", iconEncodedString=" + iconEncodedString + ", kid=" + kid
+				+ ", terminalId=" + terminalId + "]";
+	}
 	
 	
 

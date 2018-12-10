@@ -77,7 +77,25 @@ public class AppInstalledEntity implements Serializable {
 	private AppRuleEnum appRuleEnum = AppRuleEnum.NEVER_ALLOWED;
 	
 	/**
-	 * Son
+	 * Min SDK
+	 */
+	@Field("min_sdk")
+	private String minSdk;
+	
+	/**
+	 * Permissions
+	 */
+	@Field("permissions")
+	private String permissions;
+	
+	/**
+	 * Icon Encoded String
+	 */
+	@Field("icon_encoded_string")
+	private String iconEncodedString;
+	
+	/**
+	 * Kid
 	 */
 	@Field("kid")
     @DBRef
@@ -105,13 +123,16 @@ public class AppInstalledEntity implements Serializable {
 	 * @param versionCode
 	 * @param appName
 	 * @param appRuleEnum
+	 * @param minSdk
+	 * @param permissions
+	 * @param iconEncodedString
 	 * @param kid
 	 * @param terminal
 	 */
 	@PersistenceConstructor
 	public AppInstalledEntity(ObjectId id, String packageName, long firstInstallTime, long lastUpdateTime,
-			String versionName, String versionCode, String appName, AppRuleEnum appRuleEnum, KidEntity kid,
-			TerminalEntity terminal) {
+			String versionName, String versionCode, String appName, AppRuleEnum appRuleEnum, String minSdk,
+			String permissions, String iconEncodedString, KidEntity kid, TerminalEntity terminal) {
 		super();
 		this.id = id;
 		this.packageName = packageName;
@@ -121,6 +142,9 @@ public class AppInstalledEntity implements Serializable {
 		this.versionCode = versionCode;
 		this.appName = appName;
 		this.appRuleEnum = appRuleEnum;
+		this.minSdk = minSdk;
+		this.permissions = permissions;
+		this.iconEncodedString = iconEncodedString;
 		this.kid = kid;
 		this.terminal = terminal;
 	}
@@ -155,6 +179,18 @@ public class AppInstalledEntity implements Serializable {
 
 	public AppRuleEnum getAppRuleEnum() {
 		return appRuleEnum;
+	}
+
+	public String getMinSdk() {
+		return minSdk;
+	}
+
+	public String getPermissions() {
+		return permissions;
+	}
+
+	public String getIconEncodedString() {
+		return iconEncodedString;
 	}
 
 	public KidEntity getKid() {
@@ -197,6 +233,18 @@ public class AppInstalledEntity implements Serializable {
 		this.appRuleEnum = appRuleEnum;
 	}
 
+	public void setMinSdk(String minSdk) {
+		this.minSdk = minSdk;
+	}
+
+	public void setPermissions(String permissions) {
+		this.permissions = permissions;
+	}
+
+	public void setIconEncodedString(String iconEncodedString) {
+		this.iconEncodedString = iconEncodedString;
+	}
+
 	public void setKid(KidEntity kid) {
 		this.kid = kid;
 	}
@@ -205,7 +253,15 @@ public class AppInstalledEntity implements Serializable {
 		this.terminal = terminal;
 	}
 
-	
+	@Override
+	public String toString() {
+		return "AppInstalledEntity [id=" + id + ", packageName=" + packageName + ", firstInstallTime="
+				+ firstInstallTime + ", lastUpdateTime=" + lastUpdateTime + ", versionName=" + versionName
+				+ ", versionCode=" + versionCode + ", appName=" + appName + ", appRuleEnum=" + appRuleEnum + ", minSdk="
+				+ minSdk + ", permissions=" + permissions + ", iconEncodedString=" + iconEncodedString + ", kid=" + kid
+				+ ", terminal=" + terminal + "]";
+	}
+
 	
 	
 }

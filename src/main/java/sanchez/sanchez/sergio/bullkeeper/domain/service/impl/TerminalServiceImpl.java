@@ -15,16 +15,24 @@ import org.springframework.util.Assert;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.ITerminalService;
 import sanchez.sanchez.sergio.bullkeeper.exception.AppInstalledNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.mapper.AppInstalledEntityMapper;
+import sanchez.sanchez.sergio.bullkeeper.mapper.CallDetailEntityMapper;
+import sanchez.sanchez.sergio.bullkeeper.mapper.SmsEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.TerminalEntityDataMapper;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AppInstalledEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AppRuleEnum;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.CallDetailEntity;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SmsEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.TerminalEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.AppInstalledRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.CallDetailRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.ITerminalRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.SmsRepository;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppInstalledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppRulesDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveTerminalDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CallDetailDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.SmsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.TerminalDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.TerminalDetailDTO;
 
@@ -58,6 +66,27 @@ public final class TerminalServiceImpl implements ITerminalService {
 	 */
 	private final AppInstalledEntityMapper appInstalledEntityDataMapper;
 	
+	/**
+	 * Call Detail Repository
+	 */
+	private final CallDetailRepository callDetailRepository;
+	
+	/**
+	 * Call Detail Entity Mapper
+	 */
+	private final CallDetailEntityMapper callDetailEntityMapper;
+	
+	
+	/**
+	 * SMS Repository
+	 */
+	private final SmsRepository smsRepository;
+	
+	/**
+	 * Sms Entity Mapper
+	 */
+	private final SmsEntityMapper smsEntityMapper;
+	
 
 	/**
 	 * 
@@ -65,16 +94,27 @@ public final class TerminalServiceImpl implements ITerminalService {
 	 * @param terminalRepository
 	 * @param appsInstalledRepository
 	 * @param appInstalledEntityDataMapper
+	 * @param callDetailRepository
+	 * @param callDetailEntityMapper
+	 * @param smsRepository
+	 * @param smsEntityMapper
 	 */
 	@Autowired
 	public TerminalServiceImpl(final TerminalEntityDataMapper terminalEntityDataMapper, 
 			final ITerminalRepository terminalRepository, final AppInstalledRepository appsInstalledRepository,
-			final AppInstalledEntityMapper appInstalledEntityDataMapper) {
+			final AppInstalledEntityMapper appInstalledEntityDataMapper,
+			final CallDetailRepository callDetailRepository,
+			final CallDetailEntityMapper callDetailEntityMapper, 
+			final SmsRepository smsRepository, final SmsEntityMapper smsEntityMapper) {
 		super();
 		this.terminalEntityDataMapper = terminalEntityDataMapper;
 		this.terminalRepository = terminalRepository;
 		this.appsInstalledRepository = appsInstalledRepository;
 		this.appInstalledEntityDataMapper = appInstalledEntityDataMapper;
+		this.callDetailRepository = callDetailRepository;
+		this.callDetailEntityMapper = callDetailEntityMapper;
+		this.smsRepository = smsRepository;
+		this.smsEntityMapper = smsEntityMapper;
 	}
 
 	/**
@@ -266,6 +306,122 @@ public final class TerminalServiceImpl implements ITerminalService {
 		Assert.notNull(kid, "kid id can not be null");
 		Assert.notNull(terminalId, "Terminal Id can not be null");
 		return appsInstalledRepository.countByIdAndKidId(terminalId, kid);
+	}
+
+	/**
+	 * Get App installed
+	 */
+	@Override
+	public AppInstalledDTO getAppInstalled(final ObjectId app, final ObjectId terminal) {
+		Assert.notNull(app, "App can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		return appInstalledEntityDataMapper.appInstalledEntityToAppInstalledDTO(
+				appsInstalledRepository.findByIdAndTerminalId(app, terminal));
+	}
+
+	/**
+	 * Get Detail of calls
+	 */
+	@Override
+	public Iterable<CallDetailDTO> getDetailOfCalls(final ObjectId kid, final ObjectId terminal) {
+		Assert.notNull(kid, "Terminal can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		// Get Call Details from terminal
+		final Iterable<CallDetailEntity> callsEntities = callDetailRepository
+				.findByKidIdAndTerminalId(kid, terminal);
+		// Map Results
+		return callDetailEntityMapper.callDetailEntityToCallDetailDTOs(callsEntities);
+	}
+
+	/**
+	 * Get Detail Of The call
+	 */
+	@Override
+	public CallDetailDTO getDetailOfTheCall(final ObjectId kid, final ObjectId terminal, final ObjectId call) {
+		Assert.notNull(kid, "Terminal can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		Assert.notNull(call, "Call can not be null");
+		
+		final CallDetailEntity callDetailEntity = 
+				callDetailRepository.findOneByIdAndKidIdAndTerminalId(call, kid, terminal);
+		// Map Result
+		return callDetailEntityMapper.callDetailEntityToCallDetailDTO(callDetailEntity);
+	}
+
+	/**
+	 * Delete All Call Details
+	 */
+	@Override
+	public void deleteAllCallDetails(final ObjectId kid, final ObjectId terminal) {
+		Assert.notNull(kid, "Terminal can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+	
+		callDetailRepository.deleteByKidIdAndTerminalId(kid, terminal);
+	}
+
+	/**
+	 * Delete Call Detail
+	 */
+	@Override
+	public void deleteCallDetail(final ObjectId kid, final ObjectId terminal, final ObjectId call) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		
+		callDetailRepository.deleteByIdAndKidIdAndTerminalId(kid, terminal, call);
+		
+	}
+
+	/**
+	 * Get SMS List
+	 */
+	@Override
+	public Iterable<SmsDTO> getSmsList(final ObjectId kid, final ObjectId terminal) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		
+		final Iterable<SmsEntity> smsEntityList = smsRepository
+				.findByKidIdAndTerminalId(kid, terminal);
+	
+		return smsEntityMapper.smsEntityToSmsDTOs(smsEntityList);
+	}
+
+	/**
+	 * Get Sms Detail
+	 */
+	@Override
+	public SmsDTO getSmsDetail(final ObjectId kid, final ObjectId terminal, final ObjectId sms) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		Assert.notNull(sms, "sms can not be null");
+		
+		final SmsEntity smsEntity = smsRepository
+				.findByIdAndKidIdAndTerminalId(sms, kid, terminal);
+		
+		return smsEntityMapper.smsEntityToSmsDTO(smsEntity);
+	}
+
+	/**
+	 * Delete All SMS
+	 */
+	@Override
+	public void deleteAllSms(final ObjectId kid, final ObjectId terminal) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		
+		smsRepository.deleteByKidIdAndTerminalId(kid, terminal);
+	}
+
+	/**
+	 * Delete SMS
+	 */
+	@Override
+	public void deleteSms(final ObjectId kid, final ObjectId terminal, final ObjectId sms) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		Assert.notNull(sms, "sms can not be null");
+		
+		smsRepository.deleteByIdAndKidIdAndTerminalId(sms, kid, terminal);
+		
 	}
 
 }

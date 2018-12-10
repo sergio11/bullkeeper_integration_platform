@@ -82,6 +82,24 @@ public class SaveAppInstalledDTO implements Serializable {
 	private String appRule;
 	
 	/**
+	 * Min SDK
+	 */
+	@JsonProperty("min_sdk")
+	private String minSdk;
+	
+	/**
+	 * Permissions
+	 */
+	@JsonProperty("permissions")
+	private String permissions;
+	
+	/**
+	 * Icon Encoded String
+	 */
+	@JsonProperty("icon_encoded_string")
+	private String iconEncodedString;
+	
+	/**
 	 * Son ID
 	 */
 	@ValidObjectId(message = "{son.id.notvalid}")
@@ -101,9 +119,10 @@ public class SaveAppInstalledDTO implements Serializable {
 	 * 
 	 */
 	public SaveAppInstalledDTO() {}
-	
+
 	/**
 	 * 
+	 * @param identity
 	 * @param packageName
 	 * @param firstInstallTime
 	 * @param lastUpdateTime
@@ -111,12 +130,20 @@ public class SaveAppInstalledDTO implements Serializable {
 	 * @param versionCode
 	 * @param appName
 	 * @param appRule
+	 * @param minSdk
+	 * @param permissions
+	 * @param iconEncodedString
 	 * @param kid
 	 * @param terminalId
 	 */
-	public SaveAppInstalledDTO(String packageName, long firstInstallTime, long lastUpdateTime, String versionName,
-			String versionCode, String appName, String appRule, String kid, String terminalId) {
+	public SaveAppInstalledDTO(
+			String identity, String packageName, long firstInstallTime, 
+			long lastUpdateTime, String versionName, String versionCode,
+			String appName, String appRule, String minSdk,
+			String permissions, String iconEncodedString, String kid,
+			String terminalId) {
 		super();
+		this.identity = identity;
 		this.packageName = packageName;
 		this.firstInstallTime = firstInstallTime;
 		this.lastUpdateTime = lastUpdateTime;
@@ -124,6 +151,9 @@ public class SaveAppInstalledDTO implements Serializable {
 		this.versionCode = versionCode;
 		this.appName = appName;
 		this.appRule = appRule;
+		this.minSdk = minSdk;
+		this.permissions = permissions;
+		this.iconEncodedString = iconEncodedString;
 		this.kid = kid;
 		this.terminalId = terminalId;
 	}
@@ -158,6 +188,18 @@ public class SaveAppInstalledDTO implements Serializable {
 
 	public String getAppRule() {
 		return appRule;
+	}
+
+	public String getMinSdk() {
+		return minSdk;
+	}
+
+	public String getPermissions() {
+		return permissions;
+	}
+
+	public String getIconEncodedString() {
+		return iconEncodedString;
 	}
 
 	public String getKid() {
@@ -200,6 +242,18 @@ public class SaveAppInstalledDTO implements Serializable {
 		this.appRule = appRule;
 	}
 
+	public void setMinSdk(String minSdk) {
+		this.minSdk = minSdk;
+	}
+
+	public void setPermissions(String permissions) {
+		this.permissions = permissions;
+	}
+
+	public void setIconEncodedString(String iconEncodedString) {
+		this.iconEncodedString = iconEncodedString;
+	}
+
 	public void setKid(String kid) {
 		this.kid = kid;
 	}
@@ -207,8 +261,13 @@ public class SaveAppInstalledDTO implements Serializable {
 	public void setTerminalId(String terminalId) {
 		this.terminalId = terminalId;
 	}
-	
 
-	
-
+	@Override
+	public String toString() {
+		return "SaveAppInstalledDTO [identity=" + identity + ", packageName=" + packageName + ", firstInstallTime="
+				+ firstInstallTime + ", lastUpdateTime=" + lastUpdateTime + ", versionName=" + versionName
+				+ ", versionCode=" + versionCode + ", appName=" + appName + ", appRule=" + appRule + ", minSdk="
+				+ minSdk + ", permissions=" + permissions + ", iconEncodedString=" + iconEncodedString + ", kid=" + kid
+				+ ", terminalId=" + terminalId + "]";
+	}
 }

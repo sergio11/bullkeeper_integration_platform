@@ -17,6 +17,7 @@ import sanchez.sanchez.sergio.bullkeeper.exception.NoAppsInstalledFoundException
 import sanchez.sanchez.sergio.bullkeeper.web.rest.ApiHelper;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.controller.BaseController;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.response.APIResponse;
+import sanchez.sanchez.sergio.bullkeeper.web.rest.response.AppsResponseCode;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.response.ChildrenResponseCode;
 
 /**
@@ -37,7 +38,7 @@ public class AppInstalledErrorController extends BaseController {
     @ExceptionHandler(NoAppsInstalledFoundException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleNoAppsInstalledFoundException(NoAppsInstalledFoundException resourceNotFound, HttpServletRequest request) {
-        return ApiHelper.<String>createAndSendErrorResponseWithHeader(ChildrenResponseCode.NO_APPS_INSTALLED_FOUND, HttpStatus.NOT_FOUND,
+        return ApiHelper.<String>createAndSendErrorResponseWithHeader(AppsResponseCode.NO_APPS_INSTALLED_FOUND, HttpStatus.NOT_FOUND,
         		messageSourceResolver.resolver("app.installed.not.found"));
     }
     
@@ -51,7 +52,7 @@ public class AppInstalledErrorController extends BaseController {
     @ExceptionHandler(AppInstalledNotFoundException.class)
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleAppInstalledNotFoundExceptionException(AppInstalledNotFoundException resourceNotFound, HttpServletRequest request) {
-        return ApiHelper.<String>createAndSendErrorResponseWithHeader(ChildrenResponseCode.APP_INSTALLED_NOT_FOUND, HttpStatus.NOT_FOUND,
+        return ApiHelper.<String>createAndSendErrorResponseWithHeader(AppsResponseCode.APP_INSTALLED_NOT_FOUND, HttpStatus.NOT_FOUND,
         		messageSourceResolver.resolver("app.installed.not.found"));
     }
     
