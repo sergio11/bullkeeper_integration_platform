@@ -14,6 +14,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.Assert;
 
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.KidEntity;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.LocationEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.KidRepositoryCustom;
 
 /**
@@ -144,6 +145,39 @@ public class KidRepositoryImpl implements KidRepositoryCustom {
                 	.set("results.drugs.obsolete", Boolean.FALSE)
                 	.set("results.drugs.total_comments_drugs", totalCommentsDrugs)
                 	.set("results.drugs.total_comments_nodrugs", totalCommentsNoDrugs), KidEntity.class);
+	}
+
+	/**
+	 * Update Current Location
+	 */
+	@Override
+	public void updateCurrentLocation(final ObjectId kid, final LocationEntity location) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(location, "Location can not be null");
+		
+		// Update First
+		mongoTemplate.updateFirst(
+                new Query(Criteria.where("_id").is(kid)),
+                new Update()
+                	.set("current_location", location), KidEntity.class);
+		
+	}
+
+	/**
+	 * Get Current Location
+	 */
+	@Override
+	public LocationEntity getCurrentLocation(final ObjectId kid) {
+		Assert.notNull(kid, "Kid can not be null");
+		
+		Query query = new Query(Criteria.where("_id").is(kid));
+        query.fields().include("current_location");
+        
+        // Get Kid
+        KidEntity kidEntity = mongoTemplate.findOne(query, KidEntity.class);
+		
+		// Get Current Location
+		return kidEntity.getCurrentLocation();
 	}
 
 }

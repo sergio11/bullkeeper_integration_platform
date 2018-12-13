@@ -5,8 +5,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveGuardianDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveLocationDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidGuardianDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.LocationDTO;
 
 import java.util.List;
 
@@ -170,6 +172,20 @@ public interface IKidService {
      */
     Iterable<KidGuardianDTO> getGuardians(final ObjectId id);
     
+    /**
+     * Save Current Location
+     * @param kid
+     * @param location
+     * @return
+     */
+    LocationDTO saveCurrentLocation(final String kid, final SaveLocationDTO location);
+    
+    /**
+     * Get Current Location
+     * @param kid
+     * @return
+     */
+    LocationDTO getCurrentLocation(final String kid);
   
     
 }

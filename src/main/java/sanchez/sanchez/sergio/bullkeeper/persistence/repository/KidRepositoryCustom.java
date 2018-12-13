@@ -2,6 +2,8 @@ package sanchez.sanchez.sergio.bullkeeper.persistence.repository;
 
 import org.bson.types.ObjectId;
 
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.LocationEntity;
+
 /**
  * Kid Repository Custom
  * @author sergiosanchezsanchez
@@ -17,7 +19,6 @@ public interface KidRepositoryCustom {
     void setProfileImageId(ObjectId id, String profileImageId);
 
     /**
-     * 
      * @param id
      * @return
      */
@@ -64,5 +65,20 @@ public interface KidRepositoryCustom {
      */
     void updateDrugsResultsFor(ObjectId id, long totalCommentsDrugs, long totalCommentsNoDrugs);
 
+    /**
+     * Update Current Location
+     * @param kid
+     * @param location
+     */
+    void updateCurrentLocation(final ObjectId kid, final LocationEntity location);
+    
+    /**
+     * Get Current Location
+     * @param kid
+     * @return
+     */
+    LocationEntity getCurrentLocation(final ObjectId kid);
+    
+    
     
 }

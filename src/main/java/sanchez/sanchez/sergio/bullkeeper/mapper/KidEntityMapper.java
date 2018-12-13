@@ -52,6 +52,12 @@ public abstract class KidEntityMapper implements Injectable {
 	 */
 	@Autowired
 	protected IAuthorizationService authorizationService;
+	
+	/**
+	 * Location Entity Mapper
+	 */
+	@Autowired
+	protected LocationEntityMapper locationEntityMapper;
     
     @Mappings({
         @Mapping(expression="java(kidEntity.getId().toString())", target = "identity" ),
@@ -60,10 +66,14 @@ public abstract class KidEntityMapper implements Injectable {
         @Mapping(source = "kidEntity.age", target = "age"),
         @Mapping(expression="java(alertservice.getTotalAlertsByKidAndGuardianId("
         		+ "kidEntity.getId(), authorizationService.getCurrentUserId()))", target = "alertsStatistics" ),
-        @Mapping(expression="java(terminalService.getTerminalsByKidId(kidEntity.getId().toString()))", target="terminals")
+        @Mapping(expression="java(terminalService.getTerminalsByKidId(kidEntity.getId().toString()))", 
+        	target="terminals"),
+        @Mapping(expression="java(locationEntityMapper"
+        		+ ".locationEntityToLocationDTO(kidEntity.getCurrentLocation()))",
+        	target="currentLocation")
     })
     @Named("kidEntityToKidDTO")
-    public abstract KidDTO kidEntityToKidDTO(KidEntity kidEntity); 
+    public abstract KidDTO kidEntityToKidDTO(final KidEntity kidEntity); 
 	
     /**
      * 

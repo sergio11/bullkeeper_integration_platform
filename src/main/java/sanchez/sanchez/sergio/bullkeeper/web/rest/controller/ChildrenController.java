@@ -36,6 +36,7 @@ import sanchez.sanchez.sergio.bullkeeper.exception.AppInstalledNotFoundException
 import sanchez.sanchez.sergio.bullkeeper.exception.CallDetailNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.CallDetailsNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.CommentsByKidNotFoundException;
+import sanchez.sanchez.sergio.bullkeeper.exception.CurrentLocationException;
 import sanchez.sanchez.sergio.bullkeeper.exception.KidNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoAlertsByKidFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoAppsInstalledFoundException;
@@ -72,6 +73,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppInstalledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppRulesDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveCallDetailDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveGuardianDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveLocationDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveScheduledBlockDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveScheduledBlockStatusDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveSocialMediaDTO;
@@ -85,6 +87,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.response.DimensionsStatisticsDT
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ImageDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidGuardianDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.LocationDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ScheduledBlockDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.SentimentAnalysisStatisticsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.SmsDTO;
@@ -2227,6 +2230,61 @@ public class ChildrenController extends BaseController
         					MediaType.IMAGE_PNG)
         		.body(uploadFileInfo.getContent());
         
+    }
+    
+    /**
+     * Get Current Location
+     * @param id
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{kid}/location", method = RequestMethod.GET)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(value = "GET_CURRENT_LOCATION", nickname = "GET_CURRENT_LOCATION",
+    notes = "Get Current Location")
+    public ResponseEntity<APIResponse<LocationDTO>> getCurrentLocation(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+         		@Valid @KidShouldExists(message = "{son.should.be.exists}")
+          			@PathVariable String kid) throws Throwable {
+    	
+    	logger.debug("Get Current Location for kid -> " + kid);
+    	
+    	// Get Current Location
+    	return Optional.ofNullable(kidService.getCurrentLocation(kid))
+    		.map(currentLocation -> ApiHelper.<LocationDTO>createAndSendResponse(ChildrenResponseCode.CURRENT_LOCATION_OF_KID, 
+            		HttpStatus.OK, currentLocation))
+    		.orElseThrow(() -> { throw new CurrentLocationException(); });
+    	
+    }
+    
+    
+    /**
+     * Get Current Location
+     * @param id
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{kid}/location", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(value = "SAVE_CURRENT_LOCATION", nickname = "SAVE_CURRENT_LOCATION",
+    notes = "Save Current Location")
+    public ResponseEntity<APIResponse<LocationDTO>> saveCurrentLocation(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+         		@Valid @KidShouldExists(message = "{son.should.be.exists}")
+          			@PathVariable final String kid,
+          	@ApiParam(value = "save_location", required = true) 
+				@Validated(ICommonSequence.class) 
+					@RequestBody final SaveLocationDTO saveLocation) throws Throwable {
+    	
+    	logger.debug("Save Current Location for kid -> " + kid);
+    	
+    	// Save Current Location
+    	final LocationDTO currentLocation = kidService.saveCurrentLocation(kid, saveLocation);
+    	
+    	// Create and send response
+    	return ApiHelper.<LocationDTO>createAndSendResponse(ChildrenResponseCode.CURRENT_LOCATION_UPDATED, 
+        		HttpStatus.OK, currentLocation);
     }
     
     

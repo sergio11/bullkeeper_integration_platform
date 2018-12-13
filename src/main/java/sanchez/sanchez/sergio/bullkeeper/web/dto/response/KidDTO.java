@@ -68,12 +68,32 @@ public class KidDTO extends ResourceSupport implements Serializable{
 	@JsonProperty("terminals")
 	private Iterable<TerminalDTO> terminals;
 	
+	/**
+	 * Current Location
+	 */
+	@JsonProperty("current_location")
+	private LocationDTO currentLocation;
+	
 	
     public KidDTO(){}
    
+    /**
+     * 
+     * @param identity
+     * @param firstName
+     * @param lastName
+     * @param birthdate
+     * @param age
+     * @param school
+     * @param profileImage
+     * @param alertsStatistics
+     * @param terminals
+     * @param currentLocation
+     */
 	public KidDTO(String identity, String firstName, String lastName, 
 			String birthdate, Integer age, SchoolDTO school, String profileImage, 
-			Map<AlertLevelEnum, Long> alertsStatistics, Iterable<TerminalDTO> terminals) {
+			Map<AlertLevelEnum, Long> alertsStatistics, Iterable<TerminalDTO> terminals,
+			final LocationDTO currentLocation) {
 		super();
 		this.identity = identity;
 		this.firstName = firstName;
@@ -84,6 +104,7 @@ public class KidDTO extends ResourceSupport implements Serializable{
 		this.profileImage = profileImage;
 		this.alertsStatistics = alertsStatistics;
 		this.terminals = terminals;
+		this.currentLocation = currentLocation;
 	}
 
 	public String getBirthdate() {
@@ -156,6 +177,16 @@ public class KidDTO extends ResourceSupport implements Serializable{
 
 	public void setTerminals(Iterable<TerminalDTO> terminals) {
 		this.terminals = terminals;
+	}
+	
+	
+
+	public LocationDTO getCurrentLocation() {
+		return currentLocation;
+	}
+
+	public void setCurrentLocation(LocationDTO currentLocation) {
+		this.currentLocation = currentLocation;
 	}
 
 	@Override

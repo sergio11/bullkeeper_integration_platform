@@ -15,8 +15,10 @@ import com.google.common.collect.Iterables;
 import io.jsonwebtoken.lang.Assert;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IKidService;
 import sanchez.sanchez.sergio.bullkeeper.mapper.KidEntityMapper;
+import sanchez.sanchez.sergio.bullkeeper.mapper.LocationEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.SupervisedChildrenEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.KidEntity;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.LocationEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SupervisedChildrenEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.AlertRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.CommentRepository;
@@ -25,8 +27,10 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.repository.SocialMediaRepos
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.SupervisedChildrenRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.TaskRepository;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveGuardianDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveLocationDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidGuardianDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.LocationDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.uploads.service.IUploadFilesService;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -52,6 +56,7 @@ public class KidServiceImpl implements IKidService {
     private final IUploadFilesService uploadFilesService;
     private final SupervisedChildrenRepository supervisedChildrenRepository;
     private final SupervisedChildrenEntityMapper supervisedChildrenEntityMapper;
+    private final LocationEntityMapper locationEntityMapper;
 
     /**
      * 
@@ -64,13 +69,15 @@ public class KidServiceImpl implements IKidService {
      * @param uploadFilesService
      * @param supervisedChildrenRepository
      * @param supervisedChildrenEntityMapper
+     * @param locationEntityMapper
      */
     public KidServiceImpl(KidRepository kidRepository, 
             KidEntityMapper kidEntityMapper, AlertRepository alertRepository,
             CommentRepository commentRepository, SocialMediaRepository socialMediaRepository, 
             TaskRepository taskRepository, IUploadFilesService uploadFilesService,
             final SupervisedChildrenRepository supervisedChildrenRepository,
-            final SupervisedChildrenEntityMapper supervisedChildrenEntityMapper) {
+            final SupervisedChildrenEntityMapper supervisedChildrenEntityMapper,
+            final LocationEntityMapper locationEntityMapper) {
         super();
         this.kidRepository = kidRepository;
         this.kidEntityMapper = kidEntityMapper;
@@ -81,6 +88,7 @@ public class KidServiceImpl implements IKidService {
         this.uploadFilesService = uploadFilesService;
         this.supervisedChildrenRepository = supervisedChildrenRepository;
         this.supervisedChildrenEntityMapper = supervisedChildrenEntityMapper;
+        this.locationEntityMapper = locationEntityMapper;
     }
 
     /**
@@ -478,6 +486,36 @@ public class KidServiceImpl implements IKidService {
 	
 	}
     
+	/**
+	 * Save Current Location
+	 * @param kid
+	 * @param location
+	 */
+	@Override
+	public LocationDTO saveCurrentLocation(final String kid, final SaveLocationDTO location) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(location, "Location can not be null");
+		// Map Location
+		final LocationEntity locationEntity =  locationEntityMapper.saveLocationToLocationEntity(location);
+		// Update Current Location
+		kidRepository.updateCurrentLocation(new ObjectId(kid), locationEntity);
+		// Map Result
+		return locationEntityMapper.locationEntityToLocationDTO(locationEntity);
+	}
+
+	/**
+	 * Get Current Location
+	 * @param kid
+	 */
+	@Override
+	public LocationDTO getCurrentLocation(final String kid) {
+		Assert.notNull(kid, "Kid can not be null");
+	
+		// Get Current Location
+		final LocationEntity location = kidRepository.getCurrentLocation(new ObjectId(kid));
+		// Map Result
+		return locationEntityMapper.locationEntityToLocationDTO(location);
+	}
  
     @PostConstruct
     protected void init() {
@@ -489,8 +527,4 @@ public class KidServiceImpl implements IKidService {
         Assert.notNull(taskRepository, "Task Repository can not be null");
         Assert.notNull(uploadFilesService, "Upload File Service can not be null");
     }
-
-	
-
-	
 }

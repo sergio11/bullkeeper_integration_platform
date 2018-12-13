@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import io.jsonwebtoken.lang.Assert;
 import sanchez.sanchez.sergio.bullkeeper.exception.AlertNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.CommentsByKidNotFoundException;
+import sanchez.sanchez.sergio.bullkeeper.exception.CurrentLocationException;
 import sanchez.sanchez.sergio.bullkeeper.exception.KidNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoAlertsByKidFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoChildrenFoundException;
@@ -21,7 +22,6 @@ import sanchez.sanchez.sergio.bullkeeper.exception.NoCommunityStatisticsForThisP
 import sanchez.sanchez.sergio.bullkeeper.exception.NoDimensionsStatisticsForThisPeriodException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoSentimentAnalysisStatisticsForThisPeriodException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoSocialMediaActivityFoundForThisPeriodException;
-import sanchez.sanchez.sergio.bullkeeper.exception.NoTerminalsFoundException;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.ApiHelper;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.controller.BaseController;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.response.APIResponse;
@@ -167,6 +167,20 @@ public class ChildrenErrorController extends BaseController {
         return ApiHelper.<String>createAndSendErrorResponseWithHeader(
         		ChildrenResponseCode.NO_DIMENSIONS_STATISTICS_FOR_THIS_PERIOD, HttpStatus.NOT_FOUND,
         		messageSourceResolver.resolver("children.no.dimensions.statistics.for.this.period", new Object[] { prettyTime.format(noDimensionsStatisticsForThisPeriodException.getFrom())} ));
+    }
+    
+    /**
+     * Exception Handler for Current Location Exception
+     * @param currentLocationException
+     * @param request
+     * @return
+     */
+    @ExceptionHandler(CurrentLocationException.class)
+    @ResponseBody
+    protected ResponseEntity<APIResponse<String>> handleCurrentLocationException(CurrentLocationException currentLocationException, HttpServletRequest request){
+        return ApiHelper.<String>createAndSendErrorResponseWithHeader(
+        		ChildrenResponseCode.NO_CURRENT_LOCATION_FOUND, HttpStatus.NOT_FOUND,
+        		messageSourceResolver.resolver("no.current.location.found"));
     }
     
  

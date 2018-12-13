@@ -24,6 +24,13 @@ public final class KidEntity extends PersonEntity {
      */
     @DBRef
     private SchoolEntity school;
+    
+    /**
+     * Current Location
+     */
+    @Field("current_location")
+    @CascadeSave
+    private LocationEntity currentLocation;
 
     
     /**
@@ -44,13 +51,15 @@ public final class KidEntity extends PersonEntity {
      * @param profileImage
      * @param school
      * @param results
+     * @param currentLocation
      */
     @PersistenceConstructor
     public KidEntity(String firstName, String lastName, Date birthdate, String profileImage, SchoolEntity school,
-            KidResultsEntity results) {
+            KidResultsEntity results, LocationEntity currentLocation) {
         super(firstName, lastName, birthdate, profileImage);
         this.school = school;
         this.results = results;
+        this.currentLocation = currentLocation;
     }
 
     
@@ -82,5 +91,15 @@ public final class KidEntity extends PersonEntity {
 	public void setResults(KidResultsEntity results) {
 		this.results = results;
 	}
+
+	public LocationEntity getCurrentLocation() {
+		return currentLocation;
+	}
+
+	public void setCurrentLocation(LocationEntity currentLocation) {
+		this.currentLocation = currentLocation;
+	}
+	
+	
     
 }
