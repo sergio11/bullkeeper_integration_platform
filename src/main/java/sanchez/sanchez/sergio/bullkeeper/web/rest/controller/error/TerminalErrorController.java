@@ -56,6 +56,9 @@ public class TerminalErrorController  extends BaseController {
         return ApiHelper.<String>createAndSendErrorResponseWithHeader(ChildrenResponseCode.NO_TERMINAL_FOUND_EXCEPTION, HttpStatus.NOT_FOUND,
         		messageSourceResolver.resolver("children.no.terminal.found"));
     }
+    
+    
+    
 
     @PostConstruct
     protected void init(){

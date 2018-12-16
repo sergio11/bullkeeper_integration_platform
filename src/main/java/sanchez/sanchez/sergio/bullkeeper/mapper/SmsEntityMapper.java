@@ -5,7 +5,12 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.Named;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SmsEntity;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.ITerminalRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.KidRepository;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveSmsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.SmsDTO;
 
 /**
@@ -15,6 +20,18 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.response.SmsDTO;
  */
 @Mapper(unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE)
 public abstract class SmsEntityMapper {
+	
+	/**
+	 * Terminal Repository
+	 */
+	@Autowired
+	protected ITerminalRepository terminalRepository;
+	
+	/**
+	 * Kid Repository
+	 */
+	@Autowired
+	protected KidRepository kidRepository;
 	
 	
 	/**
@@ -45,5 +62,31 @@ public abstract class SmsEntityMapper {
     public abstract Iterable<SmsDTO> smsEntityToSmsDTOs(
     		Iterable<SmsEntity> smsEntityList);
     
-   
+    /**
+     * Save SMS Dto to Sms Entity
+     * @param saveSmsDto
+     * @return
+     */
+    @Mappings({
+    	@Mapping(expression="java(terminalRepository.findOne(new org.bson.types.ObjectId(saveSmsDto.getTerminal())))",
+    		target="terminal"),
+    	@Mapping(expression="java(kidRepository.findOne(new org.bson.types.ObjectId(saveSmsDto.getKid())))",
+			target="kid"),
+    	@Mapping(expression="java(sanchez.sanchez.sergio.bullkeeper.persistence.entity.SmsReadStateEnum.valueOf(saveSmsDto.getReadState()))",
+    		target="readState"),
+    	@Mapping(expression="java(sanchez.sanchez.sergio.bullkeeper.persistence.entity.SmsFolderNameEnum.valueOf(saveSmsDto.getFolderName()))",
+			target="folderName")
+    })
+    @Named("saveSmsDtoToSmsEntity")
+    public abstract SmsEntity saveSmsDtoToSmsEntity(final SaveSmsDTO saveSmsDto);
+    
+    /**
+     * Save SMS DTO To Sms Entities
+     * @param smsEntityList
+     * @return
+     */
+    @IterableMapping(qualifiedByName = "saveSmsDtoToSmsEntity")
+    public abstract Iterable<SmsEntity> saveSmsDtoToSmsEntities(
+    			Iterable<SaveSmsDTO> saveSmsDtos);
+    
 }

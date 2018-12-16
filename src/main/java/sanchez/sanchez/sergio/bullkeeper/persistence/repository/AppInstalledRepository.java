@@ -72,6 +72,13 @@ public interface AppInstalledRepository extends MongoRepository<AppInstalledEnti
 	 * @return
 	 */
 	Iterable<AppInstalledEntity> findByIdIn(final Iterable<ObjectId> ids);
+	
+	/**
+	 * Find By Package Name
+	 * @param packageName
+	 * @return
+	 */
+	AppInstalledEntity findOneByPackageName(final String packageName);
 
 	
 }

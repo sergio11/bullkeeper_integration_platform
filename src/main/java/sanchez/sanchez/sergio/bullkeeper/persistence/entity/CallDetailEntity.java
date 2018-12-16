@@ -59,6 +59,12 @@ public class CallDetailEntity implements Serializable {
 	private CallTypeEnum callType;
 	
 	/**
+	 * Local Id
+	 */
+	@Field("local_id")
+	private String localId;
+	
+	/**
 	 * Kid
 	 */
 	@Field("kid")
@@ -89,13 +95,14 @@ public class CallDetailEntity implements Serializable {
 	 */
 	@PersistenceConstructor
 	public CallDetailEntity(ObjectId id, String phoneNumber, Date callDayTime, String callDuration,
-			CallTypeEnum callType, KidEntity kid, TerminalEntity terminal) {
+			CallTypeEnum callType, String localId, KidEntity kid, TerminalEntity terminal) {
 		super();
 		this.id = id;
 		this.phoneNumber = phoneNumber;
 		this.callDayTime = callDayTime;
 		this.callDuration = callDuration;
 		this.callType = callType;
+		this.localId = localId;
 		this.kid = kid;
 		this.terminal = terminal;
 	}
@@ -118,6 +125,10 @@ public class CallDetailEntity implements Serializable {
 
 	public CallTypeEnum getCallType() {
 		return callType;
+	}
+
+	public String getLocalId() {
+		return localId;
 	}
 
 	public KidEntity getKid() {
@@ -148,6 +159,10 @@ public class CallDetailEntity implements Serializable {
 		this.callType = callType;
 	}
 
+	public void setLocalId(String localId) {
+		this.localId = localId;
+	}
+
 	public void setKid(KidEntity kid) {
 		this.kid = kid;
 	}
@@ -159,10 +174,7 @@ public class CallDetailEntity implements Serializable {
 	@Override
 	public String toString() {
 		return "CallDetailEntity [id=" + id + ", phoneNumber=" + phoneNumber + ", callDayTime=" + callDayTime
-				+ ", callDuration=" + callDuration + ", callType=" + callType + ", kid=" + kid + ", terminal="
-				+ terminal + "]";
+				+ ", callDuration=" + callDuration + ", callType=" + callType + ", localId=" + localId + ", kid=" + kid
+				+ ", terminal=" + terminal + "]";
 	}
-
-	
-	
 }

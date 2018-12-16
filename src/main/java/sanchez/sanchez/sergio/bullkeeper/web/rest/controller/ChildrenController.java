@@ -36,14 +36,17 @@ import sanchez.sanchez.sergio.bullkeeper.exception.AppInstalledNotFoundException
 import sanchez.sanchez.sergio.bullkeeper.exception.CallDetailNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.CallDetailsNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.CommentsByKidNotFoundException;
+import sanchez.sanchez.sergio.bullkeeper.exception.ContactNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.CurrentLocationException;
 import sanchez.sanchez.sergio.bullkeeper.exception.KidNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoAlertsByKidFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoAppsInstalledFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoChildrenFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoCommunityStatisticsForThisPeriodException;
+import sanchez.sanchez.sergio.bullkeeper.exception.NoContactsFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoDimensionsStatisticsForThisPeriodException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoKidGuardianFoundException;
+import sanchez.sanchez.sergio.bullkeeper.exception.NoPhoneNumberBlockedFound;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoScheduledBlockFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoSentimentAnalysisStatisticsForThisPeriodException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoSmsFoundException;
@@ -54,7 +57,9 @@ import sanchez.sanchez.sergio.bullkeeper.exception.SocialMediaNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.TerminalNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.AppInstalledShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.CallDetailShouldExists;
+import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ContactShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.KidShouldExists;
+import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.PhoneNumberBlockedShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ScheduledBlockShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.SmsShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.SocialMediaShouldExists;
@@ -72,10 +77,12 @@ import sanchez.sanchez.sergio.bullkeeper.util.ValidList;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppInstalledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppRulesDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveCallDetailDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveContactDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveGuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveLocationDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveScheduledBlockDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveScheduledBlockStatusDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveSmsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveSocialMediaDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveTerminalDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AlertDTO;
@@ -83,11 +90,13 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CallDetailDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CommentDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CommunitiesStatisticsDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ContactDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.DimensionsStatisticsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ImageDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidGuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.LocationDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.PhoneNumberBlockedDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ScheduledBlockDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.SentimentAnalysisStatisticsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.SmsDTO;
@@ -104,6 +113,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.rest.response.AppsResponseCode;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.response.CallDetailResponseCode;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.response.ChildrenResponseCode;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.response.CommentResponseCode;
+import sanchez.sanchez.sergio.bullkeeper.web.rest.response.ContactResponseCode;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.response.SmsResponseCode;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.response.SocialMediaResponseCode;
 import sanchez.sanchez.sergio.bullkeeper.web.security.userdetails.CommonUserDetailsAware;
@@ -210,7 +220,8 @@ public class ChildrenController extends BaseController
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() "
     		+ "|| ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#id) )")
-    @ApiOperation(value = "GET_KID_BY_ID", nickname = "GET_KID_BY_ID", notes = "Get Kid By Id", response = KidDTO.class)
+    @ApiOperation(value = "GET_KID_BY_ID", nickname = "GET_KID_BY_ID", notes = "Get Kid By Id", 
+    response = KidDTO.class)
     public ResponseEntity<APIResponse<KidDTO>> getSonById(
     		@ApiParam(name= "id", value = "Kid identified", required = true)
     			@Valid @ValidObjectId(message = "{son.id.notvalid}")
@@ -234,7 +245,7 @@ public class ChildrenController extends BaseController
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && "
     		+ "@authorizationService.isYourGuardianAndCanEditKidInformation(#id) )")
     @ApiOperation(value = "DELETE_KID_BY_ID", nickname = "DELETE_KID_BY_ID", notes = "Delete KId By Id", 
-    		response = KidDTO.class)
+    		response = String.class)
     public ResponseEntity<APIResponse<String>> deleteKidById(
     		@ApiParam(name= "id", value = "Kid Identified", required = true)
     			@Valid @ValidObjectId(message = "{son.id.notvalid}")
@@ -450,7 +461,7 @@ public class ChildrenController extends BaseController
     @RequestMapping(value = { "/{id}/social", "/{id}/social/all"  }, method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#id) )")
     @ApiOperation(value = "GET_SOCIAL_MEDIA_BY_KID", nickname = "GET_SOCIAL_MEDIA_BY_KID", 
-    	notes = "Get Social Madia By Kid", response = SocialMediaDTO.class)
+    	notes = "Get Social Madia By Kid", response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<SocialMediaDTO>>> getSocialMediaByKidId(
     		@ApiParam(name = "id", value = "Kid Identifier", required = true)
     			@Valid @ValidObjectId(message = "{son.id.notvalid}")
@@ -635,7 +646,7 @@ public class ChildrenController extends BaseController
     @RequestMapping(value = "/{id}/statistics/dimensions", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#id) )")
     @ApiOperation(value = "FOUR_DIMENSIONS_STATISTICS", nickname = "FOUR_DIMENSIONS_STATISTICS", 
-            notes = "Four Dimensions Statistics", response = CommunitiesStatisticsDTO.class)
+            notes = "Four Dimensions Statistics", response = DimensionsStatisticsDTO.class)
     public ResponseEntity<APIResponse<DimensionsStatisticsDTO>> getFourDimensionsStatistics(
             @ApiParam(name = "id", value = "Kid Identifier", required = true)
     			@Valid @ValidObjectId(message = "{son.id.notvalid}")
@@ -669,7 +680,7 @@ public class ChildrenController extends BaseController
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
     		+ "&& @authorizationService.isYourGuardianAndCanEditKidInformation(#id) )")
     @ApiOperation(value = "SAVE_ALL_SOCIAL_MEDIA", nickname = "SAVE_ALL_SOCIAL_MEDIA", notes = "Save Social Media",
-            response = SocialMediaDTO.class)
+            response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<SocialMediaDTO>>> saveAllSocialMediaToSon(
     		@ApiParam(name = "id", value = "Kid Identifier", required = true)
         	@Valid @ValidObjectId(message = "{son.id.notvalid}")
@@ -699,7 +710,7 @@ public class ChildrenController extends BaseController
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
     		+ "&& @authorizationService.isYourGuardianAndCanEditKidInformation(#id) )")
     @ApiOperation(value = "DELETE_ALL_SOCIAL_MEDIA", nickname = "DELETE_ALL_SOCIAL_MEDIA", 
-    	notes = "Delete all social media of kid", response = List.class)
+    	notes = "Delete all social media of kid", response = Long.class)
     //@OnlyAccessForAdminOrGuardianOfTheKid(son = "#id")
     public ResponseEntity<APIResponse<Long>> deleteAllSocialMedia(
     		@ApiParam(name = "id", value = "Kid Identifier", required = true)
@@ -725,7 +736,7 @@ public class ChildrenController extends BaseController
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
     		+ "&& @authorizationService.isYourGuardianAndCanEditKidInformation(#kid) )")
     @ApiOperation(value = "DELETE_SOCIAL_MEDIA", nickname = "DELETE_SOCIAL_MEDIA", 
-    	notes = "Delete a single social media", response = SocialMediaDTO.class)
+    	notes = "Delete a single social media", response = String.class)
     public ResponseEntity<APIResponse<String>> deleteSocialMedia(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
             	@Valid @ValidObjectId(message = "{son.id.notvalid}")
@@ -753,7 +764,7 @@ public class ChildrenController extends BaseController
     @RequestMapping(value = "/{id}/social/invalid", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#id) )")
     @ApiOperation(value = "GET_INVALID_SOCIAL_MEDIA_BY_KID", nickname = "GET_INVALID_SOCIAL_MEDIA_BY_KID",
-    	notes = "Get Social Madia By Kid with invalid token", response = SocialMediaDTO.class)
+    	notes = "Get Social Madia By Kid with invalid token", response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<SocialMediaDTO>>> getInvalidSocialMediaByKidId(
     		@ApiParam(name = "id", value = "Kid Identifier", required = true)
     			@Valid @ValidObjectId(message = "{son.id.notvalid}")
@@ -777,7 +788,7 @@ public class ChildrenController extends BaseController
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#id) )")
     @ApiOperation(value = "GET_VALID_SOCIAL_MEDIA_BY_KID", nickname = "GET_VALID_SOCIAL_MEDIA_BY_KID", 
     	notes = "Get Social Madia By Kid with valid token",
-            response = SocialMediaDTO.class)
+            response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<SocialMediaDTO>>> getValidSocialMediaByKidId(
     		@ApiParam(name = "id", value = "Kid identifier", required = true)
     			@Valid @ValidObjectId(message = "{son.id.notvalid}")
@@ -805,7 +816,7 @@ public class ChildrenController extends BaseController
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#id) )")
     @ApiOperation(value = "GET_ALERTS_BY_KID", nickname = "GET_ALERTS_BY_KID", 
     	notes = "Get Alerts By KId Id",
-            response = AlertDTO.class)
+            response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<AlertDTO>>> getAlertsByKidId(
             @ApiParam(name = "id", value = "Kid Identifier", required = true)
             	@Valid @ValidObjectId(message = "{son.id.notvalid}")
@@ -845,7 +856,7 @@ public class ChildrenController extends BaseController
     @RequestMapping(value = "/{id}/alerts/warning", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#id) )")
     @ApiOperation(value = "GET_WARNING_ALERTS_BY_KID", nickname = "GET_WARNING_ALERTS_BY_KID", 
-    	notes = "Get Warning Alerts By Kid Id", response = AlertDTO.class)
+    	notes = "Get Warning Alerts By Kid Id", response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<AlertDTO>>> getWarningAlertsByKidId(
             @ApiParam(name = "id", value = "Kid Identifier", required = true)
             	@Valid @ValidObjectId(message = "{son.id.notvalid}")
@@ -881,7 +892,7 @@ public class ChildrenController extends BaseController
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#id) )")
     @ApiOperation(value = "GET_INFO_ALERTS_BY_KID", nickname = "GET_INFO_ALERTS_BY_KID",
     notes = "Get Information Alerts By Kid Id",
-            response = AlertDTO.class)
+            response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<AlertDTO>>> getInformationAlertsByKidId(
             @ApiParam(name = "id", value = "Kid Identifier", required = true)
             	@Valid @ValidObjectId(message = "{son.id.notvalid}")
@@ -917,7 +928,7 @@ public class ChildrenController extends BaseController
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#id) )")
     @ApiOperation(value = "GET_DANGER_ALERTS_BY_KID", nickname = "GET_DANGER_ALERTS_BY_KID",
     notes = "Get Danger Alerts By Kid Id",
-            response = AlertDTO.class)
+            response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<AlertDTO>>> getDangerAlertsByKidId(
             @ApiParam(name = "id", value = "Kid Identifier", required = true)
             	@Valid @ValidObjectId(message = "{son.id.notvalid}")
@@ -954,7 +965,7 @@ public class ChildrenController extends BaseController
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#id) )")
     @ApiOperation(value = "GET_SUCCESS_ALERTS_BY_KID", nickname = "GET_SUCCESS_ALERTS_BY_KID",
     notes = "Get Success Alerts By Kid Id",
-            response = AlertDTO.class)
+            response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<AlertDTO>>> getSuccessAlertsByKidId(
             @ApiParam(name = "id", value = "Kid Identifier", required = true)
             	@Valid @ValidObjectId(message = "{son.id.notvalid}")
@@ -988,7 +999,7 @@ public class ChildrenController extends BaseController
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#id) )")
     @ApiOperation(value = "CLEAR_CHILD_WARNING_ALERTS",
     	nickname = "CLEAR_CHILD_WARNING_ALERTS", notes = "Clear Child Warning Alerts",
-            response = Long.class)
+            response = String.class)
     public ResponseEntity<APIResponse<String>> clearChildWarningAlerts(
             @ApiParam(name = "id", value = "Kid Identifier", required = true)
             	@Valid @ValidObjectId(message = "{son.id.notvalid}")
@@ -1014,8 +1025,8 @@ public class ChildrenController extends BaseController
     @RequestMapping(value = "/{id}/alerts/info", method = RequestMethod.DELETE)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#id) )")
     @ApiOperation(value = "CLEAR_CHILD_INFO_ALERTS", nickname = "CLEAR_CHILD_INFO_ALERTS",
-    notes = "Clear INfo Child Alerts",
-            response = Long.class)
+    notes = "Clear Info Child Alerts",
+            response = String.class)
     public ResponseEntity<APIResponse<String>> clearChildInfoAlerts(
             @ApiParam(name = "id", value = "Kid Identifier", required = true)
             	@Valid @ValidObjectId(message = "{son.id.notvalid}")
@@ -1039,8 +1050,8 @@ public class ChildrenController extends BaseController
     @RequestMapping(value = "/{id}/alerts/danger", method = RequestMethod.DELETE)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#id) )")
     @ApiOperation(value = "CLEAR_CHILD_DANGER_ALERTS", nickname = "CLEAR_CHILD_DANGER_ALERTS",
-    notes = "Clear INfo Child Alerts",
-            response = Long.class)
+    notes = "Clear Info Child Alerts",
+            response = String.class)
     public ResponseEntity<APIResponse<String>> clearChildDangerAlerts(
             @ApiParam(name = "id", value = "Kid Identifier", required = true)
             	@Valid @ValidObjectId(message = "{son.id.notvalid}")
@@ -1065,7 +1076,7 @@ public class ChildrenController extends BaseController
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#id) )")
     @ApiOperation(value = "CLEAR_CHILD_SUCCESS_ALERTS", nickname = "CLEAR_CHILD_SUCCESS_ALERTS",
     notes = "Clear Success Child Alerts",
-            response = Long.class)
+            response = String.class)
     public ResponseEntity<APIResponse<String>> clearChildSuccessAlerts(
             @ApiParam(name = "id", value = "Kid Identifier", required = true)
             	@Valid @ValidObjectId(message = "{son.id.notvalid}")
@@ -1089,7 +1100,7 @@ public class ChildrenController extends BaseController
     @RequestMapping(value = "/{id}/alerts", method = RequestMethod.DELETE)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#id) )")
     @ApiOperation(value = "CLEAR_CHILD_ALERTS", nickname = "CLEAR_CHILD_ALERTS", notes = "Clear Child Alerts",
-            response = Long.class)
+            response = String.class)
     public ResponseEntity<APIResponse<String>> clearChildAlerts(
             @ApiParam(name = "id", value = "Kid Identifier", required = true)
             	@Valid @ValidObjectId(message = "{son.id.notvalid}")
@@ -1141,7 +1152,7 @@ public class ChildrenController extends BaseController
     @RequestMapping(value = "/{kid}/alerts/{alert}", method = RequestMethod.DELETE)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
     @ApiOperation(value = "DELETE_ALERT_BY_ID", nickname = "DELETE_ALERT_BY_ID", notes = "Delete alert by id",
-            response = AlertDTO.class)
+            response = String.class)
     public ResponseEntity<APIResponse<String>> deleteAlertById(
             @ApiParam(name = "kid", value = "Kid Identfier", required = true)
             	@Valid @ValidObjectId(message = "{son.id.notvalid}")
@@ -1170,7 +1181,7 @@ public class ChildrenController extends BaseController
     @RequestMapping(value = "/{kid}/terminal", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
     @ApiOperation(value = "GET_ALL_TERMINAL", nickname = "GET_ALL_TERMINAL", notes = "Get all Terminals", 
-    response = List.class)
+    response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<TerminalDTO>>> getAllTerminals(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
         	@Valid @KidShouldExists(message = "{son.id.notvalid}")
@@ -1464,6 +1475,83 @@ public class ChildrenController extends BaseController
             		HttpStatus.OK, messageSourceResolver.resolver("single.sms.deleted"));
     }
     
+    /**
+     * Save SMS
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{kid}/terminal/{terminal}/sms", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole()"
+    		+ " && @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(value = "SAVE_SMS_FROM_TERMINAL", 
+    	nickname = "SAVE_SMS_FROM_TERMINAL", 
+    			notes = "Save Sms from terminal",
+    				response = Iterable.class)
+    public ResponseEntity<APIResponse<Iterable<SmsDTO>>> saveSmsFromTerminal(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+        	@Valid @KidShouldExists(message = "{son.not.exists}")
+         		@PathVariable String kid,
+         	@ApiParam(name = "terminal", value = "Terminal Identity", required = true)
+            	@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
+             		@PathVariable String terminal,
+            @ApiParam(value = "sms", required = true) 
+ 				@Validated(ICommonSequence.class) 
+    				@RequestBody ValidList<SaveSmsDTO> sms) throws Throwable {
+    	
+    	logger.debug("Save SMS from terminal");
+    	
+    	// Get Terminal
+        final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+    			new ObjectId(terminal), new ObjectId(kid)))
+    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+        
+        // Save Sms
+        final Iterable<SmsDTO> smsSavedList = terminalService.saveSms(sms);
+    	
+        // Create and send response
+        return ApiHelper.<Iterable<SmsDTO>>createAndSendResponse(SmsResponseCode.SMS_SAVED_SUCCESSFULLY, 
+           		HttpStatus.OK, smsSavedList);
+    	
+    }
+    
+    /**
+     * Save SMS
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{kid}/terminal/{terminal}/sms/add", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole()"
+    		+ " && @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(value = "ADD_SMS_FROM_TERMINAL", 
+    	nickname = "ADD_SMS_FROM_TERMINAL", 
+    			notes = "Add Sms from terminal",
+    				response = Iterable.class)
+    public ResponseEntity<APIResponse<SmsDTO>> addSmsFromTerminal(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+        	@Valid @KidShouldExists(message = "{son.not.exists}")
+         		@PathVariable String kid,
+         	@ApiParam(name = "terminal", value = "Terminal Identity", required = true)
+            	@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
+             		@PathVariable String terminal,
+            @ApiParam(value = "sms", required = true) 
+ 				@Validated(ICommonSequence.class) 
+    				@RequestBody SaveSmsDTO sms) throws Throwable {
+    	
+    	logger.debug("Save SMS from terminal");
+    	
+    	// Get Terminal
+        final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+    			new ObjectId(terminal), new ObjectId(kid)))
+    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+        
+        // Save SMS
+        final SmsDTO smsDTO = terminalService.saveSms(sms);
+    	
+    	// Create and send response
+        return ApiHelper.<SmsDTO>createAndSendResponse(SmsResponseCode.SMS_SAVED_SUCCESSFULLY, 
+           		HttpStatus.OK, smsDTO);
+    	
+    }
     
     /**
      * Get Calls
@@ -1663,11 +1751,292 @@ public class ChildrenController extends BaseController
 			new ObjectId(terminal), new ObjectId(kid)))
 			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
     
-	
-   	
-   	return null;
-   	
+    // Save Calls
+    final Iterable<CallDetailDTO> callsSaved = terminalService.saveCalls(calls);
+    
+    // Create and send response
+    return ApiHelper.<Iterable<CallDetailDTO>>createAndSendResponse(CallDetailResponseCode.CALLS_SAVED, 
+       		HttpStatus.OK, callsSaved);
    }
+   
+   /**
+    * Save Calls
+    * @return
+    * @throws Throwable
+    */
+   @RequestMapping(value = "/{kid}/terminal/{terminal}/calls/add", method = RequestMethod.POST)
+   @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole()"
+   		+ " && @authorizationService.isYourGuardian(#kid) )")
+   @ApiOperation(value = "ADD_CALL_DETAILS_FROM_TERMINAL", 
+   	nickname = "ADD_CALL_DETAILS_FROM_TERMINAL", 
+   			notes = "Add Call Detail from terminal",
+   				response = Iterable.class)
+   public ResponseEntity<APIResponse<CallDetailDTO>> addCallDetailsFromTerminal(
+   		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+       	@Valid @KidShouldExists(message = "{son.not.exists}")
+        		@PathVariable String kid,
+        	@ApiParam(name = "terminal", value = "Terminal Identity", required = true)
+           	@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
+            		@PathVariable String terminal,
+           @ApiParam(value = "call", required = true) 
+				@Validated(ICommonSequence.class) 
+   				@RequestBody SaveCallDetailDTO callDetail) throws Throwable {
+	   
+	   logger.debug("Add Call Detail From Terminal");
+	   
+	   // Save Call
+	   final CallDetailDTO callDetailDTO = terminalService.saveCall(callDetail);
+	  
+	    // Create and send response
+	    return ApiHelper.<CallDetailDTO>createAndSendResponse(CallDetailResponseCode.CALL_SAVED, 
+	       		HttpStatus.OK, callDetailDTO);
+   }
+   
+   
+   /**
+    * Get Calls
+    * @throws Throwable
+    */
+   @RequestMapping(value = "/{kid}/terminal/{terminal}/contacts", method = RequestMethod.GET)
+   @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+   		+ "&& @authorizationService.isYourGuardian(#kid) )")
+   @ApiOperation(value = "GET_ALL_CONTACTS_FROM_TERMINAL", nickname = "GET_ALL_CONTACTS_FROM_TERMINAL",
+   	notes = "Get Calls From Terminal", response = Iterable.class)
+   public ResponseEntity<APIResponse<Iterable<ContactDTO>>> getAllContactsFromTerminal(
+   		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+       		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+        			@PathVariable String kid,
+        	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
+   			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
+    				@PathVariable String terminal) 
+   		throws Throwable {
+   	
+   		logger.debug("Get All Contacts from terminal");
+   	
+   		// Get Terminal
+       final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+   			new ObjectId(terminal), new ObjectId(kid)))
+   			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+       
+       // Get all contacts 
+       final Iterable<ContactDTO> contactDTOs = terminalService.getContacts(
+       		new ObjectId(kid), new ObjectId(terminalDTO.getIdentity()));
+       
+       // Check results
+       if(Iterables.size(contactDTOs) == 0)
+       		throw new NoContactsFoundException();
+   	
+       // Create and send response
+       return ApiHelper.<Iterable<ContactDTO>>createAndSendResponse(ContactResponseCode.ALL_CONTACTS, 
+           		HttpStatus.OK, contactDTOs);
+   }
+   
+   
+   /**
+    * Get Contact Detail
+    * @param kid
+    * @param terminal
+    * @param contact
+    * @return
+    * @throws Throwable
+    */
+  @RequestMapping(value = "/{kid}/terminal/{terminal}/contacts/{contact}", method = RequestMethod.GET)
+  @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+  		+ "&& @authorizationService.isYourGuardian(#kid) )")
+  @ApiOperation(value = "GET_CONTACT_DETAIL", nickname = "GET_CONTACT_DETAIL",
+  	notes = "Get Contact Detail", response = ContactDTO.class)
+  public ResponseEntity<APIResponse<ContactDTO>> getContactDetail(
+  		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+      		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+       			@PathVariable String kid,
+       	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
+  			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
+   				@PathVariable String terminal,
+   		@ApiParam(name = "contact", value = "Contact Identifier", required = true)
+				@Valid @ContactShouldExists(message = "{contact.id.notvalid}")
+					@PathVariable String contact) 
+  		throws Throwable {
+	   
+	   logger.debug("Get Contact Detail");
+	   
+	   // Get Terminal
+      final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+  			new ObjectId(terminal), new ObjectId(kid)))
+  			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+      
+  	
+      // Get Contact Detail
+      final ContactDTO contactDTO = Optional.ofNullable(terminalService.getContactByIdAndTerminalIdAndKidId(
+  			new ObjectId(terminalDTO.getIdentity()), 
+  			new ObjectId(terminalDTO.getKid()), 
+  			new ObjectId(contact)))
+  			 .orElseThrow(() -> { throw new ContactNotFoundException(); });
+	   
+      
+      // Create and send response
+      return ApiHelper.<ContactDTO>createAndSendResponse(ContactResponseCode.SINGLE_CONTACT_DETAIL, 
+          		HttpStatus.OK, contactDTO);
+  }
+  
+  
+  /**
+   * Delete all contacts from Terminal
+   * @return
+   * @throws Throwable
+   */
+  @RequestMapping(value = "/{kid}/terminal/{terminal}/contacts", method = RequestMethod.DELETE)
+  @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+  		+ "&& @authorizationService.isYourGuardian(#kid) )")
+  @ApiOperation(value = "DELETE_ALL_CONTACTS_FROM_TERMINAL", 
+  	nickname = "DELETE_ALL_CONTACTS_FROM_TERMINAL",
+  	notes = "Delete All Contacts From Terminal", response = String.class)
+  public ResponseEntity<APIResponse<String>> deleteAllContactsFromTerminal(
+  		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+      		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+       			@PathVariable String kid,
+       	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
+  			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
+   				@PathVariable String terminal) 
+  		throws Throwable {
+      
+	   logger.debug("Delete all contacts from terminal");
+	   
+	   // Get Terminal
+      final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+  			new ObjectId(terminal), new ObjectId(kid)))
+  			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+      
+      // Delete all contacts
+      terminalService.deleteAllContacts(
+   		   new ObjectId(terminalDTO.getKid()), 
+   		   new ObjectId(terminalDTO.getIdentity()));
+  	
+	   // Create and send response
+      return ApiHelper.<String>createAndSendResponse(ContactResponseCode.ALL_CONTACTS_DELETED, 
+         		HttpStatus.OK, messageSourceResolver.resolver("all.contacts.deleted"));
+	   
+  }
+  
+  
+  /**
+   * Delete Call Detail
+   * @param kid
+   * @param terminal
+   * @param call
+   * @return
+   * @throws Throwable
+   */
+ @RequestMapping(value = "/{kid}/terminal/{terminal}/contacts/{contact}", method = RequestMethod.DELETE)
+ @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+ 		+ "&& @authorizationService.isYourGuardian(#kid) )")
+ @ApiOperation(value = "DELETE_SINGLE_CONTACT", nickname = "DELETE_SINGLE_CONTACT",
+ 	notes = "Delete Single Contact", response = String.class)
+ public ResponseEntity<APIResponse<String>> deleteSingleContact(
+ 		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+     		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+      			@PathVariable String kid,
+      	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
+ 			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
+  				@PathVariable String terminal,
+  		@ApiParam(name = "contact", value = "Contact Identifier", required = true)
+				@Valid @ContactShouldExists(message = "{contact.id.notvalid}")
+					@PathVariable String contact) 
+ 		throws Throwable {
+	  
+	 logger.debug("Delete single contact from terminal");
+	   
+	   // Get Terminal
+     final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+ 			new ObjectId(terminal), new ObjectId(kid)))
+ 			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+     
+     // Delete Contact
+     terminalService.deleteContact(
+  		   new ObjectId(terminalDTO.getKid()), 
+  		   new ObjectId(terminalDTO.getIdentity()),
+  		   new ObjectId(contact));
+ 	
+	   // Create and send response
+     return ApiHelper.<String>createAndSendResponse(ContactResponseCode.SINGLE_CONTACT_DELETED, 
+        		HttpStatus.OK, messageSourceResolver.resolver("single.contact.deleted"));
+ }
+  
+  
+  /**
+   * Save Contacts from terminal 
+   * @return
+   * @throws Throwable
+   */
+  @RequestMapping(value = "/{kid}/terminal/{terminal}/contacts", method = RequestMethod.POST)
+  @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole()"
+  		+ " && @authorizationService.isYourGuardian(#kid) )")
+  @ApiOperation(value = "SAVE_CONTACTS_FROM_TERMINAL", 
+  	nickname = "SAVE_CONTACTS_FROM_TERMINAL", 
+  			notes = "Save Contacts from terminal",
+  				response = Iterable.class)
+  public ResponseEntity<APIResponse<Iterable<ContactDTO>>> saveContactsFromTerminal(
+  		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+      		@Valid @KidShouldExists(message = "{son.not.exists}")
+       			@PathVariable String kid,
+       	@ApiParam(name = "terminal", value = "Terminal Identity", required = true)
+          	@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
+           		@PathVariable String terminal,
+        @ApiParam(value = "contacts", required = true) 
+			@Validated(ICommonSequence.class) 
+  				@RequestBody ValidList<SaveContactDTO> contacts) throws Throwable {
+  	
+  	logger.debug("Save contacts from terminal");
+  	
+  	// Get Terminal
+   final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+			new ObjectId(terminal), new ObjectId(kid)))
+			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+   
+   // Save Contacts
+   final Iterable<ContactDTO> contactsSaved = terminalService.saveContacts(contacts);
+   
+   // Create and send response
+   return ApiHelper.<Iterable<ContactDTO>>createAndSendResponse(ContactResponseCode.CONTACTS_SAVED, 
+      		HttpStatus.OK, contactsSaved);
+  }
+  
+  /**
+   * Save Calls
+   * @return
+   * @throws Throwable
+   */
+  @RequestMapping(value = "/{kid}/terminal/{terminal}/contacts/add", method = RequestMethod.POST)
+  @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole()"
+  		+ " && @authorizationService.isYourGuardian(#kid) )")
+  @ApiOperation(value = "ADD_CONTACT_FROM_TERMINAL", 
+  	nickname = "ADD_CONTACT_FROM_TERMINAL", 
+  			notes = "Add Contact from terminal",
+  				response = ContactDTO.class)
+  public ResponseEntity<APIResponse<ContactDTO>> addContactFromTerminal(
+  		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+      	@Valid @KidShouldExists(message = "{son.not.exists}")
+       		@PathVariable String kid,
+       	@ApiParam(name = "terminal", value = "Terminal Identity", required = true)
+          	@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
+           		@PathVariable String terminal,
+          @ApiParam(value = "contact", required = true) 
+				@Validated(ICommonSequence.class) 
+  				@RequestBody SaveContactDTO contact) throws Throwable {
+	   
+	   logger.debug("Add Contact From Terminal");
+	   
+	   // Get Terminal
+	   final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+				new ObjectId(terminal), new ObjectId(kid)))
+				 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+	   
+	   // Save Contact
+	   final ContactDTO contactDTO = terminalService.saveContact(contact);
+	  
+	    // Create and send response
+	    return ApiHelper.<ContactDTO>createAndSendResponse(ContactResponseCode.CONTACT_SAVED, 
+	       		HttpStatus.OK, contactDTO);
+  }
     
     
     /**
@@ -1951,7 +2320,7 @@ public class ChildrenController extends BaseController
     @RequestMapping(value = "/{kid}/terminal/{terminal}/apps/add", method = RequestMethod.POST)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
     @ApiOperation(value = "ADD_APP_INSTALLED", nickname = "ADD_APP_INSTALLED", 
-    	notes = "Add app installed", response = String.class)
+    	notes = "Add app installed", response = AppInstalledDTO.class)
     public ResponseEntity<APIResponse<AppInstalledDTO>> addNewAppInstalled(
             @ApiParam(name = "kid", value = "Kid Identifier", required = true)
             	@Valid @KidShouldExists(message = "{son.id.notvalid}")
@@ -1983,6 +2352,117 @@ public class ChildrenController extends BaseController
         // Create and send response
         return ApiHelper.<AppInstalledDTO>createAndSendResponse(AppsResponseCode.NEW_APP_INSTALLED_ADDED, HttpStatus.OK, appInstalled);
         
+    }
+    
+    /**
+     * Get Phone Numbers Blocked
+     * @param id
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{kid}/terminal/{terminal}/phonenumbers-blocked", method = RequestMethod.GET)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(value = "GET_PHONE_NUMBER_BLOCKED", nickname = "GET_PHONE_NUMBER_BLOCKED",
+    	notes = "Get Phone Number Blocked", response = Iterable.class)
+    public ResponseEntity<APIResponse<Iterable<PhoneNumberBlockedDTO>>> getPhoneNumberBlocked(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+         		@Valid @KidShouldExists(message = "{son.should.be.exists}")
+          			@PathVariable String kid,
+          	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
+     			@Valid @KidShouldExists(message = "{son.should.be.exists}")
+      				@PathVariable String terminal) throws Throwable {
+    	
+    	logger.debug("Get Phone Number Blocked");
+    	
+    	// Get Terminal
+    	final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+    			new ObjectId(terminal), new ObjectId(kid)))
+    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+    	
+    	// Get Phone Numbers Blocked
+    	final Iterable<PhoneNumberBlockedDTO> phoneNumbersBlockedList = 
+    			terminalService.getPhoneNumbersBlocked(terminalDTO.getKid(), terminalDTO.getIdentity());
+    	
+    	if(Iterables.size(phoneNumbersBlockedList) == 0)
+    		throw new NoPhoneNumberBlockedFound();
+ 
+    	// Create and send response
+        return ApiHelper.<Iterable<PhoneNumberBlockedDTO>>createAndSendResponse(ChildrenResponseCode.NO_PHONE_NUMBER_BLOCKED_FOUND, 
+        		HttpStatus.OK, phoneNumbersBlockedList);
+    	
+    }
+    
+    /**
+     * Delete Phone Numbers Blocked
+     * @param id
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{kid}/terminal/{terminal}/phonenumbers-blocked", method = RequestMethod.DELETE)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(value = "DELETE_PHONE_NUMBER_BLOCKED", nickname = "DELETE_PHONE_NUMBER_BLOCKED",
+    	notes = "Delete Phone Number Blocked", response = String.class)
+    public ResponseEntity<APIResponse<String>> deleteAllPhoneNumberBlocked(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+     			@Valid @KidShouldExists(message = "{son.should.be.exists}")
+      				@PathVariable String kid,
+      		@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
+ 				@Valid @KidShouldExists(message = "{son.should.be.exists}")
+  					@PathVariable String terminal) throws Throwable {
+    	
+    	logger.debug("Delete Phone Number Blocked");
+    	// Get Terminal
+    	final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+    			new ObjectId(terminal), new ObjectId(kid)))
+    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+    	
+    	// Unblock All Phone Numbers
+    	terminalService.unBlockAllPhoneNumbers();
+    	// Create and send response
+    	return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.ALL_PHONE_NUMBERS_UNBLOCKED_SUCCESSFULLY, HttpStatus.OK, 
+        		messageSourceResolver.resolver("all.phone.numbers.unblocked.successfully"));
+    	
+    }
+    
+    
+    /**
+     * Get Phone Numbers Blocked
+     * @param id
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{kid}/terminal/{terminal}/phonenumbers-blocked/{id}", method = RequestMethod.DELETE)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(value = "DELETE_PHONE_NUMBER_BLOCKED_BY_ID", nickname = "DELETE_PHONE_NUMBER_BLOCKED_BY_ID",
+    notes = "Delete Phone Number Blocked By Id", response = String.class)
+    public ResponseEntity<APIResponse<String>> deletePhoneNumberBlockedById(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+     			@Valid @KidShouldExists(message = "{son.should.be.exists}")
+      				@PathVariable String kid,
+	      	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
+	 			@Valid @KidShouldExists(message = "{son.should.be.exists}")
+	  				@PathVariable String terminal,
+	  		@ApiParam(name = "phonenumber", value = "Phone Number Blocked", required = true)
+ 				@Valid @PhoneNumberBlockedShouldExists(message = "{phonenumber.blocked.should.be.exists}")
+  					@PathVariable String phoneNumberBlocked) throws Throwable {
+    	
+    	logger.debug("Delete Phone Number Blocked by id");
+    	// Get Terminal
+    	final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+    			new ObjectId(terminal), new ObjectId(kid)))
+    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+    	
+    	// Unblock Phone Number
+    	terminalService.unBlockPhoneNumber(new ObjectId(terminalDTO.getKid()), 
+    			new ObjectId(terminalDTO.getIdentity()), new ObjectId(phoneNumberBlocked));
+    	
+    	// Create and send response
+    	return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.PHONE_NUMBER_UNBLOCKED_SUCCESSFULLY, HttpStatus.OK, 
+        		messageSourceResolver.resolver("phone.number.unblocked.successfully"));
+    	
     }
     
     /**
@@ -2087,7 +2567,7 @@ public class ChildrenController extends BaseController
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
     @ApiOperation(value = "SAVE_SCHEDULED_BLOCKS_STATUS", 
     	nickname = "SAVE_SCHEDULED_BLOCKS_STATUS", notes = "Save Scheduled Block Status",
-            response = Iterable.class)
+            response = String.class)
     public ResponseEntity<APIResponse<String>> saveScheduledBlocksStatus(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
         	@Valid @KidShouldExists(message = "{son.not.exists}")
@@ -2171,7 +2651,7 @@ public class ChildrenController extends BaseController
     @RequestMapping(value = "/{kid}/scheduled-blocks/{block}/image", method = RequestMethod.POST)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
     @ApiOperation(value = "UPLOAD_SCHEDULED_BLOCK_IMAGE", nickname = "UPLOAD_SCHEDULED_BLOCK_IMAGE",
-    notes = "Upload Scheduled Block Image")
+    	notes = "Upload Scheduled Block Image", response = ImageDTO.class)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message= "Scheduled Block Image", response = ImageDTO.class),
     	@ApiResponse(code = 500, message= "Upload Failed")
@@ -2209,7 +2689,7 @@ public class ChildrenController extends BaseController
     @RequestMapping(value = "/{kid}/scheduled-blocks/{block}/image/{image}", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
     @ApiOperation(value = "DOWNLOAD_SCHEDULED_BLOCK_IMAGE", nickname = "DOWNLOAD_SCHEDULED_BLOCK_IMAGE",
-    notes = "Download Scheduled Block Image")
+    	notes = "Download Scheduled Block Image")
     public ResponseEntity<byte[]> downloadScheduledBlockImage(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
          		@Valid @KidShouldExists(message = "{son.should.be.exists}")
@@ -2242,7 +2722,7 @@ public class ChildrenController extends BaseController
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
     		+ "&& @authorizationService.isYourGuardian(#kid) )")
     @ApiOperation(value = "GET_CURRENT_LOCATION", nickname = "GET_CURRENT_LOCATION",
-    notes = "Get Current Location")
+    notes = "Get Current Location", response = LocationDTO.class)
     public ResponseEntity<APIResponse<LocationDTO>> getCurrentLocation(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
          		@Valid @KidShouldExists(message = "{son.should.be.exists}")
@@ -2268,7 +2748,7 @@ public class ChildrenController extends BaseController
     @RequestMapping(value = "/{kid}/location", method = RequestMethod.POST)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
     @ApiOperation(value = "SAVE_CURRENT_LOCATION", nickname = "SAVE_CURRENT_LOCATION",
-    notes = "Save Current Location")
+    	notes = "Save Current Location", response = LocationDTO.class)
     public ResponseEntity<APIResponse<LocationDTO>> saveCurrentLocation(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
          		@Valid @KidShouldExists(message = "{son.should.be.exists}")
@@ -2286,6 +2766,8 @@ public class ChildrenController extends BaseController
     	return ApiHelper.<LocationDTO>createAndSendResponse(ChildrenResponseCode.CURRENT_LOCATION_UPDATED, 
         		HttpStatus.OK, currentLocation);
     }
+    
+ 
     
     
     /**

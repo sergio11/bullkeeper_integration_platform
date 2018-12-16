@@ -1,12 +1,20 @@
 package sanchez.sanchez.sergio.bullkeeper.domain.service;
 
+import java.util.List;
+
 import org.bson.types.ObjectId;
 
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.AddPhoneNumberBlockedDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppInstalledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppRulesDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveCallDetailDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveContactDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveSmsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveTerminalDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CallDetailDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ContactDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.PhoneNumberBlockedDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.SmsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.TerminalDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.TerminalDetailDTO;
@@ -180,4 +188,117 @@ public interface ITerminalService {
      */
     void deleteSms(final ObjectId kid, final ObjectId terminal, final ObjectId sms);
     
+    /**
+     * Add Phone Number Blocked
+     * @param addPhoneNumber
+     * @return
+     */
+    PhoneNumberBlockedDTO addPhoneNumberBlocked(
+    		final AddPhoneNumberBlockedDTO addPhoneNumber);
+    
+    
+    /**
+     * Remove Phone Number Blocked
+     * @param kid
+     * @param terminal
+     * @param blockIdentity
+     */
+    void removePhoneNumberBlocked(final String kid, final String terminal, final String blockIdentity);
+    
+    /**
+     * Get Phone Numbers Blocked
+     * @param kid
+     * @param terminal
+     * @return
+     */
+    Iterable<PhoneNumberBlockedDTO> getPhoneNumbersBlocked(final String kid, final String terminal);
+    
+    
+    /**
+     * Save SMS
+     * @param sms
+     * @return
+     */
+    SmsDTO saveSms(final SaveSmsDTO sms);
+    
+    /**
+     * Save SMS
+     * @param smsList
+     * @return
+     */
+    Iterable<SmsDTO> saveSms(final List<SaveSmsDTO> smsList);
+    
+    
+    /**
+     * Save Calls
+     * @param smsList
+     * @return
+     */
+    Iterable<CallDetailDTO> saveCalls(final List<SaveCallDetailDTO> calls);
+    
+    /**
+     * Save Call
+     * @param call
+     * @return
+     */
+    CallDetailDTO saveCall(final SaveCallDetailDTO call);
+    
+    /**
+     * UnBlock All Phone Numbers
+     */
+    void unBlockAllPhoneNumbers();
+    
+    /**
+     * Unblock Phone Number
+     * @param kid
+     * @param terminal
+     * @param phoneNumber
+     */
+    void unBlockPhoneNumber(final ObjectId kid, final ObjectId terminal, final ObjectId phoneNumber);
+
+    /**
+     * Get Contact
+     * @param id
+     * @param terminal
+     * @param kid
+     * @return
+     */
+    ContactDTO getContactByIdAndTerminalIdAndKidId(final ObjectId id, final ObjectId terminal, final ObjectId kid);
+
+    /**
+     * Get Contacts
+     * @param kid
+     * @param terminal
+     * @return
+     */
+    Iterable<ContactDTO> getContacts(final ObjectId kid, final ObjectId terminal);
+    
+    /**
+     * Delete All Contacts
+     * @param kid
+     * @param terminal
+     */
+    void deleteAllContacts(final ObjectId kid, final ObjectId terminal);
+    
+    /**
+     * Delete Contact
+     * @param kid
+     * @param terminal
+     * @param contact
+     */
+    void deleteContact(final ObjectId kid, final ObjectId terminal, final ObjectId contact);
+    
+    /**
+     * 
+     * @param contacts
+     * @return
+     */
+    Iterable<ContactDTO> saveContacts(final List<SaveContactDTO> contacts);
+    
+    /**
+     * Save Contact
+     * @param contact
+     * @return
+     */
+    ContactDTO saveContact(final SaveContactDTO contact);
 }

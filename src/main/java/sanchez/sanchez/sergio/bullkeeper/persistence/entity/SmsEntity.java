@@ -64,6 +64,12 @@ public final class SmsEntity implements Serializable {
     private SmsFolderNameEnum folderName;
     
     /**
+     * Local Id
+     */
+    @Field("local_id")
+    private String localId;
+    
+    /**
      * Terminal
      */
     @Field("terminal")
@@ -80,7 +86,7 @@ public final class SmsEntity implements Serializable {
 
 	
     public SmsEntity() {}
-    
+
     /**
      * 
      * @param id
@@ -89,11 +95,12 @@ public final class SmsEntity implements Serializable {
      * @param readState
      * @param date
      * @param folderName
+     * @param localId
      * @param terminal
      * @param kid
      */
 	public SmsEntity(ObjectId id, String address, String message, SmsReadStateEnum readState, Date date,
-			SmsFolderNameEnum folderName, TerminalEntity terminal, KidEntity kid) {
+			SmsFolderNameEnum folderName, String localId, TerminalEntity terminal, KidEntity kid) {
 		super();
 		this.id = id;
 		this.address = address;
@@ -101,6 +108,7 @@ public final class SmsEntity implements Serializable {
 		this.readState = readState;
 		this.date = date;
 		this.folderName = folderName;
+		this.localId = localId;
 		this.terminal = terminal;
 		this.kid = kid;
 	}
@@ -129,6 +137,18 @@ public final class SmsEntity implements Serializable {
 		return folderName;
 	}
 
+	public String getLocalId() {
+		return localId;
+	}
+
+	public TerminalEntity getTerminal() {
+		return terminal;
+	}
+
+	public KidEntity getKid() {
+		return kid;
+	}
+
 	public void setId(ObjectId id) {
 		this.id = id;
 	}
@@ -153,18 +173,12 @@ public final class SmsEntity implements Serializable {
 		this.folderName = folderName;
 	}
 
-
-
-	public TerminalEntity getTerminal() {
-		return terminal;
+	public void setLocalId(String localId) {
+		this.localId = localId;
 	}
 
 	public void setTerminal(TerminalEntity terminal) {
 		this.terminal = terminal;
-	}
-
-	public KidEntity getKid() {
-		return kid;
 	}
 
 	public void setKid(KidEntity kid) {
@@ -174,10 +188,8 @@ public final class SmsEntity implements Serializable {
 	@Override
 	public String toString() {
 		return "SmsEntity [id=" + id + ", address=" + address + ", message=" + message + ", readState=" + readState
-				+ ", date=" + date + ", folderName=" + folderName + ", terminal=" + terminal + ", kid="
-				+ kid + "]";
+				+ ", date=" + date + ", folderName=" + folderName + ", localId=" + localId + ", terminal=" + terminal
+				+ ", kid=" + kid + "]";
 	}
-
-	
-	
+    
 }

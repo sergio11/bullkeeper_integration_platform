@@ -65,7 +65,6 @@ public abstract class AppInstalledEntityMapper {
      * @return
      */
     @Mappings({
-    	@Mapping(expression="java((saveAppInstalled.getIdentity() != null && !saveAppInstalled.getIdentity().isEmpty()) ? new org.bson.types.ObjectId(saveAppInstalled.getIdentity()) : null )", target="id"),
     	@Mapping(expression="java(kidRepository.findOne(new org.bson.types.ObjectId(saveAppInstalled.getKid())))", target="kid"),
     	@Mapping(expression="java(terminalRepository.findOne(new org.bson.types.ObjectId(saveAppInstalled.getTerminalId())))", target="terminal"),
     	@Mapping(expression="java(sanchez.sanchez.sergio.bullkeeper.persistence.entity.AppRuleEnum.valueOf(saveAppInstalled.getAppRule()))", target="appRuleEnum")

@@ -12,7 +12,8 @@ public enum SmsResponseCode implements IResponseCodeTypes{
     SINGLE_SMS_DETAIL(1402L),
     SINGLE_SMS_NOT_FOUND(1403L),
     ALL_SMS_FROM_TERMINAL_DELETED(1404L),
-    SINGLE_SMS_DELETED(1405L);
+    SINGLE_SMS_DELETED(1405L),
+    SMS_SAVED_SUCCESSFULLY(1406L);
 	
 	private Long code;
 	

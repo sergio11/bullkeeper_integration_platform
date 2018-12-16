@@ -1,8 +1,14 @@
 package sanchez.sanchez.sergio.bullkeeper.web.dto.request;
 
 import java.io.Serializable;
-
+import java.util.Date;
+import org.hibernate.validator.constraints.NotBlank;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.CallDetailType;
+import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.KidShouldExists;
+import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.TerminalShouldExists;
+import sanchez.sanchez.sergio.bullkeeper.web.rest.deserializers.BirthdayDeserializer;
 
 /**
  * Add Call Detail 
@@ -15,18 +21,14 @@ public final class SaveCallDetailDTO implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
-	/**
-	 * Idetity
-	 */
-	@JsonProperty("identity")
-	private String identity;
+
 	
 	
 	/**
 	 * Phone Number
 	 */
 	@JsonProperty("phone_number")
+	@NotBlank(message = "{call.phonenumber.notnull}")
 	private String phoneNumber;
 	
 	
@@ -34,118 +36,131 @@ public final class SaveCallDetailDTO implements Serializable {
 	 * Call Day Time
 	 */
 	@JsonProperty("call_day_time")
-	private String callDayTime;
+	@JsonDeserialize(using = BirthdayDeserializer.class)
+	private Date callDayTime;
 	
 	
 	/**
 	 * Call Duration
 	 */
 	@JsonProperty("call_duration")
+	@NotBlank(message = "{call.duration.notnull}")
 	private String callDuration;
 	
 	/**
 	 * Call Type
 	 */
 	@JsonProperty("call_type")
+	@CallDetailType(message="{call.type.not.valid}")
 	private String callType;
+	
+	/**
+	 * Local Id
+	 */
+	@JsonProperty("local_id")
+	@NotBlank(message = "{call.detail.localid.notnull}")
+	private String localId;
 	
 	/**
 	 * Terminal
 	 */
 	@JsonProperty("terminal")
+	@TerminalShouldExists(message="{terminal.not.exists}")
 	private String terminal;
 
+	/**
+	 * Kid
+	 */
+	@JsonProperty("kid")
+	@KidShouldExists(message="{kid.not.exists}")
+	private String kid;
 	
 	
 	public SaveCallDetailDTO() {}
-	
-	
+
 	/**
 	 * 
-	 * @param identity
 	 * @param phoneNumber
 	 * @param callDayTime
 	 * @param callDuration
 	 * @param callType
+	 * @param localId
 	 * @param terminal
+	 * @param kid
 	 */
-	public SaveCallDetailDTO(String identity, String phoneNumber, String callDayTime, String callDuration,
-			String callType, String terminal) {
+	public SaveCallDetailDTO(String phoneNumber, Date callDayTime, String callDuration,
+			String callType, String localId, String terminal,
+			String kid) {
 		super();
-		this.identity = identity;
 		this.phoneNumber = phoneNumber;
 		this.callDayTime = callDayTime;
 		this.callDuration = callDuration;
 		this.callType = callType;
+		this.localId = localId;
 		this.terminal = terminal;
+		this.kid = kid;
 	}
-
-
-	public String getIdentity() {
-		return identity;
-	}
-
 
 	public String getPhoneNumber() {
 		return phoneNumber;
 	}
 
-
-	public String getCallDayTime() {
+	public Date getCallDayTime() {
 		return callDayTime;
 	}
-
 
 	public String getCallDuration() {
 		return callDuration;
 	}
 
-
 	public String getCallType() {
 		return callType;
 	}
 
+	public String getLocalId() {
+		return localId;
+	}
 
 	public String getTerminal() {
 		return terminal;
 	}
 
-
-	public void setIdentity(String identity) {
-		this.identity = identity;
+	public String getKid() {
+		return kid;
 	}
-
 
 	public void setPhoneNumber(String phoneNumber) {
 		this.phoneNumber = phoneNumber;
 	}
 
-
-	public void setCallDayTime(String callDayTime) {
+	public void setCallDayTime(Date callDayTime) {
 		this.callDayTime = callDayTime;
 	}
-
 
 	public void setCallDuration(String callDuration) {
 		this.callDuration = callDuration;
 	}
 
-
 	public void setCallType(String callType) {
 		this.callType = callType;
 	}
 
+	public void setLocalId(String localId) {
+		this.localId = localId;
+	}
 
 	public void setTerminal(String terminal) {
 		this.terminal = terminal;
 	}
 
+	public void setKid(String kid) {
+		this.kid = kid;
+	}
+
 	@Override
 	public String toString() {
-		return "SaveCallDetailDTO [identity=" + identity + ", phoneNumber=" + phoneNumber + ", callDayTime="
-				+ callDayTime + ", callDuration=" + callDuration + ", callType=" + callType + ", terminal=" + terminal
-				+ "]";
+		return "SaveCallDetailDTO [phoneNumber=" + phoneNumber + ", callDayTime=" + callDayTime + ", callDuration="
+				+ callDuration + ", callType=" + callType + ", localId=" + localId + ", terminal=" + terminal + ", kid="
+				+ kid + "]";
 	}
-	
-
 }

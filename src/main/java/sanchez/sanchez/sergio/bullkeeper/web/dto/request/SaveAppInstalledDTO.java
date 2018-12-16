@@ -1,13 +1,9 @@
 package sanchez.sanchez.sergio.bullkeeper.web.dto.request;
 
 import java.io.Serializable;
-import java.util.Arrays;
-
 import javax.validation.constraints.Size;
 import org.hibernate.validator.constraints.NotBlank;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.AppInstalledShouldExistsIfPresent;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.KidShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.TerminalShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ValidAppRuleType;
@@ -25,13 +21,6 @@ public class SaveAppInstalledDTO implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
-	/**
-	 * Identity
-	 */
-	@AppInstalledShouldExistsIfPresent(message = "{app.installed.not.exists}")
-	@JsonProperty("identity")
-	private String identity;
 	
 	
 	/**
@@ -106,6 +95,7 @@ public class SaveAppInstalledDTO implements Serializable {
 	@JsonProperty("terminal_id")
 	private String terminalId;
 	
+	
 	/**
 	 * 
 	 */
@@ -126,12 +116,10 @@ public class SaveAppInstalledDTO implements Serializable {
 	 * @param terminalId
 	 */
 	public SaveAppInstalledDTO(
-			String identity,
 			String packageName, long firstInstallTime, long lastUpdateTime, String versionName, String versionCode,
 			String appName, String appRule,
 			String iconEncodedString,String kid, String terminalId) {
 		super();
-		this.identity = identity;
 		this.packageName = packageName;
 		this.firstInstallTime = firstInstallTime;
 		this.lastUpdateTime = lastUpdateTime;
@@ -142,10 +130,6 @@ public class SaveAppInstalledDTO implements Serializable {
 		this.iconEncodedString = iconEncodedString;
 		this.kid = kid;
 		this.terminalId = terminalId;
-	}
-
-	public String getIdentity() {
-		return identity;
 	}
 
 	public String getPackageName() {
@@ -186,10 +170,6 @@ public class SaveAppInstalledDTO implements Serializable {
 
 	public String getTerminalId() {
 		return terminalId;
-	}
-
-	public void setIdentity(String identity) {
-		this.identity = identity;
 	}
 
 	public void setPackageName(String packageName) {
@@ -234,12 +214,9 @@ public class SaveAppInstalledDTO implements Serializable {
 
 	@Override
 	public String toString() {
-		return "SaveAppInstalledDTO [identity=" + identity + ", packageName=" + packageName + ", firstInstallTime="
-				+ firstInstallTime + ", lastUpdateTime=" + lastUpdateTime + ", versionName=" + versionName
-				+ ", versionCode=" + versionCode + ", appName=" + appName + ", appRule=" + appRule
-				+ ", iconEncodedString=" + iconEncodedString + ", kid=" + kid + ", terminalId=" + terminalId + "]";
+		return "SaveAppInstalledDTO [packageName=" + packageName + ", firstInstallTime=" + firstInstallTime
+				+ ", lastUpdateTime=" + lastUpdateTime + ", versionName=" + versionName + ", versionCode=" + versionCode
+				+ ", appName=" + appName + ", appRule=" + appRule + ", iconEncodedString=" + iconEncodedString
+				+ ", kid=" + kid + ", terminalId=" + terminalId + "]";
 	}
-
-
-	
 }

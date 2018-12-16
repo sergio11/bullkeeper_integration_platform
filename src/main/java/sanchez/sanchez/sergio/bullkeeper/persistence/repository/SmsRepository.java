@@ -53,5 +53,12 @@ public interface SmsRepository extends MongoRepository<SmsEntity, Long>{
 	void deleteByIdAndKidIdAndTerminalId(final ObjectId id, final ObjectId kid, 
 			final ObjectId terminal);
 	
+	/**
+	 * Find By Local Id
+	 * @param localId
+	 * @return
+	 */
+	SmsEntity findByLocalId(final String localId);
+	
 
 }

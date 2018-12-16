@@ -20,6 +20,7 @@ import sanchez.sanchez.sergio.bullkeeper.exception.NoAlertsByKidFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoChildrenFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoCommunityStatisticsForThisPeriodException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoDimensionsStatisticsForThisPeriodException;
+import sanchez.sanchez.sergio.bullkeeper.exception.NoPhoneNumberBlockedFound;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoSentimentAnalysisStatisticsForThisPeriodException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoSocialMediaActivityFoundForThisPeriodException;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.ApiHelper;
@@ -183,8 +184,21 @@ public class ChildrenErrorController extends BaseController {
         		messageSourceResolver.resolver("no.current.location.found"));
     }
     
- 
+    /**
+     * 
+     * @param noPhoneNumberBlockedFound
+     * @param request
+     * @return
+     */
+    @ExceptionHandler(NoPhoneNumberBlockedFound.class)
+    @ResponseBody
+    protected ResponseEntity<APIResponse<String>> handleNoPhoneNumberBlockedFound(NoPhoneNumberBlockedFound noPhoneNumberBlockedFound, HttpServletRequest request){
+        return ApiHelper.<String>createAndSendErrorResponseWithHeader(
+        		ChildrenResponseCode.NO_CURRENT_LOCATION_FOUND, HttpStatus.NOT_FOUND,
+        		messageSourceResolver.resolver("no.current.location.found"));
+    } 
     
+ 
     @PostConstruct
     protected void init(){
     	Assert.notNull(messageSourceResolver, "Message Source Resolver can not be a null");

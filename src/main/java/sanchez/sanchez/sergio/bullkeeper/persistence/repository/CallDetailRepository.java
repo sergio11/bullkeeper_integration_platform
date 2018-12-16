@@ -58,4 +58,11 @@ public interface CallDetailRepository extends MongoRepository<CallDetailEntity, 
 	 */
 	void deleteByIdAndKidIdAndTerminalId(final ObjectId call, final ObjectId kid, final ObjectId terminal);
 	
+	/**
+	 * Find One By Local Id
+	 * @param localId
+	 * @return
+	 */
+	CallDetailEntity findOneByLocalId(final String localId);
+	
 }

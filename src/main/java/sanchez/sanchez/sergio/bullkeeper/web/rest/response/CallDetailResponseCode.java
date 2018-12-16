@@ -12,7 +12,9 @@ public enum CallDetailResponseCode implements IResponseCodeTypes{
     SINGLE_CALL_DETAIL(1302L),
     NO_CALL_DETAIL_FOUND(1303L),
     ALL_CALL_DETAILS_DELETED(1304L),
-    SINGLE_CALL_DETAIL_DELETED(1305L);
+    SINGLE_CALL_DETAIL_DELETED(1305L),
+    CALLS_SAVED(1306L),
+    CALL_SAVED(1307L);
 	
 	private Long code;
 	
