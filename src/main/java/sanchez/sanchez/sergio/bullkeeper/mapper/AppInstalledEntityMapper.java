@@ -8,7 +8,7 @@ import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AppInstalledEntity;
-import sanchez.sanchez.sergio.bullkeeper.persistence.repository.ITerminalRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.TerminalRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.KidRepository;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppInstalledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledDTO;
@@ -32,7 +32,7 @@ public abstract class AppInstalledEntityMapper {
 	 * Terminal Repository
 	 */
 	@Autowired
-	protected ITerminalRepository terminalRepository;
+	protected TerminalRepository terminalRepository;
 	
 	/**
 	 * App Installed Entity to App Installed DTO

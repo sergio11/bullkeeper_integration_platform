@@ -86,6 +86,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveScheduledBlockStatu
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveSmsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveSocialMediaDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveTerminalDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.TerminalHeartbeatDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AlertDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CallDetailDTO;
@@ -2503,6 +2504,40 @@ public class ChildrenController extends BaseController
     	return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.PHONE_NUMBER_UNBLOCKED_SUCCESSFULLY, HttpStatus.OK, 
         		messageSourceResolver.resolver("phone.number.unblocked.successfully"));
     	
+    }
+    
+    /**
+     * Terminal Heartbeat
+     * @param id
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{kid}/terminal/{terminal}/heartbeat", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(value = "TERMINAL_HEARTBEAT", nickname = "TERMINAL_HEARTBEAT",
+    notes = "Terminal Heartbeat", response = String.class)
+    public ResponseEntity<APIResponse<String>> terminalHeartbeat(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+     			@Valid @KidShouldExists(message = "{son.should.be.exists}")
+      				@PathVariable String kid,
+	      	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
+	 			@Valid @KidShouldExists(message = "{son.should.be.exists}")
+	  				@PathVariable String terminal,
+	  		@ApiParam(value = "heartbeat", required = true) 
+				@Validated(ICommonSequence.class) 
+					@RequestBody TerminalHeartbeatDTO terminalHeartbeat) throws Throwable {
+    	
+    	logger.debug("Terminal Heartbeat");
+    	
+    	// Save HeartBeat
+    	terminalService.saveHeartbeat(terminalHeartbeat);
+    	
+    	
+    	// Create and send response
+    	return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.TERMINAL_HEARTBEAT_NOTIFIED_SUCCESSFULLY, HttpStatus.OK, 
+        		messageSourceResolver.resolver("terminal.heartbeat.notified.successfully"));
+    
     }
     
     /**

@@ -5,7 +5,7 @@ import javax.validation.ConstraintValidatorContext;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import sanchez.sanchez.sergio.bullkeeper.persistence.repository.ITerminalRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.TerminalRepository;
 
 /**
  * Terminal Should Exists Validator
@@ -18,7 +18,7 @@ public class TerminalShouldExistsValidator implements ConstraintValidator<Termin
 	 * Terminal Repository
 	 */
     @Autowired
-    private ITerminalRepository terminalRepository;
+    private TerminalRepository terminalRepository;
     
     @Override
     public void initialize(TerminalShouldExists constraintAnnotation) {}

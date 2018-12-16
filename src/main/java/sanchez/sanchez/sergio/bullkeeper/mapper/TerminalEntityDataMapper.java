@@ -118,9 +118,11 @@ public abstract class TerminalEntityDataMapper {
            		target = "identity" ),
            @Mapping(expression="java(terminalEntity.getKid().getId().toString())", target = "kid" ),
            @Mapping(expression="java(getCountAppsInstalledInTheTerminal(terminalEntity.getKid().getId(), terminalEntity.getId()))", 
-           	target = "totalApps"),
+           		target = "totalApps"),
            @Mapping(expression="java(prettyTime.format(terminalEntity.getLastTimeUsed()))", 
-           	target="lastTimeUsed")
+           		target="lastTimeUsed"),
+           @Mapping(expression="java(terminalEntity.getScreenStatus().name())", 
+      			target="screenStatus")
        })
        @Named("terminalEntityToTerminalDetailDTO")
        public abstract TerminalDetailDTO terminalEntityToTerminalDetailDTO(final TerminalEntity terminalEntity); 

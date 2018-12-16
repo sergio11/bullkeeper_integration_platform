@@ -25,14 +25,15 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AppRuleEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.CallDetailEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ContactEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.PhoneNumberBlockedEntity;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ScreenStatusEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SmsEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.TerminalEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.AppInstalledRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.CallDetailRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.ContactEntityRepository;
-import sanchez.sanchez.sergio.bullkeeper.persistence.repository.ITerminalRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.PhoneNumberBlockedRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.SmsRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.TerminalRepository;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.AddPhoneNumberBlockedDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppInstalledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppRulesDTO;
@@ -40,6 +41,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveCallDetailDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveContactDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveSmsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveTerminalDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.TerminalHeartbeatDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CallDetailDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ContactDTO;
@@ -66,7 +68,7 @@ public final class TerminalServiceImpl implements ITerminalService {
 	/**
 	 * Terminal Repository
 	 */
-	private final ITerminalRepository terminalRepository;
+	private final TerminalRepository terminalRepository;
 	
 	/**
 	 * App Installed Repository
@@ -135,7 +137,7 @@ public final class TerminalServiceImpl implements ITerminalService {
 	 */
 	@Autowired
 	public TerminalServiceImpl(final TerminalEntityDataMapper terminalEntityDataMapper, 
-			final ITerminalRepository terminalRepository, final AppInstalledRepository appsInstalledRepository,
+			final TerminalRepository terminalRepository, final AppInstalledRepository appsInstalledRepository,
 			final AppInstalledEntityMapper appInstalledEntityDataMapper,
 			final CallDetailRepository callDetailRepository,
 			final CallDetailEntityMapper callDetailEntityMapper, 
@@ -766,6 +768,19 @@ public final class TerminalServiceImpl implements ITerminalService {
 		
 		return contactEntityMapper.contactEntityToContactDTO(contactSaved);
 		
+	}
+
+	/**
+	 * Save Heartbeat
+	 */
+	@Override
+	public void saveHeartbeat(final TerminalHeartbeatDTO terminalHeartbeat) {
+		Assert.notNull(terminalHeartbeat, "Terminal Heart Beat can not be null");
+		
+		terminalRepository.updateScreenStatus(new ObjectId(terminalHeartbeat.getTerminal()), 
+				new ObjectId(terminalHeartbeat.getKid()), ScreenStatusEnum.valueOf(terminalHeartbeat.getScreenStatus()));
+		
+	
 	}
 
 }

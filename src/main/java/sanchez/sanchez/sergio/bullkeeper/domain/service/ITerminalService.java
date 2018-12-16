@@ -11,6 +11,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveCallDetailDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveContactDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveSmsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveTerminalDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.TerminalHeartbeatDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CallDetailDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ContactDTO;
@@ -301,4 +302,11 @@ public interface ITerminalService {
      * @return
      */
     ContactDTO saveContact(final SaveContactDTO contact);
+    
+    /**
+     * Save Heartbeat
+     * @param terminalHeartbeat
+     */
+    void saveHeartbeat(final TerminalHeartbeatDTO terminalHeartbeat);
+    
 }

@@ -106,6 +106,12 @@ public class TerminalEntity implements Serializable {
 	private Date createAt = new Date();
 	
 	/**
+	 * Screen Status
+	 */
+	@Field("screen_status")
+	private ScreenStatusEnum screenStatus = ScreenStatusEnum.ACTION_SCREEN_OFF;
+	
+	/**
 	 * KId
 	 */
 	@DBRef
@@ -134,7 +140,8 @@ public class TerminalEntity implements Serializable {
 	@PersistenceConstructor
 	public TerminalEntity(ObjectId id, String appVersionName, String appVersionCode, String osVersion,
 			String sdkVersion, String manufacturer, String marketName, String model, String codeName,
-			String deviceName, String deviceId, Date lastTimeUsed, Date createAt, KidEntity kid) {
+			String deviceName, String deviceId, Date lastTimeUsed, Date createAt, 
+			ScreenStatusEnum screenStatus, KidEntity kid) {
 		super();
 		this.id = id;
 		this.appVersionName = appVersionName;
@@ -149,6 +156,7 @@ public class TerminalEntity implements Serializable {
 		this.deviceId = deviceId;
 		this.lastTimeUsed = lastTimeUsed;
 		this.createAt = createAt;
+		this.screenStatus = screenStatus;
 		this.kid = kid;
 	}
 
@@ -257,6 +265,14 @@ public class TerminalEntity implements Serializable {
 	public void setCreateAt(Date createAt) {
 		this.createAt = createAt;
 	}
+	
+	public ScreenStatusEnum getScreenStatus() {
+		return screenStatus;
+	}
+
+	public void setScreenStatus(ScreenStatusEnum screenStatus) {
+		this.screenStatus = screenStatus;
+	}
 
 	public KidEntity getKid() {
 		return kid;
@@ -266,6 +282,13 @@ public class TerminalEntity implements Serializable {
 		this.kid = kid;
 	}
 
-
+	@Override
+	public String toString() {
+		return "TerminalEntity [id=" + id + ", appVersionName=" + appVersionName + ", appVersionCode=" + appVersionCode
+				+ ", osVersion=" + osVersion + ", sdkVersion=" + sdkVersion + ", manufacturer=" + manufacturer
+				+ ", marketName=" + marketName + ", model=" + model + ", codeName=" + codeName + ", deviceName="
+				+ deviceName + ", deviceId=" + deviceId + ", lastTimeUsed=" + lastTimeUsed + ", createAt=" + createAt
+				+ ", screenStatus=" + screenStatus + ", kid=" + kid + "]";
+	}
 	
 }

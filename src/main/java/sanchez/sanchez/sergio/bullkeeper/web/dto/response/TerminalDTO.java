@@ -83,6 +83,7 @@ public class TerminalDTO implements Serializable {
 	@JsonProperty("device_id")
 	protected String deviceId;
 	
+	
 	/**
 	 * Kid
 	 */
@@ -91,7 +92,7 @@ public class TerminalDTO implements Serializable {
 
 	
 	public TerminalDTO() {}
-	
+
 	/**
 	 * 
 	 * @param identity
@@ -127,10 +128,6 @@ public class TerminalDTO implements Serializable {
 
 	public String getIdentity() {
 		return identity;
-	}
-
-	public void setIdentity(String identity) {
-		this.identity = identity;
 	}
 
 	public String getAppVersionName() {
@@ -169,6 +166,18 @@ public class TerminalDTO implements Serializable {
 		return deviceName;
 	}
 
+	public String getDeviceId() {
+		return deviceId;
+	}
+
+	public String getKid() {
+		return kid;
+	}
+
+	public void setIdentity(String identity) {
+		this.identity = identity;
+	}
+
 	public void setAppVersionName(String appVersionName) {
 		this.appVersionName = appVersionName;
 	}
@@ -205,19 +214,23 @@ public class TerminalDTO implements Serializable {
 		this.deviceName = deviceName;
 	}
 
-	public String getDeviceId() {
-		return deviceId;
-	}
-
 	public void setDeviceId(String deviceId) {
 		this.deviceId = deviceId;
-	}
-
-	public String getKid() {
-		return kid;
 	}
 
 	public void setKid(String kid) {
 		this.kid = kid;
 	}
+
+	@Override
+	public String toString() {
+		return "TerminalDTO [identity=" + identity + ", appVersionName=" + appVersionName + ", appVersionCode="
+				+ appVersionCode + ", osVersion=" + osVersion + ", sdkVersion=" + sdkVersion + ", manufacturer="
+				+ manufacturer + ", marketName=" + marketName + ", model=" + model + ", codeName=" + codeName
+				+ ", deviceName=" + deviceName + ", deviceId=" + deviceId + ", kid=" + kid + "]";
+	}
+
+	
+	
+	
 }

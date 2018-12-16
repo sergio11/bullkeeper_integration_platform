@@ -8,7 +8,7 @@ import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.PhoneNumberBlockedEntity;
-import sanchez.sanchez.sergio.bullkeeper.persistence.repository.ITerminalRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.TerminalRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.KidRepository;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.AddPhoneNumberBlockedDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.PhoneNumberBlockedDTO;
@@ -25,7 +25,7 @@ public abstract class PhoneNumberEntityMapper {
 	 * Terminal Repository
 	 */
 	@Autowired
-	protected ITerminalRepository terminalRepository;
+	protected TerminalRepository terminalRepository;
 	
 	/**
 	 * Kid REpository

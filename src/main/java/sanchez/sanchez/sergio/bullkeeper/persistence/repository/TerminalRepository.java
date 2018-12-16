@@ -14,7 +14,8 @@ import java.util.List;
  *
  */
 @Repository
-public interface ITerminalRepository extends MongoRepository<TerminalEntity, ObjectId> {
+public interface TerminalRepository extends MongoRepository<TerminalEntity, ObjectId>, 
+	 TerminalRepositoryCustom{
 
 	/**
 	 * Find By Kid Id
