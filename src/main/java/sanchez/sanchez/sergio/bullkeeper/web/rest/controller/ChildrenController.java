@@ -74,6 +74,7 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.DrugsLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SocialMediaTypeEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ViolenceLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.util.ValidList;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.AddPhoneNumberBlockedDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppInstalledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppRulesDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveCallDetailDTO;
@@ -2390,6 +2391,45 @@ public class ChildrenController extends BaseController
     	// Create and send response
         return ApiHelper.<Iterable<PhoneNumberBlockedDTO>>createAndSendResponse(ChildrenResponseCode.NO_PHONE_NUMBER_BLOCKED_FOUND, 
         		HttpStatus.OK, phoneNumbersBlockedList);
+    	
+    }
+    
+    /**
+     * Add Phone Number Blocked
+     * @param id
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{kid}/terminal/{terminal}/phonenumbers-blocked", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(value = "ADD_PHONE_NUMBER_BLOCKED", nickname = "ADD_PHONE_NUMBER_BLOCKED",
+    	notes = "Add Phone Number Blocked", response = PhoneNumberBlockedDTO.class)
+    public ResponseEntity<APIResponse<PhoneNumberBlockedDTO>> addPhoneNumberBlocked(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+         		@Valid @KidShouldExists(message = "{son.should.be.exists}")
+          			@PathVariable String kid,
+          	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
+     			@Valid @KidShouldExists(message = "{son.should.be.exists}")
+      				@PathVariable String terminal,
+      		@ApiParam(value = "phonenumber", required = true) 
+				@Validated(ICommonSequence.class) 
+					@RequestBody AddPhoneNumberBlockedDTO addPhoneNumberBlocked) throws Throwable {
+    	
+    	logger.debug("Add Phone Number Blocked");
+    	
+    	// Get Terminal
+    	final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+    			new ObjectId(terminal), new ObjectId(kid)))
+    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+    	
+    	final PhoneNumberBlockedDTO phoneNumberBlocked = 
+    			terminalService.addPhoneNumberBlocked(addPhoneNumberBlocked);
+    	
+    	
+    	// Create and send response
+        return ApiHelper.<PhoneNumberBlockedDTO>createAndSendResponse(ChildrenResponseCode.PHONE_NUMBER_BLOCKED_ADDED, 
+        		HttpStatus.OK, phoneNumberBlocked);
     	
     }
     

@@ -1,7 +1,10 @@
 package sanchez.sanchez.sergio.bullkeeper.web.dto.request;
 
 import java.io.Serializable;
+import org.hibernate.validator.constraints.NotBlank;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.KidShouldExists;
+import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.TerminalShouldExists;
 
 /**
  * Add Phone Number Blocked
@@ -19,18 +22,21 @@ public class AddPhoneNumberBlockedDTO implements Serializable {
 	 * Phone Number
 	 */
 	@JsonProperty("phone_number")
+	@NotBlank(message = "{phonenumber.notnull}")
 	private String phoneNumber;
 	
 	/**
 	 * Terminal
 	 */
 	@JsonProperty("terminal")
+	@TerminalShouldExists(message="{terminal.not.exists}")
 	private String terminal;
 	
 	/**
 	 * Kid
 	 */
 	@JsonProperty("kid")
+	@KidShouldExists(message="{kid.not.exists}")
 	private String kid;
 	
 	
