@@ -43,6 +43,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveSmsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveTerminalDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.TerminalHeartbeatDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppRuleDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CallDetailDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ContactDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.PhoneNumberBlockedDTO;
@@ -213,14 +214,19 @@ public final class TerminalServiceImpl implements ITerminalService {
 	 * Get All apps installed in the terminal
 	 */
 	@Override
-	public Iterable<AppInstalledDTO> getAllAppsInstalledInTheTerminal(final ObjectId kid, final ObjectId terminalId) {
+	public Iterable<AppInstalledDTO> getAllAppsInstalledInTheTerminal(final ObjectId kid, final ObjectId terminalId, final String text) {
 		Assert.notNull(kid, "Kid can not be null");
 		Assert.notNull(terminalId, "Terminal Id can not be null");
+		Assert.notNull(text, "Text can not be null");
 		
-		// Find All Apps installed by terminal and son
+		// Find apps
 		final Iterable<AppInstalledEntity> appInstalled = 
-				appsInstalledRepository.findAllByTerminalIdAndKidId(terminalId, kid);
-		
+				!text.isEmpty() ? 
+						appsInstalledRepository.findAllByTerminalIdAndKidIdAndAppNameIgnoreCaseContaining(
+								terminalId, kid, text)
+						: appsInstalledRepository.findAllByTerminalIdAndKidId(terminalId, kid);
+				
+				
 		return appInstalledEntityDataMapper.appInstalledEntityToAppInstalledDTO(appInstalled);
 	}
 
@@ -283,7 +289,7 @@ public final class TerminalServiceImpl implements ITerminalService {
 	 * Delete Apps installed by child id and terminal id
 	 */
 	@Override
-	public void deleteAppsInstalledByKidIdAndTerminalId(final ObjectId kid, final ObjectId terminalId) {
+	public void deleteApps(final ObjectId kid, final ObjectId terminalId) {
 		Assert.notNull(kid, "Kid id can not be null");
 		Assert.notNull(terminalId, "Terminal id can not be null");
 		
@@ -340,6 +346,20 @@ public final class TerminalServiceImpl implements ITerminalService {
 		appsInstalledRepository.updateAppRules(appRulesMap);
 		
 	}
+	
+	/**
+	 * Save App Rules
+	 */
+	@Override
+	public void saveAppRules(final SaveAppRulesDTO appRules) {
+		Assert.notNull(appRules, "App Rules can not be null");
+		
+		appsInstalledRepository.updateAppRules(
+				new ObjectId(appRules.getIdentity()), 
+				AppRuleEnum.valueOf(appRules.getType()));
+	
+		
+	}
 
 	
 	/**
@@ -368,10 +388,10 @@ public final class TerminalServiceImpl implements ITerminalService {
 	 * Get Count Apps Installed In The Terminal
 	 */
 	@Override
-	public long getCountAppsInstalledInTheTerminal(ObjectId kid, ObjectId terminalId) {
+	public long getCountAppsInstalledInTheTerminal(final ObjectId kid, final ObjectId terminal) {
 		Assert.notNull(kid, "kid id can not be null");
-		Assert.notNull(terminalId, "Terminal Id can not be null");
-		return appsInstalledRepository.countByIdAndKidId(terminalId, kid);
+		Assert.notNull(terminal, "Terminal Id can not be null");
+		return appsInstalledRepository.countByKidIdAndTerminalId(kid, terminal);
 	}
 
 	/**
@@ -653,14 +673,19 @@ public final class TerminalServiceImpl implements ITerminalService {
 	 * un block phone number
 	 */
 	@Override
-	public void unBlockPhoneNumber(final ObjectId kid, final ObjectId terminal, final ObjectId phoneNumber) {
+	public void unBlockPhoneNumber(final ObjectId kid, final ObjectId terminal, 
+			final String idOrPhonenumber) {
 		Assert.notNull(kid, "Kid can not be null");
 		Assert.notNull(terminal, "Terminal can not be null");
-		Assert.notNull(phoneNumber, "Phone Number can not be null");
+		Assert.notNull(idOrPhonenumber, "Phone Number can not be null");
 		
-		phoneNumberBlockedRepository
-			.deleteByIdAndKidIdAndTerminalId(phoneNumber, kid, terminal);
 		
+		if(ObjectId.isValid(idOrPhonenumber))
+			phoneNumberBlockedRepository
+				.deleteByIdAndKidIdAndTerminalId(new ObjectId(idOrPhonenumber), kid, terminal);
+		else
+			phoneNumberBlockedRepository
+				.deleteByPhoneNumberAndKidIdAndTerminalId(idOrPhonenumber, kid, terminal);
 		
 	}
 
@@ -685,12 +710,16 @@ public final class TerminalServiceImpl implements ITerminalService {
 	 * Get Contacts
 	 */
 	@Override
-	public Iterable<ContactDTO> getContacts(final ObjectId kid, final ObjectId terminal) {
+	public Iterable<ContactDTO> getContacts(final ObjectId kid, final ObjectId terminal, final String text) {
 		Assert.notNull(kid, "Kid can not be null");
 		Assert.notNull(terminal, "Terminal can not be null");
+		Assert.notNull(text, "Text can not be null");
 		
 		// Find All Contacts
-		final Iterable<ContactEntity> contacts = contactRepository.findAllByKidIdAndTerminalId(kid, terminal);
+		final Iterable<ContactEntity> contacts = 
+				text.isEmpty() ? 
+						contactRepository.findAllByKidIdAndTerminalId(kid, terminal)
+						: contactRepository.findAllByKidIdAndTerminalIdAndNameIgnoreCaseContaining(kid, terminal, text);
 		// Map Results
 		return contactEntityMapper.contactEntityToContactDTOs(contacts);
 	}
@@ -780,7 +809,133 @@ public final class TerminalServiceImpl implements ITerminalService {
 		terminalRepository.updateScreenStatus(new ObjectId(terminalHeartbeat.getTerminal()), 
 				new ObjectId(terminalHeartbeat.getKid()), ScreenStatusEnum.valueOf(terminalHeartbeat.getScreenStatus()));
 		
-	
 	}
+
+	/**
+	 * Get App Rules
+	 * @param kid
+	 * @param terminal
+	 */
+	@Override
+	public Iterable<AppRuleDTO> getAppRules(final ObjectId kid, final ObjectId terminal) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		
+		// Get App Rules
+		final Iterable<AppInstalledEntity> appsInstalled = 
+				appsInstalledRepository.getAppRules(kid, terminal);
+		// Map Result
+		return appInstalledEntityDataMapper
+				.appInstalledEntityToAppRuleDTOs(appsInstalled);
+	}
+
+	/**
+	 * Get App Rules
+	 * @param kid
+	 * @param terminal
+	 * @param app
+	 */
+	@Override
+	public AppRuleDTO getAppRules(final ObjectId kid, final ObjectId terminal, final ObjectId app) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		Assert.notNull(app, "App can not be null");
+		
+		// Get App Rules
+		final AppInstalledEntity appsInstalled = 
+			appsInstalledRepository.getAppRules(kid, terminal, app);
+		// Map Result
+		return appInstalledEntityDataMapper
+						.appInstalledEntityToAppRuleDTO(appsInstalled);
+	}
+
+	/**
+	 * Delete Apps
+	 */
+	@Override
+	public void deleteApps(final ObjectId kid, final ObjectId terminal, final List<ObjectId> apps) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		Assert.notNull(apps, "Apps can not be null");
+		
+		appsInstalledRepository.deleteByKidIdAndTerminalIdAndIdIn(kid, terminal, apps);
+		
+		
+	}
+
+	/**
+	 * Delete Call Detail
+	 */
+	@Override
+	public void deleteCallDetail(final ObjectId kid, final ObjectId terminal, final List<ObjectId> callList) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		Assert.notNull(callList, "Apps can not be null");
+		
+	
+		callDetailRepository.deleteByKidIdAndTerminalIdAndIdIn(kid, terminal, callList);
+		
+	}
+
+	/**
+	 * Delete SMS
+	 */
+	@Override
+	public void deleteSms(final ObjectId kid, final ObjectId terminal, final List<ObjectId> smsList) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		Assert.notNull(smsList, "Sms can not be null");
+		
+		
+		smsRepository.deleteByKidIdAndTerminalIdAndIdIn(kid, terminal, smsList);
+		
+	}
+
+	/**
+	 * Delete Contacts
+	 */
+	@Override
+	public void deleteContacts(final ObjectId kid, final ObjectId terminal, final List<ObjectId> contacts) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		Assert.notNull(contacts, "Contacts can not be null");
+		
+		contactRepository.deleteByKidIdAndTerminalIdAndIdIn(kid, terminal, contacts);
+		
+	}
+
+	/**
+	 * Get Count Contacts in the terminal
+	 */
+	@Override
+	public long getCountContactsInTheTerminal(final ObjectId kid, final ObjectId terminalId) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminalId, "Terminal can not be null");
+		
+		return contactRepository.countByKidIdAndTerminalId(kid, terminalId);
+	}
+
+	/**
+	 * Get Count Calls In the terminal
+	 */
+	@Override
+	public long getCountCallsInTheTerminal(final ObjectId kid, final ObjectId terminalId) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminalId, "Terminal can not be null");
+		
+		return callDetailRepository.countByKidIdAndTerminalId(kid, terminalId);
+	}
+
+	/**
+	 * Get Count SMS in the terminal
+	 */
+	@Override
+	public long getCountSmsInTheTerminal(final ObjectId kid, final ObjectId terminalId) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminalId, "Terminal can not be null");
+		
+		return smsRepository.countByKidIdAndTerminalId(kid, terminalId);
+	}
+
 
 }

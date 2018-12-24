@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.CallDetailEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.TerminalRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.KidRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.PhoneNumberBlockedRepository;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveCallDetailDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CallDetailDTO;
 
@@ -33,6 +34,12 @@ public abstract class CallDetailEntityMapper {
 	@Autowired
 	protected KidRepository kidRepository;
 	
+	/**
+	 * Phone Number Blocked Repository
+	 */
+	@Autowired
+	protected PhoneNumberBlockedRepository phoneNumberBlockedRepository;
+	
 	
 	/**
 	 * @param callDetailEntity
@@ -46,7 +53,13 @@ public abstract class CallDetailEntityMapper {
         		target = "terminal" ),
         @Mapping(expression="java(callDetailEntity.getKid().getId().toString())", 
 			target = "kid" ),
-        @Mapping(source = "callDetailEntity.callDayTime", target = "callDayTime", dateFormat = "yyyy/MM/dd"),
+        @Mapping(source = "callDetailEntity.callDayTime", target = "callDayTime", 
+        	dateFormat = "yyyy/MM/dd"),
+        @Mapping(expression = "java(phoneNumberBlockedRepository"
+        		+ ".countByPhoneNumberAndKidIdAndTerminalId(callDetailEntity.getPhoneNumber(), "
+        		+ "callDetailEntity.getKid().getId(),"
+        		+ "callDetailEntity.getTerminal().getId()) > 0 ? true: false)",
+        		target = "blocked"),
     })
     @Named("callDetailEntityToCallDetailDTO")
     public abstract CallDetailDTO callDetailEntityToCallDetailDTO(final CallDetailEntity callDetailEntity); 

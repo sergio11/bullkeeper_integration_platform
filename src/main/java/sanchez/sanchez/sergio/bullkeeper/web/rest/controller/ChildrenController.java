@@ -89,6 +89,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveTerminalDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.TerminalHeartbeatDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AlertDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppRuleDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CallDetailDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CommentDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CommunitiesStatisticsDTO;
@@ -1172,6 +1173,9 @@ public class ChildrenController extends BaseController
         
     }
     
+    
+    
+    
    
     /**
      * Get All Terminals
@@ -1301,7 +1305,7 @@ public class ChildrenController extends BaseController
     			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
         
         // Delete Apps installed by child id an terminal id
-        terminalService.deleteAppsInstalledByKidIdAndTerminalId(new ObjectId(kid), new ObjectId(terminalDTO.getIdentity()));
+        terminalService.deleteApps(new ObjectId(kid), new ObjectId(terminalDTO.getIdentity()));
         
         // Delete terminal by id)
         terminalService.deleteById(new ObjectId(terminalDTO.getIdentity()));
@@ -1437,6 +1441,45 @@ public class ChildrenController extends BaseController
         // Create and send response
         return ApiHelper.<String>createAndSendResponse(SmsResponseCode.ALL_SMS_FROM_TERMINAL_DELETED, 
             		HttpStatus.OK, messageSourceResolver.resolver("all.sms.deleted"));
+    	
+    }
+    
+    /**
+     * Delete SMS from Terminal
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{kid}/terminal/{terminal}/sms/delete", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(value = "DELETE_SMS_FROM_TERMINAL", nickname = "DELETE_SMS_FROM_TERMINAL",
+    	notes = "Delete Sms From Terminal", response = String.class)
+    public ResponseEntity<APIResponse<String>> deleteSmsFromTerminal(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+        		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+         			@PathVariable String kid,
+         	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
+    			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
+     				@PathVariable String terminal,
+     		@ApiParam(value = "ids", required = true) 
+				@Validated(ICommonSequence.class) 
+					@RequestBody ValidList<ObjectId> smsList) 
+    		throws Throwable {
+        
+    	logger.debug("Delete Sms From Terminal");
+    	
+    	// Get Terminal
+        final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+    			new ObjectId(terminal), new ObjectId(kid)))
+    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+        
+        // Delete Sms
+        terminalService.deleteSms(new ObjectId(terminalDTO.getKid()),
+        		new ObjectId(terminalDTO.getIdentity()), smsList);
+    	
+        // Create and send response
+        return ApiHelper.<String>createAndSendResponse(SmsResponseCode.SMS_FROM_TERMINAL_DELETED, 
+            		HttpStatus.OK, messageSourceResolver.resolver("sms.deleted"));
     	
     }
     
@@ -1629,8 +1672,8 @@ public class ChildrenController extends BaseController
    	
        // Get Call Detail
        final CallDetailDTO calDetailDTO = Optional.ofNullable(terminalService.getDetailOfTheCall(
-   			new ObjectId(terminalDTO.getIdentity()), 
    			new ObjectId(terminalDTO.getKid()), 
+   			new ObjectId(terminalDTO.getIdentity()), 
    			new ObjectId(call)))
    			 .orElseThrow(() -> { throw new CallDetailNotFoundException(); });
 	   
@@ -1675,6 +1718,47 @@ public class ChildrenController extends BaseController
 	   // Create and send response
        return ApiHelper.<String>createAndSendResponse(CallDetailResponseCode.ALL_CALL_DETAILS_DELETED, 
           		HttpStatus.OK, messageSourceResolver.resolver("all.call.details.deleted"));
+	   
+   }
+   
+   /**
+    * Delete calls detail from Terminal
+    * @return
+    * @throws Throwable
+    */
+   @RequestMapping(value = "/{kid}/terminal/{terminal}/calls/delete", method = RequestMethod.POST)
+   @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+   		+ "&& @authorizationService.isYourGuardian(#kid) )")
+   @ApiOperation(value = "DELETE_CALL_DETAILS_FROM_TERMINAL", nickname = "DELETE_CALL_DETAILS_FROM_TERMINAL",
+   	notes = "Delete Call Details From Terminal", response = String.class)
+   public ResponseEntity<APIResponse<String>> deleteCallDetailsFromTerminal(
+   		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+       		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+        		@PathVariable String kid,
+        @ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
+   			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
+    			@PathVariable String terminal,
+    	@ApiParam(value = "ids", required = true) 
+   			@Validated(ICommonSequence.class) 
+				@RequestBody ValidList<ObjectId> callsList) 
+   		throws Throwable {
+       
+	   logger.debug("Delete all call details from terminal");
+	   
+	   // Get Terminal
+       final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+   			new ObjectId(terminal), new ObjectId(kid)))
+   			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+       
+       // Delete call details
+       terminalService.deleteCallDetail(
+    		   new ObjectId(terminalDTO.getKid()), 
+    		   new ObjectId(terminalDTO.getIdentity()),
+    		   callsList);
+   	
+	   // Create and send response
+       return ApiHelper.<String>createAndSendResponse(CallDetailResponseCode.CALL_DETAILS_DELETED, 
+          		HttpStatus.OK, messageSourceResolver.resolver("call.details.deleted"));
 	   
    }
    
@@ -1807,10 +1891,13 @@ public class ChildrenController extends BaseController
    public ResponseEntity<APIResponse<Iterable<ContactDTO>>> getAllContactsFromTerminal(
    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
        		@Valid @KidShouldExists(message = "{son.id.notvalid}")
-        			@PathVariable String kid,
-        	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
+        		@PathVariable final String kid,
+        @ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
    			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
-    				@PathVariable String terminal) 
+    			@PathVariable final String terminal,
+    	@ApiParam(value = "text", required = false) 
+   			@RequestParam(value = "text", required = false) 
+   				final String text) 
    		throws Throwable {
    	
    		logger.debug("Get All Contacts from terminal");
@@ -1822,7 +1909,7 @@ public class ChildrenController extends BaseController
        
        // Get all contacts 
        final Iterable<ContactDTO> contactDTOs = terminalService.getContacts(
-       		new ObjectId(kid), new ObjectId(terminalDTO.getIdentity()));
+       		new ObjectId(kid), new ObjectId(terminalDTO.getIdentity()), text);
        
        // Check results
        if(Iterables.size(contactDTOs) == 0)
@@ -1869,9 +1956,9 @@ public class ChildrenController extends BaseController
   	
       // Get Contact Detail
       final ContactDTO contactDTO = Optional.ofNullable(terminalService.getContactByIdAndTerminalIdAndKidId(
-  			new ObjectId(terminalDTO.getIdentity()), 
-  			new ObjectId(terminalDTO.getKid()), 
-  			new ObjectId(contact)))
+    		new ObjectId(contact),
+    		new ObjectId(terminalDTO.getIdentity()), 
+  			new ObjectId(terminalDTO.getKid())))
   			 .orElseThrow(() -> { throw new ContactNotFoundException(); });
 	   
       
@@ -1916,6 +2003,49 @@ public class ChildrenController extends BaseController
 	   // Create and send response
       return ApiHelper.<String>createAndSendResponse(ContactResponseCode.ALL_CONTACTS_DELETED, 
          		HttpStatus.OK, messageSourceResolver.resolver("all.contacts.deleted"));
+	   
+  }
+  
+  
+  /**
+   * Delete contacts from Terminal
+   * @return
+   * @throws Throwable
+   */
+  @RequestMapping(value = "/{kid}/terminal/{terminal}/contacts/delete", method = RequestMethod.POST)
+  @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+  		+ "&& @authorizationService.isYourGuardian(#kid) )")
+  @ApiOperation(value = "DELETE_CONTACTS_FROM_TERMINAL", 
+  	nickname = "DELETE_CONTACTS_FROM_TERMINAL",
+  	notes = "Delete Contacts From Terminal", response = String.class)
+  public ResponseEntity<APIResponse<String>> deleteContactsFromTerminal(
+  		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+      		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+       			@PathVariable String kid,
+       	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
+  			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
+   				@PathVariable String terminal,
+   		@ApiParam(value = "ids", required = true) 
+			@Validated(ICommonSequence.class) 
+				@RequestBody ValidList<ObjectId> contactsList) 
+  		throws Throwable {
+      
+	   logger.debug("Delete all contacts from terminal");
+	   
+	   // Get Terminal
+      final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+  			new ObjectId(terminal), new ObjectId(kid)))
+  			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+      
+      // Delete all contacts
+      terminalService.deleteContacts(
+   		   new ObjectId(terminalDTO.getKid()), 
+   		   new ObjectId(terminalDTO.getIdentity()),
+   		   contactsList);
+  	
+	   // Create and send response
+      return ApiHelper.<String>createAndSendResponse(ContactResponseCode.CONTACTS_DELETED, 
+         		HttpStatus.OK, messageSourceResolver.resolver("contacts.deleted"));
 	   
   }
   
@@ -2055,11 +2185,14 @@ public class ChildrenController extends BaseController
     response = List.class)
     public ResponseEntity<APIResponse<Iterable<AppInstalledDTO>>> getAllAppsInstalledInTheTerminal(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-        	@Valid @KidShouldExists(message = "{son.not.exists}")
-         		@PathVariable String kid,
+        		@Valid @KidShouldExists(message = "{son.not.exists}")
+         			@PathVariable final String kid,
          	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
-        	@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
-         		@PathVariable String terminal) 
+        		@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
+         			@PathVariable final String terminal,
+         	@ApiParam(value = "text", required = false) 
+   				@RequestParam(value = "text", required = false) 
+   					final String text) 
     		throws Throwable {
         
     	logger.debug("Get all apps installed in the terminal");
@@ -2071,7 +2204,8 @@ public class ChildrenController extends BaseController
     
     	// Get App installed in the terminal
     	final Iterable<AppInstalledDTO> appInstalledTerminal =
-    			terminalService.getAllAppsInstalledInTheTerminal(new ObjectId(kid), new ObjectId(terminalDTO.getIdentity()));
+    			terminalService.getAllAppsInstalledInTheTerminal(
+    					new ObjectId(kid), new ObjectId(terminalDTO.getIdentity()), text);
         
     	if(Iterables.isEmpty(appInstalledTerminal))
         	throw new NoAppsInstalledFoundException();
@@ -2178,11 +2312,13 @@ public class ChildrenController extends BaseController
      * @param terminal
      * @return
      */
-    @RequestMapping(value = "/{kid}/terminal/{terminal}/apps/rules", method = RequestMethod.POST)
+    @RequestMapping(value = "/{kid}/terminal/{terminal}/apps/{app}/rules", method = RequestMethod.POST)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
-    @ApiOperation(value = "SAVE_APP_RULES_FOR_APPS_IN_THE_TERMINAL", nickname = "SAVE_APP_RULES_FOR_APPS_IN_THE_TERMINAL", 
+    @ApiOperation(
+    		value = "SAVE_APP_RULES_FOR_APP_IN_THE_TERMINAL", 
+    		nickname = "SAVE_APP_RULES_FOR_APP_IN_THE_TERMINAL", 
     	notes = "Save App Rules",
-            response = Iterable.class)
+            response = String.class)
     public ResponseEntity<APIResponse<String>> saveAppRules(
     	@ApiParam(name = "kid", value = "Kid Identifier", required = true)
     		@Valid @KidShouldExists(message = "{son.not.exists}")
@@ -2190,7 +2326,54 @@ public class ChildrenController extends BaseController
  		@ApiParam(name = "terminal", value = "Terminal Identity", required = true)
     		@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
      			@PathVariable String terminal,
-     	@ApiParam(value = "apps", required = true) 
+     	@ApiParam(name = "app", value = "App Identifier", required = true)
+			@Valid @AppInstalledShouldExists(message = "{app.id.notvalid}")
+				@PathVariable String app,
+     	@ApiParam(value = "rules", required = true) 
+			@Validated(ICommonSequence.class) 
+				@RequestBody SaveAppRulesDTO appRules) throws Throwable {
+    	
+    	logger.debug("Save App Rules in the terminal -> " + terminal);
+    	
+    	// Get Terminal
+    	final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+    			new ObjectId(terminal), new ObjectId(kid)))
+    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+    	
+    	// Save App Rules
+    	terminalService.saveAppRules(appRules);
+    	
+    	// Save Alert
+    	alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver("apps.rules.saved.title"),
+    			messageSourceResolver.resolver("apps.rules.saved.description", 
+    					new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() }), 
+    			new ObjectId(kid), AlertCategoryEnum.APPS_INSTALLED);
+    	
+    	// Create and send response
+    	return ApiHelper.<String>createAndSendResponse(AppsResponseCode.APP_RULES_WERE_APPLIED, 
+				HttpStatus.OK, messageSourceResolver.resolver("apps.rules.saved"));
+    
+    }
+    
+    /**
+     * Save App Rules for a specific app in the terminal
+     * @param kid
+     * @param terminal
+     * @return
+     */
+    @RequestMapping(value = "/{kid}/terminal/{terminal}/apps/rules", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(value = "SAVE_APP_RULES_FOR_APPS_IN_THE_TERMINAL", nickname = "SAVE_APP_RULES_FOR_APPS_IN_THE_TERMINAL", 
+    	notes = "Save App Rules",
+            response = String.class)
+    public ResponseEntity<APIResponse<String>> saveAppRules(
+    	@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+    		@Valid @KidShouldExists(message = "{son.not.exists}")
+ 				@PathVariable String kid,
+ 		@ApiParam(name = "terminal", value = "Terminal Identity", required = true)
+    		@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
+     			@PathVariable String terminal,
+     	@ApiParam(value = "rules", required = true) 
 			@Validated(ICommonSequence.class) 
 				@RequestBody ValidList<SaveAppRulesDTO> appRules) throws Throwable {
     	
@@ -2213,6 +2396,84 @@ public class ChildrenController extends BaseController
     	// Create and send response
     	return ApiHelper.<String>createAndSendResponse(AppsResponseCode.APP_RULES_WERE_APPLIED, 
 				HttpStatus.OK, messageSourceResolver.resolver("apps.rules.saved"));
+    
+    }
+    
+    /**
+     * Get App Rules for specific app in the terminal
+     * @param kid
+     * @param terminal
+     * @param app
+     * @return
+     */
+    @RequestMapping(value = "/{kid}/terminal/{terminal}/apps/{app}/rules", method = RequestMethod.GET)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(
+    		value = "GET_APP_RULES_FOR_APPS_IN_THE_TERMINAL", nickname = "GET_APP_RULES_FOR_APPS_IN_THE_TERMINAL", 
+    		notes = "Get App Rules", response = AppRuleDTO.class)
+    public ResponseEntity<APIResponse<AppRuleDTO>> getAppRules(
+    	@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+    		@Valid @KidShouldExists(message = "{son.not.exists}")
+ 				@PathVariable final String kid,
+ 		@ApiParam(name = "terminal", value = "Terminal Identity", required = true)
+    		@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
+     			@PathVariable final String terminal,
+     	@ApiParam(name = "app", value = "App Identifier", required = true)
+			@Valid @AppInstalledShouldExists(message = "{app.id.notvalid}")
+				@PathVariable final String app) throws Throwable {
+    	
+    	// Get Terminal
+    	final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+    			new ObjectId(terminal), new ObjectId(kid)))
+    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+    	
+    	// Get App Rules
+    	final AppRuleDTO appRules = terminalService.getAppRules(
+    			new ObjectId(terminalDTO.getKid()),
+    			new ObjectId(terminalDTO.getIdentity()),
+    			new ObjectId(app));
+    	
+    	// Create and send response
+    	return ApiHelper.<AppRuleDTO>createAndSendResponse(AppsResponseCode.APP_RULES_DETAIL, 
+				HttpStatus.OK, appRules);
+    
+    }
+    
+    
+    /**
+     * Get App Rules for specific app in the terminal
+     * @param kid
+     * @param terminal
+     * @return
+     */
+    @RequestMapping(value = "/{kid}/terminal/{terminal}/apps/rules", method = RequestMethod.GET)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(
+    		value = "GET_APP_RULES_FOR_APPS_IN_THE_TERMINAL", nickname = "GET_APP_RULES_FOR_APPS_IN_THE_TERMINAL", 
+    		notes = "Get App Rules", response = Iterable.class)
+    public ResponseEntity<APIResponse<Iterable<AppRuleDTO>>> getAppRules(
+    	@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+    		@Valid @KidShouldExists(message = "{son.not.exists}")
+ 				@PathVariable String kid,
+ 		@ApiParam(name = "terminal", value = "Terminal Identity", required = true)
+    		@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
+     			@PathVariable String terminal) throws Throwable {
+    	
+    	// Get Terminal
+    	final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+    			new ObjectId(terminal), new ObjectId(kid)))
+    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+    	
+    	// Get App Rules
+    	final Iterable<AppRuleDTO> appRules = terminalService.getAppRules(
+    			new ObjectId(terminalDTO.getKid()),
+    			new ObjectId(terminalDTO.getIdentity()));
+    	
+    	// Create and send response
+    	return ApiHelper.<Iterable<AppRuleDTO>>createAndSendResponse(AppsResponseCode.ALL_APP_RULES, 
+				HttpStatus.OK, appRules);
     
     }
     
@@ -2244,7 +2505,7 @@ public class ChildrenController extends BaseController
     
         
         // Delete Apps installed
-        terminalService.deleteAppsInstalledByKidIdAndTerminalId(new ObjectId(kid), new ObjectId(terminalDTO.getIdentity()));
+        terminalService.deleteApps(new ObjectId(kid), new ObjectId(terminalDTO.getIdentity()));
       
         // Save Alert
     	alertService.save(AlertLevelEnum.WARNING, messageSourceResolver.resolver("apps.installed.all.deleted.title", 
@@ -2256,6 +2517,54 @@ public class ChildrenController extends BaseController
         // Create and send response
         return ApiHelper.<String>createAndSendResponse(AppsResponseCode.ALL_APPS_INSTALLED_DELETED, HttpStatus.OK, 
         		messageSourceResolver.resolver("all.apps.installed.deleted"));
+        
+    }
+    
+    
+    /**
+     * Delete Apps installed
+     * @param kid
+     * @param terminal
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{kid}/terminal/{terminal}/apps/delete", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(value = "DELETE_APPS_INSTALLED", nickname = "DELETE_APPS_INSTALLED", 
+    	notes = "Delete apps installed", response = String.class)
+    public ResponseEntity<APIResponse<String>> deleteAppsIstalled(
+            @ApiParam(name = "kid", value = "Kid Identifier", required = true)
+            	@Valid @KidShouldExists(message = "{son.id.notvalid}")
+             		@PathVariable String kid,
+            @ApiParam(name = "terminal", value = "Terminal id", required = true)
+        		@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
+         			@PathVariable String terminal,
+         	@ApiParam(value = "ids", required = true) 
+				@Validated(ICommonSequence.class) 
+					@RequestBody ValidList<ObjectId> appsList) throws Throwable {
+        
+        logger.debug("Delete all apps installed by child identity " + kid + " for terminal " + terminal);
+        
+        // Get Terminal
+    	final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+    			new ObjectId(terminal), new ObjectId(kid)))
+    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+    
+        
+        // Delete Apps installed
+        terminalService
+        	.deleteApps(new ObjectId(kid), new ObjectId(terminalDTO.getIdentity()), appsList);
+      
+        // Save Alert
+    	alertService.save(AlertLevelEnum.WARNING, messageSourceResolver.resolver("apps.installed.all.deleted.title", 
+    			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ),
+    			messageSourceResolver.resolver("apps.installed.all.deleted.description", 
+    					new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() }), 
+    			new ObjectId(kid), AlertCategoryEnum.APPS_INSTALLED);
+        
+        // Create and send response
+        return ApiHelper.<String>createAndSendResponse(AppsResponseCode.APPS_INSTALLED_DELETED,
+        		HttpStatus.OK, messageSourceResolver.resolver("apps.installed.deleted"));
         
     }
     
@@ -2320,7 +2629,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/apps/add", method = RequestMethod.POST)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
     @ApiOperation(value = "ADD_APP_INSTALLED", nickname = "ADD_APP_INSTALLED", 
     	notes = "Add app installed", response = AppInstalledDTO.class)
     public ResponseEntity<APIResponse<AppInstalledDTO>> addNewAppInstalled(
@@ -2372,7 +2682,7 @@ public class ChildrenController extends BaseController
          		@Valid @KidShouldExists(message = "{son.should.be.exists}")
           			@PathVariable String kid,
           	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
-     			@Valid @KidShouldExists(message = "{son.should.be.exists}")
+     			@Valid @TerminalShouldExists(message = "{terminal.should.be.exists}")
       				@PathVariable String terminal) throws Throwable {
     	
     	logger.debug("Get Phone Number Blocked");
@@ -2411,7 +2721,7 @@ public class ChildrenController extends BaseController
          		@Valid @KidShouldExists(message = "{son.should.be.exists}")
           			@PathVariable String kid,
           	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
-     			@Valid @KidShouldExists(message = "{son.should.be.exists}")
+     			@Valid @TerminalShouldExists(message = "{terminal.should.be.exists}")
       				@PathVariable String terminal,
       		@ApiParam(value = "phonenumber", required = true) 
 				@Validated(ICommonSequence.class) 
@@ -2450,7 +2760,7 @@ public class ChildrenController extends BaseController
      			@Valid @KidShouldExists(message = "{son.should.be.exists}")
       				@PathVariable String kid,
       		@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
- 				@Valid @KidShouldExists(message = "{son.should.be.exists}")
+ 				@Valid @TerminalShouldExists(message = "{terminal.should.be.exists}")
   					@PathVariable String terminal) throws Throwable {
     	
     	logger.debug("Delete Phone Number Blocked");
@@ -2474,19 +2784,21 @@ public class ChildrenController extends BaseController
      * @return
      * @throws Throwable
      */
-    @RequestMapping(value = "/{kid}/terminal/{terminal}/phonenumbers-blocked/{id}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/{kid}/terminal/{terminal}/phonenumbers-blocked/{idOrPhoneNumber}", method = RequestMethod.DELETE)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
     		+ "&& @authorizationService.isYourGuardian(#kid) )")
-    @ApiOperation(value = "DELETE_PHONE_NUMBER_BLOCKED_BY_ID", nickname = "DELETE_PHONE_NUMBER_BLOCKED_BY_ID",
-    notes = "Delete Phone Number Blocked By Id", response = String.class)
+    @ApiOperation(
+    		value = "DELETE_PHONE_NUMBER_BLOCKED_BY_ID_OR_NUMBER", 
+    		nickname = "DELETE_PHONE_NUMBER_BLOCKED_BY_ID_OR_NUMBER",
+    		notes = "Delete Phone Number Blocked By Id or number", response = String.class)
     public ResponseEntity<APIResponse<String>> deletePhoneNumberBlockedById(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
      			@Valid @KidShouldExists(message = "{son.should.be.exists}")
       				@PathVariable String kid,
 	      	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
-	 			@Valid @KidShouldExists(message = "{son.should.be.exists}")
+	 			@Valid @TerminalShouldExists(message = "{terminal.should.be.exists}")
 	  				@PathVariable String terminal,
-	  		@ApiParam(name = "phonenumber", value = "Phone Number Blocked", required = true)
+	  		@ApiParam(name = "idOrPhoneNumber", value = "Phone Number Blocked", required = true)
  				@Valid @PhoneNumberBlockedShouldExists(message = "{phonenumber.blocked.should.be.exists}")
   					@PathVariable String phoneNumberBlocked) throws Throwable {
     	
@@ -2498,7 +2810,7 @@ public class ChildrenController extends BaseController
     	
     	// Unblock Phone Number
     	terminalService.unBlockPhoneNumber(new ObjectId(terminalDTO.getKid()), 
-    			new ObjectId(terminalDTO.getIdentity()), new ObjectId(phoneNumberBlocked));
+    			new ObjectId(terminalDTO.getIdentity()), phoneNumberBlocked);
     	
     	// Create and send response
     	return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.PHONE_NUMBER_UNBLOCKED_SUCCESSFULLY, HttpStatus.OK, 
@@ -2522,7 +2834,7 @@ public class ChildrenController extends BaseController
      			@Valid @KidShouldExists(message = "{son.should.be.exists}")
       				@PathVariable String kid,
 	      	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
-	 			@Valid @KidShouldExists(message = "{son.should.be.exists}")
+	 			@Valid @TerminalShouldExists(message = "{terminal.should.be.exists}")
 	  				@PathVariable String terminal,
 	  		@ApiParam(value = "heartbeat", required = true) 
 				@Validated(ICommonSequence.class) 

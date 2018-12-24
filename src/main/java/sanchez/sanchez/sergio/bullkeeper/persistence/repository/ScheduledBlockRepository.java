@@ -22,6 +22,14 @@ public interface ScheduledBlockRepository extends MongoRepository<ScheduledBlock
 	 */
 	Iterable<ScheduledBlockEntity> findByKidId(final ObjectId id);
 	
+	/**
+	 * Find By Kid Id
+	 * @param id
+	 * @param kid
+	 * @return
+	 */
+	Iterable<ScheduledBlockEntity> findByIdNotAndKidId(final ObjectId id, final ObjectId kid);
+	
 	
 	/**
 	 * Find By Id And Kid Id

@@ -109,7 +109,7 @@ public class TerminalEntity implements Serializable {
 	 * Screen Status
 	 */
 	@Field("screen_status")
-	private ScreenStatusEnum screenStatus = ScreenStatusEnum.ACTION_SCREEN_OFF;
+	private ScreenStatusEnum screenStatus = ScreenStatusEnum.STATE_OFF;
 	
 	/**
 	 * KId

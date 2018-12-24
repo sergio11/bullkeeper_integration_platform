@@ -12,6 +12,7 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.repository.TerminalReposito
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.KidRepository;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppInstalledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppRuleDTO;
 
 /**
  * App Installed Entity Mapper
@@ -49,6 +50,29 @@ public abstract class AppInstalledEntityMapper {
     @Named("appInstalledEntityToAppInstalledDTO")
     public abstract AppInstalledDTO appInstalledEntityToAppInstalledDTO(final AppInstalledEntity appInstalledEntity); 
 	
+    
+    /**
+	 * App Installed Entity to App Rule DTO
+	 * @param appInstalledEntity
+	 * @return
+	 */
+    @Mappings({
+        @Mapping(expression="java(appInstalledEntity.getId().toString())", target = "identity" ),
+        @Mapping(expression="java(appInstalledEntity.getAppRuleEnum().name())", target = "appRule" )
+    })
+    @Named("appInstalledEntityToAppRuleDTO")
+    public abstract AppRuleDTO appInstalledEntityToAppRuleDTO(final AppInstalledEntity appInstalledEntity); 
+    
+    
+    /**
+     * 
+     * @param appInstalledEntitiesList
+     * @return
+     */
+    @IterableMapping(qualifiedByName = "appInstalledEntityToAppRuleDTO")
+    public abstract Iterable<AppRuleDTO> appInstalledEntityToAppRuleDTOs(
+    		Iterable<AppInstalledEntity> appInstalledEntitiesList);
+    
     /**
      * 
      * @param appInstalledEntitiesList

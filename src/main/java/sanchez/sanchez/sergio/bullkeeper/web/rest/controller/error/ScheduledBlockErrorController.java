@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import io.jsonwebtoken.lang.Assert;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoScheduledBlockFoundException;
+import sanchez.sanchez.sergio.bullkeeper.exception.ScheduledBlockNotValidException;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.ApiHelper;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.controller.BaseController;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.response.APIResponse;
@@ -39,6 +40,20 @@ public class ScheduledBlockErrorController extends BaseController {
     		final NoScheduledBlockFoundException resourceNotFound, HttpServletRequest request) {
         return ApiHelper.<String>createAndSendErrorResponseWithHeader(ChildrenResponseCode.NO_SCHEDULED_BLOCKS_FOUND, HttpStatus.NOT_FOUND,
         		messageSourceResolver.resolver("scheduled.block.not.found"));
+    }
+    
+    /**
+	 * Exception Handler for Scheduled Block Not Valid Exception
+	 * @param exception
+	 * @param request
+	 * @return
+	 */
+    @ExceptionHandler(ScheduledBlockNotValidException.class)
+    @ResponseBody
+    protected ResponseEntity<APIResponse<String>> handleScheduledBlockNotValidException(
+    		final ScheduledBlockNotValidException exception, HttpServletRequest request) {
+        return ApiHelper.<String>createAndSendErrorResponseWithHeader(ChildrenResponseCode.SCHEDULED_BLOCK_NOT_VALID, HttpStatus.NOT_FOUND,
+        		messageSourceResolver.resolver("scheduled.block.not.valid"));
     }
     
     /**

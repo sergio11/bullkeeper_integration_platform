@@ -2,9 +2,6 @@ package sanchez.sanchez.sergio.bullkeeper.persistence.constraints;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import sanchez.sanchez.sergio.bullkeeper.persistence.repository.ScheduledBlockRepository;
 
 /**
  * Scheduled Block Validator
@@ -13,11 +10,7 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.repository.ScheduledBlockRe
  */
 public class IsWeeklyFrequencyValidValidator implements ConstraintValidator<IsWeeklyFrequencyValid, int[]> {
     
-	/**
-	 * Scheduled Block Repository
-	 */
-    @Autowired
-    private ScheduledBlockRepository scheduledBlockRepository;
+
     
     @Override
     public void initialize(IsWeeklyFrequencyValid constraintAnnotation) {}
@@ -31,15 +24,34 @@ public class IsWeeklyFrequencyValidValidator implements ConstraintValidator<IsWe
     	boolean isValid = true;
     	
     	if(weeklyFrequency != null && weeklyFrequency.length == 7 ) {
+    		
     		for(final int dayOfWeek: weeklyFrequency) {
     			if(dayOfWeek != 0 && dayOfWeek != 1) {
     				isValid = false;
     				break;
     			}
     		}
+    		
+    		boolean atLeastOneDaySet = false;
+    		
+    		for(final int dayOfWeek: weeklyFrequency) {
+    			if(dayOfWeek == 1) {
+    				atLeastOneDaySet = true;
+    				break;
+    			}
+    		}
+    		
+    		
+    		if(!atLeastOneDaySet) 
+    			isValid = false;
+    		
+    		
     	} else {
     		isValid = false;
     	}
+    	
+    	
+    	
     	
     	return isValid;
     }

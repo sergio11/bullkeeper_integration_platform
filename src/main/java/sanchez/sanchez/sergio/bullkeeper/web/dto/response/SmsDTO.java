@@ -70,6 +70,12 @@ public final class SmsDTO implements Serializable {
 	 */
 	@JsonProperty("kid")
 	private String kid;
+	
+	/**
+	 * Local Id
+	 */
+	@JsonProperty("local_id")
+	protected String localId;
 
 	
 	public SmsDTO() {}
@@ -84,9 +90,11 @@ public final class SmsDTO implements Serializable {
 	 * @param folderName
 	 * @param terminal
 	 * @param kid
+	 * @param localId
 	 */
 	public SmsDTO(String identity, String address, String message, String readState, String date, String folderName,
-			String terminal, String kid) {
+			String terminal, String kid,
+			String localId) {
 		super();
 		this.identity = identity;
 		this.address = address;
@@ -96,6 +104,7 @@ public final class SmsDTO implements Serializable {
 		this.folderName = folderName;
 		this.terminal = terminal;
 		this.kid = kid;
+		this.localId = localId;
 	}
 
 
@@ -177,10 +186,20 @@ public final class SmsDTO implements Serializable {
 		this.kid = kid;
 	}
 
+	public String getLocalId() {
+		return localId;
+	}
+
+	public void setLocalId(String localId) {
+		this.localId = localId;
+	}
+
 	@Override
 	public String toString() {
 		return "SmsDTO [identity=" + identity + ", address=" + address + ", message=" + message + ", readState="
 				+ readState + ", date=" + date + ", folderName=" + folderName + ", terminal=" + terminal + ", kid="
-				+ kid + "]";
+				+ kid + ", localId=" + localId + "]";
 	}
+
+	
 }

@@ -13,6 +13,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveSmsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveTerminalDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.TerminalHeartbeatDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppRuleDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CallDetailDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ContactDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.PhoneNumberBlockedDTO;
@@ -59,19 +60,47 @@ public interface ITerminalService {
      * 
      * @param id
      * @param terminalId
+     * @param text
      * @return
      */
     Iterable<AppInstalledDTO> getAllAppsInstalledInTheTerminal(final ObjectId id, 
-    		final ObjectId terminalId);
+    		final ObjectId terminalId, final String text);
     
     
     /**
      * Get Count Apps Installed In The terminal
-     * @param id
+     * @param kid
      * @param terminalId
      * @return
      */
-    long getCountAppsInstalledInTheTerminal(final ObjectId id, final ObjectId terminalId);
+    long getCountAppsInstalledInTheTerminal(final ObjectId kid, final ObjectId terminalId);
+    
+    /**
+     * Get Count Contacts In The terminal
+     * @param kid
+     * @param terminalId
+     * @return
+     */
+    long getCountContactsInTheTerminal(final ObjectId kid, final ObjectId terminalId);
+    
+    
+    /**
+     * Get Count Calls In The terminal
+     * @param kid
+     * @param terminalId
+     * @return
+     */
+    long getCountCallsInTheTerminal(final ObjectId kid, final ObjectId terminalId);
+    
+    
+    /**
+     * Get Count SMS In The terminal
+     * @param kid
+     * @param terminalId
+     * @return
+     */
+    long getCountSmsInTheTerminal(final ObjectId kid, final ObjectId terminalId);
+    
     
     /**
      * Save
@@ -88,17 +117,27 @@ public interface ITerminalService {
     Iterable<AppInstalledDTO> save(final Iterable<SaveAppInstalledDTO> saveAppsInstalledDTO);
     
     /**
-     * Delete Apps Installed By Child Id And Terminal Id
-     * @param id
+     * Delete Apps
+     * @param kid
      * @param terminalId
      */
-    void deleteAppsInstalledByKidIdAndTerminalId(final ObjectId id, final ObjectId terminalId);
+    void deleteApps(final ObjectId kid, final ObjectId terminal);
+    
+    /**
+     * Delete Apps
+     * @param kid
+     * @param terminalId
+     * @param apps
+     */
+    void deleteApps(final ObjectId kid, final ObjectId terminal, final List<ObjectId> apps);
     
     /**
      * Delete App installed by child id
      * @param appId
      */
     void deleteAppInstalledById(final ObjectId appId) throws Throwable;
+    
+    
     
     /**
      * Get Terminal by id and kid id
@@ -113,6 +152,12 @@ public interface ITerminalService {
      * @param appRulesList
      */
     void saveAppRules(final Iterable<SaveAppRulesDTO> appRulesList);
+    
+    /**
+     * Save App Rules
+     * @param appRules
+     */
+    void saveAppRules(final SaveAppRulesDTO appRules);
     
     /**
      * Get App Installed
@@ -157,6 +202,15 @@ public interface ITerminalService {
     
     
     /**
+     * Delete Call Detail
+     * @param kid
+     * @param terminal
+     * @param callList
+     */
+    void deleteCallDetail(final ObjectId kid, final ObjectId terminal, final List<ObjectId> callList);
+    
+    
+    /**
      * Get Sms List
      * @param kid
      * @param terminal
@@ -180,6 +234,14 @@ public interface ITerminalService {
      * @param terminal
      */
     void deleteAllSms(final ObjectId kid, final ObjectId terminal);
+    
+    /**
+     * Delete single sms
+     * @param kid
+     * @param terminal
+     * @param smsList
+     */
+    void deleteSms(final ObjectId kid, final ObjectId terminal, final List<ObjectId> smsList);
     
     /**
      * Delete single sms
@@ -255,7 +317,7 @@ public interface ITerminalService {
      * @param terminal
      * @param phoneNumber
      */
-    void unBlockPhoneNumber(final ObjectId kid, final ObjectId terminal, final ObjectId phoneNumber);
+    void unBlockPhoneNumber(final ObjectId kid, final ObjectId terminal, final String idOrPhonenumber);
 
     /**
      * Get Contact
@@ -270,9 +332,10 @@ public interface ITerminalService {
      * Get Contacts
      * @param kid
      * @param terminal
+     * @param text
      * @return
      */
-    Iterable<ContactDTO> getContacts(final ObjectId kid, final ObjectId terminal);
+    Iterable<ContactDTO> getContacts(final ObjectId kid, final ObjectId terminal, final String text);
     
     /**
      * Delete All Contacts
@@ -288,6 +351,14 @@ public interface ITerminalService {
      * @param contact
      */
     void deleteContact(final ObjectId kid, final ObjectId terminal, final ObjectId contact);
+    
+    /**
+     * Delete Contact
+     * @param kid
+     * @param terminal
+     * @param contacts
+     */
+    void deleteContacts(final ObjectId kid, final ObjectId terminal, final List<ObjectId> contacts);
     
     /**
      * 
@@ -308,5 +379,23 @@ public interface ITerminalService {
      * @param terminalHeartbeat
      */
     void saveHeartbeat(final TerminalHeartbeatDTO terminalHeartbeat);
+    
+    /**
+     * Get App Rules
+     * @param kid
+     * @param terminal
+     * @return
+     */
+    Iterable<AppRuleDTO> getAppRules(final ObjectId kid, final ObjectId terminal);
+    
+    /**
+     * Get App Rules
+     * @param kid
+     * @param terminal
+     * @param app
+     * @return
+     */
+    AppRuleDTO getAppRules(final ObjectId kid, final ObjectId terminal, final ObjectId app);
+    
     
 }

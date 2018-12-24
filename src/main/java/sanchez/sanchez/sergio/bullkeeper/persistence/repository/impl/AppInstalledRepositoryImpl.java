@@ -46,5 +46,73 @@ public final class AppInstalledRepositoryImpl implements AppInstalledRepositoryC
 	                new Update().set("app_rule", appRule.getValue().name()), AppInstalledEntity.class);
 	
 	}
+
+	/**
+	 * Update App Rules
+	 * @param id
+	 * @param appRules
+	 */
+	@Override
+	public void updateAppRules(final ObjectId id, final AppRuleEnum appRules) {
+		Assert.notNull(id, "id can not be null");
+		Assert.notNull(appRules, "App Rules can not be null");
+		
+		mongoTemplate.updateFirst(
+                new Query(Criteria.where("_id").is(id)),
+                new Update().set("app_rule", appRules.name()), AppInstalledEntity.class);
+	}
+
+	/**
+	 * Get App Rules
+	 */
+	@Override
+	public Iterable<AppInstalledEntity> getAppRules(final ObjectId kid, final ObjectId terminal) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		
+		// Create Query
+        final Query query = new Query(Criteria.where("kid").is(kid)
+        		.andOperator(Criteria.where("terminal").is(terminal)));
+        
+        query.fields()
+        	.include("_id")
+        	.include("app_name")
+        	.include("app_rule");    
+        
+        return mongoTemplate.find(query, AppInstalledEntity.class);
+	}
+
+	/**
+	 * Get App Rules
+	 */
+	@Override
+	public AppInstalledEntity getAppRules(final ObjectId kid, final ObjectId terminal, final ObjectId app) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		Assert.notNull(app, "App can not be null");
+		
+		
+		// Kid Criteria
+		final Criteria kidIdCriteria = Criteria.where("kid").is(kid);
+		
+		// Terminal Criteria
+		final Criteria terminalIdCriteria = Criteria.where("terminal").is(terminal);
+		
+		//App Criteria
+		final Criteria appCriteria = Criteria.where("_id").is(app);
+		
+		
+		// Create Query
+        final Query query = new Query(new Criteria().andOperator(
+        		kidIdCriteria, terminalIdCriteria, appCriteria));
+        
+        query.fields()
+        	.include("_id")
+        	.include("app_name")
+        	.include("app_rule");    
+        
+        return mongoTemplate.findOne(query, AppInstalledEntity.class);
+	
+	}
 	
 }

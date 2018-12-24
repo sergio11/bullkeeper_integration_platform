@@ -1,7 +1,6 @@
 package sanchez.sanchez.sergio.bullkeeper.web.dto.response;
 
 import java.io.Serializable;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -57,6 +56,12 @@ public final class ContactDTO implements Serializable {
 	 */
 	@JsonProperty("terminal")
 	private String terminal;
+	
+	/**
+	 * Is Blocked
+	 */
+	@JsonProperty("is_blocked")
+	private boolean isBlocked;
 
 	public ContactDTO() {}
 	
@@ -68,10 +73,12 @@ public final class ContactDTO implements Serializable {
 	 * @param localId
 	 * @param kid
 	 * @param terminal
+	 * @param isBlocked
 	 */
 	public ContactDTO(String identity, String name, 
 			String phoneNumber, String localId, 
-			String photoEncodedString, String kid, String terminal) {
+			String photoEncodedString, String kid, String terminal,
+			boolean isBlocked) {
 		super();
 		this.identity = identity;
 		this.name = name;
@@ -80,6 +87,7 @@ public final class ContactDTO implements Serializable {
 		this.photoEncodedString = photoEncodedString;
 		this.kid = kid;
 		this.terminal = terminal;
+		this.isBlocked = isBlocked;
 	}
 
 	
@@ -139,13 +147,20 @@ public final class ContactDTO implements Serializable {
 	public void setTerminal(String terminal) {
 		this.terminal = terminal;
 	}
+	
+
+	public boolean isBlocked() {
+		return isBlocked;
+	}
+
+	public void setBlocked(boolean isBlocked) {
+		this.isBlocked = isBlocked;
+	}
 
 	@Override
 	public String toString() {
 		return "ContactDTO [identity=" + identity + ", name=" + name + ", phoneNumber=" + phoneNumber + ", localId="
-				+ localId + ", kid=" + kid + ", terminal=" + terminal + "]";
+				+ localId + ", photoEncodedString=" + photoEncodedString + ", kid=" + kid + ", terminal=" + terminal
+				+ ", isBlocked=" + isBlocked + "]";
 	}
-	
-	
-
 }

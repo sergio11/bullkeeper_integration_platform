@@ -34,8 +34,11 @@ public class PhoneNumberBlockedShouldExistsValidator implements ConstraintValida
      * 
      */
     @Override
-    public boolean isValid(String id, ConstraintValidatorContext context) {
-    	return id == null || (id != null && id.isEmpty()) || !ObjectId.isValid(id) || 
-    			phoneNumberBlockedRepository.countById(new ObjectId(id)) > 0 ? Boolean.TRUE : Boolean.FALSE;
+    public boolean isValid(String idOrPhonenumber, ConstraintValidatorContext context) {
+    	return idOrPhonenumber != null 
+    				&& !idOrPhonenumber.isEmpty() && (
+    						( ObjectId.isValid(idOrPhonenumber) &&  phoneNumberBlockedRepository
+    								.countById(new ObjectId(idOrPhonenumber)) > 0 ) || 
+    						phoneNumberBlockedRepository.countByPhoneNumber(idOrPhonenumber) > 0);
     }
 }

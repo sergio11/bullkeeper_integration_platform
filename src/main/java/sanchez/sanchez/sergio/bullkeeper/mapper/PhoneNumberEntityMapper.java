@@ -44,7 +44,10 @@ public abstract class PhoneNumberEntityMapper {
     	@Mapping(expression="java(phoneNumber.getTerminal().getId().toString())", 
     			target="terminal"),
     	@Mapping(expression="java(phoneNumber.getKid().getId().toString())", 
-    		target="kid")
+    		target="kid"),
+    	@Mapping(source = "phoneNumber.blockedAt", target = "blockedAt", 
+    		dateFormat = "yyyy/MM/dd")
+    
     })
     @Named("phoneNumberBlockedEntityToPhoneNumberBlockedDTO")
     public abstract PhoneNumberBlockedDTO phoneNumberBlockedEntityToPhoneNumberBlockedDTO(final PhoneNumberBlockedEntity phoneNumber); 
@@ -66,7 +69,8 @@ public abstract class PhoneNumberEntityMapper {
     @Mappings({
     	@Mapping(expression="java(terminalRepository.findOne(new org.bson.types.ObjectId(addPhoneNumberBlocked.getTerminal())))", 
     			target="terminal"),
-    	@Mapping(expression="java(kidRepository.findOne(new org.bson.types.ObjectId(addPhoneNumberBlocked.getKid())))", target="kid")
+    	@Mapping(expression="java(kidRepository.findOne(new org.bson.types.ObjectId(addPhoneNumberBlocked.getKid())))", 
+    		target="kid")
     })
     @Named("addPhoneNumberBlockedEntity")
     public abstract PhoneNumberBlockedEntity addPhoneNumberBlockedEntity(

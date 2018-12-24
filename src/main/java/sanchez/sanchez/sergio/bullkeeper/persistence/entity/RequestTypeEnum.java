@@ -1,10 +1,10 @@
 package sanchez.sanchez.sergio.bullkeeper.persistence.entity;
 
 /**
- * Sms Read State Enum
+ * Request Type Enum
  * @author sergiosanchezsanchez
  *
  */
-public enum SmsReadStateEnum {
-	VIEWED, NO_VIEWED, UNKNOWN
+public enum RequestTypeEnum {
+	PICKMEUP, SOS
 }

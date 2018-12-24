@@ -1,5 +1,7 @@
 package sanchez.sanchez.sergio.bullkeeper.persistence.repository;
 
+import java.util.List;
+
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
@@ -50,6 +52,13 @@ public interface AppInstalledRepository extends MongoRepository<AppInstalledEnti
 	long countByIdAndKidId(final ObjectId id, final ObjectId kidId);
 	
 	/**
+	 * @param kid
+	 * @param terminal
+	 * @return
+	 */
+	long countByKidIdAndTerminalId(final ObjectId kid, final ObjectId terminal);
+	
+	/**
 	 * Find All By Terminal Id And Kid Id
 	 * @param terminalId
 	 * @param kidId
@@ -57,6 +66,18 @@ public interface AppInstalledRepository extends MongoRepository<AppInstalledEnti
 	 */
 	Iterable<AppInstalledEntity> findAllByTerminalIdAndKidId(final ObjectId terminalId, 
 			final ObjectId kidId);
+	
+	
+	/**
+	 * Find All By Terminal Id And Kid Id and contain text
+	 * @param terminalId
+	 * @param kidId
+	 * @return
+	 */
+	Iterable<AppInstalledEntity> findAllByTerminalIdAndKidIdAndAppNameIgnoreCaseContaining(final ObjectId terminalId, 
+			final ObjectId kidId, final String text);
+	
+	
 
 	/**
 	 * Delete By Kid Id and Terminal Id
@@ -64,6 +85,14 @@ public interface AppInstalledRepository extends MongoRepository<AppInstalledEnti
 	 * @param terminalId
 	 */
 	void deleteByKidIdAndTerminalId(final ObjectId kidId, final ObjectId terminalId);
+	
+	/**
+	 * Delete By Kid Id and Terminal Id and id in
+	 * @param kidId
+	 * @param terminalId
+	 * @param ids
+	 */
+	void deleteByKidIdAndTerminalIdAndIdIn(final ObjectId kidId, final ObjectId terminalId, final List<ObjectId> ids);
 	
 	
 	/**

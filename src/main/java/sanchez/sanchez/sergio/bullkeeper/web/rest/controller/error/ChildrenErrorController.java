@@ -185,7 +185,7 @@ public class ChildrenErrorController extends BaseController {
     }
     
     /**
-     * 
+     * Exception Handler for No Phone Number Blocked Found Exception
      * @param noPhoneNumberBlockedFound
      * @param request
      * @return
@@ -194,8 +194,8 @@ public class ChildrenErrorController extends BaseController {
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleNoPhoneNumberBlockedFound(NoPhoneNumberBlockedFound noPhoneNumberBlockedFound, HttpServletRequest request){
         return ApiHelper.<String>createAndSendErrorResponseWithHeader(
-        		ChildrenResponseCode.NO_CURRENT_LOCATION_FOUND, HttpStatus.NOT_FOUND,
-        		messageSourceResolver.resolver("no.current.location.found"));
+        		ChildrenResponseCode.NO_PHONE_NUMBER_BLOCKED_FOUND, HttpStatus.NOT_FOUND,
+        		messageSourceResolver.resolver("no.phone.number.blocked.found"));
     } 
     
  

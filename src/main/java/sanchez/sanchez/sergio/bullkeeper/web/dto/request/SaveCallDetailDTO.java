@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.CallDetailType;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.KidShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.TerminalShouldExists;
-import sanchez.sanchez.sergio.bullkeeper.web.rest.deserializers.BirthdayDeserializer;
+import sanchez.sanchez.sergio.bullkeeper.web.rest.deserializers.DateTimeDeserializer;
 
 /**
  * Add Call Detail 
@@ -36,7 +36,7 @@ public final class SaveCallDetailDTO implements Serializable {
 	 * Call Day Time
 	 */
 	@JsonProperty("call_day_time")
-	@JsonDeserialize(using = BirthdayDeserializer.class)
+	@JsonDeserialize(using = DateTimeDeserializer.class)
 	private Date callDayTime;
 	
 	

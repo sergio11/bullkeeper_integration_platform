@@ -1,5 +1,6 @@
 package sanchez.sanchez.sergio.bullkeeper.web.rest.response;
 
+import sanchez.sanchez.sergio.bullkeeper.exception.ScheduledBlockNotValidException;
 
 public enum ChildrenResponseCode implements IResponseCodeTypes {
 
@@ -56,7 +57,8 @@ public enum ChildrenResponseCode implements IResponseCodeTypes {
     ALL_PHONE_NUMBERS_UNBLOCKED_SUCCESSFULLY(158L),
     PHONE_NUMBER_UNBLOCKED_SUCCESSFULLY(159L),
     PHONE_NUMBER_BLOCKED_ADDED(160L),
-    TERMINAL_HEARTBEAT_NOTIFIED_SUCCESSFULLY(161L);
+    TERMINAL_HEARTBEAT_NOTIFIED_SUCCESSFULLY(161L),
+    SCHEDULED_BLOCK_NOT_VALID(162L);
 
     private Long code;
 

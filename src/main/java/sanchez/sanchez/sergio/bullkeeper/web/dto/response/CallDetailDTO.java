@@ -1,7 +1,6 @@
 package sanchez.sanchez.sergio.bullkeeper.web.dto.response;
 
 import java.io.Serializable;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -58,6 +57,19 @@ public final class CallDetailDTO implements Serializable {
 	@JsonProperty("terminal")
 	private String terminal;
 	
+
+	/**
+	 * Is Blocked
+	 */
+	@JsonProperty("is_blocked")
+	private boolean isBlocked;
+	
+	/**
+	 * Local Id
+	 */
+	@JsonProperty("local_id")
+	protected String localId;
+	
 	/**
 	 * 
 	 */
@@ -72,10 +84,12 @@ public final class CallDetailDTO implements Serializable {
 	 * @param callType
 	 * @param kid
 	 * @param terminal
+	 * @param isBlocked
 	 */
 	public CallDetailDTO(String identity, String phoneNumber, String callDayTime, 
 			String callDuration, String callType,
-			String kid, String terminal) {
+			String kid, String terminal, boolean isBlocked,
+			String localId) {
 		super();
 		this.identity = identity;
 		this.phoneNumber = phoneNumber;
@@ -84,6 +98,8 @@ public final class CallDetailDTO implements Serializable {
 		this.callType = callType;
 		this.kid = kid;
 		this.terminal = terminal;
+		this.isBlocked = isBlocked;
+		this.localId = localId;
 	}
 
 	public String getIdentity() {
@@ -141,11 +157,26 @@ public final class CallDetailDTO implements Serializable {
 	public void setTerminal(String terminal) {
 		this.terminal = terminal;
 	}
+	public boolean isBlocked() {
+		return isBlocked;
+	}
+
+	public void setBlocked(boolean isBlocked) {
+		this.isBlocked = isBlocked;
+	}
+
+	public String getLocalId() {
+		return localId;
+	}
+
+	public void setLocalId(String localId) {
+		this.localId = localId;
+	}
 
 	@Override
 	public String toString() {
 		return "CallDetailDTO [identity=" + identity + ", phoneNumber=" + phoneNumber + ", callDayTime=" + callDayTime
 				+ ", callDuration=" + callDuration + ", callType=" + callType + ", kid=" + kid + ", terminal="
-				+ terminal + "]";
+				+ terminal + ", isBlocked=" + isBlocked + ", localId=" + localId + "]";
 	}
 }

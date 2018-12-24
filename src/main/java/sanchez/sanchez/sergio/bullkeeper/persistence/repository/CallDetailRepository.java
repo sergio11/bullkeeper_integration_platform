@@ -1,5 +1,7 @@
 package sanchez.sanchez.sergio.bullkeeper.persistence.repository;
 
+import java.util.List;
+
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
@@ -19,6 +21,14 @@ public interface CallDetailRepository extends MongoRepository<CallDetailEntity, 
 	 * @return
 	 */
 	long countById(final ObjectId id);
+	
+	/**
+	 * Count By Kid And Terminal
+	 * @param kid
+	 * @param terminal
+	 * @return
+	 */
+	long countByKidIdAndTerminalId(final ObjectId kid, final ObjectId terminal);
 	
 	/**
 	 * Find By Kid Id And Terminal Id
@@ -57,6 +67,13 @@ public interface CallDetailRepository extends MongoRepository<CallDetailEntity, 
 	 * @param terminal
 	 */
 	void deleteByIdAndKidIdAndTerminalId(final ObjectId call, final ObjectId kid, final ObjectId terminal);
+	
+
+	/**
+	 * @param kid
+	 * @param terminal
+	 */
+	void deleteByKidIdAndTerminalIdAndIdIn(final ObjectId kid, final ObjectId terminal, final List<ObjectId> ids);
 	
 	/**
 	 * Find One By Local Id

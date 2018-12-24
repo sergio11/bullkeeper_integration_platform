@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ContactEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.TerminalRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.KidRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.PhoneNumberBlockedRepository;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveContactDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ContactDTO;
 
@@ -34,6 +35,12 @@ public abstract class ContactEntityMapper {
 	protected TerminalRepository terminalRepository;
 	
 	/**
+	 * Phone Number Blocked Repository
+	 */
+	@Autowired
+	protected PhoneNumberBlockedRepository phoneNumberBlockedRepository;
+	
+	/**
 	 * @param contactEntity
 	 * @return
 	 */
@@ -43,7 +50,13 @@ public abstract class ContactEntityMapper {
         @Mapping(expression="java(contactEntity.getKid().getId().toString())", 
         		target = "kid" ),
         @Mapping(expression="java(contactEntity.getTerminal().getId().toString())",
-        		target = "terminal" )
+        		target = "terminal" ),
+        @Mapping(expression = "java(phoneNumberBlockedRepository"
+        		+ ".countByPhoneNumberAndKidIdAndTerminalId("
+        		+ "contactEntity.getPhoneNumber(), "
+        		+ "contactEntity.getKid().getId(),"
+        		+ "contactEntity.getTerminal().getId()) > 0 ? true: false)",
+        		target = "blocked"),
     })
     @Named("contactEntityToContactDTO")
     public abstract ContactDTO contactEntityToContactDTO(final ContactEntity contactEntity); 

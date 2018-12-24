@@ -6,5 +6,6 @@ package sanchez.sanchez.sergio.bullkeeper.persistence.entity;
  *
  */
 public enum ScreenStatusEnum {
-	ACTION_SCREEN_ON, ACTION_SCREEN_OFF, ACTION_USER_PRESENT
+	STATE_UNKNOWN, STATE_OFF, STATE_ON, STATE_DOZE, 
+	STATE_DOZE_SUSPEND, STATE_ON_SUSPEND
 }

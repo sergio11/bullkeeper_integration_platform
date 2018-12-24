@@ -1,6 +1,8 @@
 package sanchez.sanchez.sergio.bullkeeper.persistence.entity;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.mongodb.core.mapping.DBRef;
@@ -39,6 +41,13 @@ public final class KidEntity extends PersonEntity {
     @Field("results")
     @CascadeSave
     private KidResultsEntity results = new KidResultsEntity();
+    
+    /**
+     * Requests
+     */
+    @Field("requests")
+    @CascadeSave
+    private List<RequestTypeEntity> requests = new ArrayList<>();
 
     public KidEntity() {
     }
@@ -52,14 +61,17 @@ public final class KidEntity extends PersonEntity {
      * @param school
      * @param results
      * @param currentLocation
+     * @param requests
      */
     @PersistenceConstructor
     public KidEntity(String firstName, String lastName, Date birthdate, String profileImage, SchoolEntity school,
-            KidResultsEntity results, LocationEntity currentLocation) {
+            KidResultsEntity results, LocationEntity currentLocation,
+            List<RequestTypeEntity> requests) {
         super(firstName, lastName, birthdate, profileImage);
         this.school = school;
         this.results = results;
         this.currentLocation = currentLocation;
+        this.requests = requests;
     }
 
     
@@ -98,6 +110,14 @@ public final class KidEntity extends PersonEntity {
 
 	public void setCurrentLocation(LocationEntity currentLocation) {
 		this.currentLocation = currentLocation;
+	}
+
+	public List<RequestTypeEntity> getRequests() {
+		return requests;
+	}
+
+	public void setRequests(List<RequestTypeEntity> requests) {
+		this.requests = requests;
 	}
 	
 	

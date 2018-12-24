@@ -47,13 +47,47 @@ public abstract class TerminalEntityDataMapper {
 	
 	/**
 	 * Get Count Apps Installed In The terminal
-	 * @param sonId
-	 * @param terminalId
+	 * @param kid
+	 * @param terminal
 	 * @return
 	 */
-	protected long getCountAppsInstalledInTheTerminal(final ObjectId sonId, final ObjectId terminalId) {
+	protected long getCountAppsInstalledInTheTerminal(final ObjectId kid, final ObjectId terminal) {
 		final ITerminalService terminalService = beanManager.getTerminalService();
-		return terminalService.getCountAppsInstalledInTheTerminal(sonId, terminalId);
+		return terminalService.getCountAppsInstalledInTheTerminal(kid, terminal);
+	}
+	
+	/**
+	 * Get Count Sms In The terminal
+	 * @param terminal
+	 * @param terminal
+	 * @return
+	 */
+	protected long getCountSmsInTheTerminal(final ObjectId kid, final ObjectId terminal) {
+		final ITerminalService terminalService = beanManager.getTerminalService();
+		return terminalService.getCountSmsInTheTerminal(kid, terminal);
+	}
+	
+	
+	/**
+	 * Get Count Contacts In The terminal
+	 * @param kid
+	 * @param terminal
+	 * @return
+	 */
+	protected long getCountContactsInTheTerminal(final ObjectId kid, final ObjectId terminal) {
+		final ITerminalService terminalService = beanManager.getTerminalService();
+		return terminalService.getCountContactsInTheTerminal(kid, terminal);
+	}
+	
+	/**
+	 * Get Count Calls In The terminal
+	 * @param kid
+	 * @param terminal
+	 * @return
+	 */
+	protected long getCountCallsInTheTerminal(final ObjectId kid, final ObjectId terminal) {
+		final ITerminalService terminalService = beanManager.getTerminalService();
+		return terminalService.getCountCallsInTheTerminal(kid, terminal);
 	}
 	
 
@@ -116,9 +150,16 @@ public abstract class TerminalEntityDataMapper {
        @Mappings({
            @Mapping(expression="java(terminalEntity.getId().toString())", 
            		target = "identity" ),
-           @Mapping(expression="java(terminalEntity.getKid().getId().toString())", target = "kid" ),
+           @Mapping(expression="java(terminalEntity.getKid().getId().toString())", 
+           		target = "kid" ),
            @Mapping(expression="java(getCountAppsInstalledInTheTerminal(terminalEntity.getKid().getId(), terminalEntity.getId()))", 
            		target = "totalApps"),
+           @Mapping(expression="java(getCountSmsInTheTerminal(terminalEntity.getKid().getId(), terminalEntity.getId()))", 
+      			target = "totalSms"),
+           @Mapping(expression="java(getCountCallsInTheTerminal(terminalEntity.getKid().getId(), terminalEntity.getId()))", 
+ 				target = "totalCalls"),
+           @Mapping(expression="java(getCountContactsInTheTerminal(terminalEntity.getKid().getId(), terminalEntity.getId()))", 
+ 				target = "totalContacts"),
            @Mapping(expression="java(prettyTime.format(terminalEntity.getLastTimeUsed()))", 
            		target="lastTimeUsed"),
            @Mapping(expression="java(terminalEntity.getScreenStatus().name())", 

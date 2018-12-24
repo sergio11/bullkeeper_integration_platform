@@ -6,5 +6,5 @@ package sanchez.sanchez.sergio.bullkeeper.persistence.entity;
  *
  */
 public enum CallTypeEnum {
-	OUTGOING, INCOMING, MISSED
+	OUTGOING, INCOMING, MISSED, UNKNOWN
 }

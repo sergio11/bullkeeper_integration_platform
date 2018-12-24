@@ -1,7 +1,5 @@
 package sanchez.sanchez.sergio.bullkeeper.web.dto.response;
 
-import java.util.Arrays;
-
 import org.springframework.hateoas.ResourceSupport;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
