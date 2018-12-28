@@ -39,6 +39,11 @@ public class AddPhoneNumberBlockedDTO implements Serializable {
 	@KidShouldExists(message="{kid.not.exists}")
 	private String kid;
 	
+	/**
+	 * 
+	 */
+	public AddPhoneNumberBlockedDTO() {}
+	
 	
 	/**
 	 * Add Phone Number

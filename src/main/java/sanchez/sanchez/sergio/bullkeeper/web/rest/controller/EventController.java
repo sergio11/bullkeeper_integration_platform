@@ -11,14 +11,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.GuardianShouldExists;
+import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ValidObjectId;
 import sanchez.sanchez.sergio.bullkeeper.sse.SseEngine;
-import sanchez.sanchez.sergio.bullkeeper.web.security.utils.OnlyAccessForGuardian;
 
 /**
  * 
@@ -62,7 +60,7 @@ public class EventController extends BaseController {
     public SseEmitter subscribeToEvents(
     		@ApiParam(name= "id", value = "Subscriber identifier", 
     				required = true)
-				@Valid @GuardianShouldExists(message = "{guardian.id.notvalid}")
+				@Valid @ValidObjectId(message = "{id.notvalid}")
 		 		@PathVariable String id) {
 		
 		logger.debug("Subscriber with id -> " + id);

@@ -20,8 +20,8 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SupervisedChildrenEn
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.ConversationRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.MessageRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.SupervisedChildrenRepository;
-import sanchez.sanchez.sergio.bullkeeper.sse.models.MessageSavedSSE;
-import sanchez.sanchez.sergio.bullkeeper.sse.service.impl.SupportSseService;
+import sanchez.sanchez.sergio.bullkeeper.sse.models.conversation.MessageSavedSSE;
+import sanchez.sanchez.sergio.bullkeeper.sse.service.ISseService;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.AddMessageDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ConversationDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.MessageDTO;
@@ -37,9 +37,9 @@ public class ConversationServiceImpl implements IConversationService {
 	private static Logger logger = LoggerFactory.getLogger(ConversationServiceImpl.class);
 	
 	/**
-	 * Message Sse service
+	 *  Sse service
 	 */
-	private final SupportSseService<MessageSavedSSE> messageSseService;
+	private final ISseService messageSseService;
 	
 	/**
 	 * Conversation Repository
@@ -71,7 +71,7 @@ public class ConversationServiceImpl implements IConversationService {
 	 * @param supervisedChildrenRepository
 	 */
 	public ConversationServiceImpl(
-			final SupportSseService<MessageSavedSSE> messageSseService,
+			final ISseService messageSseService,
 			final ConversationRepository conversationRepository,
 			final ConversationEntityMapper conversationEntityMapper,
 			final MessageRepository messageRepository,

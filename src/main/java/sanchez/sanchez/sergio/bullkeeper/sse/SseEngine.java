@@ -83,17 +83,29 @@ public class SseEngine {
 	 * @param eventData
 	 */
 	@Async
-	public <T extends AbstractSseData> void run(final ISseService<T> sseService, final String target, final T eventData) {
+	public <T extends AbstractSseData> void run(final ISseService sseService, final String target, final T eventData) {
 		Assert.notNull(sseService, "SSE Service can not be null");
 		Assert.notNull(target, "Target can not be null");
 		Assert.notNull(eventData, "Event Data can not be null");
 		if(emitters.get(target) != null){
 			logger.debug("Subscriber Found");
 			sseService.handle(eventData);
-		} else {
-			logger.debug("Subscriber not found -> " + eventData.getSubscriberId());
-			logger.debug("Current emitters -> " + emitters.size());
-		}
+		} 
+	}
+	
+	
+	/**
+	 * @param sse
+	 * @param eventDataList
+	 */
+	@Async
+	public <T extends AbstractSseData> void run(final ISseService sseService, final String target, final Iterable<T> eventDataList) {
+		Assert.notNull(sseService, "SSE Service can not be null");
+		Assert.notNull(target, "Target can not be null");
+		Assert.notNull(eventDataList, "Event Data List can not be null");
+		if(emitters.get(target) != null){
+			sseService.handle(target, eventDataList);
+		} 
 	}
 	
 	/**

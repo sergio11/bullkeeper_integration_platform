@@ -670,7 +670,7 @@ public final class TerminalServiceImpl implements ITerminalService {
 	}
 
 	/**
-	 * un block phone number
+	 * unblock phone number
 	 */
 	@Override
 	public void unBlockPhoneNumber(final ObjectId kid, final ObjectId terminal, 

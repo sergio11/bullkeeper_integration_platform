@@ -1,5 +1,7 @@
 package sanchez.sanchez.sergio.bullkeeper.sse.models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Abstract SSE Data
  * @author sergiosanchezsanchez
@@ -8,17 +10,35 @@ package sanchez.sanchez.sergio.bullkeeper.sse.models;
 public abstract class AbstractSseData {
 	
 	/**
+	 * Event Type
+	 */
+	@JsonProperty("event_type")
+	protected String eventType;
+	
+	/**
 	 * Subscriber Id
 	 */
+	@JsonProperty("subscriber_id")
 	protected String subscriberId;
+	
+	public AbstractSseData() {}
 
 	/**
 	 * 
 	 * @param subscriberId
 	 */
-	public AbstractSseData(String subscriberId) {
+	public AbstractSseData(String eventType, String subscriberId) {
 		super();
 		this.subscriberId = subscriberId;
+	}
+
+
+	public String getEventType() {
+		return eventType;
+	}
+
+	public void setEventType(String eventType) {
+		this.eventType = eventType;
 	}
 
 	public String getSubscriberId() {

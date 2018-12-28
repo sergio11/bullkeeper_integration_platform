@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ScheduledBlockEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.KidRepository;
+import sanchez.sanchez.sergio.bullkeeper.sse.models.scheduledblocks.ScheduledBlockSavedSSE;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveScheduledBlockDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ScheduledBlockDTO;
 
@@ -44,6 +45,24 @@ public abstract class ScheduledBlockMapper {
     @IterableMapping(qualifiedByName = "scheduledBlockEntityToScheduledBlockDTO")
     public abstract Iterable<ScheduledBlockDTO> scheduledBlockEntityToScheduledBlockDTO(Iterable<ScheduledBlockEntity> scheduledBlockEntities);
     
+    /**
+	 * Scheduled Block DTO To Scheduled Block SSE
+	 * @param scheduledBlockEntity
+	 * @return
+	 */
+    @Mappings({
+        @Mapping( target = "subscriberId", ignore = true )
+     })
+    @Named("scheduledBlockDTOToScheduledBlockSavedSSE")
+    public abstract ScheduledBlockSavedSSE scheduledBlockDTOToScheduledBlockSavedSSE(final ScheduledBlockDTO scheduledBlockDTO); 
+	
+    /**
+     * Scheduled Block DTO To Scheduled Block Saved SSE
+     * @param scheduledBlockEntities
+     * @return
+     */
+    @IterableMapping(qualifiedByName = "scheduledBlockDTOToScheduledBlockSavedSSE")
+    public abstract Iterable<ScheduledBlockSavedSSE> scheduledBlockDTOToScheduledBlockSavedSSE(Iterable<ScheduledBlockDTO> scheduledBlockDTOList);
     
     /**
 	 * Save Scheduled Block DTO To Scheduled Block Entity

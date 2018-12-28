@@ -7,7 +7,7 @@ import sanchez.sanchez.sergio.bullkeeper.sse.models.AbstractSseData;
  * @author sergiosanchezsanchez
  *
  */
-public interface ISseService<T extends AbstractSseData> {
+public interface ISseService {
 	
 	/**
 	 * Push data to SSE channel associated to an event ID
@@ -15,12 +15,43 @@ public interface ISseService<T extends AbstractSseData> {
 	 * @param subscriberId
 	 * @param data
 	 */
-	public void push(String subscriberId, T data);
+	public <T extends AbstractSseData>  void push(final String subscriberId, final T data);
+	
+	/**
+	 * Push data to SSE channel associated to an event ID
+	 * 
+	 * @param subscriberId
+	 * @param data
+	 */
+	public <T extends AbstractSseData>  void push(final String subscriberId, final Iterable<T> data);
+	
+	/**
+	 * Push data to SSE channel associated to an event ID
+	 * 
+	 * @param subscriberIdList
+	 * @param data
+	 */
+	public <T extends AbstractSseData>  void push(final Iterable<String> subscriberIdList, final T data);
+	
+	/**
+	 * Push data to SSE channel associated to an event ID
+	 * 
+	 * @param subscriberIdList
+	 * @param data
+	 */
+	public <T extends AbstractSseData>  void push(final Iterable<String> subscriberIdList, final Iterable<T> data);
 
 	/**
 	 * This method does the necessary actions to publish the event with the proper data
 	 * @param eventData
 	 */
-	public void handle(T eventData);
+	public <T extends AbstractSseData>  void handle(final T eventData);
+	
+	/**
+	 * This method does the necessary actions to publish the event with the proper data
+	 * @param subscriberId
+	 * @param eventDataList
+	 */
+	public <T extends AbstractSseData>  void handle(final String subscriberId, final Iterable<T> eventDataList);
 
 }

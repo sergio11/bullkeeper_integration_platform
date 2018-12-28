@@ -36,14 +36,17 @@ public final class ScheduledBlockServiceImpl implements IScheduledBlockService {
 	 * Scheduled Block Mapper
 	 */
 	private final ScheduledBlockMapper scheduledBlockMapper;
+
 	
 	/**
 	 * 
 	 * @param scheduledBlockRepository
 	 * @param scheduledBlockMapper
+	 * @param sseService
 	 */
 	@Autowired
-	public ScheduledBlockServiceImpl(final ScheduledBlockRepository scheduledBlockRepository,
+	public ScheduledBlockServiceImpl(
+			final ScheduledBlockRepository scheduledBlockRepository,
 			final ScheduledBlockMapper scheduledBlockMapper) {
 		super();
 		this.scheduledBlockRepository = scheduledBlockRepository;
@@ -136,6 +139,7 @@ public final class ScheduledBlockServiceImpl implements IScheduledBlockService {
 		
 		final ScheduledBlockEntity scheduledBlockEntitySaved = 
 				scheduledBlockRepository.save(scheduledBlockEntityToSave);
+		
 		
 		return scheduledBlockMapper.scheduledBlockEntityToScheduledBlockDTO(scheduledBlockEntitySaved);
 	}

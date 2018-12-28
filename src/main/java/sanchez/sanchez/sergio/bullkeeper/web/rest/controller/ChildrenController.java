@@ -31,6 +31,17 @@ import sanchez.sanchez.sergio.bullkeeper.domain.service.IScheduledBlockService;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.ISocialMediaService;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IStatisticsService;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.ITerminalService;
+import sanchez.sanchez.sergio.bullkeeper.events.apps.AppRulesListSavedEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.apps.AppRulesSavedEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.location.CurrentLocationUpdateEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.phonenumbers.AddPhoneNumberBlockedEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.phonenumbers.DeleteAllPhoneNumberBlockedEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.phonenumbers.DeletePhoneNumberBlockedEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.scheduledblock.DeleteAllScheduledBlockEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.scheduledblock.DeleteScheduledBlockEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.scheduledblock.ScheduledBlockImageChangedEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.scheduledblock.ScheduledBlockSavedEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.scheduledblock.ScheduledBlockStatusChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.exception.AlertNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.AppInstalledNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.CallDetailNotFoundException;
@@ -2349,6 +2360,12 @@ public class ChildrenController extends BaseController
     					new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() }), 
     			new ObjectId(kid), AlertCategoryEnum.APPS_INSTALLED);
     	
+    	// Publish Event
+    	this.applicationEventPublisher
+    		.publishEvent(new AppRulesSavedEvent(
+    				this, kid, terminal, app, appRules.getType()));
+    	
+    	
     	// Create and send response
     	return ApiHelper.<String>createAndSendResponse(AppsResponseCode.APP_RULES_WERE_APPLIED, 
 				HttpStatus.OK, messageSourceResolver.resolver("apps.rules.saved"));
@@ -2392,6 +2409,12 @@ public class ChildrenController extends BaseController
     			messageSourceResolver.resolver("apps.rules.saved.description", 
     					new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() }), 
     			new ObjectId(kid), AlertCategoryEnum.APPS_INSTALLED);
+    	
+    	// Publish Event
+    	this.applicationEventPublisher
+    		.publishEvent(new AppRulesListSavedEvent(
+    				this, kid, terminal, appRules));
+    	
     	
     	// Create and send response
     	return ApiHelper.<String>createAndSendResponse(AppsResponseCode.APP_RULES_WERE_APPLIED, 
@@ -2734,9 +2757,16 @@ public class ChildrenController extends BaseController
     			new ObjectId(terminal), new ObjectId(kid)))
     			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
     	
+    	// Add Phone Number
     	final PhoneNumberBlockedDTO phoneNumberBlocked = 
     			terminalService.addPhoneNumberBlocked(addPhoneNumberBlocked);
-    	
+
+    	// Publish Event
+    	this.applicationEventPublisher
+			.publishEvent(new AddPhoneNumberBlockedEvent(this, 
+					phoneNumberBlocked.getIdentity(),
+					phoneNumberBlocked.getKid(), phoneNumberBlocked.getTerminal(),
+					phoneNumberBlocked.getPhoneNumber(), phoneNumberBlocked.getBlockedAt()));
     	
     	// Create and send response
         return ApiHelper.<PhoneNumberBlockedDTO>createAndSendResponse(ChildrenResponseCode.PHONE_NUMBER_BLOCKED_ADDED, 
@@ -2771,6 +2801,12 @@ public class ChildrenController extends BaseController
     	
     	// Unblock All Phone Numbers
     	terminalService.unBlockAllPhoneNumbers();
+    	
+    	// Publish Event
+    	this.applicationEventPublisher
+			.publishEvent(new DeleteAllPhoneNumberBlockedEvent(this, 
+					terminalDTO.getKid(), terminalDTO.getIdentity()));
+    	
     	// Create and send response
     	return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.ALL_PHONE_NUMBERS_UNBLOCKED_SUCCESSFULLY, HttpStatus.OK, 
         		messageSourceResolver.resolver("all.phone.numbers.unblocked.successfully"));
@@ -2800,7 +2836,7 @@ public class ChildrenController extends BaseController
 	  				@PathVariable String terminal,
 	  		@ApiParam(name = "idOrPhoneNumber", value = "Phone Number Blocked", required = true)
  				@Valid @PhoneNumberBlockedShouldExists(message = "{phonenumber.blocked.should.be.exists}")
-  					@PathVariable String phoneNumberBlocked) throws Throwable {
+  					@PathVariable("idOrPhoneNumber") String phoneNumberBlocked) throws Throwable {
     	
     	logger.debug("Delete Phone Number Blocked by id");
     	// Get Terminal
@@ -2811,6 +2847,11 @@ public class ChildrenController extends BaseController
     	// Unblock Phone Number
     	terminalService.unBlockPhoneNumber(new ObjectId(terminalDTO.getKid()), 
     			new ObjectId(terminalDTO.getIdentity()), phoneNumberBlocked);
+    	
+    	// Publish Event
+    	this.applicationEventPublisher
+			.publishEvent(new DeletePhoneNumberBlockedEvent(this, kid, terminal,
+					phoneNumberBlocked));
     	
     	// Create and send response
     	return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.PHONE_NUMBER_UNBLOCKED_SUCCESSFULLY, HttpStatus.OK, 
@@ -2937,7 +2978,12 @@ public class ChildrenController extends BaseController
     	
     	// Save Scheduled Block
     	final ScheduledBlockDTO scheduledBlock = scheduledBlockService.save(saveScheduledBlockDTO);
-    	    	
+    	    
+    	// PUblish Event
+    	this.applicationEventPublisher
+    		.publishEvent(new ScheduledBlockSavedEvent(this, scheduledBlock, scheduledBlock.getKid()));
+    	
+    	// Create and Send Response
     	return ApiHelper.<ScheduledBlockDTO>createAndSendResponse(ChildrenResponseCode.SCHEDULED_BLOCK_SAVED, 
 				HttpStatus.OK, scheduledBlock);    
     }
@@ -2964,9 +3010,16 @@ public class ChildrenController extends BaseController
 					@RequestBody ValidList<SaveScheduledBlockStatusDTO> saveScheduledBlockStatus) throws Throwable {
     	
     	logger.debug("Save Scheduled Block Status DTO");
+    	
     	// Save Status
     	scheduledBlockService.saveStatus(saveScheduledBlockStatus);
-    	    	
+    	
+    	// Publish Event
+    	this.applicationEventPublisher
+			.publishEvent(new ScheduledBlockStatusChangedEvent(this,
+					kid, saveScheduledBlockStatus));
+    	
+    	// Create and send response
     	return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.SCHEDULED_BLOCK_STATUS_SAVED, 
 				HttpStatus.OK, messageSourceResolver.resolver("scheduled.block.status.saved"));    
     }
@@ -2991,7 +3044,12 @@ public class ChildrenController extends BaseController
         
         // Delete all scheduled block by child id
         scheduledBlockService.deleteByKidId(new ObjectId(kid));
+        
+        // Publish Event
+    	this.applicationEventPublisher
+    		.publishEvent(new DeleteAllScheduledBlockEvent(this, kid));
       
+    	// Create and send response
         return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.ALL_SCHEDULED_BLOCK_DELETED, HttpStatus.OK, 
         		messageSourceResolver.resolver("all.scheduled.blocks.deleted"));
         
@@ -3021,7 +3079,12 @@ public class ChildrenController extends BaseController
         
         // Delete By Child ID
         scheduledBlockService.delete(new ObjectId(block));
+        
+        // Publish Event
+    	this.applicationEventPublisher
+    		.publishEvent(new DeleteScheduledBlockEvent(this, kid, block));
       
+    	// Create and send response
         return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.SCHEDULED_BLOCK_DELETED, HttpStatus.OK, 
         		messageSourceResolver.resolver("scheduled.block.deleted"));
         
@@ -3057,9 +3120,14 @@ public class ChildrenController extends BaseController
     	final RequestUploadFile uploadScheduledBlockImage = new RequestUploadFile(scheduledBlockImage.getBytes(), 
     			scheduledBlockImage.getContentType() != null ? scheduledBlockImage.getContentType() :
     				MediaType.IMAGE_PNG_VALUE, scheduledBlockImage.getOriginalFilename());
-    	
+    	// Save Image
     	ImageDTO imageDTO = uploadFilesService.uploadScheduledBlockImage(new ObjectId(kid),
     			new ObjectId(block), uploadScheduledBlockImage);
+    	
+    	// Publish Event
+    	this.applicationEventPublisher
+    		.publishEvent(new ScheduledBlockImageChangedEvent(this,
+    				kid, block, imageDTO.getIdentity()));
     	
     	// Return Response
         return ApiHelper.<ImageDTO>createAndSendResponse(ChildrenResponseCode.SCHEDULED_BLOCK_IMAGE_UPLOADED, 
@@ -3149,13 +3217,15 @@ public class ChildrenController extends BaseController
     	// Save Current Location
     	final LocationDTO currentLocation = kidService.saveCurrentLocation(kid, saveLocation);
     	
+    	// Push Event
+    	this.applicationEventPublisher
+    		.publishEvent(new CurrentLocationUpdateEvent(
+    				this, kid, currentLocation));
+    	
     	// Create and send response
     	return ApiHelper.<LocationDTO>createAndSendResponse(ChildrenResponseCode.CURRENT_LOCATION_UPDATED, 
         		HttpStatus.OK, currentLocation);
     }
-    
- 
-    
     
     /**
      * 

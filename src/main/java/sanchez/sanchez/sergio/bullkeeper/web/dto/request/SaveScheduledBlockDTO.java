@@ -1,12 +1,13 @@
 package sanchez.sanchez.sergio.bullkeeper.web.dto.request;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import javax.validation.constraints.Size;
 import org.hibernate.validator.constraints.NotBlank;
 import org.joda.time.LocalTime;
+import org.springframework.data.mongodb.core.mapping.Field;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.IsWeeklyFrequencyValid;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.KidShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.LocalTimeCompare;
@@ -62,6 +63,18 @@ public final class SaveScheduledBlockDTO implements Serializable {
 	private boolean repeatable;
 	
 	/**
+	 * Allow Calls
+	 */
+	@JsonProperty("allow_calls")
+	private boolean allowCalls;
+	
+	/**
+	 * Description
+	 */
+	@Field("description")
+	private String description;
+	
+	/**
 	 * Start At
 	 */
 	@JsonProperty("start_at")
@@ -98,6 +111,8 @@ public final class SaveScheduledBlockDTO implements Serializable {
 	 * @param name
 	 * @param enable
 	 * @param repeatable
+	 * @param allowCalls
+	 * @param description
 	 * @param startAt
 	 * @param endAt
 	 * @param weeklyFrequency
@@ -105,13 +120,16 @@ public final class SaveScheduledBlockDTO implements Serializable {
 	 */
 	public SaveScheduledBlockDTO(
 			String identity, String name,
-			boolean enable, boolean repeatable, LocalTime startAt,
+			boolean enable, boolean repeatable, boolean allowCalls,
+			final String description, LocalTime startAt,
 			LocalTime endAt, int[] weeklyFrequency, String kid) {
 		super();
 		this.identity = identity;
 		this.name = name;
 		this.enable = enable;
 		this.repeatable = repeatable;
+		this.allowCalls = allowCalls;
+		this.description = description;
 		this.startAt = startAt;
 		this.endAt = endAt;
 		this.weeklyFrequency = weeklyFrequency;
@@ -132,6 +150,14 @@ public final class SaveScheduledBlockDTO implements Serializable {
 
 	public boolean isRepeatable() {
 		return repeatable;
+	}
+
+	public boolean isAllowCalls() {
+		return allowCalls;
+	}
+
+	public String getDescription() {
+		return description;
 	}
 
 	public LocalTime getStartAt() {
@@ -166,6 +192,14 @@ public final class SaveScheduledBlockDTO implements Serializable {
 		this.repeatable = repeatable;
 	}
 
+	public void setAllowCalls(boolean allowCalls) {
+		this.allowCalls = allowCalls;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
 	public void setStartAt(LocalTime startAt) {
 		this.startAt = startAt;
 	}
@@ -182,6 +216,11 @@ public final class SaveScheduledBlockDTO implements Serializable {
 		this.kid = kid;
 	}
 
-	
+	@Override
+	public String toString() {
+		return "SaveScheduledBlockDTO [identity=" + identity + ", name=" + name + ", enable=" + enable + ", repeatable="
+				+ repeatable + ", allowCalls=" + allowCalls + ", description=" + description + ", startAt=" + startAt
+				+ ", endAt=" + endAt + ", weeklyFrequency=" + Arrays.toString(weeklyFrequency) + ", kid=" + kid + "]";
+	}
 
 }

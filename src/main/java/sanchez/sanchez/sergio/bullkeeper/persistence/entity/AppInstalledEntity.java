@@ -43,13 +43,13 @@ public class AppInstalledEntity implements Serializable {
 	 * First Install Time
 	 */
 	@Field("first_install_time")
-    private long firstInstallTime;
+    private Long firstInstallTime;
 	
 	/**
 	 * Last Update Time
 	 */
 	@Field("last_update_time")
-    private long lastUpdateTime;
+    private Long lastUpdateTime;
 	
 	/**
 	 * Version Name
@@ -119,7 +119,7 @@ public class AppInstalledEntity implements Serializable {
 	 * @param terminal
 	 */
 	@PersistenceConstructor
-	public AppInstalledEntity(ObjectId id, String packageName, long firstInstallTime, long lastUpdateTime,
+	public AppInstalledEntity(ObjectId id, String packageName, Long firstInstallTime, Long lastUpdateTime,
 			String versionName, String versionCode, String appName, AppRuleEnum appRuleEnum, String iconEncodedString, KidEntity kid, TerminalEntity terminal) {
 		super();
 		this.id = id;
@@ -143,11 +143,11 @@ public class AppInstalledEntity implements Serializable {
 		return packageName;
 	}
 
-	public long getFirstInstallTime() {
+	public Long getFirstInstallTime() {
 		return firstInstallTime;
 	}
 
-	public long getLastUpdateTime() {
+	public Long getLastUpdateTime() {
 		return lastUpdateTime;
 	}
 
@@ -187,11 +187,11 @@ public class AppInstalledEntity implements Serializable {
 		this.packageName = packageName;
 	}
 
-	public void setFirstInstallTime(long firstInstallTime) {
+	public void setFirstInstallTime(Long firstInstallTime) {
 		this.firstInstallTime = firstInstallTime;
 	}
 
-	public void setLastUpdateTime(long lastUpdateTime) {
+	public void setLastUpdateTime(Long lastUpdateTime) {
 		this.lastUpdateTime = lastUpdateTime;
 	}
 

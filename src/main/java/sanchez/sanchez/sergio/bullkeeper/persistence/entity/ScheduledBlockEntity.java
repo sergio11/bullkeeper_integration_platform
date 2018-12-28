@@ -1,7 +1,6 @@
 package sanchez.sanchez.sergio.bullkeeper.persistence.entity;
 
 import java.io.Serializable;
-
 import org.bson.types.ObjectId;
 import org.joda.time.LocalTime;
 import org.springframework.data.annotation.Id;
@@ -13,7 +12,6 @@ import org.springframework.data.mongodb.core.mapping.Field;
 /**
  * Scheduled Block 
  * @author sergiosanchezsanchez
- *
  */
 @Document(collection = ScheduledBlockEntity.COLLECTION_NAME)
 public class ScheduledBlockEntity implements Serializable {
@@ -48,6 +46,19 @@ public class ScheduledBlockEntity implements Serializable {
 	 */
 	@Field("repeatable")
     private boolean repeatable;
+	
+	
+	/**
+	 * Allow Calls
+	 */
+	@Field("allow_calls")
+    private boolean allowCalls;
+	
+	/**
+	 * Description
+	 */
+	@Field("description")
+	private String description;
 	
 	/**
 	 * Start at
@@ -91,6 +102,8 @@ public class ScheduledBlockEntity implements Serializable {
 	 * @param name
 	 * @param enable
 	 * @param repeatable
+	 * @param allowCalls
+	 * @param description
 	 * @param startAt
 	 * @param endAt
 	 * @param weeklyFrequency
@@ -98,13 +111,16 @@ public class ScheduledBlockEntity implements Serializable {
 	 * @param image
 	 */
 	@PersistenceConstructor
-	public ScheduledBlockEntity(ObjectId id, String name, boolean enable, boolean repeatable, LocalTime startAt,
-			LocalTime endAt, int[] weeklyFrequency, KidEntity kid, final String image) {
+	public ScheduledBlockEntity(ObjectId id, String name, boolean enable, boolean repeatable, 
+			boolean allowCalls, String description, LocalTime startAt, LocalTime endAt, 
+			int[] weeklyFrequency, KidEntity kid, final String image) {
 		super();
 		this.id = id;
 		this.name = name;
 		this.enable = enable;
 		this.repeatable = repeatable;
+		this.allowCalls = allowCalls;
+		this.description = description;
 		this.startAt = startAt;
 		this.endAt = endAt;
 		this.weeklyFrequency = weeklyFrequency;
@@ -156,6 +172,23 @@ public class ScheduledBlockEntity implements Serializable {
 		this.repeatable = repeatable;
 	}
 
+
+	public boolean isAllowCalls() {
+		return allowCalls;
+	}
+
+	public void setAllowCalls(boolean allowCalls) {
+		this.allowCalls = allowCalls;
+	}
+	
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
 	public void setStartAt(LocalTime startAt) {
 		this.startAt = startAt;
 	}
@@ -168,7 +201,6 @@ public class ScheduledBlockEntity implements Serializable {
 		this.weeklyFrequency = weeklyFrequency;
 	}
 
-	
 
 	public KidEntity getKid() {
 		return kid;
