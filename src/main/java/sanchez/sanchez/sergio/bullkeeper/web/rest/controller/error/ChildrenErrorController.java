@@ -23,6 +23,7 @@ import sanchez.sanchez.sergio.bullkeeper.exception.NoDimensionsStatisticsForThis
 import sanchez.sanchez.sergio.bullkeeper.exception.NoPhoneNumberBlockedFound;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoSentimentAnalysisStatisticsForThisPeriodException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoSocialMediaActivityFoundForThisPeriodException;
+import sanchez.sanchez.sergio.bullkeeper.exception.PhoneNumberAlreadyBlockedException;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.ApiHelper;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.controller.BaseController;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.response.APIResponse;
@@ -198,6 +199,21 @@ public class ChildrenErrorController extends BaseController {
         		messageSourceResolver.resolver("no.phone.number.blocked.found"));
     } 
     
+    /**
+     * Exception Handler for Phone Number Already Blocked Exception
+     * @param noPhoneNumberBlockedFound
+     * @param request
+     * @return
+     */
+    @ExceptionHandler(PhoneNumberAlreadyBlockedException.class)
+    @ResponseBody
+    protected ResponseEntity<APIResponse<String>> handlePhoneNumberAlreadyBlockedException(PhoneNumberAlreadyBlockedException phoneNumberAlreadyBlockedException, HttpServletRequest request){
+        return ApiHelper.<String>createAndSendErrorResponseWithHeader(
+        		ChildrenResponseCode.PHONE_NUMBER_ALREADY_BLOCKED, HttpStatus.NOT_FOUND,
+        		messageSourceResolver.resolver("phone.number.already.blocked.exception"));
+    } 
+    
+   
  
     @PostConstruct
     protected void init(){

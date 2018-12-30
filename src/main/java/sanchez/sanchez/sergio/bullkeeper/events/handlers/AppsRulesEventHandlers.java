@@ -7,8 +7,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
+
+import sanchez.sanchez.sergio.bullkeeper.events.apps.AppDisabledEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.apps.AppEnabledEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.apps.AppRulesListSavedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.apps.AppRulesSavedEvent;
+import sanchez.sanchez.sergio.bullkeeper.sse.models.apps.AppDisabledStatusChangedSSE;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.apps.AppRulesListSavedSSE;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.apps.AppRulesSavedSSE;
 import sanchez.sanchez.sergio.bullkeeper.sse.service.ISseService;
@@ -89,5 +93,44 @@ public class AppsRulesEventHandlers {
 		// Push Event
 		sseService.push(subscriberId, appRulesSavedSSE);
 	}
+	
+	/**
+	 * Handle App Disabled Event
+	 * @param appDisabledEvent
+	 */
+	@EventListener
+	public void handle(final AppDisabledEvent appDisabledEvent) {
+		Assert.notNull(appDisabledEvent, "Event can not be null");
+		
+		final String subscriberId = appDisabledEvent.getTerminal();
+		
+		final AppDisabledStatusChangedSSE appDisabledStatusChanged  = 
+					new AppDisabledStatusChangedSSE(subscriberId,
+							appDisabledEvent.getKid(),
+							appDisabledEvent.getTerminal(), appDisabledEvent.getApp(), false);
+		
+		// Push Event
+		sseService.push(subscriberId, appDisabledStatusChanged);
+	}
+	
+	
+	/**
+	 * Handle App Enabled Event
+	 * @param appEnabledEvent
+	 */
+	@EventListener
+	public void handle(final AppEnabledEvent appEnabledEvent) {
+		Assert.notNull(appEnabledEvent, "Event can not be null");
+		final String subscriberId = appEnabledEvent.getTerminal();
+		
+		final AppDisabledStatusChangedSSE appDisabledStatusChanged  = 
+				new AppDisabledStatusChangedSSE(subscriberId,
+						appEnabledEvent.getKid(),
+						appEnabledEvent.getTerminal(), appEnabledEvent.getApp(), true);
+	
+		// Push Event
+		sseService.push(subscriberId, appDisabledStatusChanged);
+	}
+	
 	
 }

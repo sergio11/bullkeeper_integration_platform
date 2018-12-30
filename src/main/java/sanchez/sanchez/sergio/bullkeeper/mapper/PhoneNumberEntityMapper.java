@@ -28,26 +28,31 @@ public abstract class PhoneNumberEntityMapper {
 	protected TerminalRepository terminalRepository;
 	
 	/**
-	 * Kid REpository
+	 * Kid Repository
 	 */
 	@Autowired
 	protected KidRepository kidRepository;
 
-	
 
 	/**
 	 * @param phoneNumber
 	 * @return
 	 */
 	@Mappings({
-		@Mapping(expression="java(phoneNumber.getId().toString())", target="identity"),
+		@Mapping(expression="java(phoneNumber.getId().toString())", 
+				target="identity"),
     	@Mapping(expression="java(phoneNumber.getTerminal().getId().toString())", 
     			target="terminal"),
     	@Mapping(expression="java(phoneNumber.getKid().getId().toString())", 
-    		target="kid"),
+    			target="kid"),
     	@Mapping(source = "phoneNumber.blockedAt", target = "blockedAt", 
-    		dateFormat = "yyyy/MM/dd")
-    
+    			dateFormat = "yyyy/MM/dd"),
+    	@Mapping(expression="java(sanchez.sanchez.sergio.bullkeeper.util.Utils.getPhonePrefix(phoneNumber.getPhoneNumber()))", 
+	    		target = "phonePrefix" ),
+	    @Mapping(expression="java(String.valueOf(sanchez.sanchez.sergio.bullkeeper.util.Utils.getPhoneNumber(phoneNumber.getPhoneNumber())))", 
+	    		target = "phoneNumber" ),
+	    @Mapping(expression="java(phoneNumber.getPhoneNumber())", 
+    			target = "phoneCompleteNumber" )
     })
     @Named("phoneNumberBlockedEntityToPhoneNumberBlockedDTO")
     public abstract PhoneNumberBlockedDTO phoneNumberBlockedEntityToPhoneNumberBlockedDTO(final PhoneNumberBlockedEntity phoneNumber); 
@@ -70,7 +75,9 @@ public abstract class PhoneNumberEntityMapper {
     	@Mapping(expression="java(terminalRepository.findOne(new org.bson.types.ObjectId(addPhoneNumberBlocked.getTerminal())))", 
     			target="terminal"),
     	@Mapping(expression="java(kidRepository.findOne(new org.bson.types.ObjectId(addPhoneNumberBlocked.getKid())))", 
-    		target="kid")
+    			target="kid"),
+    	@Mapping(expression="java(com.google.i18n.phonenumbers.PhoneNumberUtil.getInstance().format(addPhoneNumberBlocked.getPhoneNumber(),"
+        		+ " com.google.i18n.phonenumbers.PhoneNumberUtil.PhoneNumberFormat.E164))", target = "phoneNumber" )
     })
     @Named("addPhoneNumberBlockedEntity")
     public abstract PhoneNumberBlockedEntity addPhoneNumberBlockedEntity(

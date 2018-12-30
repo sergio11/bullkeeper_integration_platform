@@ -63,5 +63,6 @@ public interface PhoneNumberBlockedRepository
 	 */
 	long countByPhoneNumberAndKidIdAndTerminalId(final String phoneNumber, 
 			final ObjectId kid, final ObjectId terminal);
+
 	
 }

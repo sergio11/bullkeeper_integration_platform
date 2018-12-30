@@ -30,6 +30,7 @@ public class PhoneNumberBlockedEntity {
      */
     @Field("blocked_at")
     private Date blockedAt = new Date();
+
     
     /**
      * Phone Number

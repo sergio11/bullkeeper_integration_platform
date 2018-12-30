@@ -1,5 +1,6 @@
 package sanchez.sanchez.sergio.bullkeeper.domain.service.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,19 +10,26 @@ import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import sanchez.sanchez.sergio.bullkeeper.domain.service.ITerminalService;
 import sanchez.sanchez.sergio.bullkeeper.exception.AppInstalledNotFoundException;
+import sanchez.sanchez.sergio.bullkeeper.exception.PhoneNumberAlreadyBlockedException;
 import sanchez.sanchez.sergio.bullkeeper.mapper.AppInstalledEntityMapper;
+import sanchez.sanchez.sergio.bullkeeper.mapper.AppStatsEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.CallDetailEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.ContactEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.PhoneNumberEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.SmsEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.TerminalEntityDataMapper;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AlertEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AppInstalledEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AppRuleEnum;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AppStatsEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.CallDetailEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ContactEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.PhoneNumberBlockedEntity;
@@ -29,6 +37,7 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ScreenStatusEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SmsEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.TerminalEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.AppInstalledRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.AppStatsRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.CallDetailRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.ContactEntityRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.PhoneNumberBlockedRepository;
@@ -37,13 +46,16 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.repository.TerminalReposito
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.AddPhoneNumberBlockedDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppInstalledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppRulesDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppStatsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveCallDetailDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveContactDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveSmsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveTerminalDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.TerminalHeartbeatDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AlertDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppRuleDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppStatsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CallDetailDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ContactDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.PhoneNumberBlockedDTO;
@@ -122,6 +134,16 @@ public final class TerminalServiceImpl implements ITerminalService {
 	 */
 	private final ContactEntityMapper contactEntityMapper;
 	
+	/**
+	 * App Stats Repository
+	 */
+	private final AppStatsRepository appStatsRepository;
+	
+	/**
+	 * App Stats Entity Mapper
+	 */
+	private final AppStatsEntityMapper appStatsEntityMapper;
+	
 
 	/**
 	 * 
@@ -135,6 +157,8 @@ public final class TerminalServiceImpl implements ITerminalService {
 	 * @param smsEntityMapper
 	 * @param phoneNumberBlockedRepository
 	 * @param phoneNumberEntityMapper
+	 * @param appStatsRepository
+	 * @param appStatsEntityMapper
 	 */
 	@Autowired
 	public TerminalServiceImpl(final TerminalEntityDataMapper terminalEntityDataMapper, 
@@ -147,7 +171,9 @@ public final class TerminalServiceImpl implements ITerminalService {
 			final PhoneNumberBlockedRepository phoneNumberBlockedRepository,
 			final PhoneNumberEntityMapper phoneNumberEntityMapper,
 			final ContactEntityRepository contactRepository,
-			final ContactEntityMapper contactEntityMapper) {
+			final ContactEntityMapper contactEntityMapper,
+			final AppStatsRepository appStatsRepository,
+			final AppStatsEntityMapper appStatsEntityMapper) {
 		super();
 		this.terminalEntityDataMapper = terminalEntityDataMapper;
 		this.terminalRepository = terminalRepository;
@@ -161,6 +187,8 @@ public final class TerminalServiceImpl implements ITerminalService {
 		this.phoneNumberEntityMapper = phoneNumberEntityMapper;
 		this.contactRepository = contactRepository;
 		this.contactEntityMapper = contactEntityMapper;
+		this.appStatsRepository = appStatsRepository;
+		this.appStatsEntityMapper = appStatsEntityMapper;
 	}
 
 	/**
@@ -522,6 +550,13 @@ public final class TerminalServiceImpl implements ITerminalService {
 		// Map
 		final PhoneNumberBlockedEntity phoneNumberBlocked = 
 				phoneNumberEntityMapper.addPhoneNumberBlockedEntity(addPhoneNumber);
+		
+		
+		if(phoneNumberBlockedRepository
+			.countByPhoneNumberAndKidIdAndTerminalId(phoneNumberBlocked.getPhoneNumber(), 
+					phoneNumberBlocked.getKid().getId(), phoneNumberBlocked.getTerminal().getId()) > 0)
+			throw new PhoneNumberAlreadyBlockedException();
+	
 		// Save
 		final PhoneNumberBlockedEntity phoneNumberBlockedSaved = 
 				phoneNumberBlockedRepository.save(phoneNumberBlocked);
@@ -713,13 +748,11 @@ public final class TerminalServiceImpl implements ITerminalService {
 	public Iterable<ContactDTO> getContacts(final ObjectId kid, final ObjectId terminal, final String text) {
 		Assert.notNull(kid, "Kid can not be null");
 		Assert.notNull(terminal, "Terminal can not be null");
-		Assert.notNull(text, "Text can not be null");
-		
 		// Find All Contacts
 		final Iterable<ContactEntity> contacts = 
-				text.isEmpty() ? 
-						contactRepository.findAllByKidIdAndTerminalId(kid, terminal)
-						: contactRepository.findAllByKidIdAndTerminalIdAndNameIgnoreCaseContaining(kid, terminal, text);
+				text != null && !text.isEmpty() ? 
+						contactRepository.findAllByKidIdAndTerminalIdAndNameIgnoreCaseContaining(kid, terminal, text) :
+						contactRepository.findAllByKidIdAndTerminalId(kid, terminal);
 		// Map Results
 		return contactEntityMapper.contactEntityToContactDTOs(contacts);
 	}
@@ -937,5 +970,105 @@ public final class TerminalServiceImpl implements ITerminalService {
 		return smsRepository.countByKidIdAndTerminalId(kid, terminalId);
 	}
 
+	/**
+	 * Save App Stats
+	 */
+	@Override
+	public AppStatsDTO saveAppStats(final SaveAppStatsDTO appStatsDTO) {
+		Assert.notNull(appStatsDTO, "App Stats can not be null");
+		
+		// App Stats To Save
+		final AppStatsEntity appStatsToSave = this.appStatsEntityMapper
+				.saveAppStatsDtoToAppStatsEntity(appStatsDTO);
+		
+		// Save App Stats
+		final AppStatsEntity appStatsSaved = 
+				appStatsRepository.save(appStatsToSave);
+		// Map Result
+		return appStatsEntityMapper.appStatsEntityToAppStatsDTO(appStatsSaved);
+	}
 
+	/**
+	 * Get Stats For App Installed
+	 */
+	@Override
+	public Iterable<AppStatsDTO> getStatsForAppInstalled(final ObjectId kid, 
+			final ObjectId terminal, final Integer total) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		Assert.notNull(total, "Total can not be null");
+		
+		// Page Request
+		final PageRequest pageRequest = new PageRequest(0, total);
+		
+		// Find By Terminal Id And Kid 
+		final Page<AppStatsEntity> appStatsPage = appStatsRepository.findByTerminalIdAndKidId(
+				terminal, kid, pageRequest);
+		
+		// Map to App Stats
+		return appStatsPage.map(new Converter<AppStatsEntity, AppStatsDTO>() {
+            @Override
+            public AppStatsDTO convert(AppStatsEntity appStatsEntity) {
+                return appStatsEntityMapper.appStatsEntityToAppStatsDTO(appStatsEntity);
+            }
+        });
+	}
+
+	/**
+	 * Get Stats For App
+	 */
+	@Override
+	public AppStatsDTO getStatsForApp(final ObjectId kid, final ObjectId terminal, 
+			final ObjectId app) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		Assert.notNull(app, "Kid can not be null");
+		// Find App Stats
+		final AppStatsEntity appsStatsEntity = appStatsRepository
+				.findOneByAppIdAndTerminalIdAndKidId(app, terminal, kid);
+		// Map Results
+		return appStatsEntityMapper.appStatsEntityToAppStatsDTO(appsStatsEntity);
+	}
+
+	/**
+	 * Save App Stats
+	 */
+	@Override
+	public Iterable<AppStatsDTO> saveAppStats(Iterable<SaveAppStatsDTO> appStatsDTO) {
+		Assert.notNull(appStatsDTO, "App Stats DTO can not be null");
+		final List<AppStatsDTO> appsSavedList = new ArrayList<>();
+		for(final SaveAppStatsDTO saveAppStats: appStatsDTO)
+			appsSavedList.add(saveAppStats(saveAppStats));
+		return appsSavedList;
+	}
+
+	/**
+	 * Enable App In the terminal
+	 */
+	@Override
+	public void enableAppInTheTerminal(final ObjectId kid, 
+			final ObjectId terminal, final ObjectId app) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		Assert.notNull(app, "App can not be null");
+		
+		this.appsInstalledRepository.enableAppInTheTerminal(
+				kid, terminal, app);
+		
+	}
+
+	/**
+	 * Disable App In The Terminal
+	 */
+	@Override
+	public void disableAppInTheTerminal(final ObjectId kid, 
+			final ObjectId terminal, final ObjectId app) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		Assert.notNull(app, "App can not be null");
+		
+		this.appsInstalledRepository.disableAppInTheTerminal(
+				kid, terminal, app);
+		
+	}
 }

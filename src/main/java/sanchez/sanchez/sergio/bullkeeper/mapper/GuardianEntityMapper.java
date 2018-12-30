@@ -85,7 +85,8 @@ public abstract class GuardianEntityMapper {
     @Mappings({ 
 		@Mapping(expression="java(passwordEncoder.encode(registerGuardianDTO.getPasswordClear()))", target = "password"),
 		@Mapping(expression="java(authorityRepository.findByType(sanchez.sanchez.sergio.bullkeeper.persistence.entity.AuthorityEnum.ROLE_GUARDIAN))", target = "authority"),
-        @Mapping(expression="java(com.google.i18n.phonenumbers.PhoneNumberUtil.getInstance().format(registerGuardianDTO.getTelephone(), com.google.i18n.phonenumbers.PhoneNumberUtil.PhoneNumberFormat.E164))", target = "telephone" )
+        @Mapping(expression="java(com.google.i18n.phonenumbers.PhoneNumberUtil.getInstance().format(registerGuardianDTO.getTelephone(),"
+        		+ " com.google.i18n.phonenumbers.PhoneNumberUtil.PhoneNumberFormat.E164))", target = "telephone" )
 	})
     public abstract GuardianEntity registerGuardianDTOToGuardianEntity(RegisterGuardianDTO registerGuardianDTO);
     

@@ -103,4 +103,5 @@ public abstract class AppInstalledEntityMapper {
     @IterableMapping(qualifiedByName = "saveAppInstalledDtoToAppInstalledEntity")
     public abstract Iterable<AppInstalledEntity> saveAppInstalledDtoToAppInstalledEntity(final Iterable<SaveAppInstalledDTO> saveAppsInstalled);
 
+   
 }

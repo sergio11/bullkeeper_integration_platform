@@ -31,6 +31,8 @@ import sanchez.sanchez.sergio.bullkeeper.domain.service.IScheduledBlockService;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.ISocialMediaService;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IStatisticsService;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.ITerminalService;
+import sanchez.sanchez.sergio.bullkeeper.events.apps.AppDisabledEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.apps.AppEnabledEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.apps.AppRulesListSavedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.apps.AppRulesSavedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.location.CurrentLocationUpdateEvent;
@@ -44,6 +46,7 @@ import sanchez.sanchez.sergio.bullkeeper.events.scheduledblock.ScheduledBlockSav
 import sanchez.sanchez.sergio.bullkeeper.events.scheduledblock.ScheduledBlockStatusChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.exception.AlertNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.AppInstalledNotFoundException;
+import sanchez.sanchez.sergio.bullkeeper.exception.AppStatsNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.CallDetailNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.CallDetailsNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.CommentsByKidNotFoundException;
@@ -51,6 +54,7 @@ import sanchez.sanchez.sergio.bullkeeper.exception.ContactNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.CurrentLocationException;
 import sanchez.sanchez.sergio.bullkeeper.exception.KidNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoAlertsByKidFoundException;
+import sanchez.sanchez.sergio.bullkeeper.exception.NoAppStatsFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoAppsInstalledFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoChildrenFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoCommunityStatisticsForThisPeriodException;
@@ -88,6 +92,7 @@ import sanchez.sanchez.sergio.bullkeeper.util.ValidList;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.AddPhoneNumberBlockedDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppInstalledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppRulesDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppStatsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveCallDetailDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveContactDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveGuardianDTO;
@@ -101,6 +106,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.request.TerminalHeartbeatDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AlertDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppRuleDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppStatsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CallDetailDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CommentDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CommunitiesStatisticsDTO;
@@ -2501,6 +2507,101 @@ public class ChildrenController extends BaseController
     }
     
     /**
+     * Disable App In The Terminal
+     * @param kid
+     * @param terminal
+     * @param app
+     * @return
+     */
+    @RequestMapping(value = "/{kid}/terminal/{terminal}/apps/{app}/disabled", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(value = "DISABLE_APP_IN_THE_TERMINAL", nickname = "DISABLE_APP_IN_THE_TERMINAL", 
+    	notes = "Disable App In The Terminal",
+            response = String.class)
+    public ResponseEntity<APIResponse<String>> disableAppInTheTerminal(
+    	@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+    		@Valid @KidShouldExists(message = "{son.not.exists}")
+ 				@PathVariable String kid,
+ 		@ApiParam(name = "terminal", value = "Terminal Identity", required = true)
+    		@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
+     			@PathVariable String terminal,
+     	@ApiParam(name = "app", value = "App Identifier", required = true)
+    		@Valid @AppInstalledShouldExists(message = "{app.id.notvalid}")
+    			@PathVariable final String app) throws Throwable {
+    	
+    	logger.debug("Disable App In The Terminal");
+    	
+    	// Get Terminal
+    	final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+    			new ObjectId(terminal), new ObjectId(kid)))
+    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+    	
+    	// Disabled App In The Terminal
+    	terminalService.disableAppInTheTerminal(
+    			new ObjectId(kid), new ObjectId(terminal), 
+    			new ObjectId(app));
+
+    	// Publish Event
+    	this.applicationEventPublisher
+    		.publishEvent(new AppDisabledEvent(
+    				this, terminalDTO.getKid(), terminalDTO.getIdentity(), app));
+    	
+    	
+    	// Create and send response
+    	return ApiHelper.<String>createAndSendResponse(AppsResponseCode.APP_DISABLED_SUCCESSFULLY, 
+				HttpStatus.OK, messageSourceResolver.resolver("apps.disabled.successfully"));
+    
+    }
+    
+    
+    /**
+     * Enable App In The Terminal
+     * @param kid
+     * @param terminal
+     * @param app
+     * @return
+     */
+    @RequestMapping(value = "/{kid}/terminal/{terminal}/apps/{app}/enable", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(value = "ENABLE_APP_IN_THE_TERMINAL", nickname = "ENABLE_APP_IN_THE_TERMINAL", 
+    	notes = "Enable App In The Terminal",
+            response = String.class)
+    public ResponseEntity<APIResponse<String>> enableAppInTheTerminal(
+    	@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+    		@Valid @KidShouldExists(message = "{son.not.exists}")
+ 				@PathVariable String kid,
+ 		@ApiParam(name = "terminal", value = "Terminal Identity", required = true)
+    		@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
+     			@PathVariable String terminal,
+     	@ApiParam(name = "app", value = "App Identifier", required = true)
+    		@Valid @AppInstalledShouldExists(message = "{app.id.notvalid}")
+    			@PathVariable final String app) throws Throwable {
+    	
+    	logger.debug("Enable App In The Terminal");
+    	
+    	// Get Terminal
+    	final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+    			new ObjectId(terminal), new ObjectId(kid)))
+    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+    	
+    	// Enable App In The Terminal
+    	terminalService.enableAppInTheTerminal(
+    			new ObjectId(kid), new ObjectId(terminal), 
+    			new ObjectId(app));
+
+    	// Publish Event
+    	this.applicationEventPublisher
+    		.publishEvent(new AppEnabledEvent(this, terminalDTO.getKid(), 
+    				terminalDTO.getIdentity(), app));
+    	
+    	
+    	// Create and send response
+    	return ApiHelper.<String>createAndSendResponse(AppsResponseCode.APP_ENABLED_SUCCESSFULLY, 
+				HttpStatus.OK, messageSourceResolver.resolver("app.enabled.successfully"));
+    
+    }
+    
+    /**
      * Delete All Apps installed
      * @param kid
      * @param alert
@@ -2690,6 +2791,139 @@ public class ChildrenController extends BaseController
     }
     
     /**
+     * Get Stats for all apps installed in the terminal
+     * @param kid
+     * @param terminal
+     * @param total
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{kid}/terminal/{terminal}/apps/stats", method = RequestMethod.GET)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(value = "GET_STATS_FOR_ALL_APPS_INSTALLED_IN_THE_TERMINAL", 
+    	nickname = "GET_STATS_FOR_ALL_APPS_INSTALLED_IN_THE_TERMINAL",
+    		notes = "Get Stats For all apps installed in the terminal", 
+    			response = AppStatsDTO.class)
+    public ResponseEntity<APIResponse<Iterable<AppStatsDTO>>> getStatsForAllAppsInstalledInTheTerminal(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+        		@Valid @KidShouldExists(message = "{son.not.exists}")
+         			@PathVariable final String kid,
+         	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
+        		@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
+         			@PathVariable final String terminal,
+         	@ApiParam(value = "total", required = false) 
+   				@RequestParam(value = "total", required = false, defaultValue = "10") 
+   					final Integer total) 
+    		throws Throwable {
+    	
+    	// Get Terminal
+    	final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+    			new ObjectId(terminal), new ObjectId(kid)))
+    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+    	
+    	// Get Stats For App Installed
+    	Iterable<AppStatsDTO> appStats = terminalService.getStatsForAppInstalled(new ObjectId(terminalDTO.getKid()), 
+    			new ObjectId(terminalDTO.getIdentity()), total);
+    	
+    	if(Iterables.size(appStats) == 0)
+    		throw new NoAppStatsFoundException();
+    	
+    	// Create and send response
+        return ApiHelper.<Iterable<AppStatsDTO>>createAndSendResponse(
+        		AppsResponseCode.STATS_FOR_APPS_INSTALLED_IN_THE_TERMINAL, HttpStatus.OK, 
+        		appStats);
+    
+    }
+    
+    
+    /**
+     * Get stats for a specific app installed in the terminal
+     * @param kid
+     * @param terminal
+     * @param app
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{kid}/terminal/{terminal}/apps/{app}/stats", method = RequestMethod.GET)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(value = "GET_STATS_FOR_A_SPECIFIC_APP_INSTALLED_IN_THE_TERMINAL", 
+    	nickname = "GET_STATS_FOR_A_SPECIFIC_APP_INSTALLED_IN_THE_TERMINAL", 
+    	notes = "Get stats for a specific app installed in the terminal", 
+    	response = AppStatsDTO.class)
+    public ResponseEntity<APIResponse<AppStatsDTO>> getStatsForASpecificAppInstalledInTheTerminal(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+    			@Valid @KidShouldExists(message = "{son.not.exists}")
+     				@PathVariable final String kid,
+     		@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
+    			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
+     				@PathVariable final String terminal,
+     		@ApiParam(name = "app", value = "App id", required = true)
+				@Valid @AppInstalledShouldExists(message = "{app.not.exists}")
+ 					@PathVariable String app) throws Throwable {
+    	
+    	// Get Terminal
+    	final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+    			new ObjectId(terminal), new ObjectId(kid)))
+    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+    	
+    	// Get App Stats
+    	final AppStatsDTO appStatsDTO = Optional.ofNullable(terminalService.getStatsForApp(
+    			new ObjectId(terminalDTO.getIdentity()), new ObjectId(terminalDTO.getKid()),
+    					new ObjectId(app)))
+    			 .orElseThrow(() -> { throw new AppStatsNotFoundException(); });
+    
+    	
+    	// Create and send response
+        return ApiHelper.<AppStatsDTO>createAndSendResponse(
+        		AppsResponseCode.APP_STATS_NOT_FOUND, HttpStatus.OK, 
+        		appStatsDTO);
+    
+    }
+    
+    /**
+     * Save Stats for all apps installed in the terminal
+     * @param kid
+     * @param terminal
+     * @param stats
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{kid}/terminal/{terminal}/apps/stats", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(
+    		value = "SAVE_STATS_FOR_ALL_APPS_INSTALLED_IN_THE_TERMINAL", 
+    		nickname = "SAVE_STATS_FOR_ALL_APPS_INSTALLED_IN_THE_TERMINAL", 
+    		notes = "Save Stats For All Apps Installed in the terminal", response = Iterable.class)
+    public ResponseEntity<APIResponse<Iterable<AppStatsDTO>>> saveStatsForAllAppsInstalledInTheTerminal(
+            @ApiParam(name = "kid", value = "Kid Identifier", required = true)
+            	@Valid @KidShouldExists(message = "{son.id.notvalid}")
+             		@PathVariable String kid,
+            @ApiParam(name = "terminal", value = "Terminal id", required = true)
+        		@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
+         			@PathVariable String terminal,
+         	@ApiParam(value = "stats", required = true) 
+				@Validated(ICommonSequence.class) 
+					@RequestBody ValidList<SaveAppStatsDTO> statsList) throws Throwable {
+    	
+    	// Get Terminal
+    	final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+    			new ObjectId(terminal), new ObjectId(kid)))
+    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+    	
+    	// Save App Stats
+    	final Iterable<AppStatsDTO> appStatsDTO = 
+    			terminalService.saveAppStats(statsList);
+    	
+    	// Create and send response
+        return ApiHelper.<Iterable<AppStatsDTO>>createAndSendResponse(
+        		AppsResponseCode.APP_STATS_SAVED, HttpStatus.OK, appStatsDTO);
+    	
+    }
+        
+
+    
+    /**
      * Get Phone Numbers Blocked
      * @param id
      * @return
@@ -2727,6 +2961,7 @@ public class ChildrenController extends BaseController
         		HttpStatus.OK, phoneNumbersBlockedList);
     	
     }
+    
     
     /**
      * Add Phone Number Blocked

@@ -43,5 +43,24 @@ public interface AppInstalledRepositoryCustom {
 	 */
 	AppInstalledEntity getAppRules(final ObjectId kid, final ObjectId terminal, final ObjectId app);
 	
+	/**
+	 * 
+	 * @param kid
+	 * @param terminal
+	 * @param app
+	 */
+	void enableAppInTheTerminal(final ObjectId kid, final ObjectId terminal, 
+			final ObjectId app);
+	
+	/**
+	 * 
+	 * @param kid
+	 * @param terminal
+	 * @param app
+	 */
+	void disableAppInTheTerminal(final ObjectId kid, final ObjectId terminal, 
+			final ObjectId app);
+	
+	
 
 }

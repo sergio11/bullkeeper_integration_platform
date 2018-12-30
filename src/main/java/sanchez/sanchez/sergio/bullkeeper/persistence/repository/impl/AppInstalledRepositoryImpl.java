@@ -108,11 +108,68 @@ public final class AppInstalledRepositoryImpl implements AppInstalledRepositoryC
         
         query.fields()
         	.include("_id")
-        	.include("app_name")
+        	.include("package_name")
         	.include("app_rule");    
         
         return mongoTemplate.findOne(query, AppInstalledEntity.class);
 	
+	}
+
+	/**
+	 * Enable App In The Terminal
+	 */
+	@Override
+	public void enableAppInTheTerminal(final ObjectId kid, 
+			final ObjectId terminal, final ObjectId app) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		Assert.notNull(app, "App can not be null");
+		
+		// Kid Criteria
+		final Criteria kidIdCriteria = 
+				Criteria.where("kid").is(kid);
+		// Terminal Criteria
+		final Criteria terminalIdCriteria = 
+				Criteria.where("terminal").is(terminal);
+		//App Criteria
+		final Criteria appCriteria =
+				Criteria.where("_id").is(app);
+				
+		// Create Query
+		final Query query = new Query(new Criteria().andOperator(
+		        		kidIdCriteria, terminalIdCriteria, appCriteria));
+		
+		mongoTemplate.updateFirst(query,
+                new Update().set("disabled", true), AppInstalledEntity.class);
+	}
+
+	/**
+	 * 
+	 */
+	@Override
+	public void disableAppInTheTerminal(final ObjectId kid, 
+			final ObjectId terminal, final ObjectId app) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		Assert.notNull(app, "App can not be null");
+		
+		// Kid Criteria
+		final Criteria kidIdCriteria = 
+					Criteria.where("kid").is(kid);
+		// Terminal Criteria
+		final Criteria terminalIdCriteria = 
+					Criteria.where("terminal").is(terminal);
+		//App Criteria
+		final Criteria appCriteria =
+						Criteria.where("_id").is(app);
+						
+		// Create Query
+		final Query query = new Query(new Criteria().andOperator(
+				       kidIdCriteria, terminalIdCriteria, appCriteria));
+		
+		mongoTemplate.updateFirst(query,
+                new Update().set("disabled", false), AppInstalledEntity.class);
+		
 	}
 	
 }

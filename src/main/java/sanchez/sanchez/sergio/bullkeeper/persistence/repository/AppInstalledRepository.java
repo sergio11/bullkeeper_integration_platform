@@ -44,6 +44,13 @@ public interface AppInstalledRepository extends MongoRepository<AppInstalledEnti
 	long countById(final ObjectId id);
 	
 	/**
+	 * Count By Package Name
+	 * @param packageName
+	 * @return
+	 */
+	long countByPackageName(final String packageName);
+	
+	/**
 	 * Count By Id and Kid Id
 	 * @param id
 	 * @param kidId

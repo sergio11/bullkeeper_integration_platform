@@ -3,8 +3,13 @@ package sanchez.sanchez.sergio.bullkeeper.web.dto.request;
 import java.io.Serializable;
 import org.hibernate.validator.constraints.NotBlank;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
+
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.KidShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.TerminalShouldExists;
+import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ValidPhoneNumber;
+import sanchez.sanchez.sergio.bullkeeper.web.rest.deserializers.PhoneNumberDeserializer;
 
 /**
  * Add Phone Number Blocked
@@ -21,9 +26,11 @@ public class AddPhoneNumberBlockedDTO implements Serializable {
 	/**
 	 * Phone Number
 	 */
-	@JsonProperty("phone_number")
-	@NotBlank(message = "{phonenumber.notnull}")
-	private String phoneNumber;
+
+    @ValidPhoneNumber(message = "{phone.number.not.valid}")
+    @JsonProperty("phone_number")
+	@JsonDeserialize(using = PhoneNumberDeserializer.class)
+	private PhoneNumber phoneNumber;
 	
 	/**
 	 * Terminal
@@ -51,14 +58,14 @@ public class AddPhoneNumberBlockedDTO implements Serializable {
 	 * @param terminal
 	 * @param kid
 	 */
-	public AddPhoneNumberBlockedDTO(final String phoneNumber, final String terminal, final String kid) {
+	public AddPhoneNumberBlockedDTO(final PhoneNumber phoneNumber, final String terminal, final String kid) {
 		super();
 		this.phoneNumber = phoneNumber;
 		this.terminal = terminal;
 		this.kid = kid;
 	}
 
-	public String getPhoneNumber() {
+	public PhoneNumber getPhoneNumber() {
 		return phoneNumber;
 	}
 
@@ -66,7 +73,7 @@ public class AddPhoneNumberBlockedDTO implements Serializable {
 		return terminal;
 	}
 
-	public void setPhoneNumber(String phoneNumber) {
+	public void setPhoneNumber(PhoneNumber phoneNumber) {
 		this.phoneNumber = phoneNumber;
 	}
 

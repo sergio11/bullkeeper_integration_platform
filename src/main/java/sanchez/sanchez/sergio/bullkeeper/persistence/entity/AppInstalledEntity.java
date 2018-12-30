@@ -69,6 +69,12 @@ public class AppInstalledEntity implements Serializable {
 	@Field("app_name")
     private String appName;
 	
+	/**
+	 * Is Disabled
+	 */
+	@Field("disabled")
+	private Boolean disabled = false;
+	
 	
 	/**
 	 * App Rule
@@ -120,7 +126,7 @@ public class AppInstalledEntity implements Serializable {
 	 */
 	@PersistenceConstructor
 	public AppInstalledEntity(ObjectId id, String packageName, Long firstInstallTime, Long lastUpdateTime,
-			String versionName, String versionCode, String appName, AppRuleEnum appRuleEnum, String iconEncodedString, KidEntity kid, TerminalEntity terminal) {
+			String versionName, String versionCode, String appName, Boolean disabled, AppRuleEnum appRuleEnum, String iconEncodedString, KidEntity kid, TerminalEntity terminal) {
 		super();
 		this.id = id;
 		this.packageName = packageName;
@@ -129,6 +135,7 @@ public class AppInstalledEntity implements Serializable {
 		this.versionName = versionName;
 		this.versionCode = versionCode;
 		this.appName = appName;
+		this.disabled = disabled;
 		this.appRuleEnum = appRuleEnum;
 		this.iconEncodedString = iconEncodedString;
 		this.kid = kid;
@@ -206,6 +213,7 @@ public class AppInstalledEntity implements Serializable {
 	public void setAppName(String appName) {
 		this.appName = appName;
 	}
+	
 
 	public void setAppRuleEnum(AppRuleEnum appRuleEnum) {
 		this.appRuleEnum = appRuleEnum;
@@ -221,6 +229,15 @@ public class AppInstalledEntity implements Serializable {
 
 	public void setTerminal(TerminalEntity terminal) {
 		this.terminal = terminal;
+	}
+
+
+	public Boolean getDisabled() {
+		return disabled;
+	}
+
+	public void setDisabled(Boolean disabled) {
+		this.disabled = disabled;
 	}
 
 	@Override

@@ -7,6 +7,7 @@ import org.bson.types.ObjectId;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.AddPhoneNumberBlockedDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppInstalledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppRulesDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppStatsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveCallDetailDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveContactDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveSmsDTO;
@@ -14,6 +15,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveTerminalDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.TerminalHeartbeatDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppRuleDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppStatsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CallDetailDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ContactDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.PhoneNumberBlockedDTO;
@@ -396,6 +398,58 @@ public interface ITerminalService {
      * @return
      */
     AppRuleDTO getAppRules(final ObjectId kid, final ObjectId terminal, final ObjectId app);
+    
+    /**
+     * Save App Stats
+     * @param appStatsDTO
+     * @return
+     */
+    AppStatsDTO saveAppStats(final SaveAppStatsDTO appStatsDTO);
+    
+    /**
+     * Save App Stats
+     * @param appStatsDTO
+     * @return
+     */
+    Iterable<AppStatsDTO> saveAppStats(final Iterable<SaveAppStatsDTO> appStatsDTO);
+    
+    /**
+     * Get Stats for app installed
+     * @param kid
+     * @param terminal
+     * @param total
+     * @return
+     */
+    Iterable<AppStatsDTO> getStatsForAppInstalled(final ObjectId kid, 
+    		final ObjectId terminal, final Integer total);
+    
+    /**
+     * Get Stats for app
+     * @param kid
+     * @param terminal
+     * @param app
+     * @return
+     */
+    AppStatsDTO getStatsForApp(final ObjectId kid, 
+    		final ObjectId terminal, final ObjectId app);
+    
+    /**
+     * Enable App In The Terminal
+     * @param kid
+     * @param terminal
+     * @param app
+     */
+    void enableAppInTheTerminal(final ObjectId kid, final ObjectId terminal,
+    		final ObjectId app);
+    
+    /**
+     * Disable App In The Terminal
+     * @param kid
+     * @param terminal
+     * @param app
+     */
+    void disableAppInTheTerminal(final ObjectId kid, final ObjectId terminal,
+    		final ObjectId app);
     
     
 }

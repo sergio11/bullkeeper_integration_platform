@@ -70,7 +70,8 @@ public abstract class ScheduledBlockMapper {
 	 * @return
 	 */
     @Mappings({
-    	@Mapping(expression="java((saveScheduledBlockDTO.getIdentity() != null && !saveScheduledBlockDTO.getIdentity().isEmpty()) ? new org.bson.types.ObjectId(saveScheduledBlockDTO.getIdentity()) : null )", target="id"),
+    	@Mapping(expression="java((saveScheduledBlockDTO.getIdentity() != null && !saveScheduledBlockDTO.getIdentity().isEmpty()) ? new org.bson.types.ObjectId(saveScheduledBlockDTO.getIdentity()) : null )", 
+    			target="id"),
         @Mapping(expression="java(kidRepository.findOne(new org.bson.types.ObjectId(saveScheduledBlockDTO.getKid())))", target = "kid" )
      })
     @Named("saveScheduledBlockDTOToScheduledBlockEntity")

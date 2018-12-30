@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import io.jsonwebtoken.lang.Assert;
 import sanchez.sanchez.sergio.bullkeeper.exception.AppInstalledNotFoundException;
+import sanchez.sanchez.sergio.bullkeeper.exception.AppStatsNotFoundException;
+import sanchez.sanchez.sergio.bullkeeper.exception.NoAppStatsFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoAppsInstalledFoundException;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.ApiHelper;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.controller.BaseController;
@@ -56,6 +58,31 @@ public class AppInstalledErrorController extends BaseController {
         		messageSourceResolver.resolver("app.installed.not.found"));
     }
     
+    /**
+	 * Exception Handler for No App Stats Found Exception
+	 * @param resourceNotFound
+	 * @param request
+	 * @return
+	 */
+    @ExceptionHandler(NoAppStatsFoundException.class)
+    @ResponseBody
+    protected ResponseEntity<APIResponse<String>> handleNoAppStatsFoundException(NoAppStatsFoundException resourceNotFound, HttpServletRequest request) {
+        return ApiHelper.<String>createAndSendErrorResponseWithHeader(AppsResponseCode.NO_APP_STATS_FOUND, HttpStatus.NOT_FOUND,
+        		messageSourceResolver.resolver("no.app.stats.found.exception"));
+    }
+    
+    /**
+	 * Exception Handler for App Stats Not Found Exception
+	 * @param resourceNotFound
+	 * @param request
+	 * @return
+	 */
+    @ExceptionHandler(AppStatsNotFoundException.class)
+    @ResponseBody
+    protected ResponseEntity<APIResponse<String>> handleAppStatsNotFoundException(AppStatsNotFoundException resourceNotFound, HttpServletRequest request) {
+        return ApiHelper.<String>createAndSendErrorResponseWithHeader(AppsResponseCode.APP_STATS_NOT_FOUND, HttpStatus.NOT_FOUND,
+        		messageSourceResolver.resolver("app.stats.not.found.exception"));
+    }
     
     
     @PostConstruct

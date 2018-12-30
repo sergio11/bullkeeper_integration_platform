@@ -78,6 +78,12 @@ public class AppInstalledDTO extends ResourceSupport {
 	private String terminalId;
 	
 	/**
+	 * Disabled
+	 */
+	@JsonProperty("disabled")
+	private Boolean disabled;
+	
+	/**
 	 * 
 	 */
 	public AppInstalledDTO() {}
@@ -95,10 +101,11 @@ public class AppInstalledDTO extends ResourceSupport {
 	 * @param iconEncodedString
 	 * @param kid
 	 * @param terminalId
+	 * @param disabled
 	 */
 	public AppInstalledDTO(String identity, String packageName, long firstInstallTime, long lastUpdateTime,
 			String versionName, String versionCode, String appName, String appRule, String iconEncodedString,
-			String kid, String terminalId) {
+			String kid, String terminalId, Boolean disabled) {
 		super();
 		this.identity = identity;
 		this.packageName = packageName;
@@ -111,6 +118,7 @@ public class AppInstalledDTO extends ResourceSupport {
 		this.iconEncodedString = iconEncodedString;
 		this.kid = kid;
 		this.terminalId = terminalId;
+		this.disabled = disabled;
 	}
 
 	public String getIdentity() {
@@ -200,16 +208,24 @@ public class AppInstalledDTO extends ResourceSupport {
 	public void setTerminalId(String terminalId) {
 		this.terminalId = terminalId;
 	}
+	
+
+	public Boolean getDisabled() {
+		return disabled;
+	}
+
+	public void setDisabled(Boolean disabled) {
+		this.disabled = disabled;
+	}
 
 	@Override
 	public String toString() {
 		return "AppInstalledDTO [identity=" + identity + ", packageName=" + packageName + ", firstInstallTime="
 				+ firstInstallTime + ", lastUpdateTime=" + lastUpdateTime + ", versionName=" + versionName
 				+ ", versionCode=" + versionCode + ", appName=" + appName + ", appRule=" + appRule
-				+ ", iconEncodedString=" + iconEncodedString + ", kid=" + kid + ", terminalId=" + terminalId + "]";
+				+ ", iconEncodedString=" + iconEncodedString + ", kid=" + kid + ", terminalId=" + terminalId
+				+ ", disabled=" + disabled + "]";
 	}
 
-	
-	
 	
 }
