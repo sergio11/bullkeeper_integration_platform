@@ -31,8 +31,11 @@ public abstract class ScheduledBlockMapper {
 	 * @return
 	 */
     @Mappings({
-        @Mapping(expression="java(scheduledBlockEntity.getId().toString())", target = "identity" ),
-        @Mapping(expression="java(scheduledBlockEntity.getKid().getId().toString())", target = "kid" )
+        @Mapping(expression="java(scheduledBlockEntity.getId().toString())", 
+        	target = "identity" ),
+        @Mapping(expression="java(scheduledBlockEntity.getKid().getId().toString())",
+        	target = "kid" ),
+        @Mapping(source = "scheduledBlockEntity.createAt", target = "createAt", dateFormat = "yyyy/MM/dd")
      })
     @Named("scheduledBlockEntityToScheduledBlockDTO")
     public abstract ScheduledBlockDTO scheduledBlockEntityToScheduledBlockDTO(final ScheduledBlockEntity scheduledBlockEntity); 

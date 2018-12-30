@@ -1,16 +1,15 @@
-package sanchez.sanchez.sergio.bullkeeper.events.apps;
+package sanchez.sanchez.sergio.bullkeeper.events.terminal;
 
 import org.springframework.context.ApplicationEvent;
 
 /**
- * App Disabled Event
+ * 
  * @author sergiosanchezsanchez
  *
  */
-public final class AppDisabledEvent extends ApplicationEvent {
+public final class TerminalCameraStatusChangedEvent extends ApplicationEvent {
 	
-	
-	
+
 	/**
 	 * 
 	 */
@@ -27,22 +26,22 @@ public final class AppDisabledEvent extends ApplicationEvent {
 	private final String terminal;
 	
 	/**
-	 * App
+	 * Enabled
 	 */
-	private final String app;
+	private final Boolean enabled;
 
 	/**
 	 * 
 	 * @param source
 	 * @param kid
 	 * @param terminal
-	 * @param app
+	 * @param enabled
 	 */
-	public AppDisabledEvent(Object source, String kid, String terminal, String app) {
+	public TerminalCameraStatusChangedEvent(Object source, String kid, String terminal, Boolean enabled) {
 		super(source);
 		this.kid = kid;
 		this.terminal = terminal;
-		this.app = app;
+		this.enabled = enabled;
 	}
 
 	public String getKid() {
@@ -53,13 +52,13 @@ public final class AppDisabledEvent extends ApplicationEvent {
 		return terminal;
 	}
 
-	public String getApp() {
-		return app;
+	public Boolean getEnabled() {
+		return enabled;
 	}
 
 	@Override
 	public String toString() {
-		return "AppDisabledEvent [kid=" + kid + ", terminal=" + terminal + ", app=" + app + "]";
+		return "TerminalCameraStatusChangedEvent [kid=" + kid + ", terminal=" + terminal + ", enabled=" + enabled + "]";
 	}
 
 	

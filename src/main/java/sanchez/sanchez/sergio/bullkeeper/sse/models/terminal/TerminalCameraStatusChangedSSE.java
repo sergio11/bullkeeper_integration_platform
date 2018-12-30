@@ -1,15 +1,15 @@
-package sanchez.sanchez.sergio.bullkeeper.sse.models.apps;
+package sanchez.sanchez.sergio.bullkeeper.sse.models.terminal;
 
 import java.io.Serializable;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.AbstractSseData;
 
 /**
- * App Disabled Status Changed
+ * Terminal Camera Status Changed
  * @author sergiosanchezsanchez
  *
  */
-public final class AppDisabledStatusChangedSSE
+public final class TerminalCameraStatusChangedSSE
 	extends AbstractSseData implements Serializable {
 
 	/**
@@ -20,7 +20,7 @@ public final class AppDisabledStatusChangedSSE
 	/**
 	 * Event Type
 	 */
-	public final static String EVENT_TYPE = "APP_DISABLED_STATUS_CHANGED";
+	public final static String EVENT_TYPE = "TERMINAL_CAMERA_STATUS_CHANGED";
 	
 	/**
 	 * Kid
@@ -34,23 +34,17 @@ public final class AppDisabledStatusChangedSSE
 	@JsonProperty("terminal")
 	private String terminal;
 	
-	/**
-	 * App
-	 */
-	@JsonProperty("app")
-	private String app;
-	
 	
 	/**
-	 * Disabled
+	 * Enabled
 	 */
-	@JsonProperty("disabled")
-	private Boolean disabled;
+	@JsonProperty("enabled")
+	private Boolean enabled;
 	
 	/**
 	 * 
 	 */
-	public AppDisabledStatusChangedSSE() {
+	public TerminalCameraStatusChangedSSE() {
 		this.eventType = EVENT_TYPE;
 	}
 
@@ -59,15 +53,14 @@ public final class AppDisabledStatusChangedSSE
 	 * @param subscriberId
 	 * @param kid
 	 * @param terminal
-	 * @param app
-	 * @param disabled
+	 * @param enabled
 	 */
-	public AppDisabledStatusChangedSSE(String subscriberId, String kid, String terminal, String app, Boolean disabled) {
+	public TerminalCameraStatusChangedSSE(String subscriberId, 
+			String kid, String terminal, Boolean enabled) {
 		super(EVENT_TYPE, subscriberId);
 		this.kid = kid;
 		this.terminal = terminal;
-		this.app = app;
-		this.disabled = disabled;
+		this.enabled = enabled;
 	}
 
 	public String getKid() {
@@ -78,12 +71,8 @@ public final class AppDisabledStatusChangedSSE
 		return terminal;
 	}
 
-	public String getApp() {
-		return app;
-	}
-
-	public Boolean getDisabled() {
-		return disabled;
+	public Boolean getEnabled() {
+		return enabled;
 	}
 
 	public void setKid(String kid) {
@@ -94,20 +83,12 @@ public final class AppDisabledStatusChangedSSE
 		this.terminal = terminal;
 	}
 
-	public void setApp(String app) {
-		this.app = app;
-	}
-
-	public void setDisabled(Boolean disabled) {
-		this.disabled = disabled;
+	public void setEnabled(Boolean enabled) {
+		this.enabled = enabled;
 	}
 
 	@Override
 	public String toString() {
-		return "AppDisabledStatusChangedSSE [kid=" + kid + ", terminal=" + terminal + ", app=" + app + ", disabled="
-				+ disabled + "]";
+		return "TerminalCameraStatusChangedSSE [kid=" + kid + ", terminal=" + terminal + ", enabled=" + enabled + "]";
 	}
-
-	
-	
 }

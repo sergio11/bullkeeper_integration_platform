@@ -74,5 +74,27 @@ public final class Utils {
     	calendar.add(Calendar.DATE, -monthAgo); 
     	return calendar.getTime();
 	}
+	
+	/**
+	 * Within The Same Week
+	 * @param firstDate
+	 * @param secondDate
+	 * @return
+	 */
+	public static boolean withinTheSameWeek(final Date firstDate, final Date secondDate) {
+		
+		final Calendar calendarFirstDate = Calendar.getInstance();
+		calendarFirstDate.setTime(firstDate);
+		final int year1 = calendarFirstDate.get(Calendar.YEAR);
+		final int week1 = calendarFirstDate.get(Calendar.WEEK_OF_YEAR);
+
+		final Calendar calendarSecondDate = Calendar.getInstance();
+		calendarSecondDate.setTime(firstDate);
+		final int year2 = calendarSecondDate.get(Calendar.YEAR);
+		final int week2 = calendarSecondDate.get(Calendar.WEEK_OF_YEAR);
+
+		return year1 == year2 && week1 == week2;
+		
+	}
 
 }

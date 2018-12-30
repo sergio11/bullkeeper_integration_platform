@@ -48,6 +48,14 @@ public final class KidEntity extends PersonEntity {
     @Field("requests")
     @CascadeSave
     private List<RequestTypeEntity> requests = new ArrayList<>();
+    
+    /**
+     * Fun Time
+     */
+    @Field("funtime_scheduled")
+    @CascadeSave
+    private FunTimeScheduledEntity funTimeScheduled = new FunTimeScheduledEntity();
+    
 
     public KidEntity() {
     }
@@ -62,16 +70,19 @@ public final class KidEntity extends PersonEntity {
      * @param results
      * @param currentLocation
      * @param requests
+     * @param funTimeScheduled
      */
     @PersistenceConstructor
     public KidEntity(String firstName, String lastName, Date birthdate, String profileImage, SchoolEntity school,
             KidResultsEntity results, LocationEntity currentLocation,
-            List<RequestTypeEntity> requests) {
+            List<RequestTypeEntity> requests,
+            final FunTimeScheduledEntity funTimeScheduled) {
         super(firstName, lastName, birthdate, profileImage);
         this.school = school;
         this.results = results;
         this.currentLocation = currentLocation;
         this.requests = requests;
+        this.funTimeScheduled = funTimeScheduled;
     }
 
     
@@ -119,7 +130,13 @@ public final class KidEntity extends PersonEntity {
 	public void setRequests(List<RequestTypeEntity> requests) {
 		this.requests = requests;
 	}
-	
-	
+
+	public FunTimeScheduledEntity getFunTimeScheduled() {
+		return funTimeScheduled;
+	}
+
+	public void setFunTimeScheduled(FunTimeScheduledEntity funTimeScheduled) {
+		this.funTimeScheduled = funTimeScheduled;
+	}
     
 }

@@ -112,6 +112,24 @@ public class TerminalEntity implements Serializable {
 	private ScreenStatusEnum screenStatus = ScreenStatusEnum.STATE_OFF;
 	
 	/**
+     * Bed Time Enabled
+     */
+	@Field("bed_time_enabled")
+    private Boolean bedTimeEnabled;
+
+    /**
+     * Lock Screen Enabled
+     */
+	@Field("lock_screen_enabled")
+    private Boolean lockScreenEnabled;
+
+    /**
+     * Lock Camera Enabled
+     */
+	@Field("lock_camera_enabled")
+	private Boolean lockCameraEnabled;
+	
+	/**
 	 * KId
 	 */
 	@DBRef
@@ -141,7 +159,8 @@ public class TerminalEntity implements Serializable {
 	public TerminalEntity(ObjectId id, String appVersionName, String appVersionCode, String osVersion,
 			String sdkVersion, String manufacturer, String marketName, String model, String codeName,
 			String deviceName, String deviceId, Date lastTimeUsed, Date createAt, 
-			ScreenStatusEnum screenStatus, KidEntity kid) {
+			ScreenStatusEnum screenStatus, Boolean bedTimeEnabled,
+			Boolean lockScreenEnabled, Boolean lockCameraEnabled, KidEntity kid) {
 		super();
 		this.id = id;
 		this.appVersionName = appVersionName;
@@ -157,6 +176,9 @@ public class TerminalEntity implements Serializable {
 		this.lastTimeUsed = lastTimeUsed;
 		this.createAt = createAt;
 		this.screenStatus = screenStatus;
+		this.bedTimeEnabled = bedTimeEnabled;
+		this.lockScreenEnabled = lockScreenEnabled;
+		this.lockCameraEnabled = lockCameraEnabled;
 		this.kid = kid;
 	}
 
@@ -272,6 +294,30 @@ public class TerminalEntity implements Serializable {
 
 	public void setScreenStatus(ScreenStatusEnum screenStatus) {
 		this.screenStatus = screenStatus;
+	}
+
+	public Boolean getBedTimeEnabled() {
+		return bedTimeEnabled;
+	}
+
+	public Boolean getLockScreenEnabled() {
+		return lockScreenEnabled;
+	}
+
+	public Boolean getLockCameraEnabled() {
+		return lockCameraEnabled;
+	}
+
+	public void setBedTimeEnabled(Boolean bedTimeEnabled) {
+		this.bedTimeEnabled = bedTimeEnabled;
+	}
+
+	public void setLockScreenEnabled(Boolean lockScreenEnabled) {
+		this.lockScreenEnabled = lockScreenEnabled;
+	}
+
+	public void setLockCameraEnabled(Boolean lockCameraEnabled) {
+		this.lockCameraEnabled = lockCameraEnabled;
 	}
 
 	public KidEntity getKid() {

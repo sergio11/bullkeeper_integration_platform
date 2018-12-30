@@ -44,6 +44,9 @@ import sanchez.sanchez.sergio.bullkeeper.events.scheduledblock.DeleteScheduledBl
 import sanchez.sanchez.sergio.bullkeeper.events.scheduledblock.ScheduledBlockImageChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.scheduledblock.ScheduledBlockSavedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.scheduledblock.ScheduledBlockStatusChangedEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalBedTimeStatusChangedEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalCameraStatusChangedEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalScreenStatusChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.exception.AlertNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.AppInstalledNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.AppStatsNotFoundException;
@@ -52,6 +55,7 @@ import sanchez.sanchez.sergio.bullkeeper.exception.CallDetailsNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.CommentsByKidNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.ContactNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.CurrentLocationException;
+import sanchez.sanchez.sergio.bullkeeper.exception.FunTimeScheduledNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.KidNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoAlertsByKidFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoAppStatsFoundException;
@@ -112,6 +116,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CommentDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CommunitiesStatisticsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ContactDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.DimensionsStatisticsDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.FunTimeScheduledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ImageDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidGuardianDTO;
@@ -1340,6 +1345,228 @@ public class ChildrenController extends BaseController
         
     }
     
+    /**
+     * Enable Bed Time
+     */
+    @RequestMapping(value = "/{kid}/terminal/{terminal}/bedtime/enable", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(value = "ENABLE_BED_TIME_IN_THE_TERMINAL", nickname = "ENABLE_BED_TIME_IN_THE_TERMINAL",
+    	notes = "Enable Bed Time in the terminal", response = String.class)
+    public ResponseEntity<APIResponse<String>> enableBedTimeInTheTerminal(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+        		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+         			@PathVariable String kid,
+         	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
+    			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
+     				@PathVariable String terminal) 
+    		throws Throwable {
+    	
+    	// Get Terminal
+        final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+    			new ObjectId(terminal), new ObjectId(kid)))
+    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+    	
+        // Enable Bed Time
+        terminalService.enableBedTimeInTheTerminal(new ObjectId(terminalDTO.getKid()), new ObjectId(terminalDTO.getIdentity()));
+        
+        
+        // Publish Event
+    	this.applicationEventPublisher
+    		.publishEvent(new TerminalBedTimeStatusChangedEvent(
+    				this, kid, terminal, true));
+        
+        // Create and send response
+        return ApiHelper.<String>createAndSendResponse(
+        		ChildrenResponseCode.BED_TIME_ENABLED_SUCCESSFULLY, HttpStatus.OK, 
+        		messageSourceResolver.resolver("bed.time.enabled.successfully"));
+    }
+    
+    /**
+     * Disable Bed Time
+     */
+    @RequestMapping(value = "/{kid}/terminal/{terminal}/bedtime/disable", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(value = "DISABLE_BED_TIME_IN_THE_TERMINAL", nickname = "DISABLE_BED_TIME_IN_THE_TERMINAL",
+    	notes = "Disable Bed Time in the terminal", response = String.class)
+    public ResponseEntity<APIResponse<String>> disableBedTimeInTheTerminal(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+        		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+         			@PathVariable String kid,
+         	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
+    			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
+     				@PathVariable String terminal) 
+    		throws Throwable {
+    	
+    	// Get Terminal
+        final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+    			new ObjectId(terminal), new ObjectId(kid)))
+    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+    	
+        // Disabled Bed Time
+        terminalService.disableBedTimeInTheTerminal(new ObjectId(terminalDTO.getKid()), new ObjectId(terminalDTO.getIdentity()));
+        
+        // Publish Event
+    	this.applicationEventPublisher
+    		.publishEvent(new TerminalBedTimeStatusChangedEvent(
+    				this, kid, terminal, false));
+        
+        // Create and send response
+        return ApiHelper.<String>createAndSendResponse(
+        		ChildrenResponseCode.BED_TIME_DISABLED_SUCCESSFULLY, HttpStatus.OK, 
+        		messageSourceResolver.resolver("bed.time.disabled.successfully"));
+    }
+    
+    /**
+     * Lock Screen
+     */
+    @RequestMapping(value = "/{kid}/terminal/{terminal}/screen/lock", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(value = "LOCK_SCREEN_IN_THE_TERMINAL", nickname = "LOCK_SCREEN_IN_THE_TERMINAL",
+    	notes = "Lock Screen in the terminal", response = String.class)
+    public ResponseEntity<APIResponse<String>> lockScreenInTheTerminal(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+        		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+         			@PathVariable String kid,
+         	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
+    			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
+     				@PathVariable String terminal) 
+    		throws Throwable {
+    	
+    	// Get Terminal
+        final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+    			new ObjectId(terminal), new ObjectId(kid)))
+    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+    	
+        // Lock Screen
+        terminalService.lockScreenInTheTerminal(new ObjectId(terminalDTO.getKid()), new ObjectId(terminalDTO.getIdentity()));
+        
+        // Publish Event
+    	this.applicationEventPublisher
+    		.publishEvent(new TerminalScreenStatusChangedEvent(
+    				this, kid, terminal, true));
+        
+        // Create and send response
+        return ApiHelper.<String>createAndSendResponse(
+        		ChildrenResponseCode.LOCK_SCREEN_ENABLED_SUCCESSFULLY, HttpStatus.OK, 
+        		messageSourceResolver.resolver("lock.screen.enabled.successfully"));
+    }
+    
+    /**
+     * Unlock Screen
+     */
+    @RequestMapping(value = "/{kid}/terminal/{terminal}/screen/unlock", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(
+    		value = "UNLOCK_SCREEN_IN_THE_TERMINAL", 
+    		nickname = "UNLOCK_SCREEN_IN_THE_TERMINAL",
+    		notes = "Unlock Screen in the terminal", response = String.class)
+    public ResponseEntity<APIResponse<String>> unLockScreenInTheTerminal(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+        		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+         			@PathVariable String kid,
+         	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
+    			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
+     				@PathVariable String terminal) 
+    		throws Throwable {
+    	
+    	// Get Terminal
+        final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+    			new ObjectId(terminal), new ObjectId(kid)))
+    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+    	
+        // Unlock screen
+        terminalService.unlockScreenInTheTerminal(new ObjectId(terminalDTO.getKid()), new ObjectId(terminalDTO.getIdentity()));
+        
+        // Publish Event
+    	this.applicationEventPublisher
+    		.publishEvent(new TerminalScreenStatusChangedEvent(
+    				this, kid, terminal, false));
+        
+        // Create and send response
+        return ApiHelper.<String>createAndSendResponse(
+        		ChildrenResponseCode.LOCK_SCREEN_DISABLED_SUCCESSFULLY, HttpStatus.OK, 
+        		messageSourceResolver.resolver("lock.screen.disabled.successfully"));
+    }
+    
+    /**
+     * Lock Camera
+     */
+    @RequestMapping(value = "/{kid}/terminal/{terminal}/camera/lock", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(value = "LOCK_CAMERA_IN_THE_TERMINAL", nickname = "LOCK_CAMERA_IN_THE_TERMINAL",
+    	notes = "Lock Camera in the terminal", response = String.class)
+    public ResponseEntity<APIResponse<String>> lockCameraInTheTerminal(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+        		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+         			@PathVariable String kid,
+         	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
+    			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
+     				@PathVariable String terminal) 
+    		throws Throwable {
+    	
+    	// Get Terminal
+        final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+    			new ObjectId(terminal), new ObjectId(kid)))
+    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+    	
+        // Lock Camera
+        terminalService.lockCameraInTheTerminal(new ObjectId(terminalDTO.getKid()), new ObjectId(terminalDTO.getIdentity()));
+       
+        // Publish Event
+    	this.applicationEventPublisher
+    		.publishEvent(new TerminalCameraStatusChangedEvent(
+    				this, kid, terminal, true));
+        
+        // Create and send response
+        return ApiHelper.<String>createAndSendResponse(
+        		ChildrenResponseCode.LOCK_CAMERA_ENABLED_SUCCESSFULLY, HttpStatus.OK, 
+        		messageSourceResolver.resolver("lock.camera.enabled.successfully"));
+    }
+    
+    /**
+     * Unlock Camera
+     */
+    @RequestMapping(value = "/{kid}/terminal/{terminal}/camera/unlock", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(
+    		value = "UNLOCK_CAMERA_IN_THE_TERMINAL", 
+    		nickname = "UNLOCK_CAMERA_IN_THE_TERMINAL",
+    		notes = "Unlock Camera in the terminal", response = String.class)
+    public ResponseEntity<APIResponse<String>> unLockCameraInTheTerminal(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+        		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+         			@PathVariable String kid,
+         	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
+    			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
+     				@PathVariable String terminal) 
+    		throws Throwable {
+    	
+    	// Get Terminal
+        final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+    			new ObjectId(terminal), new ObjectId(kid)))
+    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+    	
+        // Unlock Camera
+        terminalService.unlockCameraInTheTerminal(new ObjectId(terminalDTO.getKid()), new ObjectId(terminalDTO.getIdentity()));
+        
+        // Publish Event
+    	this.applicationEventPublisher
+    		.publishEvent(new TerminalCameraStatusChangedEvent(
+    				this, kid, terminal, false));
+        
+        // Create and send response
+        return ApiHelper.<String>createAndSendResponse(
+        		ChildrenResponseCode.LOCK_CAMERA_DISABLED_SUCCESSFULLY, HttpStatus.OK, 
+        		messageSourceResolver.resolver("lock.camera.disabled.successfully"));
+    }
+    
+  
     
     /**
      * Get SMS from Terminal
@@ -1382,6 +1609,8 @@ public class ChildrenController extends BaseController
             		HttpStatus.OK, smsDTOs);
     	
     }
+    
+  
     
     /**
      * Get SMS Detail
@@ -3127,6 +3356,33 @@ public class ChildrenController extends BaseController
         		messageSourceResolver.resolver("terminal.heartbeat.notified.successfully"));
     
     }
+    
+    /**
+     * Get FunTime Scheduled
+     */
+    @RequestMapping(value = "/{kid}/funtime-scheduled", method = RequestMethod.GET)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(value = "GET_FUNTIME_SCHEDULED", nickname = "GET_FUNTIME_SCHEDULED",
+    	notes = "Get FunTime Scheduled", response = FunTimeScheduledDTO.class)
+    public ResponseEntity<APIResponse<FunTimeScheduledDTO>> getFunTimeScheduled(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+        		@Valid @KidShouldExists(message = "{son.not.exists}")
+         			@PathVariable final String kid) 
+    		throws Throwable {
+        
+    	logger.debug("Get Fun Time Scheduled");
+    	
+    	// Get Fun Time Scheduled
+    	final FunTimeScheduledDTO funTimeScheduled = Optional.ofNullable(
+    			kidService.getFunTimeScheduledByKid(new ObjectId(kid)))
+    	.orElseThrow(() -> { throw new FunTimeScheduledNotFoundException(); });
+    	
+    	// Create and send response
+    	return ApiHelper.<FunTimeScheduledDTO>createAndSendResponse(ChildrenResponseCode.FUN_TIME_SCHEDULED, HttpStatus.OK, 
+    			funTimeScheduled);
+    }
+    
     
     /**
      * Get All Scheduled Blocks

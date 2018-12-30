@@ -14,9 +14,11 @@ import com.google.common.collect.Iterables;
 
 import io.jsonwebtoken.lang.Assert;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IKidService;
+import sanchez.sanchez.sergio.bullkeeper.mapper.FunTimeScheduledEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.KidEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.LocationEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.SupervisedChildrenEntityMapper;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.FunTimeScheduledEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.KidEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.LocationEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SupervisedChildrenEntity;
@@ -28,6 +30,7 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.repository.SupervisedChildr
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.TaskRepository;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveGuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveLocationDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.FunTimeScheduledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidGuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.LocationDTO;
@@ -47,16 +50,60 @@ public class KidServiceImpl implements IKidService {
 
     private static Logger logger = LoggerFactory.getLogger(KidServiceImpl.class);
 
+    /**
+     * Kid Repository
+     */
     private final KidRepository kidRepository;
+    
+    /**
+     * Kid Entity Mapper
+     */
     private final KidEntityMapper kidEntityMapper;
+    
+    /**
+     * Alert Repository
+     */
     private final AlertRepository alertRepository;
+    
+    /**
+     * Comment Repository
+     */
     private final CommentRepository commentRepository;
+    
+    /**
+     * Social Media Repository
+     */
     private final SocialMediaRepository socialMediaRepository;
+    
+    /**
+     * Task Repository
+     */
     private final TaskRepository taskRepository;
+    
+    /**
+     * Upload Files Service
+     */
     private final IUploadFilesService uploadFilesService;
+    
+    /**
+     * Supervised Children Repository
+     */
     private final SupervisedChildrenRepository supervisedChildrenRepository;
+    
+    /**
+     * Supervised Children Entity Mapper
+     */
     private final SupervisedChildrenEntityMapper supervisedChildrenEntityMapper;
+    
+    /**
+     * Location Entity Mapper
+     */
     private final LocationEntityMapper locationEntityMapper;
+    
+    /**
+     * Fun Time Scheduled Entity Mapper
+     */
+    private final FunTimeScheduledEntityMapper funTimeScheduledEntityMapper;
 
     /**
      * 
@@ -70,6 +117,7 @@ public class KidServiceImpl implements IKidService {
      * @param supervisedChildrenRepository
      * @param supervisedChildrenEntityMapper
      * @param locationEntityMapper
+     * @param funTimeScheduledEntityMapper
      */
     public KidServiceImpl(KidRepository kidRepository, 
             KidEntityMapper kidEntityMapper, AlertRepository alertRepository,
@@ -77,7 +125,8 @@ public class KidServiceImpl implements IKidService {
             TaskRepository taskRepository, IUploadFilesService uploadFilesService,
             final SupervisedChildrenRepository supervisedChildrenRepository,
             final SupervisedChildrenEntityMapper supervisedChildrenEntityMapper,
-            final LocationEntityMapper locationEntityMapper) {
+            final LocationEntityMapper locationEntityMapper,
+            final FunTimeScheduledEntityMapper funTimeScheduledEntityMapper) {
         super();
         this.kidRepository = kidRepository;
         this.kidEntityMapper = kidEntityMapper;
@@ -89,6 +138,7 @@ public class KidServiceImpl implements IKidService {
         this.supervisedChildrenRepository = supervisedChildrenRepository;
         this.supervisedChildrenEntityMapper = supervisedChildrenEntityMapper;
         this.locationEntityMapper = locationEntityMapper;
+        this.funTimeScheduledEntityMapper = funTimeScheduledEntityMapper;
     }
 
     /**
@@ -515,6 +565,22 @@ public class KidServiceImpl implements IKidService {
 		final LocationEntity location = kidRepository.getCurrentLocation(new ObjectId(kid));
 		// Map Result
 		return locationEntityMapper.locationEntityToLocationDTO(location);
+	}
+	
+	/**
+	 * Get Fun Time Scheduled By Kid
+	 */
+	@Override
+	public FunTimeScheduledDTO getFunTimeScheduledByKid(final ObjectId kid) {
+		Assert.notNull(kid, "Kid can not be null");
+		
+		// Get Fun Time Scheduled 
+		final FunTimeScheduledEntity funTimeScheduledEntity = 
+				kidRepository.getFunTimeScheduled(kid);
+		
+		// Map Result
+		return funTimeScheduledEntityMapper
+			.funTimeScheduledToFunTimeScheduledDTO(funTimeScheduledEntity);
 	}
  
     @PostConstruct

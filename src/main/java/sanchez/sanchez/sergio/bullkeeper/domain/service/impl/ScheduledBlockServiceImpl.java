@@ -2,19 +2,17 @@ package sanchez.sanchez.sergio.bullkeeper.domain.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.google.common.collect.Iterables;
-
 import io.jsonwebtoken.lang.Assert;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IScheduledBlockService;
 import sanchez.sanchez.sergio.bullkeeper.exception.ScheduledBlockNotValidException;
 import sanchez.sanchez.sergio.bullkeeper.mapper.ScheduledBlockMapper;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ScheduledBlockEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.ScheduledBlockRepository;
+import sanchez.sanchez.sergio.bullkeeper.util.Utils;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveScheduledBlockDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveScheduledBlockStatusDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ScheduledBlockDTO;
@@ -76,7 +74,7 @@ public final class ScheduledBlockServiceImpl implements IScheduledBlockService {
 		final ScheduledBlockEntity scheduledBlockEntityToSave = 
 				scheduledBlockMapper.saveScheduledBlockDTOToScheduledBlockEntity(saveScheduledBlockDTO);
 	
-		boolean canBeCreated = true;
+		boolean canBeSaved = true;
 		
 		
 		if(scheduledBlockEntityToSave.getStartAt().isBefore(scheduledBlockEntityToSave.getEndAt())) {
@@ -96,13 +94,18 @@ public final class ScheduledBlockServiceImpl implements IScheduledBlockService {
 				for(final ScheduledBlockEntity scheduledBlockConfigured: scheduledBlocksConfigured) {
 				
 					boolean matchSomeDayOfWeek = false;
+					
+					
 					// Check Weekly Frequency
 					if(scheduledBlockEntityToSave.getWeeklyFrequency().length == 
 							scheduledBlockConfigured.getWeeklyFrequency().length) {
 						int weeklyFrequencyLength = scheduledBlockEntityToSave.getWeeklyFrequency().length;
 						for(int i = 0; i < weeklyFrequencyLength; i++) {
-							if(scheduledBlockEntityToSave.getWeeklyFrequency()[i] == 1 && 
-									scheduledBlockConfigured.getWeeklyFrequency()[i] == 1) {
+							if((scheduledBlockEntityToSave.getWeeklyFrequency()[i] == 1 && 
+									scheduledBlockConfigured.getWeeklyFrequency()[i] == 1) && 
+									(scheduledBlockConfigured.isRepeatable() 
+											|| Utils.withinTheSameWeek(scheduledBlockConfigured.getCreateAt(),
+													scheduledBlockEntityToSave.getCreateAt()) )) {
 								matchSomeDayOfWeek = true;
 								break;
 							}
@@ -121,7 +124,7 @@ public final class ScheduledBlockServiceImpl implements IScheduledBlockService {
 									.isAfter(scheduledBlockConfigured.getEndAt()) && 
 								scheduledBlockEntityToSave.getEndAt()
 									.isAfter(scheduledBlockConfigured.getEndAt()))) {
-							canBeCreated = false;
+							canBeSaved = false;
 							break;
 						}
 				}
@@ -130,11 +133,11 @@ public final class ScheduledBlockServiceImpl implements IScheduledBlockService {
 			
 		
 		} else {
-			canBeCreated = false;
+			canBeSaved = false;
 		}
 		
 		
-		if(!canBeCreated) 
+		if(!canBeSaved) 
 			throw new ScheduledBlockNotValidException();
 		
 		final ScheduledBlockEntity scheduledBlockEntitySaved = 

@@ -1,6 +1,8 @@
 package sanchez.sanchez.sergio.bullkeeper.persistence.entity;
 
 import java.io.Serializable;
+import java.util.Date;
+
 import org.bson.types.ObjectId;
 import org.joda.time.LocalTime;
 import org.springframework.data.annotation.Id;
@@ -42,6 +44,12 @@ public class ScheduledBlockEntity implements Serializable {
     private boolean enable;
 	
 	/**
+	 * Create At
+	 */
+	@Field("create_at")
+	private Date createAt = new Date();
+	
+	/**
 	 * Repeatable
 	 */
 	@Field("repeatable")
@@ -79,7 +87,7 @@ public class ScheduledBlockEntity implements Serializable {
 	private int[] weeklyFrequency;
 	
 	/**
-	 * Son
+	 * Kid
 	 */
 	@DBRef
 	@Field("kid")
@@ -101,6 +109,7 @@ public class ScheduledBlockEntity implements Serializable {
 	 * @param id
 	 * @param name
 	 * @param enable
+	 * @param createAt
 	 * @param repeatable
 	 * @param allowCalls
 	 * @param description
@@ -111,7 +120,8 @@ public class ScheduledBlockEntity implements Serializable {
 	 * @param image
 	 */
 	@PersistenceConstructor
-	public ScheduledBlockEntity(ObjectId id, String name, boolean enable, boolean repeatable, 
+	public ScheduledBlockEntity(ObjectId id, String name, boolean enable, 
+			final Date createAt, boolean repeatable, 
 			boolean allowCalls, String description, LocalTime startAt, LocalTime endAt, 
 			int[] weeklyFrequency, KidEntity kid, final String image) {
 		super();
@@ -138,6 +148,14 @@ public class ScheduledBlockEntity implements Serializable {
 
 	public boolean isEnable() {
 		return enable;
+	}
+
+	public Date getCreateAt() {
+		return createAt;
+	}
+
+	public void setCreateAt(Date createAt) {
+		this.createAt = createAt;
 	}
 
 	public boolean isRepeatable() {

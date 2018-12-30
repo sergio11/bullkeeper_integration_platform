@@ -26,7 +26,6 @@ import sanchez.sanchez.sergio.bullkeeper.mapper.ContactEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.PhoneNumberEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.SmsEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.TerminalEntityDataMapper;
-import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AlertEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AppInstalledEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AppRuleEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AppStatsEntity;
@@ -52,7 +51,6 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveContactDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveSmsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveTerminalDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.TerminalHeartbeatDTO;
-import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AlertDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppRuleDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppStatsDTO;
@@ -1070,5 +1068,73 @@ public final class TerminalServiceImpl implements ITerminalService {
 		this.appsInstalledRepository.disableAppInTheTerminal(
 				kid, terminal, app);
 		
+	}
+
+	/**
+	 * Enable Bed Time In The Terminal
+	 */
+	@Override
+	public void enableBedTimeInTheTerminal(final ObjectId kid, final ObjectId terminal) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		
+		this.terminalRepository.enableBedTime(kid, terminal);
+		
+	}
+
+	/**
+	 * Disable Bed Time In The Terminal
+	 */
+	@Override
+	public void disableBedTimeInTheTerminal(final ObjectId kid, final ObjectId terminal) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		
+		this.terminalRepository.disableBedTime(kid, terminal);
+	}
+
+	/**
+	 * Lock Screen In The Terminal
+	 */
+	@Override
+	public void lockScreenInTheTerminal(final ObjectId kid, final ObjectId terminal) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		
+		terminalRepository.lockScreen(kid, terminal);
+	}
+
+	/**
+	 * Unlock Screen In The Terminal
+	 */
+	@Override
+	public void unlockScreenInTheTerminal(final ObjectId kid, final ObjectId terminal) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		
+		terminalRepository.unlockScreen(kid, terminal);
+		
+	}
+
+	/**
+	 * Lock Camera In The Terminal
+	 */
+	@Override
+	public void lockCameraInTheTerminal(final ObjectId kid, final ObjectId terminal) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		
+		terminalRepository.lockCamera(kid, terminal);
+	}
+
+	/**
+	 * Unlock Camera In The Terminal
+	 */
+	@Override
+	public void unlockCameraInTheTerminal(final ObjectId kid, final ObjectId terminal) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		
+		terminalRepository.unlockCamera(kid, terminal);
 	}
 }

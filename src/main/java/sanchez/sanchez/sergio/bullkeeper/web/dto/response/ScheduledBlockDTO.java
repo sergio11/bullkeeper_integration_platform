@@ -43,6 +43,13 @@ public class ScheduledBlockDTO extends ResourceSupport {
 	private boolean repeatable;
 	
 	/**
+	 * Create At
+	 */
+	@JsonProperty("create_at")
+	private String createAt;
+	
+	
+	/**
 	 * Allow Calls
 	 */
 	@JsonProperty("allow_calls")
@@ -98,6 +105,7 @@ public class ScheduledBlockDTO extends ResourceSupport {
 	 * @param name
 	 * @param enable
 	 * @param repeatable
+	 * @param createAt
 	 * @param allowCalls
 	 * @param description
 	 * @param startAt
@@ -106,13 +114,15 @@ public class ScheduledBlockDTO extends ResourceSupport {
 	 * @param image
 	 * @param kid
 	 */
-	public ScheduledBlockDTO(String identity, String name, boolean enable, boolean repeatable, boolean allowCalls,
+	public ScheduledBlockDTO(String identity, String name, boolean enable, boolean repeatable, 
+			final String createAt, boolean allowCalls,
 			String description, LocalTime startAt, LocalTime endAt, int[] weeklyFrequency, String image, String kid) {
 		super();
 		this.identity = identity;
 		this.name = name;
 		this.enable = enable;
 		this.repeatable = repeatable;
+		this.createAt = createAt;
 		this.allowCalls = allowCalls;
 		this.description = description;
 		this.startAt = startAt;
@@ -140,6 +150,11 @@ public class ScheduledBlockDTO extends ResourceSupport {
 
 	public boolean isRepeatable() {
 		return repeatable;
+	}
+
+
+	public String getCreateAt() {
+		return createAt;
 	}
 
 
@@ -198,6 +213,11 @@ public class ScheduledBlockDTO extends ResourceSupport {
 	}
 
 
+	public void setCreateAt(String createAt) {
+		this.createAt = createAt;
+	}
+
+
 	public void setAllowCalls(boolean allowCalls) {
 		this.allowCalls = allowCalls;
 	}
@@ -236,13 +256,9 @@ public class ScheduledBlockDTO extends ResourceSupport {
 	@Override
 	public String toString() {
 		return "ScheduledBlockDTO [identity=" + identity + ", name=" + name + ", enable=" + enable + ", repeatable="
-				+ repeatable + ", allowCalls=" + allowCalls + ", description=" + description + ", startAt=" + startAt
-				+ ", endAt=" + endAt + ", weeklyFrequency=" + Arrays.toString(weeklyFrequency) + ", image=" + image
-				+ ", kid=" + kid + "]";
+				+ repeatable + ", createAt=" + createAt + ", allowCalls=" + allowCalls + ", description=" + description
+				+ ", startAt=" + startAt + ", endAt=" + endAt + ", weeklyFrequency=" + Arrays.toString(weeklyFrequency)
+				+ ", image=" + image + ", kid=" + kid + "]";
 	}
-	
-	
-	
-	
 	
 }

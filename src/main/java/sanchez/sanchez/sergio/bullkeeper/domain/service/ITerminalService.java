@@ -452,4 +452,47 @@ public interface ITerminalService {
     		final ObjectId app);
     
     
+    /**
+     * Enable Bed Time In The Terminal
+     * @param kid
+     * @param terminal
+     */
+    void enableBedTimeInTheTerminal(final ObjectId kid, final ObjectId terminal);
+    
+    /**
+     * Disable Bed Time In The Terminal
+     * @param kid
+     * @param terminal
+     */
+    void disableBedTimeInTheTerminal(final ObjectId kid, final ObjectId terminal);
+    
+    /**
+     * Lock Screen In The Terminal
+     * @param kid
+     * @param terminal
+     */
+    void lockScreenInTheTerminal(final ObjectId kid, final ObjectId terminal);
+    
+    /**
+     * UnLock Screen In The Terminal
+     * @param kid
+     * @param terminal
+     */
+    void unlockScreenInTheTerminal(final ObjectId kid, final ObjectId terminal);
+    
+    /**
+     * Lock Camera In The Terminal
+     * @param kid
+     * @param terminal
+     */
+    void lockCameraInTheTerminal(final ObjectId kid, final ObjectId terminal);
+    
+    /**
+     * UnLock Camera In the Terminal
+     * @param kid
+     * @param terminal
+     */
+    void unlockCameraInTheTerminal(final ObjectId kid, final ObjectId terminal);
+    
+    
 }
