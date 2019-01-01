@@ -89,6 +89,24 @@ public class TerminalDTO implements Serializable {
 	 */
 	@JsonProperty("kid")
 	protected String kid;
+	
+	/**
+	 * Bed Time Enabled
+	 */
+	@JsonProperty("bed_time_enabled")
+    private Boolean bedTimeEnabled;
+
+    /**
+     * Lock Screen Enabled
+     */
+	@JsonProperty("lock_screen_enabled")
+    private Boolean lockScreenEnabled;
+
+    /**
+     * Lock Camera Enabled
+     */
+	@JsonProperty("lock_camera_enabled")
+	private Boolean lockCameraEnabled;
 
 	
 	public TerminalDTO() {}
@@ -107,10 +125,13 @@ public class TerminalDTO implements Serializable {
 	 * @param deviceName
 	 * @param deviceId
 	 * @param kid
+	 * @param bedTimeEnabled
+	 * @param lockScreenEnabled
+	 * @param lockCameraEnabled
 	 */
 	public TerminalDTO(String identity, String appVersionName, String appVersionCode, String osVersion,
 			String sdkVersion, String manufacturer, String marketName, String model, String codeName, String deviceName,
-			String deviceId, String kid) {
+			String deviceId, String kid, Boolean bedTimeEnabled, Boolean lockScreenEnabled, Boolean lockCameraEnabled) {
 		super();
 		this.identity = identity;
 		this.appVersionName = appVersionName;
@@ -124,6 +145,9 @@ public class TerminalDTO implements Serializable {
 		this.deviceName = deviceName;
 		this.deviceId = deviceId;
 		this.kid = kid;
+		this.bedTimeEnabled = bedTimeEnabled;
+		this.lockScreenEnabled = lockScreenEnabled;
+		this.lockCameraEnabled = lockCameraEnabled;
 	}
 
 	public String getIdentity() {
@@ -174,6 +198,18 @@ public class TerminalDTO implements Serializable {
 		return kid;
 	}
 
+	public Boolean getBedTimeEnabled() {
+		return bedTimeEnabled;
+	}
+
+	public Boolean getLockScreenEnabled() {
+		return lockScreenEnabled;
+	}
+
+	public Boolean getLockCameraEnabled() {
+		return lockCameraEnabled;
+	}
+
 	public void setIdentity(String identity) {
 		this.identity = identity;
 	}
@@ -222,12 +258,26 @@ public class TerminalDTO implements Serializable {
 		this.kid = kid;
 	}
 
+	public void setBedTimeEnabled(Boolean bedTimeEnabled) {
+		this.bedTimeEnabled = bedTimeEnabled;
+	}
+
+	public void setLockScreenEnabled(Boolean lockScreenEnabled) {
+		this.lockScreenEnabled = lockScreenEnabled;
+	}
+
+	public void setLockCameraEnabled(Boolean lockCameraEnabled) {
+		this.lockCameraEnabled = lockCameraEnabled;
+	}
+
 	@Override
 	public String toString() {
 		return "TerminalDTO [identity=" + identity + ", appVersionName=" + appVersionName + ", appVersionCode="
 				+ appVersionCode + ", osVersion=" + osVersion + ", sdkVersion=" + sdkVersion + ", manufacturer="
 				+ manufacturer + ", marketName=" + marketName + ", model=" + model + ", codeName=" + codeName
-				+ ", deviceName=" + deviceName + ", deviceId=" + deviceId + ", kid=" + kid + "]";
+				+ ", deviceName=" + deviceName + ", deviceId=" + deviceId + ", kid=" + kid + ", bedTimeEnabled="
+				+ bedTimeEnabled + ", lockScreenEnabled=" + lockScreenEnabled + ", lockCameraEnabled="
+				+ lockCameraEnabled + "]";
 	}
 
 	

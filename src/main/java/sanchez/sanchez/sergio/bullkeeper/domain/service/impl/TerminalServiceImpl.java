@@ -1137,4 +1137,18 @@ public final class TerminalServiceImpl implements ITerminalService {
 		
 		terminalRepository.unlockCamera(kid, terminal);
 	}
+
+	/**
+	 * Delete Stats For Apps Installed
+	 */
+	@Override
+	public void deleteStatsForAppsInstalled(final ObjectId kid, 
+			final ObjectId terminal, final List<ObjectId> ids) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		Assert.notNull(ids, "Ids can not be null");
+		
+		appStatsRepository.deleteByKidIdAndTerminalIdAndIdIn(kid, 
+				terminal, ids);
+	}
 }

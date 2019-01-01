@@ -76,7 +76,7 @@ public final class AppInstalledRepositoryImpl implements AppInstalledRepositoryC
         
         query.fields()
         	.include("_id")
-        	.include("app_name")
+        	.include("package_name")
         	.include("app_rule");    
         
         return mongoTemplate.find(query, AppInstalledEntity.class);
@@ -140,7 +140,7 @@ public final class AppInstalledRepositoryImpl implements AppInstalledRepositoryC
 		        		kidIdCriteria, terminalIdCriteria, appCriteria));
 		
 		mongoTemplate.updateFirst(query,
-                new Update().set("disabled", true), AppInstalledEntity.class);
+                new Update().set("disabled", false), AppInstalledEntity.class);
 	}
 
 	/**
@@ -168,7 +168,7 @@ public final class AppInstalledRepositoryImpl implements AppInstalledRepositoryC
 				       kidIdCriteria, terminalIdCriteria, appCriteria));
 		
 		mongoTemplate.updateFirst(query,
-                new Update().set("disabled", false), AppInstalledEntity.class);
+                new Update().set("disabled", true), AppInstalledEntity.class);
 		
 	}
 	

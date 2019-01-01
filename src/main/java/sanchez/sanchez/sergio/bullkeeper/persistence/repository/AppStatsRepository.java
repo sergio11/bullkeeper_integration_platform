@@ -1,6 +1,8 @@
 package sanchez.sanchez.sergio.bullkeeper.persistence.repository;
 
 
+import java.util.List;
+
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -46,5 +48,15 @@ public interface AppStatsRepository extends MongoRepository<AppStatsEntity, Long
 	 */
 	AppStatsEntity findOneByAppIdAndTerminalIdAndKidId(
 			final ObjectId app, final ObjectId terminal, final ObjectId kid);
+	
+	
+	/**
+	 * 
+	 * @param kid
+	 * @param terminal
+	 * @param ids
+	 */
+	void deleteByKidIdAndTerminalIdAndIdIn(final ObjectId kid, 
+			final ObjectId terminal, final List<ObjectId> ids);
 	
 }

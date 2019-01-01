@@ -433,6 +433,16 @@ public interface ITerminalService {
     AppStatsDTO getStatsForApp(final ObjectId kid, 
     		final ObjectId terminal, final ObjectId app);
     
+    
+    /**
+     * Delete Stats For Apps Installed
+     * @param kid
+     * @param terminal
+     * @param ids
+     */
+    void deleteStatsForAppsInstalled(final ObjectId kid, 
+    		final ObjectId terminal, final List<ObjectId> ids);
+    
     /**
      * Enable App In The Terminal
      * @param kid

@@ -1368,7 +1368,8 @@ public class ChildrenController extends BaseController
     			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
     	
         // Enable Bed Time
-        terminalService.enableBedTimeInTheTerminal(new ObjectId(terminalDTO.getKid()), new ObjectId(terminalDTO.getIdentity()));
+        terminalService.enableBedTimeInTheTerminal(new ObjectId(terminalDTO.getKid()),
+        		new ObjectId(terminalDTO.getIdentity()));
         
         
         // Publish Event
@@ -1405,7 +1406,8 @@ public class ChildrenController extends BaseController
     			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
     	
         // Disabled Bed Time
-        terminalService.disableBedTimeInTheTerminal(new ObjectId(terminalDTO.getKid()), new ObjectId(terminalDTO.getIdentity()));
+        terminalService.disableBedTimeInTheTerminal(new ObjectId(terminalDTO.getKid()), 
+        		new ObjectId(terminalDTO.getIdentity()));
         
         // Publish Event
     	this.applicationEventPublisher
@@ -1441,7 +1443,8 @@ public class ChildrenController extends BaseController
     			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
     	
         // Lock Screen
-        terminalService.lockScreenInTheTerminal(new ObjectId(terminalDTO.getKid()), new ObjectId(terminalDTO.getIdentity()));
+        terminalService.lockScreenInTheTerminal(new ObjectId(terminalDTO.getKid()), 
+        		new ObjectId(terminalDTO.getIdentity()));
         
         // Publish Event
     	this.applicationEventPublisher
@@ -1479,7 +1482,8 @@ public class ChildrenController extends BaseController
     			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
     	
         // Unlock screen
-        terminalService.unlockScreenInTheTerminal(new ObjectId(terminalDTO.getKid()), new ObjectId(terminalDTO.getIdentity()));
+        terminalService.unlockScreenInTheTerminal(new ObjectId(terminalDTO.getKid()), 
+        		new ObjectId(terminalDTO.getIdentity()));
         
         // Publish Event
     	this.applicationEventPublisher
@@ -1515,7 +1519,8 @@ public class ChildrenController extends BaseController
     			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
     	
         // Lock Camera
-        terminalService.lockCameraInTheTerminal(new ObjectId(terminalDTO.getKid()), new ObjectId(terminalDTO.getIdentity()));
+        terminalService.lockCameraInTheTerminal(new ObjectId(terminalDTO.getKid()), 
+        		new ObjectId(terminalDTO.getIdentity()));
        
         // Publish Event
     	this.applicationEventPublisher
@@ -3062,6 +3067,49 @@ public class ChildrenController extends BaseController
         		AppsResponseCode.STATS_FOR_APPS_INSTALLED_IN_THE_TERMINAL, HttpStatus.OK, 
         		appStats);
     
+    }
+    
+    /**
+     * Delete App Stats
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{kid}/terminal/{terminal}/apps/stats/delete", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(
+    		value = "DELETE_STATS_FOR_APPS_INSTALLED_IN_THE_TERMINAL", 
+    		nickname = "DELETE_STATS_FOR_APPS_INSTALLED_IN_THE_TERMINAL",
+    	notes = "Delete Stats for apps installed in the terminal", response = String.class)
+    public ResponseEntity<APIResponse<String>> deleteStatsForAppsInstalledInTheTerminal(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+        		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+         			@PathVariable String kid,
+         	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
+    			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
+     				@PathVariable String terminal,
+     		@ApiParam(value = "ids", required = true) 
+				@Validated(ICommonSequence.class) 
+					@RequestBody ValidList<ObjectId> ids) 
+    		throws Throwable {
+        
+    	logger.debug("Delete Stats For Apps Installed In The Terminal");
+    	
+    	// Get Terminal
+    	final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+    			new ObjectId(terminal), new ObjectId(kid)))
+    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+    	
+    	// Delete Stats For Apps Installed
+    	this.terminalService
+    		.deleteStatsForAppsInstalled(new ObjectId(terminalDTO.getKid()), 
+    				new ObjectId(terminalDTO.getIdentity()), ids);
+    	
+    	// Create and send response
+        return ApiHelper.<String>createAndSendResponse(
+        		AppsResponseCode.STATS_FOR_APPS_INSTALLED_DELETED_SUCCESSFULLY, HttpStatus.OK, 
+        		messageSourceResolver.resolver("stats.for.apps.installed.deleted.successfully"));
+    	
     }
     
     
