@@ -1,5 +1,6 @@
 package sanchez.sanchez.sergio.bullkeeper.web.rest.response;
 
+import sanchez.sanchez.sergio.bullkeeper.exception.PreviousRequestHasNotExpiredYetException;
 import sanchez.sanchez.sergio.bullkeeper.exception.ScheduledBlockNotValidException;
 
 public enum ChildrenResponseCode implements IResponseCodeTypes {
@@ -66,7 +67,13 @@ public enum ChildrenResponseCode implements IResponseCodeTypes {
     LOCK_SCREEN_ENABLED_SUCCESSFULLY(167L),
     LOCK_SCREEN_DISABLED_SUCCESSFULLY(168L),
     LOCK_CAMERA_ENABLED_SUCCESSFULLY(167L),
-    LOCK_CAMERA_DISABLED_SUCCESSFULLY(168L);
+    LOCK_CAMERA_DISABLED_SUCCESSFULLY(168L),
+    KID_REQUEST_SAVED(169L),
+    ALL_KID_REQUEST(170L),
+    ALL_KID_REQUEST_DELETED(171L),
+    KID_REQUEST_DELETED(172l),
+    NO_KID_REQUEST_FOUND(173L),
+    PREVIOUS_REQUEST_HAS_NOT_EXPIRED(174L);
 
     private Long code;
 

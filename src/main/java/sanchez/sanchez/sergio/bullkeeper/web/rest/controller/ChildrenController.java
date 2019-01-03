@@ -39,6 +39,7 @@ import sanchez.sanchez.sergio.bullkeeper.events.location.CurrentLocationUpdateEv
 import sanchez.sanchez.sergio.bullkeeper.events.phonenumbers.AddPhoneNumberBlockedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.phonenumbers.DeleteAllPhoneNumberBlockedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.phonenumbers.DeletePhoneNumberBlockedEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.request.KidRequestCreatedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.scheduledblock.DeleteAllScheduledBlockEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.scheduledblock.DeleteScheduledBlockEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.scheduledblock.ScheduledBlockImageChangedEvent;
@@ -57,6 +58,7 @@ import sanchez.sanchez.sergio.bullkeeper.exception.ContactNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.CurrentLocationException;
 import sanchez.sanchez.sergio.bullkeeper.exception.FunTimeScheduledNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.KidNotFoundException;
+import sanchez.sanchez.sergio.bullkeeper.exception.KidRequestNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoAlertsByKidFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoAppStatsFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoAppsInstalledFoundException;
@@ -93,6 +95,7 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.DrugsLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SocialMediaTypeEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ViolenceLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.util.ValidList;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.AddKidRequestDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.AddPhoneNumberBlockedDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppInstalledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppRulesDTO;
@@ -120,6 +123,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.response.FunTimeScheduledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ImageDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidGuardianDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidRequestDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.LocationDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.PhoneNumberBlockedDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ScheduledBlockDTO;
@@ -3764,6 +3768,129 @@ public class ChildrenController extends BaseController
     	// Create and send response
     	return ApiHelper.<LocationDTO>createAndSendResponse(ChildrenResponseCode.CURRENT_LOCATION_UPDATED, 
         		HttpStatus.OK, currentLocation);
+    }
+    
+    /**
+     * 
+     * @param kid
+     * @param kidRequest
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{kid}/request", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(
+    		value = "ADD_REQUEST_FOR_KID", nickname = "ADD_REQUEST_FOR_KID",
+    		notes = "Add Request For Kid", response = KidRequestDTO.class)
+    public ResponseEntity<APIResponse<KidRequestDTO>> addRequestForKid(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+         		@Valid @KidShouldExists(message = "{son.should.be.exists}")
+          			@PathVariable String kid,
+          	@ApiParam(value = "request", required = true) 
+    			@Validated(ICommonSequence.class) 
+    			@RequestBody AddKidRequestDTO kidRequest
+          	) throws Throwable {
+    	
+    	logger.debug("Add Kid Request for kid -> " + kid);
+    	
+    	// Add Kid Request
+    	final KidRequestDTO kidRequestDTO = terminalService.addKidRequest(kidRequest);
+    	
+    	// Push Event
+    	this.applicationEventPublisher
+    		.publishEvent(new KidRequestCreatedEvent(
+    				this, kidRequestDTO.getIdentity(), kidRequestDTO.getType(),
+    				kidRequestDTO.getLocation(), kidRequestDTO.getKid().getIdentity(),
+    				kidRequestDTO.getTerminal().getIdentity()));
+    	
+    	// Create and send response
+    	return ApiHelper.<KidRequestDTO>createAndSendResponse(ChildrenResponseCode.KID_REQUEST_SAVED, 
+        		HttpStatus.OK, kidRequestDTO);
+    	
+    }
+    /**
+     * Get All Request for kid
+     */
+    @RequestMapping(value = "/{kid}/request", method = RequestMethod.GET)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(
+    		value = "GET_ALL_REQUEST_FOR_KID", nickname = "GET_ALL_REQUEST_FOR_KID",
+    		notes = "Get All Request For Kid", response = Iterable.class)
+    public ResponseEntity<APIResponse<Iterable<KidRequestDTO>>> getAllRequestForKid(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+         		@Valid @KidShouldExists(message = "{son.should.be.exists}")
+          			@PathVariable String kid) throws Throwable {
+    	
+    	logger.debug("Get all request for kid -> " + kid);
+    	
+    	// Get all kid request by kid id
+    	final Iterable<KidRequestDTO> kidRequests = terminalService
+    			.getAllKidRequestForKid(new ObjectId(kid));
+    	
+    	
+    	if(Iterables.size(kidRequests) == 0)
+    		throw new KidRequestNotFoundException();
+    	
+    	
+    	// Create and send response
+    	return ApiHelper.<Iterable<KidRequestDTO>>createAndSendResponse(ChildrenResponseCode.ALL_KID_REQUEST, 
+        		HttpStatus.OK, kidRequests);
+    	
+    }
+    
+    
+    /**
+     * Delete request for kid
+     */
+    @RequestMapping(value = "/{kid}/request/delete", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(
+    		value = "DELETE_REQUEST_FOR_KID", nickname = "DELETE_REQUEST_FOR_KID",
+    		notes = "Delete Request For Kid", response = String.class)
+    public ResponseEntity<APIResponse<String>> deleteRequestForKid(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+         		@Valid @KidShouldExists(message = "{son.should.be.exists}")
+          			@PathVariable String kid,
+          	@ApiParam(value = "ids", required = true) 
+        		@Validated(ICommonSequence.class) 
+        			@RequestBody ValidList<ObjectId> ids) throws Throwable {
+    	
+    	logger.debug("Delete request for kid -> " + kid);
+    	
+    	// Delete Kid Request
+    	terminalService.deleteKidRequest(new ObjectId(kid), ids);
+    	
+    	// Create and send response
+    	return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.KID_REQUEST_DELETED, 
+        		HttpStatus.OK, messageSourceResolver.resolver("kid.request.deleted"));
+    	
+    }
+    
+    /**
+     * Delete all request for kid
+     */
+    @RequestMapping(value = "/{kid}/request", method = RequestMethod.DELETE)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(
+    		value = "DELETE_ALL_REQUEST_FOR_KID", nickname = "DELETE_ALL_REQUEST_FOR_KID",
+    		notes = "Delete All Request For Kid", response = String.class)
+    public ResponseEntity<APIResponse<String>> deleteAllRequestForKid(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+         		@Valid @KidShouldExists(message = "{son.should.be.exists}")
+          			@PathVariable String kid) throws Throwable {
+    	
+    	logger.debug("Delete all request for kid -> " + kid);
+    	
+    	terminalService.deleteAllKidRequestByKid(new ObjectId(kid));
+    	
+    	// Create and send response
+    	return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.ALL_KID_REQUEST_DELETED, 
+        		HttpStatus.OK, messageSourceResolver.resolver("all.kid.request.deleted"));
+    	
     }
     
     /**

@@ -16,6 +16,7 @@ import sanchez.sanchez.sergio.bullkeeper.exception.AlertNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.CommentsByKidNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.CurrentLocationException;
 import sanchez.sanchez.sergio.bullkeeper.exception.KidNotFoundException;
+import sanchez.sanchez.sergio.bullkeeper.exception.KidRequestNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoAlertsByKidFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoChildrenFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoCommunityStatisticsForThisPeriodException;
@@ -24,6 +25,7 @@ import sanchez.sanchez.sergio.bullkeeper.exception.NoPhoneNumberBlockedFound;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoSentimentAnalysisStatisticsForThisPeriodException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoSocialMediaActivityFoundForThisPeriodException;
 import sanchez.sanchez.sergio.bullkeeper.exception.PhoneNumberAlreadyBlockedException;
+import sanchez.sanchez.sergio.bullkeeper.exception.PreviousRequestHasNotExpiredYetException;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.ApiHelper;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.controller.BaseController;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.response.APIResponse;
@@ -201,7 +203,7 @@ public class ChildrenErrorController extends BaseController {
     
     /**
      * Exception Handler for Phone Number Already Blocked Exception
-     * @param noPhoneNumberBlockedFound
+     * @param phoneNumberAlreadyBlockedException
      * @param request
      * @return
      */
@@ -213,8 +215,37 @@ public class ChildrenErrorController extends BaseController {
         		messageSourceResolver.resolver("phone.number.already.blocked.exception"));
     } 
     
+    /**
+     * Exception Handler for Kid Request Not Found Exception
+     * @param kidRequestNotFoundException
+     * @param request
+     * @return
+     */
+    @ExceptionHandler(KidRequestNotFoundException.class)
+    @ResponseBody
+    protected ResponseEntity<APIResponse<String>> handleKidRequestNotFoundException(
+    		final KidRequestNotFoundException kidRequestNotFoundException, final HttpServletRequest request){
+        return ApiHelper.<String>createAndSendErrorResponseWithHeader(
+        		ChildrenResponseCode.NO_KID_REQUEST_FOUND, HttpStatus.NOT_FOUND,
+        		messageSourceResolver.resolver("kid.request.not.found.exception"));
+    } 
+    
+    /**
+     * Exception Handler for Previous Request Has not expired yet exception
+     * @param previousRequestHasNotExpiredYetException
+     * @param request
+     * @return
+     */
+    @ExceptionHandler(PreviousRequestHasNotExpiredYetException.class)
+    @ResponseBody
+    protected ResponseEntity<APIResponse<String>> handlePreviousRequestHasNotExpiredYetException(
+    		final PreviousRequestHasNotExpiredYetException previousRequestHasNotExpiredYetException, final HttpServletRequest request){
+        return ApiHelper.<String>createAndSendErrorResponseWithHeader(
+        		ChildrenResponseCode.PREVIOUS_REQUEST_HAS_NOT_EXPIRED, HttpStatus.BAD_REQUEST,
+        		messageSourceResolver.resolver("previous.request.has.not.expired.yet.exception"));
+    } 
+    
    
- 
     @PostConstruct
     protected void init(){
     	Assert.notNull(messageSourceResolver, "Message Source Resolver can not be a null");

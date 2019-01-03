@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.bson.types.ObjectId;
 
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.AddKidRequestDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.AddPhoneNumberBlockedDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppInstalledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppRulesDTO;
@@ -18,6 +19,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppRuleDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppStatsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CallDetailDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ContactDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidRequestDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.PhoneNumberBlockedDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.SmsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.TerminalDTO;
@@ -503,6 +505,33 @@ public interface ITerminalService {
      * @param terminal
      */
     void unlockCameraInTheTerminal(final ObjectId kid, final ObjectId terminal);
+    
+    /**
+     * Add Kid Request
+     * @param kidRequest
+     * @return
+     */
+    KidRequestDTO addKidRequest(final AddKidRequestDTO kidRequest);
+    
+    /**
+     * Get All Kid Request For Kid
+     * @param kid
+     * @return
+     */
+    Iterable<KidRequestDTO> getAllKidRequestForKid(final ObjectId kid);
+    
+    /**
+     * Delete All Kid Request By Kid
+     * @param kid
+     */
+    void deleteAllKidRequestByKid(final ObjectId kid);
+    
+    /**
+     * Delete Kid Request
+     * @param kid
+     * @param request
+     */
+    void deleteKidRequest(final ObjectId kid, final List<ObjectId> request);
     
     
 }

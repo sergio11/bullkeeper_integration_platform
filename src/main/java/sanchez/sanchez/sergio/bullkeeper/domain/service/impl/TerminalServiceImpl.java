@@ -1,6 +1,7 @@
 package sanchez.sanchez.sergio.bullkeeper.domain.service.impl;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,10 +20,12 @@ import org.springframework.util.Assert;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.ITerminalService;
 import sanchez.sanchez.sergio.bullkeeper.exception.AppInstalledNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.PhoneNumberAlreadyBlockedException;
+import sanchez.sanchez.sergio.bullkeeper.exception.PreviousRequestHasNotExpiredYetException;
 import sanchez.sanchez.sergio.bullkeeper.mapper.AppInstalledEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.AppStatsEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.CallDetailEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.ContactEntityMapper;
+import sanchez.sanchez.sergio.bullkeeper.mapper.KidRequestEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.PhoneNumberEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.SmsEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.TerminalEntityDataMapper;
@@ -31,6 +34,7 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AppRuleEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AppStatsEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.CallDetailEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ContactEntity;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.KidRequestEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.PhoneNumberBlockedEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ScreenStatusEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SmsEntity;
@@ -39,9 +43,11 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.repository.AppInstalledRepo
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.AppStatsRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.CallDetailRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.ContactEntityRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.KidRequestRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.PhoneNumberBlockedRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.SmsRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.TerminalRepository;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.AddKidRequestDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.AddPhoneNumberBlockedDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppInstalledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppRulesDTO;
@@ -56,6 +62,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppRuleDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppStatsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CallDetailDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ContactDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidRequestDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.PhoneNumberBlockedDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.SmsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.TerminalDTO;
@@ -142,6 +149,16 @@ public final class TerminalServiceImpl implements ITerminalService {
 	 */
 	private final AppStatsEntityMapper appStatsEntityMapper;
 	
+	/**
+	 * Kid Request Repository
+	 */
+	private final KidRequestRepository kidRequestRepository;
+	
+	/**
+	 * Kid Request Mapper
+	 */
+	private final KidRequestEntityMapper kidRequestMapper;
+	
 
 	/**
 	 * 
@@ -157,6 +174,8 @@ public final class TerminalServiceImpl implements ITerminalService {
 	 * @param phoneNumberEntityMapper
 	 * @param appStatsRepository
 	 * @param appStatsEntityMapper
+	 * @param kidRequestRepository
+	 * @param kidRequestMapper
 	 */
 	@Autowired
 	public TerminalServiceImpl(final TerminalEntityDataMapper terminalEntityDataMapper, 
@@ -171,7 +190,9 @@ public final class TerminalServiceImpl implements ITerminalService {
 			final ContactEntityRepository contactRepository,
 			final ContactEntityMapper contactEntityMapper,
 			final AppStatsRepository appStatsRepository,
-			final AppStatsEntityMapper appStatsEntityMapper) {
+			final AppStatsEntityMapper appStatsEntityMapper,
+			final KidRequestRepository kidRequestRepository,
+			final KidRequestEntityMapper kidRequestMapper) {
 		super();
 		this.terminalEntityDataMapper = terminalEntityDataMapper;
 		this.terminalRepository = terminalRepository;
@@ -187,6 +208,8 @@ public final class TerminalServiceImpl implements ITerminalService {
 		this.contactEntityMapper = contactEntityMapper;
 		this.appStatsRepository = appStatsRepository;
 		this.appStatsEntityMapper = appStatsEntityMapper;
+		this.kidRequestRepository = kidRequestRepository;
+		this.kidRequestMapper = kidRequestMapper;
 	}
 
 	/**
@@ -1150,5 +1173,65 @@ public final class TerminalServiceImpl implements ITerminalService {
 		
 		appStatsRepository.deleteByKidIdAndTerminalIdAndIdIn(kid, 
 				terminal, ids);
+	}
+	
+	/**
+	 * Add Kid Rquest
+	 */
+	@Override
+	public KidRequestDTO addKidRequest(final AddKidRequestDTO kidRequest) {
+		Assert.notNull(kidRequest, "Kid request can not be null");
+		
+		// Map to Kid Request Entity
+		final KidRequestEntity kidRequestEntityToSave = 
+				kidRequestMapper.addKidRequestDTOToKidRequestEntity(kidRequest);
+		
+		if(kidRequestEntityToSave.getExpiredAt().after(new Date())) 
+			throw new PreviousRequestHasNotExpiredYetException();
+		
+		// Save request
+		final KidRequestEntity kidRequestSaved = 
+				kidRequestRepository.save(kidRequestEntityToSave);
+		
+		// Map Result
+		return kidRequestMapper.kidRequestEntityToKidRequestDTO(kidRequestSaved);
+	}
+
+	/**
+	 * Get All Kid Request for kid
+	 */
+	@Override
+	public Iterable<KidRequestDTO> getAllKidRequestForKid(final ObjectId kid) {
+		Assert.notNull(kid, "Kid can not be null");
+		
+		// Find All By Kid
+		final Iterable<KidRequestEntity> kidRequestEntities = 
+				kidRequestRepository.findAllByKid(kid);
+		// Map Result
+		return kidRequestMapper.kidRequestEntityToKidRequestDTOs(kidRequestEntities);
+	}
+
+	/**
+	 * Delete All Kid Request By Kid
+	 */
+	@Override
+	public void deleteAllKidRequestByKid(final ObjectId kid) {
+		Assert.notNull(kid, "Kid can not be null");
+		
+		// Delete All By Kid
+		kidRequestRepository.deleteAllByKid(kid);
+		
+	}
+
+	/**
+	 * Delete Kid Request
+	 */
+	@Override
+	public void deleteKidRequest(final ObjectId kid, final List<ObjectId> ids) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(ids, "ids can not be null");
+		
+		// Delete All By Kid And Id In
+		kidRequestRepository.deleteAllByKidAndIdIn(kid, ids);
 	}
 }
