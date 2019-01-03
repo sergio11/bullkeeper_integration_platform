@@ -8,9 +8,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
-
 import io.jsonwebtoken.lang.Assert;
-import sanchez.sanchez.sergio.bullkeeper.persistence.entity.GuardianEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ScreenStatusEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.TerminalEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.TerminalRepositoryCustom;
@@ -137,6 +135,38 @@ public class TerminalRepositoryImpl implements TerminalRepositoryCustom {
                 		.andOperator(Criteria.where("kid").in(kid))),
                 new Update()
                 	.set("lock_camera_enabled", false), TerminalEntity.class);
+		
+	}
+
+	/**
+	 * Enable Settings
+	 */
+	@Override
+	public void enableSettings(final ObjectId kid, final ObjectId terminal) {
+		Assert.notNull(terminal, "Terminal can not be null");
+		Assert.notNull(kid, "Kid can not be null");
+		
+		mongoTemplate.updateFirst(
+                new Query(Criteria.where("_id").in(terminal)
+                		.andOperator(Criteria.where("kid").in(kid))),
+                new Update()
+                	.set("settings_enabled", true), TerminalEntity.class);
+		
+	}
+
+	/**
+	 * Disable Settings
+	 */
+	@Override
+	public void disableSettings(final ObjectId kid, final ObjectId terminal) {
+		Assert.notNull(terminal, "Terminal can not be null");
+		Assert.notNull(kid, "Kid can not be null");
+		
+		mongoTemplate.updateFirst(
+                new Query(Criteria.where("_id").in(terminal)
+                		.andOperator(Criteria.where("kid").in(kid))),
+                new Update()
+                	.set("settings_enabled", false), TerminalEntity.class);
 		
 	}
 

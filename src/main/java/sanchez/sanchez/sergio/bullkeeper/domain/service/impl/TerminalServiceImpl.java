@@ -1234,4 +1234,26 @@ public final class TerminalServiceImpl implements ITerminalService {
 		// Delete All By Kid And Id In
 		kidRequestRepository.deleteAllByKidAndIdIn(kid, ids);
 	}
+
+	/**
+	 * Enable Settings In The Terminal
+	 */
+	@Override
+	public void enableSettingsInTheTerminal(final ObjectId kid, final ObjectId terminal) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		
+		terminalRepository.enableSettings(kid, terminal);
+	}
+
+	/**
+	 * Disable Settings In The Terminal
+	 */
+	@Override
+	public void disableSettingsInTheTerminal(final ObjectId kid, final ObjectId terminal) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		
+		terminalRepository.disableSettings(kid, terminal);
+	}
 }

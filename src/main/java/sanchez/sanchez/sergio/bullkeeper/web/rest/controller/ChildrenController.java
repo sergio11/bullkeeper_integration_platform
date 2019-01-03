@@ -50,6 +50,7 @@ import sanchez.sanchez.sergio.bullkeeper.events.scheduledblock.ScheduledBlockSta
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalBedTimeStatusChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalCameraStatusChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalScreenStatusChangedEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalSettingsStatusChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.exception.AlertNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.AppInstalledNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.AppStatsNotFoundException;
@@ -1433,6 +1434,82 @@ public class ChildrenController extends BaseController
         return ApiHelper.<String>createAndSendResponse(
         		ChildrenResponseCode.BED_TIME_DISABLED_SUCCESSFULLY, HttpStatus.OK, 
         		messageSourceResolver.resolver("bed.time.disabled.successfully"));
+    }
+    
+    /**
+     * Enable Settings in the terminal
+     */
+    @RequestMapping(value = "/{kid}/terminal/{terminal}/settings/enable", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(value = "ENABLE_SETTINGS_IN_THE_TERMINAL", 
+    nickname = "ENABLE_SETTINGS_IN_THE_TERMINAL",
+    	notes = "Enable Settings in the terminal", response = String.class)
+    public ResponseEntity<APIResponse<String>> enableSettingsInTheTerminal(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+        		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+         			@PathVariable String kid,
+         	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
+    			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
+     				@PathVariable String terminal) 
+    		throws Throwable {
+    	
+    	// Get Terminal
+        final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+    			new ObjectId(terminal), new ObjectId(kid)))
+    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+    	
+        // Enable Settings
+        terminalService.enableSettingsInTheTerminal(new ObjectId(terminalDTO.getKid()),
+        		new ObjectId(terminalDTO.getIdentity()));
+  
+     // Publish Event
+    	this.applicationEventPublisher
+    		.publishEvent(new TerminalSettingsStatusChangedEvent(
+    				this, kid, terminal, true));
+        
+        // Create and send response
+        return ApiHelper.<String>createAndSendResponse(
+        		ChildrenResponseCode.SETTINGS_ENABLE_SUCCESSFULLY, HttpStatus.OK, 
+        		messageSourceResolver.resolver("settings.enabled.successfully"));
+    }
+    
+    /**
+     * Disable Bed Time
+     */
+    @RequestMapping(value = "/{kid}/terminal/{terminal}/settings/disable", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(value = "DISABLE_SETTINGS_IN_THE_TERMINAL", nickname = "DISABLE_SETTINGS_IN_THE_TERMINAL",
+    	notes = "Disable Settings in the terminal", response = String.class)
+    public ResponseEntity<APIResponse<String>> disableSettingsInTheTerminal(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+        		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+         			@PathVariable String kid,
+         	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
+    			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
+     				@PathVariable String terminal) 
+    		throws Throwable {
+    	
+    	// Get Terminal
+        final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+    			new ObjectId(terminal), new ObjectId(kid)))
+    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+    	
+       
+        // Disabled Settings
+        terminalService.disableSettingsInTheTerminal(new ObjectId(terminalDTO.getKid()), 
+        		new ObjectId(terminalDTO.getIdentity()));
+      
+     // Publish Event
+    	this.applicationEventPublisher
+    		.publishEvent(new TerminalSettingsStatusChangedEvent(
+    				this, kid, terminal, false));
+        
+        // Create and send response
+        return ApiHelper.<String>createAndSendResponse(
+        		ChildrenResponseCode.SETTINGS_DISABLE_SUCCESSFULLY, HttpStatus.OK, 
+        		messageSourceResolver.resolver("settings.disabled.successfully"));
     }
     
     /**

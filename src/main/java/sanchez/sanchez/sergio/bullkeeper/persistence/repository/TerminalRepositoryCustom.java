@@ -60,5 +60,19 @@ public interface TerminalRepositoryCustom {
      * @param terminal
      */
     void unlockCamera(final ObjectId kid, final ObjectId terminal);
+    
+    /**
+     * Enable Settings
+     * @param kid
+     * @param terminal
+     */
+    void enableSettings(final ObjectId kid, final ObjectId terminal);
+    
+    /**
+     * Disable Settings
+     * @param kid
+     * @param terminal
+     */
+    void disableSettings(final ObjectId kid, final ObjectId terminal);
  
 }

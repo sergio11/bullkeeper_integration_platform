@@ -507,6 +507,20 @@ public interface ITerminalService {
     void unlockCameraInTheTerminal(final ObjectId kid, final ObjectId terminal);
     
     /**
+     * Enable Settings In The Terminal
+     * @param kid
+     * @param terminal
+     */
+    void enableSettingsInTheTerminal(final ObjectId kid, final ObjectId terminal);
+    
+    /**
+     * DIsable Settings In the Terminal
+     * @param kid
+     * @param terminal
+     */
+    void disableSettingsInTheTerminal(final ObjectId kid, final ObjectId terminal);
+    
+    /**
      * Add Kid Request
      * @param kidRequest
      * @return

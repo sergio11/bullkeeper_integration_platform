@@ -8,9 +8,11 @@ import org.springframework.util.Assert;
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalBedTimeStatusChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalCameraStatusChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalScreenStatusChangedEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalSettingsStatusChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.terminal.TerminalBedTimeStatusChangedSSE;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.terminal.TerminalCameraStatusChangedSSE;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.terminal.TerminalScreenStatusChangedSSE;
+import sanchez.sanchez.sergio.bullkeeper.sse.models.terminal.TerminalSettingsStatusChangedSSE;
 import sanchez.sanchez.sergio.bullkeeper.sse.service.ISseService;
 
 
@@ -113,6 +115,33 @@ public class TerminalEventHandlers {
 		// Push Event
 		sseService.push(subscriberId, terminalScreenStatus);
 	}
+	
+	/**
+	 * Handle for Terminal Settings Status ChangedEvent
+	 * @param terminalSettingsStatusChangedEvent
+	 */
+	@EventListener
+	public void handle(final TerminalSettingsStatusChangedEvent 
+			terminalSettingsStatusChangedEvent) {
+		Assert.notNull(terminalSettingsStatusChangedEvent, "Event can not be null");
+		
+		final String subscriberId = terminalSettingsStatusChangedEvent.getTerminal();
+		
+		// Settings Status
+		final TerminalSettingsStatusChangedSSE terminalSettingsStatus = 
+				new TerminalSettingsStatusChangedSSE(
+						subscriberId, terminalSettingsStatusChangedEvent.getKid(),
+						terminalSettingsStatusChangedEvent.getTerminal(),
+						terminalSettingsStatusChangedEvent.getEnabled()
+						);
+		
+		
+		// Push Event
+		sseService.push(subscriberId, terminalSettingsStatus);
+	}
+	
+	
+	
 	
 	
 }

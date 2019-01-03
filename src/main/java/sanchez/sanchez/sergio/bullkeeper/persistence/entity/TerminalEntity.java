@@ -130,6 +130,12 @@ public class TerminalEntity implements Serializable {
 	private Boolean lockCameraEnabled;
 	
 	/**
+     * Settings Enabled
+     */
+	@Field("settings_enabled")
+	private Boolean settingsEnabled;
+	
+	/**
 	 * KId
 	 */
 	@DBRef
@@ -153,6 +159,11 @@ public class TerminalEntity implements Serializable {
 	 * @param deviceId
 	 * @param lastTimeUsed
 	 * @param createAt
+	 * @param screenStatus
+	 * @param bedTimeEnabled
+	 * @param lockScreenEnabled
+	 * @param lockCameraEnabled
+	 * @param settingsEnabled
 	 * @param kid
 	 */
 	@PersistenceConstructor
@@ -160,7 +171,7 @@ public class TerminalEntity implements Serializable {
 			String sdkVersion, String manufacturer, String marketName, String model, String codeName,
 			String deviceName, String deviceId, Date lastTimeUsed, Date createAt, 
 			ScreenStatusEnum screenStatus, Boolean bedTimeEnabled,
-			Boolean lockScreenEnabled, Boolean lockCameraEnabled, KidEntity kid) {
+			Boolean lockScreenEnabled, Boolean lockCameraEnabled, Boolean settingsEnabled, KidEntity kid) {
 		super();
 		this.id = id;
 		this.appVersionName = appVersionName;
@@ -179,6 +190,7 @@ public class TerminalEntity implements Serializable {
 		this.bedTimeEnabled = bedTimeEnabled;
 		this.lockScreenEnabled = lockScreenEnabled;
 		this.lockCameraEnabled = lockCameraEnabled;
+		this.settingsEnabled = settingsEnabled;
 		this.kid = kid;
 	}
 
@@ -319,6 +331,14 @@ public class TerminalEntity implements Serializable {
 	public void setLockCameraEnabled(Boolean lockCameraEnabled) {
 		this.lockCameraEnabled = lockCameraEnabled;
 	}
+	
+	public Boolean getSettingsEnabled() {
+		return settingsEnabled;
+	}
+
+	public void setSettingsEnabled(Boolean settingsEnabled) {
+		this.settingsEnabled = settingsEnabled;
+	}
 
 	public KidEntity getKid() {
 		return kid;
@@ -334,7 +354,11 @@ public class TerminalEntity implements Serializable {
 				+ ", osVersion=" + osVersion + ", sdkVersion=" + sdkVersion + ", manufacturer=" + manufacturer
 				+ ", marketName=" + marketName + ", model=" + model + ", codeName=" + codeName + ", deviceName="
 				+ deviceName + ", deviceId=" + deviceId + ", lastTimeUsed=" + lastTimeUsed + ", createAt=" + createAt
-				+ ", screenStatus=" + screenStatus + ", kid=" + kid + "]";
+				+ ", screenStatus=" + screenStatus + ", bedTimeEnabled=" + bedTimeEnabled + ", lockScreenEnabled="
+				+ lockScreenEnabled + ", lockCameraEnabled=" + lockCameraEnabled + ", settingsEnabled="
+				+ settingsEnabled + ", kid=" + kid + "]";
 	}
+
+	
 	
 }
