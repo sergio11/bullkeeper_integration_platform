@@ -1,7 +1,5 @@
 package sanchez.sanchez.sergio.bullkeeper.web.rest.response;
 
-import sanchez.sanchez.sergio.bullkeeper.exception.PreviousRequestHasNotExpiredYetException;
-import sanchez.sanchez.sergio.bullkeeper.exception.ScheduledBlockNotValidException;
 
 public enum ChildrenResponseCode implements IResponseCodeTypes {
 

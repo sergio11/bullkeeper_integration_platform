@@ -26,6 +26,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IAlertService;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.ICommentsService;
+import sanchez.sanchez.sergio.bullkeeper.domain.service.IGeofenceService;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IKidService;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IScheduledBlockService;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.ISocialMediaService;
@@ -35,6 +36,7 @@ import sanchez.sanchez.sergio.bullkeeper.events.apps.AppDisabledEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.apps.AppEnabledEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.apps.AppRulesListSavedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.apps.AppRulesSavedEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.geofences.GeofenceAddedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.location.CurrentLocationUpdateEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.phonenumbers.AddPhoneNumberBlockedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.phonenumbers.DeleteAllPhoneNumberBlockedEvent;
@@ -66,6 +68,7 @@ import sanchez.sanchez.sergio.bullkeeper.exception.NoChildrenFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoCommunityStatisticsForThisPeriodException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoContactsFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoDimensionsStatisticsForThisPeriodException;
+import sanchez.sanchez.sergio.bullkeeper.exception.NoGeofenceFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoKidGuardianFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoPhoneNumberBlockedFound;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoScheduledBlockFoundException;
@@ -102,6 +105,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppRulesDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppStatsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveCallDetailDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveContactDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveGeofenceDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveGuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveLocationDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveScheduledBlockDTO;
@@ -120,6 +124,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CommunitiesStatisticsD
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ContactDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.DimensionsStatisticsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.FunTimeScheduledDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.GeofenceDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ImageDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidGuardianDTO;
@@ -143,6 +148,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.rest.response.CallDetailResponseCod
 import sanchez.sanchez.sergio.bullkeeper.web.rest.response.ChildrenResponseCode;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.response.CommentResponseCode;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.response.ContactResponseCode;
+import sanchez.sanchez.sergio.bullkeeper.web.rest.response.GeofenceResponseCode;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.response.SmsResponseCode;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.response.SocialMediaResponseCode;
 import sanchez.sanchez.sergio.bullkeeper.web.security.userdetails.CommonUserDetailsAware;
@@ -188,6 +194,7 @@ public class ChildrenController extends BaseController
     private final IStatisticsService statisticsService;
     private final ITerminalService terminalService;
     private final IScheduledBlockService scheduledBlockService;
+    private final IGeofenceService geofenceService;
     
     /**
      * 
@@ -199,10 +206,13 @@ public class ChildrenController extends BaseController
      * @param statisticsService
      * @param terminalService
      * @param scheduledBlockService
+     * @param geofenceService
      */
     public ChildrenController(IKidService kidService, ICommentsService commentService, ISocialMediaService socialMediaService,
     		IUploadFilesService uploadFilesService, IAlertService alertService, IStatisticsService statisticsService,
-    		final ITerminalService terminalService, final IScheduledBlockService scheduledBlockService) {
+    		final ITerminalService terminalService, 
+    		final IScheduledBlockService scheduledBlockService,
+    		final IGeofenceService geofenceService) {
         this.kidService = kidService;
         this.commentService = commentService;
         this.socialMediaService = socialMediaService;
@@ -211,6 +221,7 @@ public class ChildrenController extends BaseController
         this.statisticsService = statisticsService;
         this.terminalService = terminalService;
         this.scheduledBlockService = scheduledBlockService;
+        this.geofenceService = geofenceService;
     }
     
     /**
@@ -3890,6 +3901,133 @@ public class ChildrenController extends BaseController
     	// Create and send response
     	return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.ALL_KID_REQUEST_DELETED, 
         		HttpStatus.OK, messageSourceResolver.resolver("all.kid.request.deleted"));
+    	
+    }
+    
+    
+    /**
+     * Save Geofence For Kid
+     * @param kid
+     * @param saveGeofenceDTO
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{kid}/geofences", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(
+    		value = "SAVE_GEOFENCE_FOR_KID", nickname = "SAVE_GEOFENCE_FOR_KID",
+    		notes = "Save Geofence For Kid", response = GeofenceDTO.class)
+    public ResponseEntity<APIResponse<GeofenceDTO>> saveGeofenceForKid(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+         		@Valid @KidShouldExists(message = "{son.should.be.exists}")
+          			@PathVariable String kid,
+          	@ApiParam(value = "geofence", required = true) 
+    			@Validated(ICommonSequence.class) 
+    			@RequestBody SaveGeofenceDTO saveGeofenceDTO
+          	) throws Throwable {
+    	
+    	logger.debug("Save Geofence for kid -> " + kid);
+    	
+    	// Save Geofence
+    	final GeofenceDTO geofenceDTO = geofenceService.save(saveGeofenceDTO);
+    	
+    
+    	// Push Event
+    	this.applicationEventPublisher
+    		.publishEvent(new GeofenceAddedEvent(
+    				this, geofenceDTO.getIdentity(), geofenceDTO.getName(),
+    				geofenceDTO.getLat(), geofenceDTO.getLog(), geofenceDTO.getRadius(),
+    				geofenceDTO.getType(), geofenceDTO.getType()));
+    	
+    	
+    	
+    	// Create and send response
+    	return ApiHelper.<GeofenceDTO>createAndSendResponse(GeofenceResponseCode.GEOFENCE_SAVED_SUCCESSFULLY, 
+        		HttpStatus.OK, geofenceDTO);
+    	
+    }
+    /**
+     * Get All Geofences for kid
+     */
+    @RequestMapping(value = "/{kid}/geofences", method = RequestMethod.GET)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(
+    		value = "GET_ALL_GEOFENCES_FOR_KID", nickname = "GET_ALL_GEOFENCES_FOR_KID",
+    		notes = "Get All Geofences for kid", response = Iterable.class)
+    public ResponseEntity<APIResponse<Iterable<GeofenceDTO>>> getAllGeofencesForKid(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+         		@Valid @KidShouldExists(message = "{son.should.be.exists}")
+          			@PathVariable String kid) throws Throwable {
+    	
+    	logger.debug("Get all geofences for kid -> " + kid);
+    	
+    	// Get All Geofences by kid 
+    	final Iterable<GeofenceDTO> geofencesList = geofenceService.allByKid(new ObjectId(kid));
+    	
+    	// No Geofences Found Exception
+    	if(Iterables.size(geofencesList) == 0)
+    		throw new NoGeofenceFoundException();
+    	
+    	
+    	// Create and send response
+    	return ApiHelper.<Iterable<GeofenceDTO>>createAndSendResponse(GeofenceResponseCode.ALL_GEOFENCES_FOR_KID, 
+        		HttpStatus.OK, geofencesList);
+    	
+    }
+    
+    
+    /**
+     * Delete Geofences for ids
+     */
+    @RequestMapping(value = "/{kid}/geofences/delete", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(
+    		value = "DELETE_GEOFENCES_FOR_KID", nickname = "DELETE_GEOFENCES_FOR_KID",
+    		notes = "Delete Geofences For Kid", response = String.class)
+    public ResponseEntity<APIResponse<String>> deleteGeofencesForKid(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+         		@Valid @KidShouldExists(message = "{son.should.be.exists}")
+          			@PathVariable String kid,
+          	@ApiParam(value = "ids", required = true) 
+        		@Validated(ICommonSequence.class) 
+        			@RequestBody ValidList<ObjectId> ids) throws Throwable {
+    	
+    	logger.debug("Delete Geofences for kid -> " + kid);
+    	
+    	// Delete By Kid and ids
+    	geofenceService.deleteByKidAndIds(new ObjectId(kid), ids);
+    	
+    	// Create and send response
+    	return ApiHelper.<String>createAndSendResponse(GeofenceResponseCode.GEOFENCES_DELETED, 
+        		HttpStatus.OK, messageSourceResolver.resolver("geofences.deleted"));
+    	
+    }
+    
+    /**
+     * Delete all Geofences for kid
+     */
+    @RequestMapping(value = "/{kid}/geofences", method = RequestMethod.DELETE)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(
+    		value = "DELETE_ALL_GEOFENCES_FOR_KID", nickname = "DELETE_ALL_GEOFENCES_FOR_KID",
+    		notes = "Delete All Geofences For Kid", response = String.class)
+    public ResponseEntity<APIResponse<String>> deleteAllGeofencesForKid(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+         		@Valid @KidShouldExists(message = "{son.should.be.exists}")
+          			@PathVariable String kid) throws Throwable {
+    	
+    	logger.debug("Delete all geofences for kid -> " + kid);
+    
+    	// Delete All By Kid
+    	geofenceService.deleteAllByKid(new ObjectId(kid));
+    	
+    	// Create and send response
+    	return ApiHelper.<String>createAndSendResponse(GeofenceResponseCode.ALL_GEOFENCES_DELETED, 
+        		HttpStatus.OK, messageSourceResolver.resolver("all.geofences.deleted"));
     	
     }
     
