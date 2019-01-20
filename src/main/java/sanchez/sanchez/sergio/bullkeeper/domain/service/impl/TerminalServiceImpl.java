@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +15,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-
 import sanchez.sanchez.sergio.bullkeeper.domain.service.ITerminalService;
 import sanchez.sanchez.sergio.bullkeeper.exception.AppInstalledNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.PhoneNumberAlreadyBlockedException;
@@ -25,6 +23,7 @@ import sanchez.sanchez.sergio.bullkeeper.mapper.AppInstalledEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.AppStatsEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.CallDetailEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.ContactEntityMapper;
+import sanchez.sanchez.sergio.bullkeeper.mapper.FunTimeScheduledEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.KidRequestEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.PhoneNumberEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.SmsEntityMapper;
@@ -34,6 +33,9 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AppRuleEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AppStatsEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.CallDetailEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ContactEntity;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.DayScheduledEntity;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.FunTimeDaysEnum;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.FunTimeScheduledEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.KidRequestEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.PhoneNumberBlockedEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ScreenStatusEnum;
@@ -54,14 +56,19 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppRulesDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppStatsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveCallDetailDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveContactDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveDayScheduledDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveFunTimeScheduledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveSmsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveTerminalDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.TerminalHeartbeatDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledInTerminalDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppRuleDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppStatsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CallDetailDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ContactDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.DayScheduledDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.FunTimeScheduledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidRequestDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.PhoneNumberBlockedDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.SmsDTO;
@@ -159,6 +166,11 @@ public final class TerminalServiceImpl implements ITerminalService {
 	 */
 	private final KidRequestEntityMapper kidRequestMapper;
 	
+	 /**
+     * Fun Time Scheduled Entity Mapper
+     */
+    private final FunTimeScheduledEntityMapper funTimeScheduledEntityMapper;
+	
 
 	/**
 	 * 
@@ -176,10 +188,12 @@ public final class TerminalServiceImpl implements ITerminalService {
 	 * @param appStatsEntityMapper
 	 * @param kidRequestRepository
 	 * @param kidRequestMapper
+	 * @param funTimeScheduledEntityMapper
 	 */
 	@Autowired
 	public TerminalServiceImpl(final TerminalEntityDataMapper terminalEntityDataMapper, 
-			final TerminalRepository terminalRepository, final AppInstalledRepository appsInstalledRepository,
+			final TerminalRepository terminalRepository, 
+			final AppInstalledRepository appsInstalledRepository,
 			final AppInstalledEntityMapper appInstalledEntityDataMapper,
 			final CallDetailRepository callDetailRepository,
 			final CallDetailEntityMapper callDetailEntityMapper, 
@@ -192,7 +206,8 @@ public final class TerminalServiceImpl implements ITerminalService {
 			final AppStatsRepository appStatsRepository,
 			final AppStatsEntityMapper appStatsEntityMapper,
 			final KidRequestRepository kidRequestRepository,
-			final KidRequestEntityMapper kidRequestMapper) {
+			final KidRequestEntityMapper kidRequestMapper,
+			final FunTimeScheduledEntityMapper funTimeScheduledEntityMapper) {
 		super();
 		this.terminalEntityDataMapper = terminalEntityDataMapper;
 		this.terminalRepository = terminalRepository;
@@ -210,6 +225,7 @@ public final class TerminalServiceImpl implements ITerminalService {
 		this.appStatsEntityMapper = appStatsEntityMapper;
 		this.kidRequestRepository = kidRequestRepository;
 		this.kidRequestMapper = kidRequestMapper;
+		this.funTimeScheduledEntityMapper = funTimeScheduledEntityMapper;
 	}
 
 	/**
@@ -860,8 +876,15 @@ public final class TerminalServiceImpl implements ITerminalService {
 	public void saveHeartbeat(final TerminalHeartbeatDTO terminalHeartbeat) {
 		Assert.notNull(terminalHeartbeat, "Terminal Heart Beat can not be null");
 		
-		terminalRepository.updateScreenStatus(new ObjectId(terminalHeartbeat.getTerminal()), 
-				new ObjectId(terminalHeartbeat.getKid()), ScreenStatusEnum.valueOf(terminalHeartbeat.getScreenStatus()));
+		terminalRepository.saveTerminalStatus(new ObjectId(terminalHeartbeat.getTerminal()), 
+				new ObjectId(terminalHeartbeat.getKid()), 
+				ScreenStatusEnum.valueOf(terminalHeartbeat.getScreenStatus()),
+				terminalHeartbeat.isAccessFineLocationEnabled(),
+				terminalHeartbeat.isReadContactsEnabled(),
+				terminalHeartbeat.isReadCallLogEnabled(),
+				terminalHeartbeat.isWriteExternalStorageEnabled(),
+				terminalHeartbeat.isUsageStatsAllowed(),
+				terminalHeartbeat.isAdminAccessEnabled());
 		
 	}
 
@@ -1023,16 +1046,18 @@ public final class TerminalServiceImpl implements ITerminalService {
 		final PageRequest pageRequest = new PageRequest(0, total);
 		
 		// Find By Terminal Id And Kid 
-		final Page<AppStatsEntity> appStatsPage = appStatsRepository.findByTerminalIdAndKidId(
-				terminal, kid, pageRequest);
+		final Page<AppStatsEntity> appStatsPage = appStatsRepository.findByTerminalIdAndKidIdAndTotalTimeInForegroundGreaterThan(
+				terminal, kid, 0l, pageRequest);
 		
 		// Map to App Stats
-		return appStatsPage.map(new Converter<AppStatsEntity, AppStatsDTO>() {
+		final Page<AppStatsDTO> appStatsDTOPage = appStatsPage.map(new Converter<AppStatsEntity, AppStatsDTO>() {
             @Override
             public AppStatsDTO convert(AppStatsEntity appStatsEntity) {
                 return appStatsEntityMapper.appStatsEntityToAppStatsDTO(appStatsEntity);
             }
         });
+		
+		return appStatsDTOPage.getContent();
 	}
 
 	/**
@@ -1186,7 +1211,11 @@ public final class TerminalServiceImpl implements ITerminalService {
 		final KidRequestEntity kidRequestEntityToSave = 
 				kidRequestMapper.addKidRequestDTOToKidRequestEntity(kidRequest);
 		
-		if(kidRequestEntityToSave.getExpiredAt().after(new Date())) 
+		final KidRequestEntity lastRequest = kidRequestRepository
+			.findFirstByKidAndTypeOrderByExpiredAtDesc(kidRequestEntityToSave.getKid().getId(),
+					kidRequestEntityToSave.getType());
+		
+		if(lastRequest != null && lastRequest.getExpiredAt().after(new Date())) 
 			throw new PreviousRequestHasNotExpiredYetException();
 		
 		// Save request
@@ -1206,7 +1235,7 @@ public final class TerminalServiceImpl implements ITerminalService {
 		
 		// Find All By Kid
 		final Iterable<KidRequestEntity> kidRequestEntities = 
-				kidRequestRepository.findAllByKid(kid);
+				kidRequestRepository.findAllByKidOrderByRequestAtDesc(kid);
 		// Map Result
 		return kidRequestMapper.kidRequestEntityToKidRequestDTOs(kidRequestEntities);
 	}
@@ -1255,5 +1284,144 @@ public final class TerminalServiceImpl implements ITerminalService {
 		Assert.notNull(terminal, "Terminal can not be null");
 		
 		terminalRepository.disableSettings(kid, terminal);
+	}
+
+	/**
+	 * Get Kid Request Detail
+	 */
+	@Override
+	public KidRequestDTO getKidRequestDetail(final ObjectId kid, final ObjectId request) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(request, "Request can not be null");
+		//
+		final KidRequestEntity kidRequest = this.kidRequestRepository
+				.findByIdAndKid(request, kid);
+		// Map result
+		return this.kidRequestMapper.kidRequestEntityToKidRequestDTO(kidRequest);
+	}
+
+	/**
+	 * Delete Kid Request
+	 */
+	@Override
+	public void deleteKidRequest(final ObjectId kid, final ObjectId id) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(id, "Request can not be null");
+		
+		kidRequestRepository.deleteByIdAndKid(id, kid);
+		
+	}
+
+	/**
+	 * Get All Apps Installed By KId
+	 */
+	@Override
+	public Iterable<AppInstalledInTerminalDTO> getAllAppsInstalledByKid(final ObjectId kid, final String text) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(text, "Text can not be null");
+		
+		// Find apps
+		final Iterable<AppInstalledEntity> appInstalled = 
+				!text.isEmpty() ? 
+						appsInstalledRepository.findAllByKidIdAndAppNameIgnoreCaseContaining(kid, text)
+						: appsInstalledRepository.findAllByKidId(kid);
+				
+				
+		return appInstalledEntityDataMapper.appInstalledEntityToAppInstalledInTerminalDTO(appInstalled);
+	}
+
+	/**
+	 * Get Fun Time Scheduled By Kid
+	 */
+	@Override
+	public FunTimeScheduledDTO getFunTimeScheduledByKid(final ObjectId kid, final ObjectId terminal) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		
+		// Get Fun Time Scheduled 
+		final FunTimeScheduledEntity funTimeScheduledEntity = 
+						terminalRepository.getFunTimeScheduled(kid, terminal);
+				
+		// Map Result
+		return funTimeScheduledEntityMapper
+				.funTimeScheduledToFunTimeScheduledDTO(funTimeScheduledEntity);
+	}
+
+	/**
+	 * Save Fun Time Scheduled BY KId
+	 */
+	@Override
+	public FunTimeScheduledDTO saveFunTimeScheduledByKid(final ObjectId kid, final ObjectId terminal,
+			final SaveFunTimeScheduledDTO funTimeScheduled) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		Assert.notNull(funTimeScheduled, "Fun Time can not be null");
+		
+		logger.debug("Fun Time Scheduled to saved -> " + funTimeScheduled.toString());
+		
+		// Map To Fun Time Scheduled
+		final FunTimeScheduledEntity funTimeScheduledToSave = funTimeScheduledEntityMapper
+				.saveFunTimeScheduledDtoToFunTimeScheduledEntity(funTimeScheduled);
+				
+		logger.debug("Fun Time Scheduled to saved -> " + funTimeScheduled.toString());
+		
+		// Save Fun Time Scheduled
+		terminalRepository.saveFunTimeScheduled(kid, terminal, funTimeScheduledToSave);
+				
+		// Get Fun Time Scheduled 
+		final FunTimeScheduledEntity funTimeScheduledEntity = 
+				terminalRepository.getFunTimeScheduled(kid, terminal);
+						
+		// Map Result
+		return funTimeScheduledEntityMapper
+					.funTimeScheduledToFunTimeScheduledDTO(funTimeScheduledEntity);
+	}
+
+	/**
+	 * Get Fun Time Day Scheduled
+	 */
+	@Override
+	public DayScheduledDTO getFunTimeDayScheduled(final ObjectId kid, final ObjectId terminal, 
+			final FunTimeDaysEnum day) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		Assert.notNull(day, "Day can not be null");
+		
+		
+		// Get Fun Time Day Scheduled 
+		final DayScheduledEntity dayScheduledEntity = 
+								terminalRepository.getFunTimeDayScheduled(kid, terminal, day);
+						
+		// Map Result
+		return funTimeScheduledEntityMapper
+						.dayScheduledEntityToDayScheduledDTO(dayScheduledEntity);
+	}
+
+	/**
+	 * Save Fun Time Day Scheduled
+	 */
+	@Override
+	public DayScheduledDTO saveFunTimeDayScheduled(final ObjectId kid, final ObjectId terminal, 
+			final FunTimeDaysEnum day,
+			final SaveDayScheduledDTO saveDayScheduled) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		Assert.notNull(day, "Day can not be null");
+		Assert.notNull(saveDayScheduled, "Save Day can not be null");
+		
+		final DayScheduledEntity dayScheduledEntity = funTimeScheduledEntityMapper
+			.saveDayScheduledDtoToDayScheduledEntity(saveDayScheduled);
+		
+		// Save Day Scheduled
+		terminalRepository.saveDayScheduled(kid, terminal, day, dayScheduledEntity);
+		
+		// Day Scheduled Entity
+		final DayScheduledEntity dayScheduledEntitySaved = 
+				terminalRepository.getFunTimeDayScheduled(kid, terminal, day);
+		
+		// Map Result
+		return funTimeScheduledEntityMapper
+				.dayScheduledEntityToDayScheduledDTO(dayScheduledEntitySaved);
+		
 	}
 }

@@ -1,6 +1,8 @@
 package sanchez.sanchez.sergio.bullkeeper.events.request;
 
 import org.springframework.context.ApplicationEvent;
+
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.LocationDTO;
 
 /**
@@ -33,7 +35,7 @@ public final class KidRequestCreatedEvent extends ApplicationEvent {
 	/**
 	 * Kid
 	 */
-    private String kid;
+    private KidDTO kid;
     
 
     /**
@@ -51,7 +53,7 @@ public final class KidRequestCreatedEvent extends ApplicationEvent {
      * @param terminal
      */
 	public KidRequestCreatedEvent(final Object source, final String identity, final String type,
-			final LocationDTO location, final String kid, final String terminal) {
+			final LocationDTO location, final KidDTO kid, final String terminal) {
 		super(source);
 		this.identity = identity;
 		this.type = type;
@@ -82,7 +84,7 @@ public final class KidRequestCreatedEvent extends ApplicationEvent {
 		return location;
 	}
 
-	public String getKid() {
+	public KidDTO getKid() {
 		return kid;
 	}
 
@@ -98,7 +100,7 @@ public final class KidRequestCreatedEvent extends ApplicationEvent {
 		this.location = location;
 	}
 
-	public void setKid(String kid) {
+	public void setKid(KidDTO kid) {
 		this.kid = kid;
 	}
 

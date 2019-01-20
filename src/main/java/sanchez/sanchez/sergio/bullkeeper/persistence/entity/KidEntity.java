@@ -1,14 +1,10 @@
 package sanchez.sanchez.sergio.bullkeeper.persistence.entity;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
-
 import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
-
 import sanchez.sanchez.sergio.bullkeeper.persistence.utils.CascadeSave;
 
 /**
@@ -42,13 +38,6 @@ public final class KidEntity extends PersonEntity {
     @CascadeSave
     private KidResultsEntity results = new KidResultsEntity();
 
-    /**
-     * Fun Time
-     */
-    @Field("funtime_scheduled")
-    @CascadeSave
-    private FunTimeScheduledEntity funTimeScheduled = new FunTimeScheduledEntity();
-    
 
     public KidEntity() {
     }
@@ -66,13 +55,11 @@ public final class KidEntity extends PersonEntity {
      */
     @PersistenceConstructor
     public KidEntity(String firstName, String lastName, Date birthdate, String profileImage, SchoolEntity school,
-            KidResultsEntity results, LocationEntity currentLocation,
-            final FunTimeScheduledEntity funTimeScheduled) {
+            KidResultsEntity results, LocationEntity currentLocation) {
         super(firstName, lastName, birthdate, profileImage);
         this.school = school;
         this.results = results;
         this.currentLocation = currentLocation;
-        this.funTimeScheduled = funTimeScheduled;
     }
 
     
@@ -113,14 +100,5 @@ public final class KidEntity extends PersonEntity {
 		this.currentLocation = currentLocation;
 	}
 
-	public FunTimeScheduledEntity getFunTimeScheduled() {
-		return funTimeScheduled;
-	}
-
-	public void setFunTimeScheduled(FunTimeScheduledEntity funTimeScheduled) {
-		this.funTimeScheduled = funTimeScheduled;
-	}
-	
-	
     
 }

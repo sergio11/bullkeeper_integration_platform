@@ -33,17 +33,6 @@ public final class DayScheduledDTO implements Serializable {
 	@JsonProperty("total_hours")
 	private Integer totalHours = 0;
 	
-	/**
-	 * Paused
-	 */
-	@JsonProperty("paused")
-	private Boolean paused = false;
-	
-	/**
-	 * Paused At
-	 */
-	@JsonProperty("paused_at")
-	private String pausedAt;
 	
 	/**
 	 * 
@@ -55,18 +44,13 @@ public final class DayScheduledDTO implements Serializable {
 	 * @param day
 	 * @param enabled
 	 * @param totalHours
-	 * @param paused
-	 * @param pausedAt
 	 */
 	public DayScheduledDTO(final String day, final Boolean enabled, 
-			final Integer totalHours, final Boolean paused, 
-			final String pausedAt) {
+			final Integer totalHours) {
 		super();
 		this.day = day;
 		this.enabled = enabled;
 		this.totalHours = totalHours;
-		this.paused = paused;
-		this.pausedAt = pausedAt;
 	}
 
 	public String getDay() {
@@ -81,13 +65,6 @@ public final class DayScheduledDTO implements Serializable {
 		return totalHours;
 	}
 
-	public Boolean getPaused() {
-		return paused;
-	}
-
-	public String getPausedAt() {
-		return pausedAt;
-	}
 
 	public void setDay(String day) {
 		this.day = day;
@@ -101,20 +78,11 @@ public final class DayScheduledDTO implements Serializable {
 		this.totalHours = totalHours;
 	}
 
-	public void setPaused(Boolean paused) {
-		this.paused = paused;
+	@Override
+	public String toString() {
+		return "DayScheduledDTO [day=" + day + ", enabled=" + enabled + ", totalHours=" + totalHours + "]";
 	}
 
 	
-
-	public void setPausedAt(String pausedAt) {
-		this.pausedAt = pausedAt;
-	}
-
-	@Override
-	public String toString() {
-		return "DayScheduledDTO [day=" + day + ", enabled=" + enabled + ", totalHours=" + totalHours + ", paused="
-				+ paused + ", pausedAt=" + pausedAt + "]";
-	}
 
 }

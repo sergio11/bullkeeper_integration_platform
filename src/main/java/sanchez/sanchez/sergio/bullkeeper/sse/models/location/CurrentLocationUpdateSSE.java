@@ -106,6 +106,6 @@ public final class CurrentLocationUpdateSSE
 
 	@Override
 	public String toString() {
-		return "CurrentLocationUpdateSSE [kid=" + kid + ", lat=" + lat + ", log=" + log + ", address=" + address + "]";
+		return "FunTimeScheduledSSE [kid=" + kid + ", lat=" + lat + ", log=" + log + ", address=" + address + "]";
 	}
 }

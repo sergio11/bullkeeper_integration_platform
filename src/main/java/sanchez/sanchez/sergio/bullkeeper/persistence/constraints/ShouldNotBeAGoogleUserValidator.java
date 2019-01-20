@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.GuardianRepository;
 
 
-public class ShouldNotBeAGoogleUserValidator implements ConstraintValidator<ShouldNotBeAFacebookUser, String> {
+public class ShouldNotBeAGoogleUserValidator implements ConstraintValidator<ShouldNotBeAGoogleUser, String> {
     
     private static Logger logger = LoggerFactory.getLogger(ShouldNotBeAGoogleUserValidator.class);
     
@@ -18,12 +18,12 @@ public class ShouldNotBeAGoogleUserValidator implements ConstraintValidator<Shou
     private GuardianRepository parentRepository;
 
     @Override
-    public void initialize(ShouldNotBeAFacebookUser constraintAnnotation) {}
+    public void initialize(ShouldNotBeAGoogleUser constraintAnnotation) {}
 
     @Override
     public boolean isValid(String email, ConstraintValidatorContext context) {
-        String fbId = parentRepository.getFbIdByEmail(email);
-        logger.debug("FB Id -> " + fbId);
-        return fbId != null && !fbId.isEmpty() ? Boolean.FALSE : Boolean.TRUE;
+        String googleId = parentRepository.getGoogleIdByEmail(email);
+        logger.debug("Google Id -> " + googleId);
+        return googleId != null && !googleId.isEmpty() ? Boolean.FALSE : Boolean.TRUE;
     }
 }

@@ -1,11 +1,13 @@
 package sanchez.sanchez.sergio.bullkeeper.sse.models.scheduledblocks;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import org.joda.time.LocalTime;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.AbstractSseData;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ScheduledBlockDTO.AppAllowedByScheduledBlockDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.serializers.JodaTimeToStringSerializer;
 
 /**
@@ -95,7 +97,14 @@ public class ScheduledBlockSavedSSE extends AbstractSseData implements Serializa
 	 */
 	@JsonProperty("kid")
 	private String kid;
-
+	
+	/**
+	 * Apps Allowed
+	 */
+	@JsonProperty("apps_allowed")
+	private Iterable<AppAllowedByScheduledBlockDTO> appsAllowed = new ArrayList<AppAllowedByScheduledBlockDTO>();
+	
+	
 
 	public ScheduledBlockSavedSSE() {
 		this.eventType = EVENT_TYPE;
@@ -115,10 +124,11 @@ public class ScheduledBlockSavedSSE extends AbstractSseData implements Serializa
 	 * @param weeklyFrequency
 	 * @param image
 	 * @param kid
+	 * @param appsAllowed
 	 */
 	public ScheduledBlockSavedSSE(String subscriberId, String identity, String name, boolean enable, boolean repeatable,
 			boolean allowCalls, String description, LocalTime startAt, LocalTime endAt, int[] weeklyFrequency,
-			String image, String kid) {
+			String image, String kid, final Iterable<AppAllowedByScheduledBlockDTO> appsAllowed) {
 		super(EVENT_TYPE, subscriberId);
 		this.identity = identity;
 		this.name = name;
@@ -131,6 +141,7 @@ public class ScheduledBlockSavedSSE extends AbstractSseData implements Serializa
 		this.weeklyFrequency = weeklyFrequency;
 		this.image = image;
 		this.kid = kid;
+		this.appsAllowed = appsAllowed;
 	}
 
 	public String getIdentity() {
@@ -219,6 +230,14 @@ public class ScheduledBlockSavedSSE extends AbstractSseData implements Serializa
 
 	public void setKid(String kid) {
 		this.kid = kid;
+	}
+
+	public Iterable<AppAllowedByScheduledBlockDTO> getAppsAllowed() {
+		return appsAllowed;
+	}
+
+	public void setAppsAllowed(Iterable<AppAllowedByScheduledBlockDTO> appsAllowed) {
+		this.appsAllowed = appsAllowed;
 	}
 
 	@Override

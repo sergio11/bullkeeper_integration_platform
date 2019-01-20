@@ -21,6 +21,7 @@ import sanchez.sanchez.sergio.bullkeeper.exception.NoAlertsByKidFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoChildrenFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoCommunityStatisticsForThisPeriodException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoDimensionsStatisticsForThisPeriodException;
+import sanchez.sanchez.sergio.bullkeeper.exception.NoKidRequestFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoPhoneNumberBlockedFound;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoSentimentAnalysisStatisticsForThisPeriodException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoSocialMediaActivityFoundForThisPeriodException;
@@ -226,9 +227,28 @@ public class ChildrenErrorController extends BaseController {
     protected ResponseEntity<APIResponse<String>> handleKidRequestNotFoundException(
     		final KidRequestNotFoundException kidRequestNotFoundException, final HttpServletRequest request){
         return ApiHelper.<String>createAndSendErrorResponseWithHeader(
-        		ChildrenResponseCode.NO_KID_REQUEST_FOUND, HttpStatus.NOT_FOUND,
+        		ChildrenResponseCode.KID_REQUEST_NOT_FOUND, HttpStatus.NOT_FOUND,
         		messageSourceResolver.resolver("kid.request.not.found.exception"));
     } 
+    
+    /**
+     * Exception Handler for No Kid Request Found Exception
+     * @param noKidRequestFoundException
+     * @param request
+     * @return
+     */
+    @ExceptionHandler(NoKidRequestFoundException.class)
+    @ResponseBody
+    protected ResponseEntity<APIResponse<String>> handleNoKidRequestFoundException(
+    		final NoKidRequestFoundException noKidRequestFoundException, 
+    		final HttpServletRequest request){
+        return ApiHelper.<String>createAndSendErrorResponseWithHeader(
+        		ChildrenResponseCode.NO_KID_REQUEST_FOUND, HttpStatus.NOT_FOUND,
+        		messageSourceResolver.resolver("no.kid.request.found.exception"));
+    } 
+    
+    
+    
     
     /**
      * Exception Handler for Previous Request Has not expired yet exception

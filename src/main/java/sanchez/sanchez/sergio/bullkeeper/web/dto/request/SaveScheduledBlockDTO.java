@@ -1,17 +1,23 @@
 package sanchez.sanchez.sergio.bullkeeper.web.dto.request;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+
 import javax.validation.constraints.Size;
 import org.hibernate.validator.constraints.NotBlank;
 import org.joda.time.LocalTime;
 import org.springframework.data.mongodb.core.mapping.Field;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.AppInstalledShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.IsWeeklyFrequencyValid;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.KidShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.LocalTimeCompare;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ScheduledBlockShouldExistsIfPresent;
+import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.TerminalShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.WeeklyFrequencyValidate;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.group.Extended;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.deserializers.ClearStringDeserializer;
@@ -101,6 +107,12 @@ public final class SaveScheduledBlockDTO implements Serializable {
 	@KidShouldExists(message = "{kid.should.be.exists}")
 	@JsonProperty("kid")
 	private String kid;
+	
+	/**
+	 * App Allowed
+	 */
+	@JsonProperty("apps_allowed")
+	private List<SaveAppAllowedByScheduledBlockDTO> appAllowedList = new ArrayList<SaveAppAllowedByScheduledBlockDTO>();
 	
 	
 	public SaveScheduledBlockDTO(){}
@@ -215,6 +227,16 @@ public final class SaveScheduledBlockDTO implements Serializable {
 	public void setKid(String kid) {
 		this.kid = kid;
 	}
+	
+	
+
+	public List<SaveAppAllowedByScheduledBlockDTO> getAppAllowedList() {
+		return appAllowedList;
+	}
+
+	public void setAppAllowedList(List<SaveAppAllowedByScheduledBlockDTO> appAllowedList) {
+		this.appAllowedList = appAllowedList;
+	}
 
 	@Override
 	public String toString() {
@@ -222,5 +244,79 @@ public final class SaveScheduledBlockDTO implements Serializable {
 				+ repeatable + ", allowCalls=" + allowCalls + ", description=" + description + ", startAt=" + startAt
 				+ ", endAt=" + endAt + ", weeklyFrequency=" + Arrays.toString(weeklyFrequency) + ", kid=" + kid + "]";
 	}
+	
+	/**
+	 * Save App Allowed By Scheduled Block DTO
+	 * @author sergiosanchezsanchez
+	 *
+	 */
+	public static class SaveAppAllowedByScheduledBlockDTO implements Serializable {
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		
+		/**
+		 * App
+		 */
+		@JsonProperty("app")
+		@AppInstalledShouldExists(message = "{app.not.exists}")
+		private String app;
+		
+		
+		/**
+		 * Terminal
+		 */
+		@JsonProperty("terminal")
+		@TerminalShouldExists(message = "{terminal.not.exists}")
+		private String terminal;
+
+		
+		/**
+		 * 
+		 */
+		public SaveAppAllowedByScheduledBlockDTO() {}
+		
+	
+		/**
+		 * 
+		 * @param app
+		 * @param terminal
+		 */
+		public SaveAppAllowedByScheduledBlockDTO(final String app, final String terminal) {
+			super();
+			this.app = app;
+			this.terminal = terminal;
+		}
+
+
+		public String getApp() {
+			return app;
+		}
+
+
+		public String getTerminal() {
+			return terminal;
+		}
+
+
+		public void setApp(String app) {
+			this.app = app;
+		}
+
+
+		public void setTerminal(String terminal) {
+			this.terminal = terminal;
+		}
+
+
+		@Override
+		public String toString() {
+			return "SaveAppAllowedByScheduledBlockDTO [app=" + app + ", terminal=" + terminal + "]";
+		}
+		
+	}
+	
 
 }

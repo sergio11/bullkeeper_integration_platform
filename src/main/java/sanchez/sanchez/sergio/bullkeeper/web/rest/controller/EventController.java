@@ -4,6 +4,8 @@ package sanchez.sanchez.sergio.bullkeeper.web.rest.controller;
 import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,6 +17,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import sanchez.sanchez.sergio.bullkeeper.events.sse.SubscriberSseEmitterCreated;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ValidObjectId;
 import sanchez.sanchez.sergio.bullkeeper.sse.SseEngine;
 
@@ -38,11 +41,19 @@ public class EventController extends BaseController {
 	private final SseEngine sseEngine;
 	
 	/**
+	 * Application Event Publisher
+	 */
+	private final ApplicationEventPublisher applicationEventPublisher;
+	
+	/**
 	 * 
 	 * @param sseEngine
+	 * @param applicationEventPublisher
 	 */
-	public EventController(final SseEngine sseEngine){
+	@Autowired
+	public EventController(final SseEngine sseEngine, final ApplicationEventPublisher applicationEventPublisher){
 		this.sseEngine = sseEngine;
+		this.applicationEventPublisher = applicationEventPublisher;
 	}
 	
 	
@@ -65,7 +76,14 @@ public class EventController extends BaseController {
 		
 		logger.debug("Subscriber with id -> " + id);
 		
-		return sseEngine.createSseEmitter(id);
+		// Create SSE Emitter
+		final SseEmitter sseEmitter = sseEngine.createSseEmitter(id);
+		
+		// Publish Event
+		applicationEventPublisher.publishEvent(
+				new SubscriberSseEmitterCreated(this, id));
+		
+		return sseEmitter;
     }
 	
 	

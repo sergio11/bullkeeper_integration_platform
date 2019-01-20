@@ -47,7 +47,23 @@ public interface SupervisedChildrenRepository extends
 	 */
 	List<SupervisedChildrenEntity> findByGuardianIdAndRoleAndIsConfirmed(final ObjectId id, final GuardianRolesEnum role, 
 			final boolean isConfirmed);
+	
+	/**
+	 * Find By Kid Id And Role And Is Confirmed as true
+	 * @param id
+	 * @param role
+	 * @return
+	 */
+	List<SupervisedChildrenEntity> findByKidIdAndRoleAndIsConfirmedTrue(final ObjectId kid, final GuardianRolesEnum role);
 
+	/**
+	 * Find By Kid Id And Role In And Is Confirmed as true
+	 * @param id
+	 * @param role
+	 * @return
+	 */
+	List<SupervisedChildrenEntity> findByKidIdAndRoleInAndIsConfirmedTrue(final ObjectId kid, final List<GuardianRolesEnum> roles);
+	
 	/**
 	 * Count By Kid Id And Role And Is Confirmed
 	 * @param id

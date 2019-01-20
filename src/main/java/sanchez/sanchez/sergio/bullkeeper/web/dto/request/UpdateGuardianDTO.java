@@ -9,8 +9,7 @@ import org.hibernate.validator.constraints.NotBlank;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
-
-import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.InDateRange;
+import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.InAgeRange;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.NewParentEmailShouldNotExist;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ValidPhoneNumber;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.group.Extended;
@@ -46,7 +45,7 @@ public final class UpdateGuardianDTO {
 	/**
 	 * Birthdate
 	 */
-	@InDateRange(min = "1-1-1960", max = "1-1-2000", message="{user.birthdate.invalid}")
+	@InAgeRange(min="18", max="90", message="{user.age.invalid}", groups = Extended.class)
 	@JsonProperty("birthdate")
 	@JsonDeserialize(using = BirthdayDeserializer.class)
     private Date birthdate;

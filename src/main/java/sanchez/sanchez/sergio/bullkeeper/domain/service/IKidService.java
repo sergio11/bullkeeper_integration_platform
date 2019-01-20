@@ -6,7 +6,6 @@ import org.springframework.data.domain.Pageable;
 
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveGuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveLocationDTO;
-import sanchez.sanchez.sergio.bullkeeper.web.dto.response.FunTimeScheduledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidGuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.LocationDTO;
@@ -188,11 +187,6 @@ public interface IKidService {
      */
     LocationDTO getCurrentLocation(final String kid);
     
-    /**
-     * Get Fun Time Scheduled By Kid
-     * @param kid
-     * @return
-     */
-    FunTimeScheduledDTO getFunTimeScheduledByKid(final ObjectId kid);
+    
    
 }

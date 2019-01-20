@@ -12,8 +12,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.Assert;
-
-import sanchez.sanchez.sergio.bullkeeper.persistence.entity.FunTimeScheduledEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.KidEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.LocationEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.KidRepositoryCustom;
@@ -181,21 +179,5 @@ public class KidRepositoryImpl implements KidRepositoryCustom {
 		return kidEntity.getCurrentLocation();
 	}
 
-	/**
-	 * Get Fun Time Scheduled
-	 */
-	@Override
-	public FunTimeScheduledEntity getFunTimeScheduled(final ObjectId kid) {
-		Assert.notNull(kid, "Kid can not be null");
-		
-		Query query = new Query(Criteria.where("_id").is(kid));
-        query.fields().include("funtime_scheduled");
-        
-        // Get Kid
-        KidEntity kidEntity = mongoTemplate.findOne(query, KidEntity.class);
-		
-		// Get Fun Time Scheduled
-		return kidEntity.getFunTimeScheduled();
-	}
 
 }

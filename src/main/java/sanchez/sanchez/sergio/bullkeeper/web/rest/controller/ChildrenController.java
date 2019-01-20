@@ -36,6 +36,10 @@ import sanchez.sanchez.sergio.bullkeeper.events.apps.AppDisabledEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.apps.AppEnabledEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.apps.AppRulesListSavedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.apps.AppRulesSavedEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.apps.NewAppInstalledEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.apps.UninstallAppEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.funtime.DayScheduledSavedEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.funtime.SaveFunTimeScheduledEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.geofences.GeofenceAddedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.location.CurrentLocationUpdateEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.phonenumbers.AddPhoneNumberBlockedEvent;
@@ -59,6 +63,7 @@ import sanchez.sanchez.sergio.bullkeeper.exception.CallDetailsNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.CommentsByKidNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.ContactNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.CurrentLocationException;
+import sanchez.sanchez.sergio.bullkeeper.exception.FunTimeDayScheduledNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.FunTimeScheduledNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.KidNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.KidRequestNotFoundException;
@@ -71,6 +76,7 @@ import sanchez.sanchez.sergio.bullkeeper.exception.NoContactsFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoDimensionsStatisticsForThisPeriodException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoGeofenceFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoKidGuardianFoundException;
+import sanchez.sanchez.sergio.bullkeeper.exception.NoKidRequestFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoPhoneNumberBlockedFound;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoScheduledBlockFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoSentimentAnalysisStatisticsForThisPeriodException;
@@ -83,6 +89,8 @@ import sanchez.sanchez.sergio.bullkeeper.exception.TerminalNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.AppInstalledShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.CallDetailShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ContactShouldExists;
+import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.DayNameValidator;
+import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.KidRequestShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.KidShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.PhoneNumberBlockedShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ScheduledBlockShouldExists;
@@ -96,6 +104,7 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AlertCategoryEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AlertLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.BullyingLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.DrugsLevelEnum;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.FunTimeDaysEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SocialMediaTypeEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ViolenceLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.util.ValidList;
@@ -106,6 +115,8 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppRulesDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppStatsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveCallDetailDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveContactDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveDayScheduledDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveFunTimeScheduledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveGeofenceDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveGuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveLocationDTO;
@@ -117,12 +128,14 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveTerminalDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.TerminalHeartbeatDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AlertDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledInTerminalDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppRuleDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppStatsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CallDetailDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CommentDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CommunitiesStatisticsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ContactDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.DayScheduledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.DimensionsStatisticsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.FunTimeScheduledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.GeofenceDTO;
@@ -1541,7 +1554,7 @@ public class ChildrenController extends BaseController
         // Publish Event
     	this.applicationEventPublisher
     		.publishEvent(new TerminalScreenStatusChangedEvent(
-    				this, kid, terminal, true));
+    				this, kid, terminal, false));
         
         // Create and send response
         return ApiHelper.<String>createAndSendResponse(
@@ -1580,7 +1593,7 @@ public class ChildrenController extends BaseController
         // Publish Event
     	this.applicationEventPublisher
     		.publishEvent(new TerminalScreenStatusChangedEvent(
-    				this, kid, terminal, false));
+    				this, kid, terminal, true));
         
         // Create and send response
         return ApiHelper.<String>createAndSendResponse(
@@ -1617,7 +1630,7 @@ public class ChildrenController extends BaseController
         // Publish Event
     	this.applicationEventPublisher
     		.publishEvent(new TerminalCameraStatusChangedEvent(
-    				this, kid, terminal, true));
+    				this, kid, terminal, false));
         
         // Create and send response
         return ApiHelper.<String>createAndSendResponse(
@@ -1655,7 +1668,7 @@ public class ChildrenController extends BaseController
         // Publish Event
     	this.applicationEventPublisher
     		.publishEvent(new TerminalCameraStatusChangedEvent(
-    				this, kid, terminal, false));
+    				this, kid, terminal, true));
         
         // Create and send response
         return ApiHelper.<String>createAndSendResponse(
@@ -2512,6 +2525,43 @@ public class ChildrenController extends BaseController
 	    return ApiHelper.<ContactDTO>createAndSendResponse(ContactResponseCode.CONTACT_SAVED, 
 	       		HttpStatus.OK, contactDTO);
   }
+  
+  /**
+   * Get All apps installed in the terminal
+   * @param kid
+   * @param terminal
+   * @return
+   * @throws Throwable
+   */
+  @RequestMapping(value = "/{kid}/terminal/apps", method = RequestMethod.GET)
+  @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
+  @ApiOperation(value = "GET_ALL_APPS_INSTALLED_FOR_KID", nickname = "GET_ALL_APPS_INSTALLED_FOR_KID",
+  notes = "Get all apps installed for kid", 
+  response = List.class)
+  public ResponseEntity<APIResponse<Iterable<AppInstalledInTerminalDTO>>> getAllAppsInstalledForKid(
+  		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+      		@Valid @KidShouldExists(message = "{son.not.exists}")
+       			@PathVariable final String kid,
+       	@ApiParam(value = "text", required = false) 
+ 				@RequestParam(value = "text", required = false) 
+ 					final String text) 
+  		throws Throwable {
+      
+  	logger.debug("Get all apps installed for kid");
+
+  
+  	// Get App installed for kid
+  	final Iterable<AppInstalledInTerminalDTO> appInstalledForKid =
+  			terminalService.getAllAppsInstalledByKid(
+  					new ObjectId(kid), text);
+      
+  	if(Iterables.isEmpty(appInstalledForKid))
+      	throw new NoAppsInstalledFoundException();
+  	
+  	// Create And send response
+      return ApiHelper.<Iterable<AppInstalledInTerminalDTO>>createAndSendResponse(AppsResponseCode.ALL_APPS_INSTALLED_BY_KID, 
+          		HttpStatus.OK, appInstalledForKid);
+  }
     
     
     /**
@@ -3057,6 +3107,12 @@ public class ChildrenController extends BaseController
         // Delete App installed by id
         terminalService.deleteAppInstalledById(new ObjectId(appInstalledDTO.getIdentity()));
         
+        
+        // Publish Event
+    	this.applicationEventPublisher
+    		.publishEvent(new UninstallAppEvent(this, terminalDTO.getKid(), 
+    				terminalDTO.getIdentity(), appInstalledDTO));
+        
         // Save Alert
     	alertService.save(AlertLevelEnum.WARNING, messageSourceResolver.resolver("apps.installed.remove.title", 
     			new Object[] { appInstalledDTO.getAppName() } ),
@@ -3103,6 +3159,11 @@ public class ChildrenController extends BaseController
     	
         // Save App Installed
         final AppInstalledDTO appInstalled = terminalService.save(appInstalledDTO);
+        
+        // Publish Event
+    	this.applicationEventPublisher
+    		.publishEvent(new NewAppInstalledEvent(this, terminalDTO.getKid(), 
+    				terminalDTO.getIdentity(), appInstalled));
         
         // Save Alert
     	alertService.save(AlertLevelEnum.WARNING, messageSourceResolver.resolver("apps.installed.added.title", 
@@ -3498,9 +3559,9 @@ public class ChildrenController extends BaseController
     }
     
     /**
-     * Get FunTime Scheduled
+     * Get Fun Time Scheduled
      */
-    @RequestMapping(value = "/{kid}/funtime-scheduled", method = RequestMethod.GET)
+    @RequestMapping(value = "/{kid}/terminal/{terminal}/funtime-scheduled", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
     		+ "&& @authorizationService.isYourGuardian(#kid) )")
     @ApiOperation(value = "GET_FUNTIME_SCHEDULED", nickname = "GET_FUNTIME_SCHEDULED",
@@ -3508,14 +3569,16 @@ public class ChildrenController extends BaseController
     public ResponseEntity<APIResponse<FunTimeScheduledDTO>> getFunTimeScheduled(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
         		@Valid @KidShouldExists(message = "{son.not.exists}")
-         			@PathVariable final String kid) 
-    		throws Throwable {
+         			@PathVariable final String kid,
+		    @ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
+				@Valid @TerminalShouldExists(message = "{terminal.should.be.exists}")
+					@PathVariable String terminal
+			) throws Throwable {
         
     	logger.debug("Get Fun Time Scheduled");
-    	
     	// Get Fun Time Scheduled
     	final FunTimeScheduledDTO funTimeScheduled = Optional.ofNullable(
-    			kidService.getFunTimeScheduledByKid(new ObjectId(kid)))
+    			terminalService.getFunTimeScheduledByKid(new ObjectId(kid), new ObjectId(terminal)))
     	.orElseThrow(() -> { throw new FunTimeScheduledNotFoundException(); });
     	
     	// Create and send response
@@ -3523,6 +3586,124 @@ public class ChildrenController extends BaseController
     			funTimeScheduled);
     }
     
+    /**
+     * Get Fun Time Day Scheduled
+     * @param kid
+     * @param terminal
+     * @return
+     * @throws Throwable
+     */
+   @RequestMapping(value = "/{kid}/terminal/{terminal}/funtime-scheduled/{day}", method = RequestMethod.GET)
+   @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+   		+ "&& @authorizationService.isYourGuardian(#kid) )")
+   @ApiOperation(value = "GET_FUNTIME_DAY_SCHEDULED", nickname = "GET_FUNTIME_DAY_SCHEDULED",
+   	notes = "Get FunTime Day Scheduled Scheduled", response = DayScheduledDTO.class)
+   public ResponseEntity<APIResponse<DayScheduledDTO>> getFunTimeDayScheduled(
+   		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+       		@Valid @KidShouldExists(message = "{son.not.exists}")
+        			@PathVariable final String kid,
+		    @ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
+				@Valid @TerminalShouldExists(message = "{terminal.should.be.exists}")
+					@PathVariable String terminal,
+			@ApiParam(name = "day", value = "Day", required = true)
+				@Valid @DayNameValidator(message = "{day.name.not.valid}")
+					@PathVariable String day
+			) throws Throwable {
+       
+   	logger.debug("Get Fun Time Scheduled");
+   	
+   	// Get Fun Time Scheduled
+   	final DayScheduledDTO dayScheduledDTO = Optional.ofNullable(
+   			terminalService.getFunTimeDayScheduled(new ObjectId(kid), 
+   					new ObjectId(terminal), FunTimeDaysEnum.valueOf(day)))
+   	.orElseThrow(() -> { throw new FunTimeDayScheduledNotFoundException(); });
+   	
+   	// Create and send response
+   	return ApiHelper.<DayScheduledDTO>createAndSendResponse(ChildrenResponseCode.FUN_TIME_DAY_SCHEDULED, HttpStatus.OK, 
+   			dayScheduledDTO);
+   }
+   
+   
+   /**
+    * Save Fun Time Day Scheduled
+    * @param kid
+    * @param terminal
+    * @return
+    * @throws Throwable
+    */
+  @RequestMapping(value = "/{kid}/terminal/{terminal}/funtime-scheduled/{day}", method = RequestMethod.POST)
+  @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+  		+ "&& @authorizationService.isYourGuardian(#kid) )")
+  @ApiOperation(value = "SAVE_FUNTIME_DAY_SCHEDULED", nickname = "SAVE_FUNTIME_DAY_SCHEDULED",
+  	notes = "Save FunTime Day Scheduled Scheduled", response = DayScheduledDTO.class)
+  public ResponseEntity<APIResponse<DayScheduledDTO>> saveFunTimeDayScheduled(
+  		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+      		@Valid @KidShouldExists(message = "{son.not.exists}")
+       			@PathVariable final String kid,
+		    @ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
+				@Valid @TerminalShouldExists(message = "{terminal.should.be.exists}")
+					@PathVariable String terminal,
+			@ApiParam(name = "day", value = "Day", required = true)
+				@Valid @DayNameValidator(message = "{day.not.valid}")
+					@PathVariable String day,
+			@ApiParam(value = "day_scheduled", required = true) 
+				@Validated(ICommonSequence.class) 
+					@RequestBody SaveDayScheduledDTO saveDayScheduled
+			) throws Throwable {
+      
+  	logger.debug("Get Fun Time Scheduled");
+  	
+  	final DayScheduledDTO dayScheduledDTO = terminalService.saveFunTimeDayScheduled(new ObjectId(kid), 
+				new ObjectId(terminal), FunTimeDaysEnum.valueOf(day), saveDayScheduled);
+  
+  	// Publish Event
+	this.applicationEventPublisher
+		.publishEvent(new DayScheduledSavedEvent(this, kid, terminal,
+				dayScheduledDTO));
+  	
+  	// Create and send response
+  	return ApiHelper.<DayScheduledDTO>createAndSendResponse(ChildrenResponseCode.FUN_TIME_DAY_SCHEDULED, HttpStatus.OK, 
+  			dayScheduledDTO);
+  }
+    
+    /**
+     * Save Fun Time Scheduled
+     */
+    @RequestMapping(value = "/{kid}/terminal/{terminal}/funtime-scheduled", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(value = "SAVE_FUNTIME_SCHEDULED", nickname = "SAVE_FUNTIME_SCHEDULED",
+    	notes = "Save FunTime Scheduled", response = FunTimeScheduledDTO.class)
+    public ResponseEntity<APIResponse<FunTimeScheduledDTO>> saveFunTimeScheduled(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+        		@Valid @KidShouldExists(message = "{son.not.exists}")
+         			@PathVariable final String kid,
+         	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
+    			@Valid @TerminalShouldExists(message = "{terminal.should.be.exists}")
+    				@PathVariable String terminal,
+         	@ApiParam(value = "funtime", required = true) 
+				@Validated(ICommonSequence.class) 
+					@RequestBody SaveFunTimeScheduledDTO saveFunTimeScheduledDTO) 
+    		throws Throwable {
+        
+    	logger.debug("Save Fun Time Scheduled");
+    	
+    	// Save Fun Time Scheduled
+    	final FunTimeScheduledDTO funTimeScheduledDTO = 
+    			terminalService.saveFunTimeScheduledByKid(
+    					new ObjectId(kid), new ObjectId(terminal), saveFunTimeScheduledDTO);
+    	
+    	// Publish Event
+    	this.applicationEventPublisher
+			.publishEvent(new SaveFunTimeScheduledEvent(this, kid, terminal,
+					funTimeScheduledDTO));
+    	
+    	// Create and send response
+    	return ApiHelper.<FunTimeScheduledDTO>createAndSendResponse(ChildrenResponseCode.FUN_TIME_SCHEDULED_SAVED, HttpStatus.OK, 
+    			funTimeScheduledDTO);
+    }
+    
+   
     
     /**
      * Get All Scheduled Blocks
@@ -3612,7 +3793,8 @@ public class ChildrenController extends BaseController
     	    
     	// PUblish Event
     	this.applicationEventPublisher
-    		.publishEvent(new ScheduledBlockSavedEvent(this, scheduledBlock, scheduledBlock.getKid()));
+    		.publishEvent(new ScheduledBlockSavedEvent(this, scheduledBlock, 
+    				scheduledBlock.getKid()));
     	
     	// Create and Send Response
     	return ApiHelper.<ScheduledBlockDTO>createAndSendResponse(ChildrenResponseCode.SCHEDULED_BLOCK_SAVED, 
@@ -3889,7 +4071,7 @@ public class ChildrenController extends BaseController
     	this.applicationEventPublisher
     		.publishEvent(new KidRequestCreatedEvent(
     				this, kidRequestDTO.getIdentity(), kidRequestDTO.getType(),
-    				kidRequestDTO.getLocation(), kidRequestDTO.getKid().getIdentity(),
+    				kidRequestDTO.getLocation(), kidRequestDTO.getKid(),
     				kidRequestDTO.getTerminal().getIdentity()));
     	
     	// Create and send response
@@ -3897,6 +4079,8 @@ public class ChildrenController extends BaseController
         		HttpStatus.OK, kidRequestDTO);
     	
     }
+    
+    
     /**
      * Get All Request for kid
      */
@@ -3919,13 +4103,44 @@ public class ChildrenController extends BaseController
     	
     	
     	if(Iterables.size(kidRequests) == 0)
-    		throw new KidRequestNotFoundException();
+    		throw new NoKidRequestFoundException();
     	
     	
     	// Create and send response
     	return ApiHelper.<Iterable<KidRequestDTO>>createAndSendResponse(ChildrenResponseCode.ALL_KID_REQUEST, 
         		HttpStatus.OK, kidRequests);
     	
+    }
+    
+    /**
+     * Get Kid Request Detail
+     * @param kid
+     * @param id
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{kid}/request/{id}", method = RequestMethod.GET)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(
+    		value = "GET_KID_REQUEST_DETAIL", nickname = "GET_KID_REQUEST_DETAIL",
+    		notes = "Get Kid Request Detail", response = KidRequestDTO.class)
+    public ResponseEntity<APIResponse<KidRequestDTO>> getKidRequestDetail(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+         		@Valid @KidShouldExists(message = "{son.should.be.exists}")
+          			@PathVariable String kid,
+          	@ApiParam(name = "id", value = "Kid Request Identifier", required = true)
+     			@Valid @KidRequestShouldExists(message = "{kid.request.should.be.exists}")
+      			@PathVariable String id) throws Throwable {
+    	
+    	logger.debug("Get Kid Request Detail");
+    	
+   
+    	return Optional.ofNullable(terminalService.getKidRequestDetail(new ObjectId(kid),
+    				new ObjectId(id)))
+    		.map(kidRequestDetail -> ApiHelper.<KidRequestDTO>createAndSendResponse(ChildrenResponseCode.KID_REQUEST_DETAIL, 
+            		HttpStatus.OK, kidRequestDetail))
+    		.orElseThrow(() -> { throw new KidRequestNotFoundException(); });
     }
     
     
@@ -3978,6 +4193,34 @@ public class ChildrenController extends BaseController
     	// Create and send response
     	return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.ALL_KID_REQUEST_DELETED, 
         		HttpStatus.OK, messageSourceResolver.resolver("all.kid.request.deleted"));
+    	
+    }
+    
+    /**
+     * Delete Kid Request by id
+     */
+    @RequestMapping(value = "/{kid}/request/{id}", method = RequestMethod.DELETE)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(
+    		value = "DELETE_KID_REQUEST_BY_ID", nickname = "DELETE_KID_REQUEST_BY_ID",
+    		notes = "Delete Kid Request By Id", response = String.class)
+    public ResponseEntity<APIResponse<String>> deleteKidRequestById(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+         		@Valid @KidShouldExists(message = "{son.should.be.exists}")
+          			@PathVariable String kid,
+          	@ApiParam(name = "id", value = "Kid Request Identifier", required = true)
+ 				@Valid @KidRequestShouldExists(message = "{kid.request.should.be.exists}")
+  					@PathVariable String id) throws Throwable {
+    	
+    	logger.debug("Delete kid request by id -> " + id);
+    	
+    	// Delete Kid Request
+    	terminalService.deleteKidRequest(new ObjectId(kid), new ObjectId(id));
+    	
+    	// Create and send response
+    	return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.SINGLE_KID_REQUEST_DELETED, 
+        		HttpStatus.OK, messageSourceResolver.resolver("single.kid.request.deleted"));
     	
     }
     

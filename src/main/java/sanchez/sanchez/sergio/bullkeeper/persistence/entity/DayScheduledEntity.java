@@ -1,7 +1,5 @@
 package sanchez.sanchez.sergio.bullkeeper.persistence.entity;
 
-import java.util.Date;
-
 import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -31,18 +29,7 @@ public class DayScheduledEntity {
 	 */
 	@Field("total_hours")
 	private Integer totalHours = 0;
-	
-	/**
-	 * Paused
-	 */
-	@Field("paused")
-	private Boolean paused = false;
-	
-	/**
-	 * Paused At
-	 */
-	@Field("paused_at")
-	private Date pausedAt;
+
 	
 	public DayScheduledEntity() {}
 
@@ -64,14 +51,11 @@ public class DayScheduledEntity {
 	 */
 	@PersistenceConstructor
 	public DayScheduledEntity(final FunTimeDaysEnum day, 
-			final Boolean enabled, final Integer totalHours,
-			final Boolean paused, final Date pausedAt) {
+			final Boolean enabled, final Integer totalHours) {
 		super();
 		this.day = day;
 		this.enabled = enabled;
 		this.totalHours = totalHours;
-		this.paused = paused;
-		this.pausedAt = pausedAt;
 	}
 
 	public FunTimeDaysEnum getDay() {
@@ -86,14 +70,6 @@ public class DayScheduledEntity {
 		return totalHours;
 	}
 
-	public Boolean getPaused() {
-		return paused;
-	}
-
-	public Date getPausedAt() {
-		return pausedAt;
-	}
-
 	public void setDay(FunTimeDaysEnum day) {
 		this.day = day;
 	}
@@ -106,17 +82,11 @@ public class DayScheduledEntity {
 		this.totalHours = totalHours;
 	}
 
-	public void setPaused(Boolean paused) {
-		this.paused = paused;
-	}
-
-	public void setPausedAt(Date pausedAt) {
-		this.pausedAt = pausedAt;
-	}
-
 	@Override
 	public String toString() {
-		return "DayScheduledEntity [day=" + day + ", enabled=" + enabled + ", totalHours=" + totalHours
-				+ ", paused=" + paused + ", pausedAt=" + pausedAt + "]";
+		return "DayScheduledEntity [day=" + day + ", enabled=" + enabled + ", totalHours=" + totalHours + "]";
 	}
+
+
+	
 }

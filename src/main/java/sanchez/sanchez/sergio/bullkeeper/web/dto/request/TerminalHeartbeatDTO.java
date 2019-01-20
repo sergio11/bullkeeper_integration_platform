@@ -42,6 +42,42 @@ public final class TerminalHeartbeatDTO implements Serializable {
 	@KidShouldExists(message="{kid.not.exists}")
 	private String kid;
 	
+	 /**
+     * Access Fine Location
+     */
+    @JsonProperty("access_fine_location_enabled")
+    private boolean accessFineLocationEnabled = false;
+
+    /**
+     * Read Contacts
+     */
+    @JsonProperty("read_contacts_enabled")
+    private boolean readContactsEnabled= false;
+
+    /**
+     * Read Call Log Enabled
+     */
+    @JsonProperty("read_call_log_enabled")
+    private boolean readCallLogEnabled = false;
+
+    /**
+     * Write External Storage Enabled
+     */
+    @JsonProperty("write_external_storage_enabled")
+    private boolean writeExternalStorageEnabled = false;
+
+    /**
+     * Usage Stats Allowed
+     */
+    @JsonProperty("usage_stats_allowed")
+    private boolean usageStatsAllowed = false;
+
+    /**
+     * Admin Access Enabled
+     */
+    @JsonProperty("admin_access_enabled")
+    private boolean adminAccessEnabled = false;
+	
 	
 	public TerminalHeartbeatDTO() {}
 
@@ -50,12 +86,26 @@ public final class TerminalHeartbeatDTO implements Serializable {
 	 * @param screenStatus
 	 * @param terminal
 	 * @param kid
+	 * @param accessFineLocationEnabled
+	 * @param readContactsEnabled
+	 * @param readCallLogEnabled
+	 * @param writeExternalStorageEnabled
+	 * @param usageStatsAllowed
+	 * @param adminAccessEnabled
 	 */
-	public TerminalHeartbeatDTO( String screenStatus, String terminal, String kid) {
+	public TerminalHeartbeatDTO(String screenStatus, String terminal, String kid, boolean accessFineLocationEnabled,
+			boolean readContactsEnabled, boolean readCallLogEnabled, boolean writeExternalStorageEnabled,
+			boolean usageStatsAllowed, boolean adminAccessEnabled) {
 		super();
 		this.screenStatus = screenStatus;
 		this.terminal = terminal;
 		this.kid = kid;
+		this.accessFineLocationEnabled = accessFineLocationEnabled;
+		this.readContactsEnabled = readContactsEnabled;
+		this.readCallLogEnabled = readCallLogEnabled;
+		this.writeExternalStorageEnabled = writeExternalStorageEnabled;
+		this.usageStatsAllowed = usageStatsAllowed;
+		this.adminAccessEnabled = adminAccessEnabled;
 	}
 
 	public String getScreenStatus() {
@@ -70,6 +120,30 @@ public final class TerminalHeartbeatDTO implements Serializable {
 		return kid;
 	}
 
+	public boolean isAccessFineLocationEnabled() {
+		return accessFineLocationEnabled;
+	}
+
+	public boolean isReadContactsEnabled() {
+		return readContactsEnabled;
+	}
+
+	public boolean isReadCallLogEnabled() {
+		return readCallLogEnabled;
+	}
+
+	public boolean isWriteExternalStorageEnabled() {
+		return writeExternalStorageEnabled;
+	}
+
+	public boolean isUsageStatsAllowed() {
+		return usageStatsAllowed;
+	}
+
+	public boolean isAdminAccessEnabled() {
+		return adminAccessEnabled;
+	}
+
 	public void setScreenStatus(String screenStatus) {
 		this.screenStatus = screenStatus;
 	}
@@ -82,9 +156,39 @@ public final class TerminalHeartbeatDTO implements Serializable {
 		this.kid = kid;
 	}
 
+	public void setAccessFineLocationEnabled(boolean accessFineLocationEnabled) {
+		this.accessFineLocationEnabled = accessFineLocationEnabled;
+	}
+
+	public void setReadContactsEnabled(boolean readContactsEnabled) {
+		this.readContactsEnabled = readContactsEnabled;
+	}
+
+	public void setReadCallLogEnabled(boolean readCallLogEnabled) {
+		this.readCallLogEnabled = readCallLogEnabled;
+	}
+
+	public void setWriteExternalStorageEnabled(boolean writeExternalStorageEnabled) {
+		this.writeExternalStorageEnabled = writeExternalStorageEnabled;
+	}
+
+	public void setUsageStatsAllowed(boolean usageStatsAllowed) {
+		this.usageStatsAllowed = usageStatsAllowed;
+	}
+
+	public void setAdminAccessEnabled(boolean adminAccessEnabled) {
+		this.adminAccessEnabled = adminAccessEnabled;
+	}
+
 	@Override
 	public String toString() {
-		return "TerminalHeartbeatDTO [screenStatus=" + screenStatus + ", terminal=" + terminal + ", kid=" + kid + "]";
+		return "TerminalHeartbeatDTO [screenStatus=" + screenStatus + ", terminal=" + terminal + ", kid=" + kid
+				+ ", accessFineLocationEnabled=" + accessFineLocationEnabled + ", readContactsEnabled="
+				+ readContactsEnabled + ", readCallLogEnabled=" + readCallLogEnabled + ", writeExternalStorageEnabled="
+				+ writeExternalStorageEnabled + ", usageStatsAllowed=" + usageStatsAllowed + ", adminAccessEnabled="
+				+ adminAccessEnabled + "]";
 	}
+
+	
 
 }

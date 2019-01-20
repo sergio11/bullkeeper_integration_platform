@@ -80,6 +80,8 @@ public class MailClientServiceImpl implements IMailClientService {
         try { 
             mailSender.send(messagePreparator);
         } catch (MailException e) {
+        	e.printStackTrace();
+        	logger.debug("Mail Failed Ex -> " + e.getMessage() );
             HashFunction md = Hashing.md5();
             HashCode code = md.hashBytes( email.concat(subject).concat(content).getBytes() );
             String md5String = code.toString();

@@ -5,6 +5,7 @@ import java.io.Serializable;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import sanchez.sanchez.sergio.bullkeeper.sse.models.AbstractSseData;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.LocationDTO;
 
 /**
@@ -34,7 +35,7 @@ public final class KidRequestCreatedSSE extends AbstractSseData implements Seria
 	 * Kid
 	 */
 	@JsonProperty("kid")
-	private String kid;
+	private KidDTO kid;
 	
 	/**
 	 * Terminal
@@ -71,7 +72,7 @@ public final class KidRequestCreatedSSE extends AbstractSseData implements Seria
 	 * @param type
 	 * @param location
 	 */
-	public KidRequestCreatedSSE(String subscriberId, String identity, String kid, String terminal,
+	public KidRequestCreatedSSE(String subscriberId, String identity, KidDTO kid, String terminal,
 			String type, LocationDTO location) {
 		super(EVENT_TYPE, subscriberId);
 		this.identity = identity;
@@ -85,7 +86,7 @@ public final class KidRequestCreatedSSE extends AbstractSseData implements Seria
 		return identity;
 	}
 
-	public String getKid() {
+	public KidDTO getKid() {
 		return kid;
 	}
 
@@ -105,7 +106,7 @@ public final class KidRequestCreatedSSE extends AbstractSseData implements Seria
 		this.identity = identity;
 	}
 
-	public void setKid(String kid) {
+	public void setKid(KidDTO kid) {
 		this.kid = kid;
 	}
 

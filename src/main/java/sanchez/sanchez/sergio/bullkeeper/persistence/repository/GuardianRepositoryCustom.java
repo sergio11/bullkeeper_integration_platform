@@ -108,6 +108,13 @@ public interface GuardianRepositoryCustom {
     
     /**
      * 
+     * @param email
+     * @return
+     */
+    String getGoogleIdByEmail(String email);
+    
+    /**
+     * 
      * @return
      */
     List<ObjectId> getGuardianIds();

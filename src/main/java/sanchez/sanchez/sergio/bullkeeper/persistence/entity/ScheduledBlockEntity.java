@@ -1,7 +1,9 @@
 package sanchez.sanchez.sergio.bullkeeper.persistence.entity;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.bson.types.ObjectId;
 import org.joda.time.LocalTime;
@@ -10,6 +12,8 @@ import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
+
+import sanchez.sanchez.sergio.bullkeeper.persistence.utils.CascadeSave;
 
 /**
  * Scheduled Block 
@@ -98,6 +102,13 @@ public class ScheduledBlockEntity implements Serializable {
 	 */
 	@Field("image")
 	private String image;
+
+	/**
+	 * Apps Allowed
+	 */
+	@Field("apps_allowed")
+	@CascadeSave
+	private Iterable<AppAllowedByScheduledBlockEntity> appAllowed = new ArrayList<>();
 	
 	/**
 	 * 
@@ -118,12 +129,14 @@ public class ScheduledBlockEntity implements Serializable {
 	 * @param weeklyFrequency
 	 * @param kid
 	 * @param image
+	 * @param appAllowed
 	 */
 	@PersistenceConstructor
 	public ScheduledBlockEntity(ObjectId id, String name, boolean enable, 
 			final Date createAt, boolean repeatable, 
 			boolean allowCalls, String description, LocalTime startAt, LocalTime endAt, 
-			int[] weeklyFrequency, KidEntity kid, final String image) {
+			int[] weeklyFrequency, KidEntity kid, final String image,
+			final Iterable<AppAllowedByScheduledBlockEntity> appAllowed) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -136,6 +149,7 @@ public class ScheduledBlockEntity implements Serializable {
 		this.weeklyFrequency = weeklyFrequency;
 		this.kid = kid;
 		this.image = image;
+		this.appAllowed = appAllowed;
 	}
 
 	public ObjectId getId() {
@@ -235,6 +249,16 @@ public class ScheduledBlockEntity implements Serializable {
 	public void setImage(String image) {
 		this.image = image;
 	}
+
+	public Iterable<AppAllowedByScheduledBlockEntity> getAppAllowed() {
+		return appAllowed;
+	}
+
+	public void setAppAllowed(Iterable<AppAllowedByScheduledBlockEntity> appAllowed) {
+		this.appAllowed = appAllowed;
+	}
+
+	
 	
 	
 }

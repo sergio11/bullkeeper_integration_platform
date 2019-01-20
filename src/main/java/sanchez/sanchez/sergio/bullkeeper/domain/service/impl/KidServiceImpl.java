@@ -14,11 +14,9 @@ import com.google.common.collect.Iterables;
 
 import io.jsonwebtoken.lang.Assert;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IKidService;
-import sanchez.sanchez.sergio.bullkeeper.mapper.FunTimeScheduledEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.KidEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.LocationEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.SupervisedChildrenEntityMapper;
-import sanchez.sanchez.sergio.bullkeeper.persistence.entity.FunTimeScheduledEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.KidEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.LocationEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SupervisedChildrenEntity;
@@ -30,7 +28,6 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.repository.SupervisedChildr
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.TaskRepository;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveGuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveLocationDTO;
-import sanchez.sanchez.sergio.bullkeeper.web.dto.response.FunTimeScheduledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidGuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.LocationDTO;
@@ -100,10 +97,6 @@ public class KidServiceImpl implements IKidService {
      */
     private final LocationEntityMapper locationEntityMapper;
     
-    /**
-     * Fun Time Scheduled Entity Mapper
-     */
-    private final FunTimeScheduledEntityMapper funTimeScheduledEntityMapper;
 
     /**
      * 
@@ -125,8 +118,7 @@ public class KidServiceImpl implements IKidService {
             TaskRepository taskRepository, IUploadFilesService uploadFilesService,
             final SupervisedChildrenRepository supervisedChildrenRepository,
             final SupervisedChildrenEntityMapper supervisedChildrenEntityMapper,
-            final LocationEntityMapper locationEntityMapper,
-            final FunTimeScheduledEntityMapper funTimeScheduledEntityMapper) {
+            final LocationEntityMapper locationEntityMapper) {
         super();
         this.kidRepository = kidRepository;
         this.kidEntityMapper = kidEntityMapper;
@@ -138,7 +130,6 @@ public class KidServiceImpl implements IKidService {
         this.supervisedChildrenRepository = supervisedChildrenRepository;
         this.supervisedChildrenEntityMapper = supervisedChildrenEntityMapper;
         this.locationEntityMapper = locationEntityMapper;
-        this.funTimeScheduledEntityMapper = funTimeScheduledEntityMapper;
     }
 
     /**
@@ -567,22 +558,7 @@ public class KidServiceImpl implements IKidService {
 		return locationEntityMapper.locationEntityToLocationDTO(location);
 	}
 	
-	/**
-	 * Get Fun Time Scheduled By Kid
-	 */
-	@Override
-	public FunTimeScheduledDTO getFunTimeScheduledByKid(final ObjectId kid) {
-		Assert.notNull(kid, "Kid can not be null");
-		
-		// Get Fun Time Scheduled 
-		final FunTimeScheduledEntity funTimeScheduledEntity = 
-				kidRepository.getFunTimeScheduled(kid);
-		
-		// Map Result
-		return funTimeScheduledEntityMapper
-			.funTimeScheduledToFunTimeScheduledDTO(funTimeScheduledEntity);
-	}
- 
+	
     @PostConstruct
     protected void init() {
         Assert.notNull(kidRepository, "Son Repository can not be null");
@@ -593,4 +569,6 @@ public class KidServiceImpl implements IKidService {
         Assert.notNull(taskRepository, "Task Repository can not be null");
         Assert.notNull(uploadFilesService, "Upload File Service can not be null");
     }
+
+	
 }

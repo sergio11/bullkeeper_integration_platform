@@ -32,8 +32,6 @@ public class SseEngine {
 	 */
 	private final Map<String, SseEmitter> emitters = new ConcurrentHashMap<>();
 	
-
-	
 	/**
 	 * Config
 	 * @param emitter
@@ -90,7 +88,9 @@ public class SseEngine {
 		if(emitters.get(target) != null){
 			logger.debug("Subscriber Found");
 			sseService.handle(eventData);
-		} 
+		} else {
+			sseService.save(eventData);
+		}
 	}
 	
 	
@@ -105,7 +105,9 @@ public class SseEngine {
 		Assert.notNull(eventDataList, "Event Data List can not be null");
 		if(emitters.get(target) != null){
 			sseService.handle(target, eventDataList);
-		} 
+		} else {
+			sseService.save(target, eventDataList);
+		}
 	}
 	
 	/**

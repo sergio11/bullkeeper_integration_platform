@@ -47,7 +47,7 @@ public final class RegisterKidDTO {
     @JsonProperty("birthdate")
     @JsonDeserialize(using = BirthdayDeserializer.class)
     @NotNull(message="{user.age.notnull}")
-    @InAgeRange(min="8", max="18", message="{user.age.invalid}", groups = Extended.class)
+    @InAgeRange(min="5", max="18", message="{user.age.invalid}", groups = Extended.class)
     private Date birthdate;
 
     /**
@@ -108,5 +108,13 @@ public final class RegisterKidDTO {
     public void setSchool(String school) {
         this.school = school;
     }
+
+	@Override
+	public String toString() {
+		return "RegisterKidDTO [firstName=" + firstName + ", lastName=" + lastName + ", birthdate=" + birthdate
+				+ ", school=" + school + "]";
+	}
+    
+    
 
 }

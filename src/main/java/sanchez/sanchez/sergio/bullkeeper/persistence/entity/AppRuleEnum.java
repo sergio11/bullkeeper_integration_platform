@@ -8,5 +8,6 @@ package sanchez.sanchez.sergio.bullkeeper.persistence.entity;
 public enum AppRuleEnum {
 	ALWAYS_ALLOWED, 
 	NEVER_ALLOWED, 
-	PER_SCHEDULER;
+	PER_SCHEDULER,
+	FUN_TIME;
 }

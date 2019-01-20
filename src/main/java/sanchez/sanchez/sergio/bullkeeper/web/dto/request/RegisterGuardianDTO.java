@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
 
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.FieldMatch;
+import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.InAgeRange;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.InDateRange;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ParentEmailShouldNotExist;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ValidPhoneNumber;
@@ -50,7 +51,7 @@ public  class RegisterGuardianDTO {
 	 * Birth Date
 	 */
 	@JsonDeserialize(using = BirthdayDeserializer.class)
-	@InDateRange(min = "1-1-1960", max = "1-1-2000", message="{user.birthdate.invalid}")
+	@InAgeRange(min="18", max="90", message="{user.age.invalid}", groups = Extended.class)
 	@JsonProperty("birthdate")
 	protected Date birthdate;
  

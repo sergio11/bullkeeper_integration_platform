@@ -29,6 +29,7 @@ public abstract class AbstractSseData {
 	 */
 	public AbstractSseData(String eventType, String subscriberId) {
 		super();
+		this.eventType = eventType;
 		this.subscriberId = subscriberId;
 	}
 

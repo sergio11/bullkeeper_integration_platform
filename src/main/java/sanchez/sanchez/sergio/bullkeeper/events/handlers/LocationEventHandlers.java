@@ -1,5 +1,6 @@
 package sanchez.sanchez.sergio.bullkeeper.events.handlers;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.bson.types.ObjectId;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import sanchez.sanchez.sergio.bullkeeper.events.location.CurrentLocationUpdateEvent;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.GuardianEntity;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.GuardianRolesEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SupervisedChildrenEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.SupervisedChildrenRepository;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.location.CurrentLocationUpdateSSE;
@@ -67,8 +69,10 @@ public class LocationEventHandlers {
 		currentLocationUpdateSSE.setLog(
 				currentLocationUpdateEvent.getLocation().getLog());
 		
-		final List<SupervisedChildrenEntity> supervisedChildren = supervisedChildrenRepository.findByKidId(
-				new ObjectId(currentLocationUpdateEvent.getKid()));
+		final List<SupervisedChildrenEntity> supervisedChildren = supervisedChildrenRepository.findByKidIdAndRoleInAndIsConfirmedTrue(
+				new ObjectId(currentLocationUpdateEvent.getKid()), 
+				Arrays.asList(GuardianRolesEnum.PARENTAL_CONTROL_RULE_EDITOR,
+						GuardianRolesEnum.ADMIN));
 		
 		for(final SupervisedChildrenEntity supervisedChildrenEntity: supervisedChildren) {
 			final GuardianEntity guardian = supervisedChildrenEntity.getGuardian();

@@ -109,7 +109,6 @@ public class CommentsController extends BaseController implements ICommentHAL {
      * @throws Throwable
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    @OnlyAccessForAdmin
     @ApiOperation(value = "GET_COMMENT_BY_ID", nickname = "GET_COMMENT_BY_ID", notes = "Get Comment By Id",
             response = CommentDTO.class)
     public ResponseEntity<APIResponse<CommentDTO>> getCommentById(
@@ -168,7 +167,8 @@ public class CommentsController extends BaseController implements ICommentHAL {
     	
     	logger.debug("Author's identifier -> " + author);
     	if(socialMedias != null && socialMedias.length > 0)
-    		logger.debug("Social Media -> " + socialMedias.toString());
+    		for(int i = 0; i < socialMedias.length; i++)
+    			logger.debug("Social Media -> " + socialMedias[i].name());
     	logger.debug("Days Ago -> " + from);
     	logger.debug("Violence -> " + violence);
     	logger.debug("Drugs -> " + drugs);

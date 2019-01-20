@@ -12,6 +12,7 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.repository.TerminalReposito
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.KidRepository;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppInstalledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledInTerminalDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppRuleDTO;
 
 /**
@@ -36,6 +37,12 @@ public abstract class AppInstalledEntityMapper {
 	protected TerminalRepository terminalRepository;
 	
 	/**
+	 * Terminal Entity Data Mapper
+	 */
+	@Autowired
+	protected TerminalEntityDataMapper terminalEntityDataMapper;
+	
+	/**
 	 * App Installed Entity to App Installed DTO
 	 * @param terminalEntity
 	 * @return
@@ -50,6 +57,20 @@ public abstract class AppInstalledEntityMapper {
     @Named("appInstalledEntityToAppInstalledDTO")
     public abstract AppInstalledDTO appInstalledEntityToAppInstalledDTO(final AppInstalledEntity appInstalledEntity); 
 	
+    /**
+	 * App Installed Entity to App Installed In Terminal DTO
+	 * @param terminalEntity
+	 * @return
+	 */
+    @Mappings({
+        @Mapping(expression="java(appInstalledEntity.getId().toString())", target = "identity" ),
+        @Mapping(expression="java(appInstalledEntity.getKid().getId().toString())", target = "kid" ),
+        @Mapping(expression="java(terminalEntityDataMapper.terminalEntityToTerminalDTO(appInstalledEntity.getTerminal()))",
+        		target = "terminal" ),
+        @Mapping(expression="java(appInstalledEntity.getAppRuleEnum().name())", target = "appRule" )
+    })
+    @Named("appInstalledEntityToAppInstalledInTerminalDTO")
+    public abstract AppInstalledInTerminalDTO appInstalledEntityToAppInstalledInTerminalDTO(final AppInstalledEntity appInstalledEntity); 
     
     /**
 	 * App Installed Entity to App Rule DTO
@@ -80,6 +101,15 @@ public abstract class AppInstalledEntityMapper {
      */
     @IterableMapping(qualifiedByName = "appInstalledEntityToAppInstalledDTO")
     public abstract Iterable<AppInstalledDTO> appInstalledEntityToAppInstalledDTO(
+    		Iterable<AppInstalledEntity> appInstalledEntitiesList);
+    
+    /**
+     * 
+     * @param appInstalledEntitiesList
+     * @return
+     */
+    @IterableMapping(qualifiedByName = "appInstalledEntityToAppInstalledInTerminalDTO")
+    public abstract Iterable<AppInstalledInTerminalDTO> appInstalledEntityToAppInstalledInTerminalDTO(
     		Iterable<AppInstalledEntity> appInstalledEntitiesList);
     
     

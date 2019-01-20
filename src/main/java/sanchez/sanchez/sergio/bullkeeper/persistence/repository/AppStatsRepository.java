@@ -39,7 +39,8 @@ public interface AppStatsRepository extends MongoRepository<AppStatsEntity, Long
 	 * @param pageRequest
 	 * @return
 	 */
-	Page<AppStatsEntity> findByTerminalIdAndKidId(final ObjectId terminal, final ObjectId kidId,
+	Page<AppStatsEntity> findByTerminalIdAndKidIdAndTotalTimeInForegroundGreaterThan(final ObjectId terminal, 
+			final ObjectId kidId, final Long value,
 			final Pageable pageRequest);
  
 	/**

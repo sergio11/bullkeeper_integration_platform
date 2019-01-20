@@ -54,4 +54,19 @@ public interface ISseService {
 	 */
 	public <T extends AbstractSseData>  void handle(final String subscriberId, final Iterable<T> eventDataList);
 
+	
+	/**
+	 * @param eventData
+	 */
+	public <T extends AbstractSseData>  void save(final T eventData);
+	
+	/**
+	 * @param subscriberId
+	 * @param eventDataList
+	 */
+	public <T extends AbstractSseData>  void save(final String subscriberId, final Iterable<T> eventDataList);
+	
+	
+	
+	
 }

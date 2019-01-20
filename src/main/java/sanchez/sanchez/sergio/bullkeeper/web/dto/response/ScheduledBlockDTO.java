@@ -1,13 +1,12 @@
 package sanchez.sanchez.sergio.bullkeeper.web.dto.response;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
-
 import org.joda.time.LocalTime;
 import org.springframework.hateoas.ResourceSupport;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
 import sanchez.sanchez.sergio.bullkeeper.web.rest.serializers.JodaTimeToStringSerializer;
 
 /**
@@ -94,6 +93,12 @@ public class ScheduledBlockDTO extends ResourceSupport {
 	 */
 	@JsonProperty("kid")
 	private String kid;
+	
+	/**
+	 * Apps Allowed
+	 */
+	@JsonProperty("apps_allowed")
+	private Iterable<AppAllowedByScheduledBlockDTO> appsAllowed = new ArrayList<AppAllowedByScheduledBlockDTO>();
 
 	
 	public ScheduledBlockDTO() {}
@@ -113,10 +118,12 @@ public class ScheduledBlockDTO extends ResourceSupport {
 	 * @param weeklyFrequency
 	 * @param image
 	 * @param kid
+	 * @param appsAllowed
 	 */
 	public ScheduledBlockDTO(String identity, String name, boolean enable, boolean repeatable, 
 			final String createAt, boolean allowCalls,
-			String description, LocalTime startAt, LocalTime endAt, int[] weeklyFrequency, String image, String kid) {
+			String description, LocalTime startAt, LocalTime endAt, int[] weeklyFrequency, 
+			String image, String kid, final Iterable<AppAllowedByScheduledBlockDTO> appsAllowed) {
 		super();
 		this.identity = identity;
 		this.name = name;
@@ -130,6 +137,7 @@ public class ScheduledBlockDTO extends ResourceSupport {
 		this.weeklyFrequency = weeklyFrequency;
 		this.image = image;
 		this.kid = kid;
+		this.appsAllowed = appsAllowed;
 	}
 
 
@@ -251,6 +259,17 @@ public class ScheduledBlockDTO extends ResourceSupport {
 	public void setKid(String kid) {
 		this.kid = kid;
 	}
+	
+
+
+	public Iterable<AppAllowedByScheduledBlockDTO> getAppsAllowed() {
+		return appsAllowed;
+	}
+
+
+	public void setAppsAllowed(Iterable<AppAllowedByScheduledBlockDTO> appsAllowed) {
+		this.appsAllowed = appsAllowed;
+	}
 
 
 	@Override
@@ -259,6 +278,68 @@ public class ScheduledBlockDTO extends ResourceSupport {
 				+ repeatable + ", createAt=" + createAt + ", allowCalls=" + allowCalls + ", description=" + description
 				+ ", startAt=" + startAt + ", endAt=" + endAt + ", weeklyFrequency=" + Arrays.toString(weeklyFrequency)
 				+ ", image=" + image + ", kid=" + kid + "]";
+	}
+	
+	/**
+	 * App Allowed By Scheduled Block DTO
+	 * @author sergiosanchezsanchez
+	 *
+	 */
+	public static class AppAllowedByScheduledBlockDTO implements Serializable {
+		
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		/**
+		 * App 
+		 */
+		@JsonProperty("app")
+		private AppInstalledDTO app;
+		
+		/**
+		 * Terminal
+		 */
+		@JsonProperty("terminal")
+		private TerminalDTO terminal;
+		
+		public AppAllowedByScheduledBlockDTO() {}
+		
+		/**
+		 * 
+		 * @param app
+		 * @param terminal
+		 */
+		public AppAllowedByScheduledBlockDTO(final AppInstalledDTO app, final TerminalDTO terminal) {
+			super();
+			this.app = app;
+			this.terminal = terminal;
+		}
+
+		public AppInstalledDTO getApp() {
+			return app;
+		}
+
+		public TerminalDTO getTerminal() {
+			return terminal;
+		}
+
+		public void setApp(AppInstalledDTO app) {
+			this.app = app;
+		}
+
+		public void setTerminal(TerminalDTO terminal) {
+			this.terminal = terminal;
+		}
+
+		@Override
+		public String toString() {
+			return "AppAllowedByScheduledBlockDTO [app=" + app + ", terminal=" + terminal + "]";
+		}
+		
+		
+			
 	}
 	
 }

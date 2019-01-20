@@ -1,6 +1,7 @@
 package sanchez.sanchez.sergio.bullkeeper.persistence.repository.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
@@ -272,17 +273,23 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
 		Assert.notNull(from, "From can not be null");
 		Assert.isTrue(from.before(new Date()), "From must be a date before the current one");
 		
-		final Criteria criteria = Criteria.where("kid.$id")
+		
+		final Criteria commonCriteria = Criteria.where("kid.$id")
 				.is(kid).and("extracted_at").gte(from);
 		
 	
 		// Social Media Filter
-		if(socialMedias != null && socialMedias.length > 0)
-			criteria.andOperator(Criteria.where("social_media").in(socialMedias));
+		if(socialMedias != null && socialMedias.length > 0) {
+			final String[] socialMediaNames = new String[socialMedias.length];
+			for(int i = 0; i < socialMedias.length; i++) {
+				socialMediaNames[i] = socialMedias[i].name();
+			}
+			commonCriteria.and("social_media").in(Arrays.asList(socialMediaNames));
+		}
 		
 		// Author Filter
 		if(author != null)
-			criteria.andOperator(Criteria.where("author.external_id").is(author));
+			commonCriteria.and("author.external_id").is(author);
 
 		final List<Criteria> dimensionCriterias = new ArrayList<>(); 
 			
@@ -307,11 +314,12 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
 			dimensionCriterias.add(Criteria
 					.where("analysis_results.adult.status").is(AnalysisStatusEnum.FINISHED.name())
 					.and("analysis_results.adult.result").is(adult.ordinal()));
-		
-		if(!dimensionCriterias.isEmpty())
-			criteria.orOperator(dimensionCriterias.toArray(new Criteria[dimensionCriterias.size()]));
+	
 
-		final Query query = new Query(criteria);
+		if(!dimensionCriterias.isEmpty())
+			commonCriteria.orOperator(dimensionCriterias.toArray(new Criteria[dimensionCriterias.size()]));
+		
+		final Query query = new Query(commonCriteria);
 		
         query.with(new Sort(Sort.Direction.DESC, "extracted_at"));
         return  mongoTemplate.find(query, CommentEntity.class);
@@ -330,21 +338,25 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
 		Assert.isTrue(from.before(new Date()), "From must be a date before the current one");
 		
 		
-		final Criteria criteria = Criteria.where("extracted_at").gte(from);
-		
-		
+		final Criteria commonCriteria = Criteria.where("extracted_at").gte(from);
+	
 		// children filter
 		if(identities != null && !identities.isEmpty())
-			criteria.andOperator(Criteria.where("kid.$id").in(identities));
+			commonCriteria.and("kid.$id").in(identities);
 		
 		// Social Media Filter
-		if(socialMedias != null && socialMedias.length > 0)
-			criteria.andOperator(Criteria.where("social_media").in(socialMedias));
+		if(socialMedias != null && socialMedias.length > 0) { 
+			final String[] socialMediaNames = new String[socialMedias.length];
+			for(int i = 0; i < socialMedias.length; i++) {
+				socialMediaNames[i] = socialMedias[i].name();
+			}
+			commonCriteria.and("social_media").in(Arrays.asList(socialMedias));
+		}
 		
 		
 		// Author Filter
 		if(author != null)
-			criteria.andOperator(Criteria.where("author.external_id").is(author));
+			commonCriteria.and("author.external_id").is(author);
 		
 		
 		List<Criteria> dimensionCriterias = new ArrayList<>(); 
@@ -371,9 +383,12 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
 					.where("analysis_results.adult.status").is(AnalysisStatusEnum.FINISHED.name())
 					.and("analysis_results.adult.result").is(adult.ordinal()));
 		
+	
 		if(!dimensionCriterias.isEmpty())
-			criteria.orOperator(dimensionCriterias.toArray(new Criteria[dimensionCriterias.size()]));
-		final Query query = new Query(criteria);
+			commonCriteria.orOperator(dimensionCriterias.toArray(new Criteria[dimensionCriterias.size()]));
+
+		final Query query = new Query(commonCriteria);
+
         query.with(new Sort(Sort.Direction.DESC, "extracted_at"));
         return mongoTemplate.find(query, CommentEntity.class);
 	}

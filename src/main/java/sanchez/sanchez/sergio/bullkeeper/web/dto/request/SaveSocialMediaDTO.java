@@ -57,8 +57,7 @@ public class SaveSocialMediaDTO {
     /**
      * Kid
      */
-    @ValidObjectId(message = "{kid.id.notvalid}")
-    @KidShouldExists(message = "{social.son.not.exists}", groups = Extended.class)
+    @KidShouldExists(message = "{social.son.not.exists}")
     @JsonProperty("kid")
     private String kid;
     

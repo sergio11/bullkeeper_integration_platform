@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.bson.types.ObjectId;
 
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.FunTimeDaysEnum;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.AddKidRequestDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.AddPhoneNumberBlockedDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppInstalledDTO;
@@ -11,14 +12,19 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppRulesDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppStatsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveCallDetailDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveContactDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveDayScheduledDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveFunTimeScheduledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveSmsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveTerminalDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.TerminalHeartbeatDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledInTerminalDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppRuleDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppStatsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CallDetailDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ContactDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.DayScheduledDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.FunTimeScheduledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidRequestDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.PhoneNumberBlockedDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.SmsDTO;
@@ -69,6 +75,14 @@ public interface ITerminalService {
      */
     Iterable<AppInstalledDTO> getAllAppsInstalledInTheTerminal(final ObjectId id, 
     		final ObjectId terminalId, final String text);
+    
+    /**
+     * 
+     * @param id
+     * @param text
+     * @return
+     */
+    Iterable<AppInstalledInTerminalDTO> getAllAppsInstalledByKid(final ObjectId id, final String text);
     
     
     /**
@@ -535,6 +549,14 @@ public interface ITerminalService {
     Iterable<KidRequestDTO> getAllKidRequestForKid(final ObjectId kid);
     
     /**
+     * Get Kid Request Detail
+     * @param kid
+     * @param request
+     * @return
+     */
+    KidRequestDTO getKidRequestDetail(final ObjectId kid, final ObjectId request);
+    
+    /**
      * Delete All Kid Request By Kid
      * @param kid
      */
@@ -547,5 +569,43 @@ public interface ITerminalService {
      */
     void deleteKidRequest(final ObjectId kid, final List<ObjectId> request);
     
+    /**
+     * Delete Kid Request
+     * @param kid
+     * @param id
+     */
+    void deleteKidRequest(final ObjectId kid, final ObjectId id);
+    
+    /**
+     * Get Fun Time Scheduled By Kid
+     * @param kid
+     * @param terminal
+     * @return
+     */
+    FunTimeScheduledDTO getFunTimeScheduledByKid(final ObjectId kid, final ObjectId terminal);
+    
+
+    /**
+     * Get Fun Time Scheduled By Kid
+     * @param kid
+     * @param terminal
+     * @param day
+     * @return
+     */
+    DayScheduledDTO getFunTimeDayScheduled(final ObjectId kid, final ObjectId terminal, final FunTimeDaysEnum day);
+    
+    /**
+     * Save Fun Time Scheduled By Kid
+     * @param kid
+     * @param terminal
+     * @param funTimeScheduled
+     * @return
+     */
+    FunTimeScheduledDTO saveFunTimeScheduledByKid(final ObjectId kid, final ObjectId terminal, final SaveFunTimeScheduledDTO funTimeScheduled);
+    
+    /**
+     * Save Fun Time Day Scheduled
+     */
+    DayScheduledDTO saveFunTimeDayScheduled(final ObjectId kid, final ObjectId terminal, final FunTimeDaysEnum day, final SaveDayScheduledDTO saveDayScheduled);
     
 }

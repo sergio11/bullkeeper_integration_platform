@@ -6,9 +6,11 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
-
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AppAllowedByScheduledBlockEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ScheduledBlockEntity;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.AppInstalledRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.KidRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.TerminalRepository;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.scheduledblocks.ScheduledBlockSavedSSE;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveScheduledBlockDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ScheduledBlockDTO;
@@ -21,9 +23,35 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ScheduledBlockDTO;
 @Mapper(unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE)
 public abstract class ScheduledBlockMapper {
 	
+	/**
+	 * Kid Repository
+	 */
 	@Autowired
 	protected KidRepository kidRepository;
 
+	/**
+	 * Terminal Repository
+	 */
+	@Autowired
+	protected TerminalRepository terminalRepository;
+	
+	/**
+	 * App Installed Repository
+	 */
+	@Autowired 
+	protected AppInstalledRepository appInstalledRepository;
+	
+	/**
+	 * APp Installed Entity Mapper
+	 */
+	@Autowired
+	protected AppInstalledEntityMapper appInstalledMapper;
+	
+	/**
+	 * Terminal Entity Data Mapper
+	 */
+	@Autowired
+	protected TerminalEntityDataMapper terminalEntityDataMapper;
 	
 	/**
 	 * Scheduled Block Entity To Scheduled Block DTO
@@ -35,7 +63,10 @@ public abstract class ScheduledBlockMapper {
         	target = "identity" ),
         @Mapping(expression="java(scheduledBlockEntity.getKid().getId().toString())",
         	target = "kid" ),
-        @Mapping(source = "scheduledBlockEntity.createAt", target = "createAt", dateFormat = "yyyy/MM/dd")
+        @Mapping(source = "scheduledBlockEntity.createAt", target = "createAt", 
+        	dateFormat = "yyyy/MM/dd"),
+        @Mapping(expression="java(appAllowedByScheduledBlockEntityToAppAllowedByScheduledBlockDTO(scheduledBlockEntity.getAppAllowed()))", 
+        	target = "appsAllowed")
      })
     @Named("scheduledBlockEntityToScheduledBlockDTO")
     public abstract ScheduledBlockDTO scheduledBlockEntityToScheduledBlockDTO(final ScheduledBlockEntity scheduledBlockEntity); 
@@ -75,7 +106,10 @@ public abstract class ScheduledBlockMapper {
     @Mappings({
     	@Mapping(expression="java((saveScheduledBlockDTO.getIdentity() != null && !saveScheduledBlockDTO.getIdentity().isEmpty()) ? new org.bson.types.ObjectId(saveScheduledBlockDTO.getIdentity()) : null )", 
     			target="id"),
-        @Mapping(expression="java(kidRepository.findOne(new org.bson.types.ObjectId(saveScheduledBlockDTO.getKid())))", target = "kid" )
+        @Mapping(expression="java(kidRepository.findOne(new org.bson.types.ObjectId(saveScheduledBlockDTO.getKid())))", 
+        		target = "kid" ),
+        @Mapping(expression="java(saveAppAllowedByScheduledBlockDTOToAppAllowedByScheduledBlockEntity(saveScheduledBlockDTO.getAppAllowedList()))", 
+        		target = "appAllowed")
      })
     @Named("saveScheduledBlockDTOToScheduledBlockEntity")
     public abstract ScheduledBlockEntity saveScheduledBlockDTOToScheduledBlockEntity(final SaveScheduledBlockDTO saveScheduledBlockDTO); 
@@ -86,6 +120,48 @@ public abstract class ScheduledBlockMapper {
      */
     @IterableMapping(qualifiedByName = "saveScheduledBlockDTOToScheduledBlockEntity")
     public abstract Iterable<ScheduledBlockEntity> saveScheduledBlockDTOToScheduledBlockEntity(final Iterable<SaveScheduledBlockDTO> saveScheduledBlockEntities);
+    
+    /**
+	 * save App Allowed By Scheduled Block DTO To App Allowed By Scheduled Block Entity
+	 * @param saveAppAllowedByScheduledBlock
+	 * @return
+	 */
+    @Mappings({
+    	@Mapping(expression="java(appInstalledRepository.findOne(new org.bson.types.ObjectId(saveAppAllowedByScheduledBlock.getApp())))", 
+    			target="app"),
+        @Mapping(expression="java(terminalRepository.findOne(new org.bson.types.ObjectId(saveAppAllowedByScheduledBlock.getTerminal())))", 
+        target = "terminal" )
+     })
+    @Named("saveAppAllowedByScheduledBlockDTOToAppAllowedByScheduledBlockEntity")
+    public abstract AppAllowedByScheduledBlockEntity saveAppAllowedByScheduledBlockDTOToAppAllowedByScheduledBlockEntity(final SaveScheduledBlockDTO.SaveAppAllowedByScheduledBlockDTO saveAppAllowedByScheduledBlock); 
+	
+    /**
+     * @param saveAppAllowedByScheduledBlockEntitites
+     * @return
+     */
+    @IterableMapping(qualifiedByName = "saveAppAllowedByScheduledBlockDTOToAppAllowedByScheduledBlockEntity")
+    public abstract Iterable<AppAllowedByScheduledBlockEntity> saveAppAllowedByScheduledBlockDTOToAppAllowedByScheduledBlockEntity(final Iterable<SaveScheduledBlockDTO.SaveAppAllowedByScheduledBlockDTO> saveAppAllowedByScheduledBlockEntitites);
+    
+    /**
+     * 
+     * @param appAllowedByScheduledBlockEntity
+     * @return
+     */
+    @Mappings({
+    	@Mapping(expression="java(appInstalledMapper.appInstalledEntityToAppInstalledDTO(appAllowedByScheduledBlockEntity.getApp()))", 
+    			target="app"),
+        @Mapping(expression="java(terminalEntityDataMapper.terminalEntityToTerminalDetailDTO(appAllowedByScheduledBlockEntity.getTerminal()))", 
+        		target = "terminal" )
+     })
+    @Named("appAllowedByScheduledBlockEntityToAppAllowedByScheduledBlockDTO")
+    public abstract ScheduledBlockDTO.AppAllowedByScheduledBlockDTO appAllowedByScheduledBlockEntityToAppAllowedByScheduledBlockDTO(final AppAllowedByScheduledBlockEntity appAllowedByScheduledBlockEntity); 
+	
+    /**
+     * @param appAllowedByScheduledBlockEntitites
+     * @return
+     */
+    @IterableMapping(qualifiedByName = "appAllowedByScheduledBlockEntityToAppAllowedByScheduledBlockDTO")
+    public abstract Iterable<ScheduledBlockDTO.AppAllowedByScheduledBlockDTO> appAllowedByScheduledBlockEntityToAppAllowedByScheduledBlockDTO(final Iterable<AppAllowedByScheduledBlockEntity> appAllowedByScheduledBlockEntitites);
     
    
 }

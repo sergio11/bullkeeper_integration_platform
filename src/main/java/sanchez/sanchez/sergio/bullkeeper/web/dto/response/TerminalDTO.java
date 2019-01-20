@@ -97,17 +97,24 @@ public class TerminalDTO implements Serializable {
     private Boolean bedTimeEnabled;
 
     /**
-     * Lock Screen Enabled
+     * Screen Enabled
      */
-	@JsonProperty("lock_screen_enabled")
-    private Boolean lockScreenEnabled;
+	@JsonProperty("screen_enabled")
+    private Boolean screenEnabled;
 
     /**
-     * Lock Camera Enabled
+     * Camera Enabled
      */
-	@JsonProperty("lock_camera_enabled")
-	private Boolean lockCameraEnabled;
-
+	@JsonProperty("camera_enabled")
+	private Boolean cameraEnabled;
+	
+	/**
+	 * Settings ENabled
+	 */
+	@JsonProperty("settings_enabled")
+	private Boolean settingsEnabled;
+	
+	
 	
 	public TerminalDTO() {}
 
@@ -126,12 +133,15 @@ public class TerminalDTO implements Serializable {
 	 * @param deviceId
 	 * @param kid
 	 * @param bedTimeEnabled
-	 * @param lockScreenEnabled
-	 * @param lockCameraEnabled
+	 * @param screenEnabled
+	 * @param cameraEnabled
+	 * @param settingsEnabled
 	 */
 	public TerminalDTO(String identity, String appVersionName, String appVersionCode, String osVersion,
 			String sdkVersion, String manufacturer, String marketName, String model, String codeName, String deviceName,
-			String deviceId, String kid, Boolean bedTimeEnabled, Boolean lockScreenEnabled, Boolean lockCameraEnabled) {
+			String deviceId, String kid, Boolean bedTimeEnabled, 
+			Boolean screenEnabled, Boolean cameraEnabled,
+			Boolean settingsEnabled) {
 		super();
 		this.identity = identity;
 		this.appVersionName = appVersionName;
@@ -146,8 +156,9 @@ public class TerminalDTO implements Serializable {
 		this.deviceId = deviceId;
 		this.kid = kid;
 		this.bedTimeEnabled = bedTimeEnabled;
-		this.lockScreenEnabled = lockScreenEnabled;
-		this.lockCameraEnabled = lockCameraEnabled;
+		this.screenEnabled = screenEnabled;
+		this.cameraEnabled = cameraEnabled;
+		this.settingsEnabled = settingsEnabled;
 	}
 
 	public String getIdentity() {
@@ -202,12 +213,16 @@ public class TerminalDTO implements Serializable {
 		return bedTimeEnabled;
 	}
 
-	public Boolean getLockScreenEnabled() {
-		return lockScreenEnabled;
+	public Boolean getScreenEnabled() {
+		return screenEnabled;
 	}
 
-	public Boolean getLockCameraEnabled() {
-		return lockCameraEnabled;
+	public Boolean getCameraEnabled() {
+		return cameraEnabled;
+	}
+
+	public Boolean getSettingsEnabled() {
+		return settingsEnabled;
 	}
 
 	public void setIdentity(String identity) {
@@ -262,12 +277,16 @@ public class TerminalDTO implements Serializable {
 		this.bedTimeEnabled = bedTimeEnabled;
 	}
 
-	public void setLockScreenEnabled(Boolean lockScreenEnabled) {
-		this.lockScreenEnabled = lockScreenEnabled;
+	public void setScreenEnabled(Boolean screenEnabled) {
+		this.screenEnabled = screenEnabled;
 	}
 
-	public void setLockCameraEnabled(Boolean lockCameraEnabled) {
-		this.lockCameraEnabled = lockCameraEnabled;
+	public void setCameraEnabled(Boolean cameraEnabled) {
+		this.cameraEnabled = cameraEnabled;
+	}
+
+	public void setSettingsEnabled(Boolean settingsEnabled) {
+		this.settingsEnabled = settingsEnabled;
 	}
 
 	@Override
@@ -276,11 +295,8 @@ public class TerminalDTO implements Serializable {
 				+ appVersionCode + ", osVersion=" + osVersion + ", sdkVersion=" + sdkVersion + ", manufacturer="
 				+ manufacturer + ", marketName=" + marketName + ", model=" + model + ", codeName=" + codeName
 				+ ", deviceName=" + deviceName + ", deviceId=" + deviceId + ", kid=" + kid + ", bedTimeEnabled="
-				+ bedTimeEnabled + ", lockScreenEnabled=" + lockScreenEnabled + ", lockCameraEnabled="
-				+ lockCameraEnabled + "]";
+				+ bedTimeEnabled + ", screenEnabled=" + screenEnabled + ", cameraEnabled=" + cameraEnabled
+				+ ", settingsEnabled=" + settingsEnabled + "]";
 	}
-
-	
-	
 	
 }

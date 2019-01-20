@@ -14,7 +14,8 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AppInstalledEntity;
  *
  */
 @Repository
-public interface AppInstalledRepository extends MongoRepository<AppInstalledEntity, Long>, AppInstalledRepositoryCustom {
+public interface AppInstalledRepository extends MongoRepository<AppInstalledEntity, ObjectId>, 
+	AppInstalledRepositoryCustom {
 
 	/**
 	 * Find By Id
@@ -76,6 +77,14 @@ public interface AppInstalledRepository extends MongoRepository<AppInstalledEnti
 	
 	
 	/**
+	 * Find All By Kid Id
+	 * @param terminalId
+	 * @param kidId
+	 * @return
+	 */
+	Iterable<AppInstalledEntity> findAllByKidId(final ObjectId kidId);
+	
+	/**
 	 * Find All By Terminal Id And Kid Id and contain text
 	 * @param terminalId
 	 * @param kidId
@@ -84,7 +93,13 @@ public interface AppInstalledRepository extends MongoRepository<AppInstalledEnti
 	Iterable<AppInstalledEntity> findAllByTerminalIdAndKidIdAndAppNameIgnoreCaseContaining(final ObjectId terminalId, 
 			final ObjectId kidId, final String text);
 	
-	
+	/**
+	 * Find All By Kid Id and contain text
+	 * @param kidId
+	 * @return
+	 */
+	Iterable<AppInstalledEntity> findAllByKidIdAndAppNameIgnoreCaseContaining(
+			final ObjectId kidId, final String text);
 
 	/**
 	 * Delete By Kid Id and Terminal Id

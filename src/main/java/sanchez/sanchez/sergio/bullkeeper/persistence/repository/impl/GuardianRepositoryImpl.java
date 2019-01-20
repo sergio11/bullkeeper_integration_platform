@@ -286,4 +286,16 @@ public class GuardianRepositoryImpl implements GuardianRepositoryCustom {
 	   return mongoTemplate.find(new Query(criteria), GuardianEntity.class);
    }
 
+   /**
+    * Get Google Id By Email
+    */
+	@Override
+	public String getGoogleIdByEmail(String email) {
+		Assert.notNull(email, "email can not be null");
+		   final Query query = new Query(Criteria.where("email").is(email));
+	    query.fields().include("google_id");
+	    GuardianEntity parentEntity = mongoTemplate.findOne(query, GuardianEntity.class);
+	    return parentEntity.getGoogleId();
+	}
+
 }

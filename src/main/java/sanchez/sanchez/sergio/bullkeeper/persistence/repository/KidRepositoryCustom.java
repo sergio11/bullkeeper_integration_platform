@@ -1,8 +1,6 @@
 package sanchez.sanchez.sergio.bullkeeper.persistence.repository;
 
 import org.bson.types.ObjectId;
-
-import sanchez.sanchez.sergio.bullkeeper.persistence.entity.FunTimeScheduledEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.LocationEntity;
 
 /**
@@ -80,12 +78,5 @@ public interface KidRepositoryCustom {
      */
     LocationEntity getCurrentLocation(final ObjectId kid);
     
-    /**
-     * Get Fun Time Scheduled
-     * @param kid
-     * @return
-     */
-    FunTimeScheduledEntity getFunTimeScheduled(final ObjectId kid);
-    
-    
+   
 }

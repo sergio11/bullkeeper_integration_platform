@@ -16,6 +16,8 @@ import org.springframework.util.Assert;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AlertEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AuthorityEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AuthorityEnum;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.CommentAuthorEntity;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.CommentEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.DeviceGroupEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.GuardianEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.GuardianRolesEnum;
@@ -71,7 +73,9 @@ public class LoadInitialDataForDevelopmentEnvironment implements CommandLineRunn
     private static List<AlertEntity> alertList = new ArrayList<>();
     private static List<DeviceGroupEntity> deviceGroupsList = new ArrayList<>();
     private static List<SupervisedChildrenEntity> supervisedChildrenList = new ArrayList<>();
-   
+    private static List<CommentEntity> commentsList = new ArrayList<>();
+    
+    
     static {
     	
     	// Authorities
@@ -162,6 +166,10 @@ public class LoadInitialDataForDevelopmentEnvironment implements CommandLineRunn
         
         supervisedChildrenList.add(supervisedSergio);
         
+        // Comments for facebook
+        commentsList.addAll(getCommentsForFacebook(sergio));
+        commentsList.addAll(getCommentsForInstagram(sergio));
+        commentsList.addAll(getCommentsForYoutube(sergio));
         
         Calendar pedroBirthdate = Calendar.getInstance();
         pedroBirthdate.set(2008, 6, 4);
@@ -278,6 +286,222 @@ public class LoadInitialDataForDevelopmentEnvironment implements CommandLineRunn
 		this.supervisedChildrenRepository = supervisedChildrenRepository;
 	}
     
+    private static List<CommentEntity> getCommentsForFacebook(final KidEntity kid){
+    	
+    	final List<CommentEntity> commentsList = new ArrayList<>();
+    	
+    	final CommentAuthorEntity author = new CommentAuthorEntity();
+    	author.setName("Sergio Martín");
+    	author.setImage("https://scontent.fmad3-6.fna.fbcdn.net/v/t1.0-1/c27.0.160.160a/p160x160/25680_102397813134846_2757118_n.jpg?_nc_cat=109&_nc_ht=scontent.fmad3-6.fna&oh=031a58b226f0e426ddd0809e05deb0e2&oe=5CBDBD5B");
+    	author.setExternalId("1234243");
+    	
+    	final CommentEntity comment1 = new CommentEntity();
+        comment1.setCreatedTime(new Date());
+        comment1.setExtractedAt(new Date());
+        comment1.setKid(kid);
+        comment1.setLikes(12L);
+        comment1.setAuthor(author);
+        comment1.setMessage("No me lo puedo creer ..., de verdad piensas eso?? WTF..");
+        comment1.setSocialMedia(SocialMediaTypeEnum.FACEBOOK);
+        commentsList.add(comment1);
+        
+        
+        final CommentEntity comment2 = new CommentEntity();
+        comment2.setCreatedTime(new Date());
+        comment2.setExtractedAt(new Date());
+        comment2.setKid(kid);
+        comment2.setLikes(12L);
+        comment2.setAuthor(author);
+        comment2.setMessage("Muchas gracias de verdad :)");
+        comment2.setSocialMedia(SocialMediaTypeEnum.FACEBOOK);
+        commentsList.add(comment2);
+        
+        final CommentEntity comment3 = new CommentEntity();
+        comment3.setCreatedTime(new Date());
+        comment3.setExtractedAt(new Date());
+        comment3.setKid(kid);
+        comment3.setLikes(12L);
+        comment3.setAuthor(author);
+        comment3.setMessage("que bonito recuerdo de cuando creía que me quedaban pocas horas de vidaa jajajja 💜💜");
+        comment3.setSocialMedia(SocialMediaTypeEnum.FACEBOOK);
+        commentsList.add(comment3);
+        
+        final CommentEntity comment4 = new CommentEntity();
+        comment4.setCreatedTime(new Date());
+        comment4.setExtractedAt(new Date());
+        comment4.setKid(kid);
+        comment4.setLikes(12L);
+        comment4.setAuthor(author);
+        comment4.setMessage("Qué chula la foto. Muchos besos!");
+        comment4.setSocialMedia(SocialMediaTypeEnum.FACEBOOK);
+        commentsList.add(comment4);
+        
+        
+        final CommentEntity comment5 = new CommentEntity();
+        comment5.setCreatedTime(new Date());
+        comment5.setExtractedAt(new Date());
+        comment5.setKid(kid);
+        comment5.setLikes(12L);
+        comment5.setAuthor(author);
+        comment5.setMessage("Gracias... xDD (Que seco lo de los 3 puntos, no) ;) )");
+        comment5.setSocialMedia(SocialMediaTypeEnum.FACEBOOK);
+        commentsList.add(comment5);
+        
+        
+        final CommentEntity comment6 = new CommentEntity();
+        comment6.setCreatedTime(new Date());
+        comment6.setExtractedAt(new Date());
+        comment6.setKid(kid);
+        comment6.setLikes(12L);
+        comment6.setAuthor(author);
+        comment6.setMessage("Pero que ladras");
+        comment6.setSocialMedia(SocialMediaTypeEnum.FACEBOOK);
+        commentsList.add(comment6);
+        
+        final CommentEntity comment7 = new CommentEntity();
+        comment7.setCreatedTime(new Date());
+        comment7.setExtractedAt(new Date());
+        comment7.setKid(kid);
+        comment7.setLikes(12L);
+        comment7.setAuthor(author);
+        comment7.setMessage("Oye... de verdad, más gilipollas no se puede nacer");
+        comment7.setSocialMedia(SocialMediaTypeEnum.FACEBOOK);
+        commentsList.add(comment7);
+    	
+    	return commentsList;
+    }
+    
+	private static List<CommentEntity> getCommentsForInstagram(final KidEntity kid){
+	    	
+	    	final List<CommentEntity> commentsList = new ArrayList<>();
+	    	
+	    	final CommentAuthorEntity author = new CommentAuthorEntity();
+	    	author.setName("Sergio Martín");
+	    	author.setImage("https://instagram.fmad3-7.fna.fbcdn.net/vp/c1adf612ddd178306d30daf29dc9fb3c/5CC96388/t51.2885-19/s150x150/44456119_184243215847397_3702603430850723840_n.jpg?_nc_ht=instagram.fmad3-7.fna.fbcdn.net");
+	    	author.setExternalId("1234243");
+	    	
+	    	final CommentEntity comment1 = new CommentEntity();
+	        comment1.setCreatedTime(new Date());
+	        comment1.setExtractedAt(new Date());
+	        comment1.setKid(kid);
+	        comment1.setLikes(2l);
+	        comment1.setAuthor(author);
+	        comment1.setMessage("Menuda foto XD, Cómo subes eso?? jajajaj. Yo si fuera tú me pegaba un tiro");
+	        comment1.setSocialMedia(SocialMediaTypeEnum.INSTAGRAM);
+	        commentsList.add(comment1);
+	        
+	        
+	        final CommentEntity comment2 = new CommentEntity();
+	        comment2.setCreatedTime(new Date());
+	        comment2.setExtractedAt(new Date());
+	        comment2.setKid(kid);
+	        comment2.setLikes(0l);
+	        comment2.setAuthor(author);
+	        comment2.setMessage("Genial!!, fotos como estas me dan ganas de sucidarme");
+	        comment2.setSocialMedia(SocialMediaTypeEnum.INSTAGRAM);
+	        commentsList.add(comment2);
+	        
+	        final CommentEntity comment3 = new CommentEntity();
+	        comment3.setCreatedTime(new Date());
+	        comment3.setExtractedAt(new Date());
+	        comment3.setKid(kid);
+	        comment3.setLikes(3l);
+	        comment3.setAuthor(author);
+	        comment3.setMessage("Muy bonito todo.... si señor, te felicito");
+	        comment3.setSocialMedia(SocialMediaTypeEnum.INSTAGRAM);
+	        commentsList.add(comment3);
+	        
+	        final CommentEntity comment4 = new CommentEntity();
+	        comment4.setCreatedTime(new Date());
+	        comment4.setExtractedAt(new Date());
+	        comment4.setKid(kid);
+	        comment4.setLikes(5l);
+	        comment4.setAuthor(author);
+	        comment4.setMessage("No se puede ser más tonto de las narices");
+	        comment4.setSocialMedia(SocialMediaTypeEnum.INSTAGRAM);
+	        commentsList.add(comment4);
+	        
+	        
+	        final CommentEntity comment5 = new CommentEntity();
+	        comment5.setCreatedTime(new Date());
+	        comment5.setExtractedAt(new Date());
+	        comment5.setKid(kid);
+	        comment5.setLikes(6l);
+	        comment5.setAuthor(author);
+	        comment5.setMessage("Que feo eres macho, orco!!!");
+	        comment5.setSocialMedia(SocialMediaTypeEnum.INSTAGRAM);
+	        commentsList.add(comment5);
+	        
+	        
+	        final CommentEntity comment6 = new CommentEntity();
+	        comment6.setCreatedTime(new Date());
+	        comment6.setExtractedAt(new Date());
+	        comment6.setKid(kid);
+	        comment6.setLikes(12l);
+	        comment6.setAuthor(author);
+	        comment6.setMessage("Muy profundo si....");
+	        comment6.setSocialMedia(SocialMediaTypeEnum.INSTAGRAM);
+	        commentsList.add(comment6);
+	        
+	        final CommentEntity comment7 = new CommentEntity();
+	        comment7.setCreatedTime(new Date());
+	        comment7.setExtractedAt(new Date());
+	        comment7.setKid(kid);
+	        comment7.setLikes(24l);
+	        comment7.setAuthor(author);
+	        comment7.setMessage("Fúmate todo eso tio jajaja");
+	        comment7.setSocialMedia(SocialMediaTypeEnum.INSTAGRAM);
+	        commentsList.add(comment7);
+	    	
+	    	return commentsList;
+	}
+
+
+
+
+	private static List<CommentEntity> getCommentsForYoutube(final KidEntity kid){
+		
+		final List<CommentEntity> commentsList = new ArrayList<>();
+		
+		final CommentAuthorEntity author = new CommentAuthorEntity();
+		author.setName("Sergio Martín");
+		author.setImage("https://scontent.fmad3-6.fna.fbcdn.net/v/t1.0-1/c27.0.160.160a/p160x160/25680_102397813134846_2757118_n.jpg?_nc_cat=109&_nc_ht=scontent.fmad3-6.fna&oh=031a58b226f0e426ddd0809e05deb0e2&oe=5CBDBD5B");
+		author.setExternalId("1234243");
+		
+		final CommentEntity comment1 = new CommentEntity();
+	    comment1.setCreatedTime(new Date());
+	    comment1.setExtractedAt(new Date());
+	    comment1.setKid(kid);
+	    comment1.setLikes(0l);
+	    comment1.setAuthor(author);
+	    comment1.setMessage("Una puta mierda de video, en serio, dejar de subir mierda así...");
+	    comment1.setSocialMedia(SocialMediaTypeEnum.YOUTUBE);
+	    commentsList.add(comment1);
+	    
+	    
+	    final CommentEntity comment2 = new CommentEntity();
+	    comment2.setCreatedTime(new Date());
+	    comment2.setExtractedAt(new Date());
+	    comment2.setKid(kid);
+	    comment2.setLikes(0l);
+	    comment2.setAuthor(author);
+	    comment2.setMessage("En cada vídeo te superas macho, no se puede ser más gilipollas");
+	    comment2.setSocialMedia(SocialMediaTypeEnum.YOUTUBE);
+	    commentsList.add(comment2);
+	    
+	    final CommentEntity comment3 = new CommentEntity();
+	    comment3.setCreatedTime(new Date());
+	    comment3.setExtractedAt(new Date());
+	    comment3.setKid(kid);
+	    comment3.setLikes(2l);
+	    comment3.setAuthor(author);
+	    comment3.setMessage("Te voy a dar un like por pena hombre jajaja");
+	    comment3.setSocialMedia(SocialMediaTypeEnum.YOUTUBE);
+	    commentsList.add(comment3);
+	   
+		
+		return commentsList;
+	}
     
     @Override
     public void run(String...args) throws Exception {
@@ -302,6 +526,7 @@ public class LoadInitialDataForDevelopmentEnvironment implements CommandLineRunn
         alertRepository.save(alertList);
         deviceGroupRepository.save(deviceGroupsList);
         supervisedChildrenRepository.save(supervisedChildrenList);
+        commentRepository.save(commentsList);
         logger.info("Data Loaded ...");
     }
     

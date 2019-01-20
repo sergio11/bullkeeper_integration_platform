@@ -58,7 +58,10 @@ public abstract class AppStatsEntityMapper {
         @Mapping(expression = "java(appStatsEntity.getKid().getId().toString())", 
 				target = "kid"),
         @Mapping(expression = "java(appStatsEntity.getTerminal().getId().toString())", 
-				target = "terminal")
+				target = "terminal"),
+        @Mapping(expression = "java(appStatsEntity.getApp().getId().toString())", target = "app"),
+        @Mapping(source = "appStatsEntity.app.appName", target = "appName"),
+        @Mapping(source = "appStatsEntity.app.iconEncodedString", target = "iconEncodedString")
     })
     @Named("appStatsEntityToAppStatsDTO")
     public abstract AppStatsDTO appStatsEntityToAppStatsDTO(final AppStatsEntity appStatsEntity); 

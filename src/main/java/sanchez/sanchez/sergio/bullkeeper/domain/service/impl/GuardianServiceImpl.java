@@ -244,14 +244,20 @@ public class GuardianServiceImpl implements IGuardianService {
     @Override
     public KidDTO addKid(final String guardian, final RegisterKidDTO regiterKidDTO) {
     	Assert.notNull(guardian, "Guardian can not be null");
-    	Assert.notNull(regiterKidDTO, "Register DTO can not be null");
+    	Assert.notNull(regiterKidDTO, "Register DTO can not be null"); 	
+    	
+    	// Get Guardian
+        final GuardianEntity guardianEntity = guardianRepository.findOne(new ObjectId(guardian));
+    	
     	// Get Kid
         final KidEntity kidToAdd = kidEntityMapper.registerKidDTOToKidEntity(regiterKidDTO);
-        // Get Guardian
-        final GuardianEntity guardianEntity = guardianRepository.findOne(new ObjectId(guardian));
         
+        // Save Kid
+        final KidEntity kidSaved = kidRepository.save(kidToAdd);
+      
+        // Save Relation
         final SupervisedChildrenEntity supervisedChildrenEntityToSave = new SupervisedChildrenEntity();
-        supervisedChildrenEntityToSave.setKid(kidToAdd);
+        supervisedChildrenEntityToSave.setKid(kidSaved);
         supervisedChildrenEntityToSave.setGuardian(guardianEntity);
         supervisedChildrenEntityToSave.setConfirmed(true);
         supervisedChildrenEntityToSave.setRole(GuardianRolesEnum.ADMIN);

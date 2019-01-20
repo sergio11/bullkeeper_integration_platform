@@ -20,7 +20,7 @@ public final class TerminalSettingsStatusChangedSSE
 	/**
 	 * Event Type
 	 */
-	public final static String EVENT_TYPE = "TERMINAL_BED_TIME_STATUS_CHANGED";
+	public final static String EVENT_TYPE = "TERMINAL_SETTINGS_STATUS_CHANGED";
 	
 	/**
 	 * Kid

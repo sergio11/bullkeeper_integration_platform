@@ -4,7 +4,7 @@ import org.springframework.context.ApplicationEvent;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ScheduledBlockDTO;
 
 /**
- *
+ * Scheduled Block Saved Envent
  * @author sergio
  */
 public class ScheduledBlockSavedEvent extends ApplicationEvent  {
