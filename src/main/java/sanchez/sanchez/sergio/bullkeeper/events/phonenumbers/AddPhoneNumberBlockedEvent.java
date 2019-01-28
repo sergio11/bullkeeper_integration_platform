@@ -26,6 +26,16 @@ public class AddPhoneNumberBlockedEvent extends ApplicationEvent  {
 	private final String terminal;
 	
 	/**
+	 * Prefix
+	 */
+	private final String prefix;
+	
+	/**
+	 * Number
+	 */
+	private final String number;
+	
+	/**
 	 * Phone NUmber
 	 */
 	private final String phoneNumber;
@@ -35,13 +45,26 @@ public class AddPhoneNumberBlockedEvent extends ApplicationEvent  {
 	 */
 	private final String blockedAt;
 
-	public AddPhoneNumberBlockedEvent(Object source, String identity, String kid, 
-			String terminal, String phoneNumber,
-			String blockedAt) {
+	/**
+	 * 
+	 * @param source
+	 * @param identity
+	 * @param kid
+	 * @param terminal
+	 * @param prefix
+	 * @param number
+	 * @param phoneNumber
+	 * @param blockedAt
+	 */
+	public AddPhoneNumberBlockedEvent(Object source, final String identity, final String kid, 
+			final String terminal, final String prefix, final String number, final String phoneNumber,
+			final String blockedAt) {
 		super(source);
 		this.identity = identity;
 		this.kid = kid;
 		this.terminal = terminal;
+		this.prefix = prefix;
+		this.number = number;
 		this.phoneNumber = phoneNumber;
 		this.blockedAt = blockedAt;
 	}
@@ -58,6 +81,14 @@ public class AddPhoneNumberBlockedEvent extends ApplicationEvent  {
 		return terminal;
 	}
 
+	public String getPrefix() {
+		return prefix;
+	}
+
+	public String getNumber() {
+		return number;
+	}
+
 	public String getPhoneNumber() {
 		return phoneNumber;
 	}
@@ -69,10 +100,7 @@ public class AddPhoneNumberBlockedEvent extends ApplicationEvent  {
 	@Override
 	public String toString() {
 		return "AddPhoneNumberBlockedEvent [identity=" + identity + ", kid=" + kid + ", terminal=" + terminal
-				+ ", phoneNumber=" + phoneNumber + ", blockedAt=" + blockedAt + "]";
+				+ ", prefix=" + prefix + ", number=" + number + ", phoneNumber=" + phoneNumber + ", blockedAt="
+				+ blockedAt + "]";
 	}
-
-	
-	
-	
 }

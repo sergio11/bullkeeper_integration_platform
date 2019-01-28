@@ -6,7 +6,6 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.PhoneNumberBlockedEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.TerminalRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.KidRepository;
@@ -46,13 +45,7 @@ public abstract class PhoneNumberEntityMapper {
     	@Mapping(expression="java(phoneNumber.getKid().getId().toString())", 
     			target="kid"),
     	@Mapping(source = "phoneNumber.blockedAt", target = "blockedAt", 
-    			dateFormat = "yyyy/MM/dd"),
-    	@Mapping(expression="java(sanchez.sanchez.sergio.bullkeeper.util.Utils.getPhonePrefix(phoneNumber.getPhoneNumber()))", 
-	    		target = "phonePrefix" ),
-	    @Mapping(expression="java(String.valueOf(sanchez.sanchez.sergio.bullkeeper.util.Utils.getPhoneNumber(phoneNumber.getPhoneNumber())))", 
-	    		target = "phoneNumber" ),
-	    @Mapping(expression="java(phoneNumber.getPhoneNumber())", 
-    			target = "phoneCompleteNumber" )
+    			dateFormat = "yyyy/MM/dd")
     })
     @Named("phoneNumberBlockedEntityToPhoneNumberBlockedDTO")
     public abstract PhoneNumberBlockedDTO phoneNumberBlockedEntityToPhoneNumberBlockedDTO(final PhoneNumberBlockedEntity phoneNumber); 
@@ -75,9 +68,7 @@ public abstract class PhoneNumberEntityMapper {
     	@Mapping(expression="java(terminalRepository.findOne(new org.bson.types.ObjectId(addPhoneNumberBlocked.getTerminal())))", 
     			target="terminal"),
     	@Mapping(expression="java(kidRepository.findOne(new org.bson.types.ObjectId(addPhoneNumberBlocked.getKid())))", 
-    			target="kid"),
-    	@Mapping(expression="java(com.google.i18n.phonenumbers.PhoneNumberUtil.getInstance().format(addPhoneNumberBlocked.getPhoneNumber(),"
-        		+ " com.google.i18n.phonenumbers.PhoneNumberUtil.PhoneNumberFormat.E164))", target = "phoneNumber" )
+    			target="kid")
     })
     @Named("addPhoneNumberBlockedEntity")
     public abstract PhoneNumberBlockedEntity addPhoneNumberBlockedEntity(

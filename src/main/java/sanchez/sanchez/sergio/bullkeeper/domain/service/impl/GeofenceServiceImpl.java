@@ -1,16 +1,19 @@
 package sanchez.sanchez.sergio.bullkeeper.domain.service.impl;
 
+import java.util.Date;
 import java.util.List;
 
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IGeofenceService;
 import sanchez.sanchez.sergio.bullkeeper.mapper.GeofenceEntityMapper;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.GeofenceAlertEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.GeofenceEntity;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.GeofenceTransitionTypeEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.GeofenceRepository;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveGeofenceDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.GeofenceAlertDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.GeofenceDTO;
 
 /**
@@ -99,6 +102,99 @@ public final class GeofenceServiceImpl implements IGeofenceService {
 		Assert.notNull(ids, "ids can not be null");
 		
 		geofenceRepository.deleteAllByKidAndIdIn(kid, ids);
+	}
+
+	/**
+	 * Find By Id
+	 */
+	@Override
+	public GeofenceDTO findById(final ObjectId kid, final ObjectId id) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(id, "Id can not be null");
+		final GeofenceEntity geofenceEntity = geofenceRepository.findByKidAndId(kid, id);
+		// Map Result
+		return geofenceMapper.geofenceEntityToGeofenceDTO(geofenceEntity);
+	}
+
+	/**
+	 * Delete By Id
+	 */
+	@Override
+	public void deleteById(final ObjectId kid, final ObjectId id) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(id, "Id can not be null");
+		
+		geofenceRepository.deleteByKidAndId(kid, id);
+		
+	}
+
+	/**
+	 * Find Alerts
+	 */
+	@Override
+	public Iterable<GeofenceAlertDTO> findAlerts(final ObjectId kid, final ObjectId geofence) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(geofence, "Geofence can not be null");
+		
+		// Find Alerts
+		final Iterable<GeofenceAlertEntity> geofences = 
+				geofenceRepository.findAlerts(kid, geofence);
+		// Map Result
+		return geofenceMapper.geofenceAlertEntityToGeofenceAlertDTOs(geofences);
+	}
+
+	/**
+	 * Delete Alerts
+	 */
+	@Override
+	public void deleteAlerts(final ObjectId kid, final ObjectId geofence) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(geofence, "Geofence can not be null");
+		
+		// Delete Alerts
+		geofenceRepository.deleteAlerts(kid, geofence);
+		
+	}
+
+	/**
+	 * Save Alert
+	 */
+	@Override
+	public GeofenceAlertDTO saveAlert(final String kid, final String geofence, final String type,
+			final String title, final String description) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(geofence, "Geofence can not be null");
+		Assert.notNull(type, "Type can not be null");
+		Assert.notNull(title, "Title can not be null");
+		Assert.notNull(description, "Description can not be null");
+		
+		GeofenceAlertDTO geofenceAlertDTO = null;
+		
+		final GeofenceEntity geofenceEntity = 
+				geofenceRepository.findByKidAndId(new ObjectId(kid), new ObjectId(geofence));
+		
+		if(geofenceEntity != null) {
+			
+			// Geofence Alert
+			final GeofenceAlertEntity geofenceAlertEntity = new GeofenceAlertEntity();
+			geofenceAlertEntity.setTitle(title);
+			geofenceAlertEntity.setDescription(description);
+			geofenceAlertEntity.setDate(new Date());
+			geofenceAlertEntity.setType(GeofenceTransitionTypeEnum.valueOf(type));
+			
+			// Add Alert
+			geofenceEntity.getAlerts().add(geofenceAlertEntity);
+		
+			// Save Geofence
+			geofenceRepository.save(geofenceEntity);
+			
+			// Map Result
+			geofenceAlertDTO = geofenceMapper
+					.geofenceAlertEntityToGeofenceAlertDTO(geofenceAlertEntity);
+		}
+		
+		return geofenceAlertDTO;
+		
 	}
 
 }

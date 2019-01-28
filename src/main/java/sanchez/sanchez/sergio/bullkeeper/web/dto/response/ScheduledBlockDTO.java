@@ -100,6 +100,12 @@ public class ScheduledBlockDTO extends ResourceSupport {
 	@JsonProperty("apps_allowed")
 	private Iterable<AppAllowedByScheduledBlockDTO> appsAllowed = new ArrayList<AppAllowedByScheduledBlockDTO>();
 
+	/**
+	 * Geofence
+	 */
+	@JsonProperty("geofence")
+	private GeofenceDTO geofence;
+	
 	
 	public ScheduledBlockDTO() {}
 
@@ -119,11 +125,13 @@ public class ScheduledBlockDTO extends ResourceSupport {
 	 * @param image
 	 * @param kid
 	 * @param appsAllowed
+	 * @param geofence
 	 */
 	public ScheduledBlockDTO(String identity, String name, boolean enable, boolean repeatable, 
 			final String createAt, boolean allowCalls,
 			String description, LocalTime startAt, LocalTime endAt, int[] weeklyFrequency, 
-			String image, String kid, final Iterable<AppAllowedByScheduledBlockDTO> appsAllowed) {
+			String image, String kid, final Iterable<AppAllowedByScheduledBlockDTO> appsAllowed,
+			final GeofenceDTO geofence) {
 		super();
 		this.identity = identity;
 		this.name = name;
@@ -138,6 +146,7 @@ public class ScheduledBlockDTO extends ResourceSupport {
 		this.image = image;
 		this.kid = kid;
 		this.appsAllowed = appsAllowed;
+		this.geofence = geofence;
 	}
 
 
@@ -255,20 +264,24 @@ public class ScheduledBlockDTO extends ResourceSupport {
 		this.image = image;
 	}
 
-
 	public void setKid(String kid) {
 		this.kid = kid;
 	}
-	
-
 
 	public Iterable<AppAllowedByScheduledBlockDTO> getAppsAllowed() {
 		return appsAllowed;
 	}
 
-
 	public void setAppsAllowed(Iterable<AppAllowedByScheduledBlockDTO> appsAllowed) {
 		this.appsAllowed = appsAllowed;
+	}
+
+	public GeofenceDTO getGeofence() {
+		return geofence;
+	}
+
+	public void setGeofence(GeofenceDTO geofence) {
+		this.geofence = geofence;
 	}
 
 

@@ -41,6 +41,12 @@ public final class SaveGeofenceDTO implements Serializable {
     private String name;
 	
 	/**
+	 * Address
+	 */
+	@JsonProperty("address")
+	private String address;
+	
+	/**
 	 * Latitude
 	 */
 	@JsonProperty("latitude")
@@ -73,6 +79,12 @@ public final class SaveGeofenceDTO implements Serializable {
 	@JsonProperty("kid")
 	private String kid;
 	
+	/**
+	 * Is Enabled
+	 */
+	@JsonProperty("is_enabled")
+	private Boolean isEnabled;
+	
 	
 	public SaveGeofenceDTO() {}
 
@@ -80,28 +92,34 @@ public final class SaveGeofenceDTO implements Serializable {
 	 * 
 	 * @param identity
 	 * @param name
+	 * @param address
 	 * @param lat
 	 * @param log
 	 * @param radius
 	 * @param type
 	 * @param kid
+	 * @param isEnabled
 	 */
 	public SaveGeofenceDTO(
 			final String identity, 
-			final String name, 
+			final String name,
+			final String address,
 			final double lat, 
 			final double log, 
 			final float radius, 
 			final String type,
-			final String kid) {
+			final String kid,
+			final Boolean isEnabled) {
 		super();
 		this.identity = identity;
 		this.name = name;
+		this.address = address;
 		this.lat = lat;
 		this.log = log;
 		this.radius = radius;
 		this.type = type;
 		this.kid = kid;
+		this.isEnabled = isEnabled;
 	}
 
 	public String getIdentity() {
@@ -110,6 +128,16 @@ public final class SaveGeofenceDTO implements Serializable {
 
 	public String getName() {
 		return name;
+	}
+	
+	
+
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
 	}
 
 	public double getLat() {
@@ -159,10 +187,23 @@ public final class SaveGeofenceDTO implements Serializable {
 	public void setKid(String kid) {
 		this.kid = kid;
 	}
+	
+
+	public Boolean getIsEnabled() {
+		return isEnabled;
+	}
+
+	public void setIsEnabled(Boolean isEnabled) {
+		this.isEnabled = isEnabled;
+	}
 
 	@Override
 	public String toString() {
-		return "SaveGeofenceDTO [identity=" + identity + ", name=" + name + ", lat=" + lat + ", log=" + log
-				+ ", radius=" + radius + ", type=" + type + ", kid=" + kid + "]";
+		return "SaveGeofenceDTO [identity=" + identity + ", name=" + name + ", address=" + address + ", lat=" + lat
+				+ ", log=" + log + ", radius=" + radius + ", type=" + type + ", kid=" + kid + ", isEnabled=" + isEnabled
+				+ "]";
 	}
+
+	
+	
 }

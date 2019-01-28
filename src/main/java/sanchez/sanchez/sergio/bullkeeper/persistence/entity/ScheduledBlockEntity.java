@@ -3,8 +3,6 @@ package sanchez.sanchez.sergio.bullkeeper.persistence.entity;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
-
 import org.bson.types.ObjectId;
 import org.joda.time.LocalTime;
 import org.springframework.data.annotation.Id;
@@ -12,7 +10,6 @@ import org.springframework.data.annotation.PersistenceConstructor;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
-
 import sanchez.sanchez.sergio.bullkeeper.persistence.utils.CascadeSave;
 
 /**
@@ -111,6 +108,14 @@ public class ScheduledBlockEntity implements Serializable {
 	private Iterable<AppAllowedByScheduledBlockEntity> appAllowed = new ArrayList<>();
 	
 	/**
+	 * Geofence
+	 */
+	@DBRef
+	@Field("geofence")
+	private GeofenceEntity geofence;
+	
+	
+	/**
 	 * 
 	 */
 	public ScheduledBlockEntity() {}
@@ -130,13 +135,15 @@ public class ScheduledBlockEntity implements Serializable {
 	 * @param kid
 	 * @param image
 	 * @param appAllowed
+	 * @param geofence
 	 */
 	@PersistenceConstructor
 	public ScheduledBlockEntity(ObjectId id, String name, boolean enable, 
 			final Date createAt, boolean repeatable, 
 			boolean allowCalls, String description, LocalTime startAt, LocalTime endAt, 
 			int[] weeklyFrequency, KidEntity kid, final String image,
-			final Iterable<AppAllowedByScheduledBlockEntity> appAllowed) {
+			final Iterable<AppAllowedByScheduledBlockEntity> appAllowed,
+			final GeofenceEntity geofence) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -150,6 +157,7 @@ public class ScheduledBlockEntity implements Serializable {
 		this.kid = kid;
 		this.image = image;
 		this.appAllowed = appAllowed;
+		this.geofence = geofence;
 	}
 
 	public ObjectId getId() {
@@ -258,7 +266,12 @@ public class ScheduledBlockEntity implements Serializable {
 		this.appAllowed = appAllowed;
 	}
 
-	
-	
+	public GeofenceEntity getGeofence() {
+		return geofence;
+	}
+
+	public void setGeofence(GeofenceEntity geofence) {
+		this.geofence = geofence;
+	}
 	
 }

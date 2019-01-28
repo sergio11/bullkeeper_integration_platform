@@ -30,12 +30,23 @@ public class PhoneNumberBlockedEntity {
      */
     @Field("blocked_at")
     private Date blockedAt = new Date();
-
+    
+    /**
+     * Prefix
+     */
+    @Field("prefix")
+    private String prefix;
+    
+    /**
+     * Number
+     */
+    @Field("number")
+    private String number;
     
     /**
      * Phone Number
      */
-    @Field("phone_number")
+    @Field("phoneNumber")
     private String phoneNumber;
     
     /**
@@ -59,17 +70,22 @@ public class PhoneNumberBlockedEntity {
      * 
      * @param id
      * @param blockedAt
+     * @param prefix
+     * @param number
      * @param phoneNumber
      * @param terminal
      * @param kid
      */
     @PersistenceConstructor
 	public PhoneNumberBlockedEntity(final ObjectId id, final Date blockedAt,
-			final String phoneNumber, final TerminalEntity terminal, final KidEntity kid) {
+			final String prefix, final String number, final String phonenumber, 
+			final TerminalEntity terminal, final KidEntity kid) {
 		super();
 		this.id = id;
 		this.blockedAt = blockedAt;
-		this.phoneNumber = phoneNumber;
+		this.prefix = prefix;
+		this.number = number;
+		this.phoneNumber = phonenumber;
 		this.terminal = terminal;
 		this.kid = kid;
 	}
@@ -82,12 +98,20 @@ public class PhoneNumberBlockedEntity {
 		return blockedAt;
 	}
 
-	public String getPhoneNumber() {
-		return phoneNumber;
+	public String getPrefix() {
+		return prefix;
+	}
+
+	public String getNumber() {
+		return number;
 	}
 
 	public TerminalEntity getTerminal() {
 		return terminal;
+	}
+
+	public KidEntity getKid() {
+		return kid;
 	}
 
 	public void setId(ObjectId id) {
@@ -98,27 +122,36 @@ public class PhoneNumberBlockedEntity {
 		this.blockedAt = blockedAt;
 	}
 
-	public void setPhoneNumber(String phoneNumber) {
-		this.phoneNumber = phoneNumber;
+	public void setPrefix(String prefix) {
+		this.prefix = prefix;
+	}
+
+	public void setNumber(String number) {
+		this.number = number;
 	}
 
 	public void setTerminal(TerminalEntity terminal) {
 		this.terminal = terminal;
-	}
-	
-
-	public KidEntity getKid() {
-		return kid;
 	}
 
 	public void setKid(KidEntity kid) {
 		this.kid = kid;
 	}
 
+	
+
+	public String getPhoneNumber() {
+		return phoneNumber;
+	}
+
+	public void setPhoneNumber(String phoneNumber) {
+		this.phoneNumber = phoneNumber;
+	}
+
 	@Override
 	public String toString() {
-		return "PhoneNumberBlockedEntity [id=" + id + ", blockedAt=" + blockedAt + ", phoneNumber=" + phoneNumber
-				+ ", terminal=" + terminal + ", kid=" + kid + "]";
+		return "PhoneNumberBlockedEntity [id=" + id + ", blockedAt=" + blockedAt + ", prefix=" + prefix + ", number="
+				+ number + ", phoneNumber=" + phoneNumber + ", terminal=" + terminal + ", kid=" + kid + "]";
 	}
 
 	

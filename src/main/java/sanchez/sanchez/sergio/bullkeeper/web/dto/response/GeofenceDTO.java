@@ -1,7 +1,6 @@
 package sanchez.sanchez.sergio.bullkeeper.web.dto.response;
 
 import java.io.Serializable;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -27,6 +26,12 @@ public final class GeofenceDTO implements Serializable {
 	 */
 	@JsonProperty("name")
 	private String name;
+	
+	/**
+	 * Address
+	 */
+	@JsonProperty("address")
+	private String address;
 	
 	/**
 	 * Latitude
@@ -59,6 +64,24 @@ public final class GeofenceDTO implements Serializable {
 	private String kid;
 	
 	/**
+	 * Create At
+	 */
+	@JsonProperty("create_at")
+	private String createAt;
+	
+	/**
+	 * Update At
+	 */
+	@JsonProperty("update_at")
+	private String updateAt;
+	
+	/**
+	 * Is Enabled
+	 */
+	@JsonProperty("is_enabled")
+	private Boolean isEnabled;
+	
+	/**
 	 * 
 	 */
 	public GeofenceDTO() {}
@@ -67,28 +90,40 @@ public final class GeofenceDTO implements Serializable {
 	 * 
 	 * @param identity
 	 * @param name
+	 * @param address
 	 * @param lat
 	 * @param log
 	 * @param radius
 	 * @param type
 	 * @param kid
+	 * @param createAt
+	 * @param updateAt
+	 * @param isEnabled
 	 */
 	public GeofenceDTO(
 			final String identity, 
-			final String name, 
+			final String name,
+			final String address,
 			final double lat, 
 			final double log, 
 			final float radius, 
 			final String type, 
-			final String kid) {
+			final String kid,
+			final String createAt,
+			final String updateAt,
+			final Boolean isEnabled) {
 		super();
 		this.identity = identity;
 		this.name = name;
+		this.address = address;
 		this.lat = lat;
 		this.log = log;
 		this.radius = radius;
 		this.type = type;
 		this.kid = kid;
+		this.createAt = createAt;
+		this.updateAt = updateAt;
+		this.isEnabled = isEnabled;
 	}
 
 	public String getIdentity() {
@@ -97,6 +132,14 @@ public final class GeofenceDTO implements Serializable {
 
 	public String getName() {
 		return name;
+	}
+	
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
 	}
 
 	public double getLat() {
@@ -146,11 +189,39 @@ public final class GeofenceDTO implements Serializable {
 	public void setKid(String kid) {
 		this.kid = kid;
 	}
+	
+
+	public String getCreateAt() {
+		return createAt;
+	}
+
+	public String getUpdateAt() {
+		return updateAt;
+	}
+
+	public void setCreateAt(String createAt) {
+		this.createAt = createAt;
+	}
+
+	public void setUpdateAt(String updateAt) {
+		this.updateAt = updateAt;
+	}
+
+
+	public Boolean getIsEnabled() {
+		return isEnabled;
+	}
+
+	public void setIsEnabled(Boolean isEnabled) {
+		this.isEnabled = isEnabled;
+	}
 
 	@Override
 	public String toString() {
-		return "GeofenceDTO [identity=" + identity + ", name=" + name + ", lat=" + lat + ", log=" + log + ", radius="
-				+ radius + ", type=" + type + ", kid=" + kid + "]";
+		return "GeofenceDTO [identity=" + identity + ", name=" + name + ", address=" + address + ", lat=" + lat
+				+ ", log=" + log + ", radius=" + radius + ", type=" + type + ", kid=" + kid + ", createAt=" + createAt
+				+ ", updateAt=" + updateAt + ", isEnabled=" + isEnabled + "]";
 	}
 
+	
 }

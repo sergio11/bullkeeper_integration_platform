@@ -7,6 +7,7 @@ import org.joda.time.LocalTime;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.AbstractSseData;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.GeofenceDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ScheduledBlockDTO.AppAllowedByScheduledBlockDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.serializers.JodaTimeToStringSerializer;
 
@@ -105,6 +106,11 @@ public class ScheduledBlockSavedSSE extends AbstractSseData implements Serializa
 	private Iterable<AppAllowedByScheduledBlockDTO> appsAllowed = new ArrayList<AppAllowedByScheduledBlockDTO>();
 	
 	
+	/**
+	 * Geofence
+	 */
+	@JsonProperty("geofence")
+	private GeofenceDTO geofence;
 
 	public ScheduledBlockSavedSSE() {
 		this.eventType = EVENT_TYPE;
@@ -125,10 +131,13 @@ public class ScheduledBlockSavedSSE extends AbstractSseData implements Serializa
 	 * @param image
 	 * @param kid
 	 * @param appsAllowed
+	 * @param geofence
 	 */
-	public ScheduledBlockSavedSSE(String subscriberId, String identity, String name, boolean enable, boolean repeatable,
-			boolean allowCalls, String description, LocalTime startAt, LocalTime endAt, int[] weeklyFrequency,
-			String image, String kid, final Iterable<AppAllowedByScheduledBlockDTO> appsAllowed) {
+	public ScheduledBlockSavedSSE(final String subscriberId, final String identity, final String name, 
+			boolean enable, boolean repeatable, boolean allowCalls, final String description, 
+			final LocalTime startAt, final LocalTime endAt, final int[] weeklyFrequency,
+			final String image, final String kid, final Iterable<AppAllowedByScheduledBlockDTO> appsAllowed,
+			final GeofenceDTO geofence) {
 		super(EVENT_TYPE, subscriberId);
 		this.identity = identity;
 		this.name = name;
@@ -142,6 +151,7 @@ public class ScheduledBlockSavedSSE extends AbstractSseData implements Serializa
 		this.image = image;
 		this.kid = kid;
 		this.appsAllowed = appsAllowed;
+		this.geofence = geofence;
 	}
 
 	public String getIdentity() {
@@ -238,6 +248,16 @@ public class ScheduledBlockSavedSSE extends AbstractSseData implements Serializa
 
 	public void setAppsAllowed(Iterable<AppAllowedByScheduledBlockDTO> appsAllowed) {
 		this.appsAllowed = appsAllowed;
+	}
+	
+	
+
+	public GeofenceDTO getGeofence() {
+		return geofence;
+	}
+
+	public void setGeofence(GeofenceDTO geofence) {
+		this.geofence = geofence;
 	}
 
 	@Override

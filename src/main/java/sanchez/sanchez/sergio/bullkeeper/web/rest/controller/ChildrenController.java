@@ -40,7 +40,10 @@ import sanchez.sanchez.sergio.bullkeeper.events.apps.NewAppInstalledEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.apps.UninstallAppEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.funtime.DayScheduledSavedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.funtime.SaveFunTimeScheduledEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.geofences.AllGeofencesDeletedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.geofences.GeofenceAddedEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.geofences.GeofenceDeletedEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.geofences.GeofencesDeletedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.location.CurrentLocationUpdateEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.phonenumbers.AddPhoneNumberBlockedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.phonenumbers.DeleteAllPhoneNumberBlockedEvent;
@@ -74,6 +77,7 @@ import sanchez.sanchez.sergio.bullkeeper.exception.NoChildrenFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoCommunityStatisticsForThisPeriodException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoContactsFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoDimensionsStatisticsForThisPeriodException;
+import sanchez.sanchez.sergio.bullkeeper.exception.NoGeofenceAlertsFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoGeofenceFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoKidGuardianFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoKidRequestFoundException;
@@ -90,6 +94,7 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.AppInstalledSho
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.CallDetailShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ContactShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.DayNameValidator;
+import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.GeofenceShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.KidRequestShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.KidShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.PhoneNumberBlockedShouldExists;
@@ -117,6 +122,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveCallDetailDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveContactDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveDayScheduledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveFunTimeScheduledDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveGeofenceAlertDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveGeofenceDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveGuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveLocationDTO;
@@ -138,6 +144,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ContactDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.DayScheduledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.DimensionsStatisticsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.FunTimeScheduledDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.GeofenceAlertDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.GeofenceDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ImageDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidDTO;
@@ -3389,7 +3396,7 @@ public class ChildrenController extends BaseController
     	// Create and send response
         return ApiHelper.<Iterable<PhoneNumberBlockedDTO>>createAndSendResponse(ChildrenResponseCode.NO_PHONE_NUMBER_BLOCKED_FOUND, 
         		HttpStatus.OK, phoneNumbersBlockedList);
-    	
+
     }
     
     
@@ -3430,8 +3437,12 @@ public class ChildrenController extends BaseController
     	this.applicationEventPublisher
 			.publishEvent(new AddPhoneNumberBlockedEvent(this, 
 					phoneNumberBlocked.getIdentity(),
-					phoneNumberBlocked.getKid(), phoneNumberBlocked.getTerminal(),
-					phoneNumberBlocked.getPhoneNumber(), phoneNumberBlocked.getBlockedAt()));
+					phoneNumberBlocked.getKid(), 
+					phoneNumberBlocked.getTerminal(),
+					phoneNumberBlocked.getPrefix(), 
+					phoneNumberBlocked.getNumber(),
+					phoneNumberBlocked.getPhonenumber(), 
+					phoneNumberBlocked.getBlockedAt()));
     	
     	// Create and send response
         return ApiHelper.<PhoneNumberBlockedDTO>createAndSendResponse(ChildrenResponseCode.PHONE_NUMBER_BLOCKED_ADDED, 
@@ -4252,21 +4263,24 @@ public class ChildrenController extends BaseController
     	// Save Geofence
     	final GeofenceDTO geofenceDTO = geofenceService.save(saveGeofenceDTO);
     	
-    
+   
     	// Push Event
     	this.applicationEventPublisher
     		.publishEvent(new GeofenceAddedEvent(
     				this, geofenceDTO.getIdentity(), geofenceDTO.getName(),
     				geofenceDTO.getLat(), geofenceDTO.getLog(), geofenceDTO.getRadius(),
-    				geofenceDTO.getType(), geofenceDTO.getType()));
+    				geofenceDTO.getAddress(), geofenceDTO.getType(), geofenceDTO.getKid(),
+    				geofenceDTO.getCreateAt(), geofenceDTO.getUpdateAt(),
+    				geofenceDTO.getIsEnabled()));
     	
-    	
-    	
+    
     	// Create and send response
     	return ApiHelper.<GeofenceDTO>createAndSendResponse(GeofenceResponseCode.GEOFENCE_SAVED_SUCCESSFULLY, 
         		HttpStatus.OK, geofenceDTO);
     	
     }
+    
+    
     /**
      * Get All Geofences for kid
      */
@@ -4297,6 +4311,139 @@ public class ChildrenController extends BaseController
     	
     }
     
+    /**
+     * Get Geofence By Id
+     */
+    @RequestMapping(value = "/{kid}/geofences/{id}", method = RequestMethod.GET)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(
+    		value = "GET_GEOFENCE_BY_ID", nickname = "GET_GEOFENCE_BY_ID",
+    		notes = "Get Geofence By Id", response = Iterable.class)
+    public ResponseEntity<APIResponse<GeofenceDTO>> getGeofenceById(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+         		@Valid @KidShouldExists(message = "{son.should.be.exists}")
+          			@PathVariable String kid,
+          	@ApiParam(name = "id", value = "Geofence Id", required = true)
+     			@Valid @GeofenceShouldExists(message = "{geofence.should.be.exists}")
+      				@PathVariable String id) throws Throwable {
+    	
+    	logger.debug("Get Geofence By Id -> " + kid);
+    	
+    	// Get Geofence By Id
+    	final GeofenceDTO geofenceDTO = geofenceService.findById(new ObjectId(kid), new ObjectId(id));
+    	
+    	// Create and send response
+    	return ApiHelper.<GeofenceDTO>createAndSendResponse(GeofenceResponseCode.GEOFENCE_DETAIL, 
+        		HttpStatus.OK, geofenceDTO);
+    	
+    }
+    
+    
+    /**
+     * Get Geofence Alerts
+     */
+    @RequestMapping(value = "/{kid}/geofences/{id}/alerts", method = RequestMethod.GET)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(
+    		value = "GET_GEOFENCE_ALERTS", nickname = "GET_GEOFENCE_ALERTS",
+    		notes = "Get Geofence Alerts", response = Iterable.class)
+    public ResponseEntity<APIResponse<Iterable<GeofenceAlertDTO>>> getGeofenceAlerts(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+         		@Valid @KidShouldExists(message = "{son.should.be.exists}")
+          			@PathVariable String kid,
+          	@ApiParam(name = "id", value = "Geofence Id", required = true)
+     			@Valid @GeofenceShouldExists(message = "{geofence.should.be.exists}")
+      				@PathVariable String id) throws Throwable {
+    	
+    	logger.debug("Get Geofence Alerts");
+    	
+    	// Get Geofence Alerts
+    	final Iterable<GeofenceAlertDTO> geofenceAlertList = 
+    			geofenceService.findAlerts(new ObjectId(kid), new ObjectId(id));
+    	
+    	if(Iterables.isEmpty(geofenceAlertList))
+    		throw new NoGeofenceAlertsFoundException();
+    	
+    	// Create and send response
+    	return ApiHelper.<Iterable<GeofenceAlertDTO>>createAndSendResponse(GeofenceResponseCode.GEOFENCE_ALERT_LIST, 
+        		HttpStatus.OK, geofenceAlertList);
+    	
+    }
+    
+    /**
+     * Delete Geofence Alerts
+     */
+    @RequestMapping(value = "/{kid}/geofences/{id}/alerts", method = RequestMethod.DELETE)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(
+    		value = "DELETE_GEOFENCE_ALERTS", nickname = "DELETE_GEOFENCE_ALERTS",
+    		notes = "Delete Geofence Alerts", response = String.class)
+    public ResponseEntity<APIResponse<String>> deleteGeofenceAlerts(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+         		@Valid @KidShouldExists(message = "{son.should.be.exists}")
+          			@PathVariable String kid,
+          	@ApiParam(name = "id", value = "Geofence Id", required = true)
+     			@Valid @GeofenceShouldExists(message = "{geofence.should.be.exists}")
+      				@PathVariable String id) throws Throwable {
+    	
+    	logger.debug("Delete Geofence Alerts");
+    	
+    	// Delete Geofence Alerts
+    	geofenceService.deleteAlerts(new ObjectId(kid), new ObjectId(id));
+    	
+    	// Create and send response
+    	return ApiHelper.<String>createAndSendResponse(GeofenceResponseCode.ALL_GEOFENCE_ALERTS_DELETED, 
+        		HttpStatus.OK, messageSourceResolver.resolver("all.geofence.alerts.deleted"));
+    	
+    }
+    
+    
+    /**
+     * Post Geofence Alert
+     */
+    @RequestMapping(value = "/{kid}/geofences/{id}/alerts", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(
+    		value = "SAVE_GEOFENCE_ALERTS", nickname = "SAVE_GEOFENCE_ALERTS",
+    		notes = "Save Geofence Alerts", response = GeofenceAlertDTO.class)
+    public ResponseEntity<APIResponse<GeofenceAlertDTO>> saveGeofenceAlerts(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+         		@Valid @KidShouldExists(message = "{son.should.be.exists}")
+          			@PathVariable String kid,
+          	@ApiParam(name = "id", value = "Geofence Id", required = true)
+     			@Valid @GeofenceShouldExists(message = "{geofence.should.be.exists}")
+      				@PathVariable String id,
+      		@ApiParam(value = "alert", required = true) 
+				@Validated(ICommonSequence.class) 
+					@RequestBody SaveGeofenceAlertDTO saveGeofenceAlertDTO) throws Throwable {
+    	
+    	logger.debug("Save Geofence Alerts");
+    	
+    	final GeofenceDTO geofence = 
+    			geofenceService.findById(new ObjectId(kid), new ObjectId(id));
+    
+    
+    	final String title = "Título de la Alerta", description = "Descripción de la Alerta";
+    	
+    	// Save Geofence Alert
+    	final GeofenceAlertDTO geofenceAlertDTO = 
+    			geofenceService.saveAlert(saveGeofenceAlertDTO.getKid(), saveGeofenceAlertDTO.getGeofence(),
+    					saveGeofenceAlertDTO.getType(), title, description);
+    	
+    	 // Save Alert
+    	alertService.save(AlertLevelEnum.DANGER, geofenceAlertDTO.getTitle(), geofenceAlertDTO.getDescription(), 
+    			new ObjectId(kid), AlertCategoryEnum.GEOFENCES);
+    
+    	// Create and send response
+    	return ApiHelper.<GeofenceAlertDTO>createAndSendResponse(GeofenceResponseCode.GEOFENCE_ALERT_SAVED, 
+        		HttpStatus.OK, geofenceAlertDTO);
+    	
+    }
+    
     
     /**
      * Delete Geofences for ids
@@ -4320,10 +4467,45 @@ public class ChildrenController extends BaseController
     	// Delete By Kid and ids
     	geofenceService.deleteByKidAndIds(new ObjectId(kid), ids);
     	
+    	// Push Event
+    	this.applicationEventPublisher
+    		.publishEvent(new GeofencesDeletedEvent(this, ids, kid));
+    	
     	// Create and send response
     	return ApiHelper.<String>createAndSendResponse(GeofenceResponseCode.GEOFENCES_DELETED, 
         		HttpStatus.OK, messageSourceResolver.resolver("geofences.deleted"));
     	
+    }
+    
+    /**
+     * Delete Geofence By Id
+     */
+    @RequestMapping(value = "/{kid}/geofences/{id}", method = RequestMethod.DELETE)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(
+    		value = "DELETE_GEOFENCE_BY_ID", nickname = "DELETE_GEOFENCE_BY_ID",
+    		notes = "Delete Geofence By Id", response = String.class)
+    public ResponseEntity<APIResponse<String>> deleteGeofenceById(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+         		@Valid @KidShouldExists(message = "{son.should.be.exists}")
+          			@PathVariable String kid,
+          	@ApiParam(name = "id", value = "Geofence Id", required = true)
+ 				@Valid @GeofenceShouldExists(message = "{geofence.should.be.exists}")
+  					@PathVariable String id) throws Throwable {
+    	
+		logger.debug("Delete Geofences by id -> " + id);
+    	
+    	// Delete Geofence By Id
+    	geofenceService.deleteById(new ObjectId(kid), new ObjectId(id));
+    	
+    	// Push Event
+    	this.applicationEventPublisher
+    		.publishEvent(new GeofenceDeletedEvent(this, id, kid));
+    	
+    	// Create and send response
+    	return ApiHelper.<String>createAndSendResponse(GeofenceResponseCode.SINGLE_GEOFENCE_DELETED, 
+        		HttpStatus.OK, messageSourceResolver.resolver("single.geofence.deleted"));
     }
     
     /**
@@ -4344,6 +4526,10 @@ public class ChildrenController extends BaseController
     
     	// Delete All By Kid
     	geofenceService.deleteAllByKid(new ObjectId(kid));
+    	
+    	// Push Event
+    	this.applicationEventPublisher
+    		.publishEvent(new AllGeofencesDeletedEvent(this, kid));
     	
     	// Create and send response
     	return ApiHelper.<String>createAndSendResponse(GeofenceResponseCode.ALL_GEOFENCES_DELETED, 

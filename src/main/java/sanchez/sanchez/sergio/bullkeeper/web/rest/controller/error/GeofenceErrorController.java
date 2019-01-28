@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import sanchez.sanchez.sergio.bullkeeper.exception.NoGeofenceAlertsFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoGeofenceFoundException;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.ApiHelper;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.controller.BaseController;
@@ -43,6 +44,20 @@ public class GeofenceErrorController  extends BaseController {
         		messageSourceResolver.resolver("no.geofences.found.exception"));
     }
     
+    /**
+     * Exception handler for No Geofence Alerts Found Exception
+     * @param noGeofenceAlertsFoundException
+     * @param request
+     * @return
+     */
+    @ExceptionHandler(NoGeofenceAlertsFoundException.class)
+    @ResponseBody
+    protected ResponseEntity<APIResponse<String>> handlerNoGeofenceAlertsFoundException(
+    		NoGeofenceAlertsFoundException noGeofenceAlertsFoundException, HttpServletRequest request){
+        return ApiHelper.<String>createAndSendErrorResponseWithHeader(
+        		GeofenceResponseCode.NO_GEOFENCE_ALERTS_FOUND, HttpStatus.NOT_FOUND,
+        		messageSourceResolver.resolver("no.geofences.alerts.found.exception"));
+    }
     
 
     @PostConstruct

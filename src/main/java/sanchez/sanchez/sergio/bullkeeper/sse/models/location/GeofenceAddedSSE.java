@@ -55,6 +55,12 @@ public final class GeofenceAddedSSE
 	private float radius;
 	
 	/**
+	 * Address
+	 */
+	@JsonProperty("address")
+	private String address;
+	
+	/**
 	 * Type
 	 */
 	@JsonProperty("type")
@@ -67,6 +73,24 @@ public final class GeofenceAddedSSE
 	private String kid;
 	
 	/**
+	 * Create At
+	 */
+	@JsonProperty("create_at")
+	private String createAt;
+	
+	/**
+	 * Update At
+	 */
+	@JsonProperty("update_at")
+	private String updateAt;
+	
+	/**
+	 * Is ENabled
+	 */
+	@JsonProperty("is_enabled")
+	private Boolean isEnabled;
+	
+	/**
 	 * 
 	 */
 	public GeofenceAddedSSE() {
@@ -74,26 +98,36 @@ public final class GeofenceAddedSSE
 	}
 
 	/**
-	 * 
+	 * Geofence Added SSE
 	 * @param subscriberId
 	 * @param identity
 	 * @param name
 	 * @param lat
 	 * @param log
 	 * @param radius
+	 * @param address
 	 * @param type
 	 * @param kid
+	 * @param createAt
+	 * @param updateAt
+	 * @param isEnabled
 	 */
-	public GeofenceAddedSSE(String subscriberId, String identity, String name, double lat, double log,
-			float radius, String type, String kid) {
-		super(EVENT_TYPE, subscriberId);
+	public GeofenceAddedSSE(final String subscriberId, final String identity, 
+			final String name, double lat, double log, float radius, final String address,
+			final String type, final String kid, final String createAt, 
+			final String updateAt, final Boolean isEnabled) {
+		super();
 		this.identity = identity;
 		this.name = name;
 		this.lat = lat;
 		this.log = log;
 		this.radius = radius;
+		this.address = address;
 		this.type = type;
 		this.kid = kid;
+		this.createAt = createAt;
+		this.updateAt = updateAt;
+		this.isEnabled = isEnabled;
 	}
 
 	public String getIdentity() {
@@ -116,12 +150,28 @@ public final class GeofenceAddedSSE
 		return radius;
 	}
 
+	public String getAddress() {
+		return address;
+	}
+
 	public String getType() {
 		return type;
 	}
 
 	public String getKid() {
 		return kid;
+	}
+
+	public String getCreateAt() {
+		return createAt;
+	}
+
+	public String getUpdateAt() {
+		return updateAt;
+	}
+
+	public Boolean getIsEnabled() {
+		return isEnabled;
 	}
 
 	public void setIdentity(String identity) {
@@ -144,6 +194,10 @@ public final class GeofenceAddedSSE
 		this.radius = radius;
 	}
 
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
 	public void setType(String type) {
 		this.type = type;
 	}
@@ -152,11 +206,25 @@ public final class GeofenceAddedSSE
 		this.kid = kid;
 	}
 
+	public void setCreateAt(String createAt) {
+		this.createAt = createAt;
+	}
+
+	public void setUpdateAt(String updateAt) {
+		this.updateAt = updateAt;
+	}
+
+	public void setIsEnabled(Boolean isEnabled) {
+		this.isEnabled = isEnabled;
+	}
+
 	@Override
 	public String toString() {
 		return "GeofenceAddedSSE [identity=" + identity + ", name=" + name + ", lat=" + lat + ", log=" + log
-				+ ", radius=" + radius + ", type=" + type + ", kid=" + kid + "]";
+				+ ", radius=" + radius + ", address=" + address + ", type=" + type + ", kid=" + kid + ", createAt="
+				+ createAt + ", updateAt=" + updateAt + ", isEnabled=" + isEnabled + "]";
 	}
+
 	
 	
 

@@ -11,7 +11,8 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.GeofenceEntity;
  * @author sergio
  */
 @Repository
-public interface GeofenceRepository extends MongoRepository<GeofenceEntity, ObjectId> {
+public interface GeofenceRepository extends MongoRepository<GeofenceEntity, ObjectId>
+		, GeofenceRepositoryCustom {
 
 	/**
 	 * Find All By Kid
@@ -34,12 +35,27 @@ public interface GeofenceRepository extends MongoRepository<GeofenceEntity, Obje
 	void deleteAllByKidAndIdIn(final ObjectId kid, final List<ObjectId> ids);
 	
 	/**
+	 * Delete By Kid And Id
+	 * @param kid
+	 * @param id
+	 */
+	void deleteByKidAndId(final ObjectId kid, final ObjectId id);
+	
+	/**
 	 * Count By Id
 	 * @param id
 	 * @return
 	 */
 	long countById(final ObjectId id);
 	
+	
+	/**
+	 * Find By Kid And Id
+	 * @param kid
+	 * @param id
+	 * @return
+	 */
+	GeofenceEntity findByKidAndId(final ObjectId kid, final ObjectId id);
 	
 }
 

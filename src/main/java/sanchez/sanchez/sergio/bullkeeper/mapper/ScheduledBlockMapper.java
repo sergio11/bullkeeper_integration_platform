@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AppAllowedByScheduledBlockEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ScheduledBlockEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.AppInstalledRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.GeofenceRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.KidRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.TerminalRepository;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.scheduledblocks.ScheduledBlockSavedSSE;
@@ -42,6 +43,12 @@ public abstract class ScheduledBlockMapper {
 	protected AppInstalledRepository appInstalledRepository;
 	
 	/**
+	 * Geofence Repository
+	 */
+	@Autowired
+	protected GeofenceRepository geofenceRepository;
+	
+	/**
 	 * APp Installed Entity Mapper
 	 */
 	@Autowired
@@ -52,6 +59,12 @@ public abstract class ScheduledBlockMapper {
 	 */
 	@Autowired
 	protected TerminalEntityDataMapper terminalEntityDataMapper;
+	
+	/**
+	 * Geofence Entity Mapper
+	 */
+	@Autowired
+	protected GeofenceEntityMapper geofenceEntityMapper;
 	
 	/**
 	 * Scheduled Block Entity To Scheduled Block DTO
@@ -66,7 +79,9 @@ public abstract class ScheduledBlockMapper {
         @Mapping(source = "scheduledBlockEntity.createAt", target = "createAt", 
         	dateFormat = "yyyy/MM/dd"),
         @Mapping(expression="java(appAllowedByScheduledBlockEntityToAppAllowedByScheduledBlockDTO(scheduledBlockEntity.getAppAllowed()))", 
-        	target = "appsAllowed")
+        	target = "appsAllowed"),
+        @Mapping(expression="java(geofenceEntityMapper.geofenceEntityToGeofenceDTO(scheduledBlockEntity.getGeofence()))", 
+    		target = "geofence")
      })
     @Named("scheduledBlockEntityToScheduledBlockDTO")
     public abstract ScheduledBlockDTO scheduledBlockEntityToScheduledBlockDTO(final ScheduledBlockEntity scheduledBlockEntity); 
@@ -109,7 +124,10 @@ public abstract class ScheduledBlockMapper {
         @Mapping(expression="java(kidRepository.findOne(new org.bson.types.ObjectId(saveScheduledBlockDTO.getKid())))", 
         		target = "kid" ),
         @Mapping(expression="java(saveAppAllowedByScheduledBlockDTOToAppAllowedByScheduledBlockEntity(saveScheduledBlockDTO.getAppAllowedList()))", 
-        		target = "appAllowed")
+        		target = "appAllowed"),
+        @Mapping(expression="java((saveScheduledBlockDTO.getGeofence() != null && !saveScheduledBlockDTO.getGeofence().isEmpty()) "
+        		+ "? geofenceRepository.findOne(new org.bson.types.ObjectId(saveScheduledBlockDTO.getGeofence())) : null )", 
+				target="geofence")
      })
     @Named("saveScheduledBlockDTOToScheduledBlockEntity")
     public abstract ScheduledBlockEntity saveScheduledBlockDTOToScheduledBlockEntity(final SaveScheduledBlockDTO saveScheduledBlockDTO); 

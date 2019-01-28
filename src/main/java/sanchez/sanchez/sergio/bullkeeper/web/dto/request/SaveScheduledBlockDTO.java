@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.AppInstalledShouldExists;
+import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.GeofenceShouldExistsIfPresent;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.IsWeeklyFrequencyValid;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.KidShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.LocalTimeCompare;
@@ -115,6 +116,14 @@ public final class SaveScheduledBlockDTO implements Serializable {
 	private List<SaveAppAllowedByScheduledBlockDTO> appAllowedList = new ArrayList<SaveAppAllowedByScheduledBlockDTO>();
 	
 	
+	/**
+	 * Geofence
+	 */
+	@GeofenceShouldExistsIfPresent(message = "{geofence.not.exists}")
+	@JsonProperty("geofence")
+	private String geofence;
+	
+	
 	public SaveScheduledBlockDTO(){}
 
 	/**
@@ -129,12 +138,13 @@ public final class SaveScheduledBlockDTO implements Serializable {
 	 * @param endAt
 	 * @param weeklyFrequency
 	 * @param kid
+	 * @param geofence
 	 */
 	public SaveScheduledBlockDTO(
 			String identity, String name,
 			boolean enable, boolean repeatable, boolean allowCalls,
 			final String description, LocalTime startAt,
-			LocalTime endAt, int[] weeklyFrequency, String kid) {
+			LocalTime endAt, int[] weeklyFrequency, String kid, String geofence) {
 		super();
 		this.identity = identity;
 		this.name = name;
@@ -146,6 +156,7 @@ public final class SaveScheduledBlockDTO implements Serializable {
 		this.endAt = endAt;
 		this.weeklyFrequency = weeklyFrequency;
 		this.kid = kid;
+		this.geofence = geofence;
 	}
 
 	public String getIdentity() {
@@ -228,7 +239,13 @@ public final class SaveScheduledBlockDTO implements Serializable {
 		this.kid = kid;
 	}
 	
-	
+	public String getGeofence() {
+		return geofence;
+	}
+
+	public void setGeofence(String geofence) {
+		this.geofence = geofence;
+	}
 
 	public List<SaveAppAllowedByScheduledBlockDTO> getAppAllowedList() {
 		return appAllowedList;

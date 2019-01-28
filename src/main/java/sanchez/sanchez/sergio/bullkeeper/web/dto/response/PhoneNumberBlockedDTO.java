@@ -22,22 +22,22 @@ public final class PhoneNumberBlockedDTO {
 	private String blockedAt;
 	
 	/**
-	 * Phone Prefix
+	 * Prefix
 	 */
-	@JsonProperty("phone_prefix")
-	private String phonePrefix;
+	@JsonProperty("prefix")
+	private String prefix;
+	
+	/**
+	 * Number
+	 */
+	@JsonProperty("number")
+	private String number;
 	
 	/**
 	 * Phone Number
 	 */
-	@JsonProperty("phone_number")
-	private String phoneNumber;
-	
-	/**
-	 * Phone Complete Number
-	 */
-	@JsonProperty("phone_complete_number")
-	private String phoneCompleteNumber;
+	@JsonProperty("phonenumber")
+	private String phonenumber;
 	
 	/**
 	 * Terminal
@@ -60,20 +60,20 @@ public final class PhoneNumberBlockedDTO {
 	 * 
 	 * @param identity
 	 * @param blockedAt
-	 * @param phonePrefix
-	 * @param phoneNumber
-	 * @param phoneCompleteNumber
+	 * @param prefix
+	 * @param number
+	 * @param phonenumber
 	 * @param terminal
 	 * @param kid
 	 */
-	public PhoneNumberBlockedDTO(String identity, String blockedAt, String phonePrefix, String phoneNumber,
-			String phoneCompleteNumber, String terminal, String kid) {
+	public PhoneNumberBlockedDTO(String identity, String blockedAt, String prefix, String number, String phonenumber,
+			String terminal, String kid) {
 		super();
 		this.identity = identity;
 		this.blockedAt = blockedAt;
-		this.phonePrefix = phonePrefix;
-		this.phoneNumber = phoneNumber;
-		this.phoneCompleteNumber = phoneCompleteNumber;
+		this.prefix = prefix;
+		this.number = number;
+		this.phonenumber = phonenumber;
 		this.terminal = terminal;
 		this.kid = kid;
 	}
@@ -86,16 +86,16 @@ public final class PhoneNumberBlockedDTO {
 		return blockedAt;
 	}
 
-	public String getPhonePrefix() {
-		return phonePrefix;
+	public String getPrefix() {
+		return prefix;
 	}
 
-	public String getPhoneNumber() {
-		return phoneNumber;
+	public String getNumber() {
+		return number;
 	}
 
-	public String getPhoneCompleteNumber() {
-		return phoneCompleteNumber;
+	public String getPhonenumber() {
+		return phonenumber;
 	}
 
 	public String getTerminal() {
@@ -114,16 +114,16 @@ public final class PhoneNumberBlockedDTO {
 		this.blockedAt = blockedAt;
 	}
 
-	public void setPhonePrefix(String phonePrefix) {
-		this.phonePrefix = phonePrefix;
+	public void setPrefix(String prefix) {
+		this.prefix = prefix;
 	}
 
-	public void setPhoneNumber(String phoneNumber) {
-		this.phoneNumber = phoneNumber;
+	public void setNumber(String number) {
+		this.number = number;
 	}
 
-	public void setPhoneCompleteNumber(String phoneCompleteNumber) {
-		this.phoneCompleteNumber = phoneCompleteNumber;
+	public void setPhonenumber(String phonenumber) {
+		this.phonenumber = phonenumber;
 	}
 
 	public void setTerminal(String terminal) {
@@ -136,8 +136,10 @@ public final class PhoneNumberBlockedDTO {
 
 	@Override
 	public String toString() {
-		return "PhoneNumberBlockedDTO [identity=" + identity + ", blockedAt=" + blockedAt + ", phonePrefix="
-				+ phonePrefix + ", phoneNumber=" + phoneNumber + ", phoneCompleteNumber=" + phoneCompleteNumber
-				+ ", terminal=" + terminal + ", kid=" + kid + "]";
+		return "PhoneNumberBlockedDTO [identity=" + identity + ", blockedAt=" + blockedAt + ", prefix=" + prefix
+				+ ", number=" + number + ", phonenumber=" + phonenumber + ", terminal=" + terminal + ", kid=" + kid
+				+ "]";
 	}
+
+	
 }
