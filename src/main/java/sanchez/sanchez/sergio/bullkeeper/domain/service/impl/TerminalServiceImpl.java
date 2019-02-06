@@ -590,7 +590,8 @@ public final class TerminalServiceImpl implements ITerminalService {
 		
 		
 		if(phoneNumberBlockedRepository
-			.countByPhoneNumberAndKidIdAndTerminalId(phoneNumberBlocked.getPhoneNumber(), 
+			.countByNumberOrPhoneNumberAndKidIdAndTerminalId(
+					phoneNumberBlocked.getNumber(), phoneNumberBlocked.getPhoneNumber(), 
 					phoneNumberBlocked.getKid().getId(), phoneNumberBlocked.getTerminal().getId()) > 0)
 			throw new PhoneNumberAlreadyBlockedException();
 	

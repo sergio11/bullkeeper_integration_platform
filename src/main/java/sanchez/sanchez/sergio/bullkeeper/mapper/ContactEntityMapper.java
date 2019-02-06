@@ -52,7 +52,8 @@ public abstract class ContactEntityMapper {
         @Mapping(expression="java(contactEntity.getTerminal().getId().toString())",
         		target = "terminal" ),
         @Mapping(expression = "java(phoneNumberBlockedRepository"
-        		+ ".countByPhoneNumberAndKidIdAndTerminalId("
+        		+ ".countByNumberOrPhoneNumberAndKidIdAndTerminalId("
+        		+ "contactEntity.getPhoneNumber(), "
         		+ "contactEntity.getPhoneNumber(), "
         		+ "contactEntity.getKid().getId(),"
         		+ "contactEntity.getTerminal().getId()) > 0 ? true: false)",

@@ -78,14 +78,14 @@ public class PhoneNumberBlockedEntity {
      */
     @PersistenceConstructor
 	public PhoneNumberBlockedEntity(final ObjectId id, final Date blockedAt,
-			final String prefix, final String number, final String phonenumber, 
+			final String prefix, final String number, final String phoneNumber, 
 			final TerminalEntity terminal, final KidEntity kid) {
 		super();
 		this.id = id;
 		this.blockedAt = blockedAt;
 		this.prefix = prefix;
 		this.number = number;
-		this.phoneNumber = phonenumber;
+		this.phoneNumber = phoneNumber;
 		this.terminal = terminal;
 		this.kid = kid;
 	}

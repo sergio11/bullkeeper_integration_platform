@@ -33,7 +33,7 @@ public class AddPhoneNumberBlockedDTO implements Serializable {
      * Phone NUmber
      */
     @JsonProperty("phonenumber")
-	private String phonenumber;
+	private String phoneNumber;
 	
 	/**
 	 * Terminal
@@ -58,19 +58,21 @@ public class AddPhoneNumberBlockedDTO implements Serializable {
 	 * 
 	 * @param prefix
 	 * @param number
-	 * @param phonenumber
+	 * @param phoneNumber
 	 * @param terminal
 	 * @param kid
 	 */
 	public AddPhoneNumberBlockedDTO(final String prefix, final String number, 
-			final String phonenumber, final String terminal, final String kid) {
+			final String phoneNumber, final String terminal, final String kid) {
 		super();
 		this.prefix = prefix;
 		this.number = number;
-		this.phonenumber = phonenumber;
+		this.phoneNumber = phoneNumber;
 		this.terminal = terminal;
 		this.kid = kid;
 	}
+
+	
 
 	public String getPrefix() {
 		return prefix;
@@ -80,8 +82,8 @@ public class AddPhoneNumberBlockedDTO implements Serializable {
 		return number;
 	}
 
-	public String getPhonenumber() {
-		return phonenumber;
+	public String getPhoneNumber() {
+		return phoneNumber;
 	}
 
 	public String getTerminal() {
@@ -100,8 +102,8 @@ public class AddPhoneNumberBlockedDTO implements Serializable {
 		this.number = number;
 	}
 
-	public void setPhonenumber(String phonenumber) {
-		this.phonenumber = phonenumber;
+	public void setPhoneNumber(String phoneNumber) {
+		this.phoneNumber = phoneNumber;
 	}
 
 	public void setTerminal(String terminal) {
@@ -114,7 +116,7 @@ public class AddPhoneNumberBlockedDTO implements Serializable {
 
 	@Override
 	public String toString() {
-		return "AddPhoneNumberBlockedDTO [prefix=" + prefix + ", number=" + number + ", phonenumber=" + phonenumber
+		return "AddPhoneNumberBlockedDTO [prefix=" + prefix + ", number=" + number + ", phoneNumber=" + phoneNumber
 				+ ", terminal=" + terminal + ", kid=" + kid + "]";
 	}
 }

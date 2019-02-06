@@ -55,13 +55,14 @@ public interface PhoneNumberBlockedRepository
 			final ObjectId kid, final ObjectId terminal);
 	
 	/**
-	 * 
+	 * @param number
 	 * @param phoneNumber
 	 * @param kid
 	 * @param terminal
 	 * @return
 	 */
-	long countByPhoneNumberAndKidIdAndTerminalId(final String phoneNumber, 
+	long countByNumberOrPhoneNumberAndKidIdAndTerminalId(
+			final String number, final String phoneNumber, 
 			final ObjectId kid, final ObjectId terminal);
 
 	

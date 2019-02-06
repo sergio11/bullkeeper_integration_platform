@@ -49,6 +49,8 @@ public class PhoneNumbersBlockedEventHandlers {
 				new AddPhoneNumberBlockedSSE();
 		addPhoneNumberSSE.setIdentity(addPhoneNumberBlockedEvent.getIdentity());
 		addPhoneNumberSSE.setKid(addPhoneNumberBlockedEvent.getKid());
+		addPhoneNumberSSE.setPrefix(addPhoneNumberBlockedEvent.getPrefix());
+		addPhoneNumberSSE.setNumber(addPhoneNumberBlockedEvent.getNumber());
 		addPhoneNumberSSE.setPhoneNumber(addPhoneNumberBlockedEvent.getPhoneNumber());
 		addPhoneNumberSSE.setTerminal(addPhoneNumberBlockedEvent.getTerminal());
 		addPhoneNumberSSE.setSubscriberId(addPhoneNumberBlockedEvent.getTerminal());

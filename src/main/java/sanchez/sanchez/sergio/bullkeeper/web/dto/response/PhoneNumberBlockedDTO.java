@@ -37,7 +37,7 @@ public final class PhoneNumberBlockedDTO {
 	 * Phone Number
 	 */
 	@JsonProperty("phonenumber")
-	private String phonenumber;
+	private String phoneNumber;
 	
 	/**
 	 * Terminal
@@ -62,21 +62,24 @@ public final class PhoneNumberBlockedDTO {
 	 * @param blockedAt
 	 * @param prefix
 	 * @param number
-	 * @param phonenumber
+	 * @param phoneNumber
 	 * @param terminal
 	 * @param kid
 	 */
-	public PhoneNumberBlockedDTO(String identity, String blockedAt, String prefix, String number, String phonenumber,
+	public PhoneNumberBlockedDTO(String identity, String blockedAt, String prefix, 
+			String number, String phoneNumber,
 			String terminal, String kid) {
 		super();
 		this.identity = identity;
 		this.blockedAt = blockedAt;
 		this.prefix = prefix;
 		this.number = number;
-		this.phonenumber = phonenumber;
+		this.phoneNumber = phoneNumber;
 		this.terminal = terminal;
 		this.kid = kid;
 	}
+
+	
 
 	public String getIdentity() {
 		return identity;
@@ -94,8 +97,8 @@ public final class PhoneNumberBlockedDTO {
 		return number;
 	}
 
-	public String getPhonenumber() {
-		return phonenumber;
+	public String getPhoneNumber() {
+		return phoneNumber;
 	}
 
 	public String getTerminal() {
@@ -122,8 +125,8 @@ public final class PhoneNumberBlockedDTO {
 		this.number = number;
 	}
 
-	public void setPhonenumber(String phonenumber) {
-		this.phonenumber = phonenumber;
+	public void setPhoneNumber(String phoneNumber) {
+		this.phoneNumber = phoneNumber;
 	}
 
 	public void setTerminal(String terminal) {
@@ -137,7 +140,7 @@ public final class PhoneNumberBlockedDTO {
 	@Override
 	public String toString() {
 		return "PhoneNumberBlockedDTO [identity=" + identity + ", blockedAt=" + blockedAt + ", prefix=" + prefix
-				+ ", number=" + number + ", phonenumber=" + phonenumber + ", terminal=" + terminal + ", kid=" + kid
+				+ ", number=" + number + ", phoneNumber=" + phoneNumber + ", terminal=" + terminal + ", kid=" + kid
 				+ "]";
 	}
 

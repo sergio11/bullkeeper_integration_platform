@@ -49,20 +49,20 @@ public final class GeofenceEntity {
 	 * Latitude
 	 */
 	@Field("latitude")
-	private double lat;
+	private Double lat;
 	
 	/**
 	 * Longitude
 	 */
 	@Field("longitude")
-	private double log;
+	private Double log;
 
 	
 	/**
 	 * Radius
 	 */
 	@Field("radius")
-	private float radius;
+	private Float radius;
 	
 	/**
 	 * Type
@@ -125,7 +125,7 @@ public final class GeofenceEntity {
 	 */
 	@PersistenceConstructor
 	public GeofenceEntity(final ObjectId id, final String name, final String address,
-			double lat, double log, float radius, final GeofenceTransitionTypeEnum type, 
+			Double lat, Double log, Float radius, final GeofenceTransitionTypeEnum type, 
 			final KidEntity kid, final Date createAt, final Date updateAt, 
 			final Boolean isEnabled, final List<GeofenceAlertEntity> alerts) {
 		super();
@@ -189,15 +189,15 @@ public final class GeofenceEntity {
 		this.name = name;
 	}
 
-	public void setLat(double lat) {
+	public void setLat(Double lat) {
 		this.lat = lat;
 	}
 
-	public void setLog(double log) {
+	public void setLog(Double log) {
 		this.log = log;
 	}
 
-	public void setRadius(float radius) {
+	public void setRadius(Float radius) {
 		this.radius = radius;
 	}
 

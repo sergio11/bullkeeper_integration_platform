@@ -752,10 +752,7 @@ public class ChildrenController extends BaseController
     	
     	// Save Social Media information
     	Iterable<SocialMediaDTO> socialMediaEntitiesSaved = socialMediaService.save(socialMedias.getList(), id);
-    	
-    	if(Iterables.size(socialMediaEntitiesSaved) == 0)
-    		throw new SocialMediaNotFoundException();
-    	
+   
     	// Create and send response
     	return ApiHelper.<Iterable<SocialMediaDTO>>createAndSendResponse(SocialMediaResponseCode.ALL_SOCIAL_MEDIA_SAVED, 
 				HttpStatus.OK, addLinksToSocialMedia(socialMediaEntitiesSaved));    
@@ -3180,7 +3177,8 @@ public class ChildrenController extends BaseController
     			new ObjectId(kid), AlertCategoryEnum.APPS_INSTALLED);
       
         // Create and send response
-        return ApiHelper.<AppInstalledDTO>createAndSendResponse(AppsResponseCode.NEW_APP_INSTALLED_ADDED, HttpStatus.OK, appInstalled);
+        return ApiHelper.<AppInstalledDTO>createAndSendResponse(AppsResponseCode.NEW_APP_INSTALLED_ADDED, 
+        		HttpStatus.OK, appInstalled);
         
     }
     
@@ -3394,7 +3392,7 @@ public class ChildrenController extends BaseController
     		throw new NoPhoneNumberBlockedFound();
  
     	// Create and send response
-        return ApiHelper.<Iterable<PhoneNumberBlockedDTO>>createAndSendResponse(ChildrenResponseCode.NO_PHONE_NUMBER_BLOCKED_FOUND, 
+        return ApiHelper.<Iterable<PhoneNumberBlockedDTO>>createAndSendResponse(ChildrenResponseCode.PHONE_NUMBER_BLOCKED_LIST, 
         		HttpStatus.OK, phoneNumbersBlockedList);
 
     }
@@ -3441,7 +3439,7 @@ public class ChildrenController extends BaseController
 					phoneNumberBlocked.getTerminal(),
 					phoneNumberBlocked.getPrefix(), 
 					phoneNumberBlocked.getNumber(),
-					phoneNumberBlocked.getPhonenumber(), 
+					phoneNumberBlocked.getPhoneNumber(), 
 					phoneNumberBlocked.getBlockedAt()));
     	
     	// Create and send response

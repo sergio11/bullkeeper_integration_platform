@@ -2,6 +2,9 @@ package sanchez.sanchez.sergio.bullkeeper.web.dto.request;
 
 import java.io.Serializable;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+import sanchez.sanchez.sergio.bullkeeper.web.rest.deserializers.ClearStringNoSpacesDeserializer;
 
 /**
  * Save Contact DTO
@@ -25,6 +28,7 @@ public final class SaveContactDTO implements Serializable  {
 	 * Phone Number
 	 */
 	@JsonProperty("phone_number")
+	@JsonDeserialize(using = ClearStringNoSpacesDeserializer.class)
 	private String phoneNumber;
 	
 	/**

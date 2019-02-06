@@ -40,6 +40,18 @@ public class AddPhoneNumberBlockedSSE extends AbstractSseData implements Seriali
 	private String terminal;
 	
 	/**
+	 * Prefix
+	 */
+	@JsonProperty("prefix")
+	private String prefix;
+	
+	/**
+	 * Number
+	 */
+	@JsonProperty("number")
+	private String number;
+	
+	/**
 	 * Phone NUmber
 	 */
 	@JsonProperty("phone_number")
@@ -62,18 +74,24 @@ public class AddPhoneNumberBlockedSSE extends AbstractSseData implements Seriali
 	 * @param identity
 	 * @param kid
 	 * @param terminal
+	 * @param prefix
+	 * @param number
 	 * @param phoneNumber
 	 * @param blockedAt
 	 */
 	public AddPhoneNumberBlockedSSE(String subscriberId, String identity, String kid, String terminal,
-			String phoneNumber, String blockedAt) {
+			final String prefix, final String number, String phoneNumber, String blockedAt) {
 		super(EVENT_TYPE, subscriberId);
 		this.identity = identity;
 		this.kid = kid;
 		this.terminal = terminal;
+		this.prefix = prefix;
+		this.number = number;
 		this.phoneNumber = phoneNumber;
 		this.blockedAt = blockedAt;
 	}
+
+	
 
 	public String getIdentity() {
 		return identity;
@@ -85,6 +103,14 @@ public class AddPhoneNumberBlockedSSE extends AbstractSseData implements Seriali
 
 	public String getTerminal() {
 		return terminal;
+	}
+
+	public String getPrefix() {
+		return prefix;
+	}
+
+	public String getNumber() {
+		return number;
 	}
 
 	public String getPhoneNumber() {
@@ -105,6 +131,14 @@ public class AddPhoneNumberBlockedSSE extends AbstractSseData implements Seriali
 
 	public void setTerminal(String terminal) {
 		this.terminal = terminal;
+	}
+
+	public void setPrefix(String prefix) {
+		this.prefix = prefix;
+	}
+
+	public void setNumber(String number) {
+		this.number = number;
 	}
 
 	public void setPhoneNumber(String phoneNumber) {

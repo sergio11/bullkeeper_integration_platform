@@ -56,7 +56,9 @@ public abstract class CallDetailEntityMapper {
         @Mapping(source = "callDetailEntity.callDayTime", target = "callDayTime", 
         	dateFormat = "yyyy/MM/dd"),
         @Mapping(expression = "java(phoneNumberBlockedRepository"
-        		+ ".countByPhoneNumberAndKidIdAndTerminalId(callDetailEntity.getPhoneNumber(), "
+        		+ ".countByNumberOrPhoneNumberAndKidIdAndTerminalId("
+        		+ "callDetailEntity.getPhoneNumber(), "
+        		+ "callDetailEntity.getPhoneNumber(), "
         		+ "callDetailEntity.getKid().getId(),"
         		+ "callDetailEntity.getTerminal().getId()) > 0 ? true: false)",
         		target = "blocked"),
