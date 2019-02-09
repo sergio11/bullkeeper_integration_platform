@@ -21,6 +21,13 @@ public class AppInstalledDTO extends ResourceSupport {
 	 */
 	@JsonProperty("package_name")
 	private String packageName;
+
+	
+	/**
+	 * Category
+	 */
+	@JsonProperty("category")
+	private String category;
 	
 	/**
 	 * First Install Time
@@ -103,12 +110,15 @@ public class AppInstalledDTO extends ResourceSupport {
 	 * @param terminalId
 	 * @param disabled
 	 */
-	public AppInstalledDTO(String identity, String packageName, long firstInstallTime, long lastUpdateTime,
-			String versionName, String versionCode, String appName, String appRule, String iconEncodedString,
-			String kid, String terminalId, Boolean disabled) {
+	public AppInstalledDTO(final String identity, final String packageName, 
+			final String category, long firstInstallTime, long lastUpdateTime,
+			final String versionName, final String versionCode, final String appName,
+			final String appRule, final String iconEncodedString, final String kid, 
+			final String terminalId, final Boolean disabled) {
 		super();
 		this.identity = identity;
 		this.packageName = packageName;
+		this.category = category;
 		this.firstInstallTime = firstInstallTime;
 		this.lastUpdateTime = lastUpdateTime;
 		this.versionName = versionName;
@@ -121,12 +131,18 @@ public class AppInstalledDTO extends ResourceSupport {
 		this.disabled = disabled;
 	}
 
+	
+
 	public String getIdentity() {
 		return identity;
 	}
 
 	public String getPackageName() {
 		return packageName;
+	}
+
+	public String getCategory() {
+		return category;
 	}
 
 	public long getFirstInstallTime() {
@@ -165,12 +181,20 @@ public class AppInstalledDTO extends ResourceSupport {
 		return terminalId;
 	}
 
+	public Boolean getDisabled() {
+		return disabled;
+	}
+
 	public void setIdentity(String identity) {
 		this.identity = identity;
 	}
 
 	public void setPackageName(String packageName) {
 		this.packageName = packageName;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
 	}
 
 	public void setFirstInstallTime(long firstInstallTime) {
@@ -208,11 +232,6 @@ public class AppInstalledDTO extends ResourceSupport {
 	public void setTerminalId(String terminalId) {
 		this.terminalId = terminalId;
 	}
-	
-
-	public Boolean getDisabled() {
-		return disabled;
-	}
 
 	public void setDisabled(Boolean disabled) {
 		this.disabled = disabled;
@@ -220,12 +239,11 @@ public class AppInstalledDTO extends ResourceSupport {
 
 	@Override
 	public String toString() {
-		return "AppInstalledDTO [identity=" + identity + ", packageName=" + packageName + ", firstInstallTime="
-				+ firstInstallTime + ", lastUpdateTime=" + lastUpdateTime + ", versionName=" + versionName
-				+ ", versionCode=" + versionCode + ", appName=" + appName + ", appRule=" + appRule
+		return "AppInstalledDTO [identity=" + identity + ", packageName=" + packageName + ", category=" + category
+				+ ", firstInstallTime=" + firstInstallTime + ", lastUpdateTime=" + lastUpdateTime + ", versionName="
+				+ versionName + ", versionCode=" + versionCode + ", appName=" + appName + ", appRule=" + appRule
 				+ ", iconEncodedString=" + iconEncodedString + ", kid=" + kid + ", terminalId=" + terminalId
 				+ ", disabled=" + disabled + "]";
 	}
 
-	
 }

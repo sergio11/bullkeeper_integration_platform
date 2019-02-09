@@ -24,6 +24,12 @@ public class AppInstalledInTerminalDTO extends ResourceSupport {
 	private String packageName;
 	
 	/**
+	 * Category
+	 */
+	@JsonProperty("category")
+	private String category;
+	
+	/**
 	 * First Install Time
 	 */
 	@JsonProperty("first_install_time")
@@ -93,6 +99,7 @@ public class AppInstalledInTerminalDTO extends ResourceSupport {
 	 * 
 	 * @param identity
 	 * @param packageName
+	 * @param category
 	 * @param firstInstallTime
 	 * @param lastUpdateTime
 	 * @param versionName
@@ -104,12 +111,14 @@ public class AppInstalledInTerminalDTO extends ResourceSupport {
 	 * @param terminal
 	 * @param disabled
 	 */
-	public AppInstalledInTerminalDTO(String identity, String packageName, long firstInstallTime, long lastUpdateTime,
+	public AppInstalledInTerminalDTO(String identity, String packageName, 
+			String category, long firstInstallTime, long lastUpdateTime,
 			String versionName, String versionCode, String appName, String appRule, String iconEncodedString,
 			String kid, TerminalDTO terminal, Boolean disabled) {
 		super();
 		this.identity = identity;
 		this.packageName = packageName;
+		this.category = category;
 		this.firstInstallTime = firstInstallTime;
 		this.lastUpdateTime = lastUpdateTime;
 		this.versionName = versionName;
@@ -128,6 +137,10 @@ public class AppInstalledInTerminalDTO extends ResourceSupport {
 
 	public String getPackageName() {
 		return packageName;
+	}
+
+	public String getCategory() {
+		return category;
 	}
 
 	public long getFirstInstallTime() {
@@ -178,6 +191,10 @@ public class AppInstalledInTerminalDTO extends ResourceSupport {
 		this.packageName = packageName;
 	}
 
+	public void setCategory(String category) {
+		this.category = category;
+	}
+
 	public void setFirstInstallTime(long firstInstallTime) {
 		this.firstInstallTime = firstInstallTime;
 	}
@@ -220,11 +237,13 @@ public class AppInstalledInTerminalDTO extends ResourceSupport {
 
 	@Override
 	public String toString() {
-		return "AppInstalledInTerminalDTO [identity=" + identity + ", packageName=" + packageName
-				+ ", firstInstallTime=" + firstInstallTime + ", lastUpdateTime=" + lastUpdateTime + ", versionName="
-				+ versionName + ", versionCode=" + versionCode + ", appName=" + appName + ", appRule=" + appRule
-				+ ", iconEncodedString=" + iconEncodedString + ", kid=" + kid + ", terminal=" + terminal + ", disabled="
-				+ disabled + "]";
+		return "AppInstalledInTerminalDTO [identity=" + identity + ", packageName=" + packageName + ", category="
+				+ category + ", firstInstallTime=" + firstInstallTime + ", lastUpdateTime=" + lastUpdateTime
+				+ ", versionName=" + versionName + ", versionCode=" + versionCode + ", appName=" + appName
+				+ ", appRule=" + appRule + ", iconEncodedString=" + iconEncodedString + ", kid=" + kid + ", terminal="
+				+ terminal + ", disabled=" + disabled + "]";
 	}
+
+	
 	
 }

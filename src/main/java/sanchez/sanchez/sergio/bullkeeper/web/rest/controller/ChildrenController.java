@@ -134,6 +134,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveTerminalDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.TerminalHeartbeatDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AlertDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledDetailDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledInTerminalDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppRuleDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppStatsDTO;
@@ -2624,8 +2625,8 @@ public class ChildrenController extends BaseController
    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
    		+ "&& @authorizationService.isYourGuardian(#kid) )")
    @ApiOperation(value = "GET_APP_DETAIL", nickname = "GET_APP_DETAIL",
-   	notes = "Get Call Detail", response = AppInstalledDTO.class)
-   public ResponseEntity<APIResponse<AppInstalledDTO>> getAppDetail(
+   	notes = "Get Call Detail", response = AppInstalledDetailDTO.class)
+   public ResponseEntity<APIResponse<AppInstalledDetailDTO>> getAppDetail(
    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
        		@Valid @KidShouldExists(message = "{son.id.notvalid}")
         			@PathVariable String kid,
@@ -2645,13 +2646,13 @@ public class ChildrenController extends BaseController
    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
    		
    		// Get App Installed
-   		final AppInstalledDTO appInstalledDTO = 
-   				Optional.ofNullable(terminalService.getAppInstalled(new ObjectId(app), 
+   		final AppInstalledDetailDTO appInstalledDTO = 
+   				Optional.ofNullable(terminalService.getAppInstalledDetail(new ObjectId(app), 
    						new ObjectId(terminalDTO.getIdentity())))
    				.orElseThrow(() -> { throw new AppInstalledNotFoundException(); });
    		
    		// Create And send response
-        return ApiHelper.<AppInstalledDTO>createAndSendResponse(AppsResponseCode.APP_INSTALLED_DETAIL, 
+        return ApiHelper.<AppInstalledDetailDTO>createAndSendResponse(AppsResponseCode.APP_INSTALLED_DETAIL, 
             		HttpStatus.OK, appInstalledDTO);
 	   
    }

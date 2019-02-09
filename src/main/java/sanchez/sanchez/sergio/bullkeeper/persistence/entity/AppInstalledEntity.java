@@ -104,6 +104,14 @@ public class AppInstalledEntity implements Serializable {
 	private TerminalEntity terminal;
 	
 	/**
+	 * App Model
+	 */
+	@Field("model")
+	@DBRef
+	private AppModelEntity model;
+	
+	
+	/**
 	 * 
 	 */
 	public AppInstalledEntity() {}
@@ -123,10 +131,13 @@ public class AppInstalledEntity implements Serializable {
 	 * @param iconEncodedString
 	 * @param kid
 	 * @param terminal
+	 * @param model
 	 */
 	@PersistenceConstructor
 	public AppInstalledEntity(ObjectId id, String packageName, Long firstInstallTime, Long lastUpdateTime,
-			String versionName, String versionCode, String appName, Boolean disabled, AppRuleEnum appRuleEnum, String iconEncodedString, KidEntity kid, TerminalEntity terminal) {
+			String versionName, String versionCode, String appName, 
+			Boolean disabled, AppRuleEnum appRuleEnum, String iconEncodedString, 
+			KidEntity kid, TerminalEntity terminal, AppModelEntity model) {
 		super();
 		this.id = id;
 		this.packageName = packageName;
@@ -140,6 +151,7 @@ public class AppInstalledEntity implements Serializable {
 		this.iconEncodedString = iconEncodedString;
 		this.kid = kid;
 		this.terminal = terminal;
+		this.model = model;
 	}
 
 	public ObjectId getId() {
@@ -240,6 +252,14 @@ public class AppInstalledEntity implements Serializable {
 		this.disabled = disabled;
 	}
 
+	public AppModelEntity getModel() {
+		return model;
+	}
+
+	public void setModel(AppModelEntity model) {
+		this.model = model;
+	}
+
 	@Override
 	public String toString() {
 		return "AppInstalledEntity [id=" + id + ", packageName=" + packageName + ", firstInstallTime="
@@ -248,6 +268,4 @@ public class AppInstalledEntity implements Serializable {
 				+ ", iconEncodedString=" + iconEncodedString + ", kid=" + kid + ", terminal=" + terminal + "]";
 	}
 
-	
-	
 }

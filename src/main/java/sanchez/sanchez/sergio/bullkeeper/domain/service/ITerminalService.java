@@ -18,6 +18,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveSmsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveTerminalDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.TerminalHeartbeatDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledDetailDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledInTerminalDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppRuleDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppStatsDTO;
@@ -184,6 +185,14 @@ public interface ITerminalService {
      * @return
      */
     AppInstalledDTO getAppInstalled(final ObjectId app, final ObjectId terminal);
+    
+    /**
+     * Get App Installed Detail
+     * @param app
+     * @param terminal
+     * @return
+     */
+    AppInstalledDetailDTO getAppInstalledDetail(final ObjectId app, final ObjectId terminal);
     
     /**
      * Get Detail Of Calls

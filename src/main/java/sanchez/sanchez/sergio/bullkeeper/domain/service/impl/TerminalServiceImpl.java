@@ -29,6 +29,7 @@ import sanchez.sanchez.sergio.bullkeeper.mapper.PhoneNumberEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.SmsEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.TerminalEntityDataMapper;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AppInstalledEntity;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AppModelEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AppRuleEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AppStatsEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.CallDetailEntity;
@@ -42,6 +43,7 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ScreenStatusEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SmsEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.TerminalEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.AppInstalledRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.AppModelRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.AppStatsRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.CallDetailRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.ContactEntityRepository;
@@ -62,6 +64,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveSmsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveTerminalDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.TerminalHeartbeatDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledDetailDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledInTerminalDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppRuleDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppStatsDTO;
@@ -170,6 +173,11 @@ public final class TerminalServiceImpl implements ITerminalService {
      * Fun Time Scheduled Entity Mapper
      */
     private final FunTimeScheduledEntityMapper funTimeScheduledEntityMapper;
+    
+    /**
+     * App Model Repository
+     */
+    private final AppModelRepository appModelRepository;
 	
 
 	/**
@@ -189,6 +197,7 @@ public final class TerminalServiceImpl implements ITerminalService {
 	 * @param kidRequestRepository
 	 * @param kidRequestMapper
 	 * @param funTimeScheduledEntityMapper
+	 * @param appModelRepository
 	 */
 	@Autowired
 	public TerminalServiceImpl(final TerminalEntityDataMapper terminalEntityDataMapper, 
@@ -207,7 +216,8 @@ public final class TerminalServiceImpl implements ITerminalService {
 			final AppStatsEntityMapper appStatsEntityMapper,
 			final KidRequestRepository kidRequestRepository,
 			final KidRequestEntityMapper kidRequestMapper,
-			final FunTimeScheduledEntityMapper funTimeScheduledEntityMapper) {
+			final FunTimeScheduledEntityMapper funTimeScheduledEntityMapper,
+			final AppModelRepository appModelRepository) {
 		super();
 		this.terminalEntityDataMapper = terminalEntityDataMapper;
 		this.terminalRepository = terminalRepository;
@@ -226,6 +236,7 @@ public final class TerminalServiceImpl implements ITerminalService {
 		this.kidRequestRepository = kidRequestRepository;
 		this.kidRequestMapper = kidRequestMapper;
 		this.funTimeScheduledEntityMapper = funTimeScheduledEntityMapper;
+		this.appModelRepository = appModelRepository;
 	}
 
 	/**
@@ -313,6 +324,14 @@ public final class TerminalServiceImpl implements ITerminalService {
 		
 		if(appInstalledSaved != null) 
 			appIntalledToSave.setId(appInstalledSaved.getId());
+		else {
+			
+			final AppModelEntity appModelEntity = appModelRepository
+					.findOne(appIntalledToSave.getPackageName());
+			
+			appIntalledToSave.setModel(appModelEntity);
+		}
+			
 		
 		// Save App Installed
 		appInstalledSaved = 
@@ -339,6 +358,12 @@ public final class TerminalServiceImpl implements ITerminalService {
 			
 			if(appInstalledSaved != null)
 				appInstalledToSave.setId(appInstalledSaved.getId());
+			else {
+				final AppModelEntity appModelEntity = appModelRepository
+						.findOne(appInstalledToSave.getPackageName());
+				
+				appInstalledToSave.setModel(appModelEntity);
+			}
 			
 		}
 		
@@ -1424,5 +1449,16 @@ public final class TerminalServiceImpl implements ITerminalService {
 		return funTimeScheduledEntityMapper
 				.dayScheduledEntityToDayScheduledDTO(dayScheduledEntitySaved);
 		
+	}
+
+	/**
+	 * Get App Installed Detail
+	 */
+	@Override
+	public AppInstalledDetailDTO getAppInstalledDetail(ObjectId app, ObjectId terminal) {
+		Assert.notNull(app, "App can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		return appInstalledEntityDataMapper.appInstalledEntityToAppInstalledDetailDTO(
+				appsInstalledRepository.findByIdAndTerminalId(app, terminal));
 	}
 }
