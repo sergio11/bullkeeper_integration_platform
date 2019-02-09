@@ -1,7 +1,6 @@
 package sanchez.sanchez.sergio.bullkeeper.web.dto.response;
 
 import org.springframework.hateoas.ResourceSupport;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -28,6 +27,12 @@ public class AppInstalledInTerminalDTO extends ResourceSupport {
 	 */
 	@JsonProperty("category")
 	private String category;
+	
+	/**
+	 * Cat Key
+	 */
+	@JsonProperty("cat_key")
+	private String catKey;
 	
 	/**
 	 * First Install Time
@@ -100,6 +105,7 @@ public class AppInstalledInTerminalDTO extends ResourceSupport {
 	 * @param identity
 	 * @param packageName
 	 * @param category
+	 * @param catKey
 	 * @param firstInstallTime
 	 * @param lastUpdateTime
 	 * @param versionName
@@ -112,13 +118,14 @@ public class AppInstalledInTerminalDTO extends ResourceSupport {
 	 * @param disabled
 	 */
 	public AppInstalledInTerminalDTO(String identity, String packageName, 
-			String category, long firstInstallTime, long lastUpdateTime,
+			String category,  String catKey, long firstInstallTime, long lastUpdateTime,
 			String versionName, String versionCode, String appName, String appRule, String iconEncodedString,
 			String kid, TerminalDTO terminal, Boolean disabled) {
 		super();
 		this.identity = identity;
 		this.packageName = packageName;
 		this.category = category;
+		this.catKey = catKey;
 		this.firstInstallTime = firstInstallTime;
 		this.lastUpdateTime = lastUpdateTime;
 		this.versionName = versionName;
@@ -141,6 +148,10 @@ public class AppInstalledInTerminalDTO extends ResourceSupport {
 
 	public String getCategory() {
 		return category;
+	}
+
+	public String getCatKey() {
+		return catKey;
 	}
 
 	public long getFirstInstallTime() {
@@ -195,6 +206,10 @@ public class AppInstalledInTerminalDTO extends ResourceSupport {
 		this.category = category;
 	}
 
+	public void setCatKey(String catKey) {
+		this.catKey = catKey;
+	}
+
 	public void setFirstInstallTime(long firstInstallTime) {
 		this.firstInstallTime = firstInstallTime;
 	}
@@ -238,12 +253,11 @@ public class AppInstalledInTerminalDTO extends ResourceSupport {
 	@Override
 	public String toString() {
 		return "AppInstalledInTerminalDTO [identity=" + identity + ", packageName=" + packageName + ", category="
-				+ category + ", firstInstallTime=" + firstInstallTime + ", lastUpdateTime=" + lastUpdateTime
-				+ ", versionName=" + versionName + ", versionCode=" + versionCode + ", appName=" + appName
-				+ ", appRule=" + appRule + ", iconEncodedString=" + iconEncodedString + ", kid=" + kid + ", terminal="
-				+ terminal + ", disabled=" + disabled + "]";
+				+ category + ", catKey=" + catKey + ", firstInstallTime=" + firstInstallTime + ", lastUpdateTime="
+				+ lastUpdateTime + ", versionName=" + versionName + ", versionCode=" + versionCode + ", appName="
+				+ appName + ", appRule=" + appRule + ", iconEncodedString=" + iconEncodedString + ", kid=" + kid
+				+ ", terminal=" + terminal + ", disabled=" + disabled + "]";
 	}
 
-	
 	
 }

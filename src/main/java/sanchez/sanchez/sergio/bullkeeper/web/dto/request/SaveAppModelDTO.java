@@ -1,12 +1,11 @@
 package sanchez.sanchez.sergio.bullkeeper.web.dto.request;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.AppModelCategoryShouldExists;
 
 /**
  * Save App Model DTO
@@ -29,14 +28,9 @@ public final class SaveAppModelDTO implements Serializable {
 	private String packageName;
 	
 	/**
-	 * Category
-	 */
-	@JsonProperty("category")
-	private String category;
-	
-	/**
 	 * Cat Key
 	 */
+	@AppModelCategoryShouldExists(message = "{app.model.cat.key.not.exists}")
 	@JsonProperty("cat_key")
 	private String catKey;
 	
@@ -210,14 +204,13 @@ public final class SaveAppModelDTO implements Serializable {
 	 * @param numberRatings
 	 * @param price
 	 */
-	public SaveAppModelDTO(String packageName, String category, String catKey, List<String> catKeys, Integer catType,
+	public SaveAppModelDTO(String packageName, String catKey, List<String> catKeys, Integer catType,
 			String title, String description, String shortDesc, String icon, String icon72, String marketUrl,
 			String whatIsNew, String downloads, String downloadsMin, String downloadsMax,
 			String promoVideo, String promoImage, Double rating, Integer size, List<String> screenShots, String version,
 			String website, String developer, String contentRating, Integer numberRatings, String price) {
 		super();
 		this.packageName = packageName;
-		this.category = category;
 		this.catKey = catKey;
 		this.catKeys = catKeys;
 		this.catType = catType;
@@ -249,10 +242,6 @@ public final class SaveAppModelDTO implements Serializable {
 
 	public String getPackageName() {
 		return packageName;
-	}
-
-	public String getCategory() {
-		return category;
 	}
 
 	public String getCatKey() {
@@ -353,10 +342,6 @@ public final class SaveAppModelDTO implements Serializable {
 
 	public void setPackageName(String packageName) {
 		this.packageName = packageName;
-	}
-
-	public void setCategory(String category) {
-		this.category = category;
 	}
 
 	public void setCatKey(String catKey) {

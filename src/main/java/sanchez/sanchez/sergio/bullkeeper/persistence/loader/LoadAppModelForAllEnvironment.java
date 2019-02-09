@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -23,6 +24,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppModelDTO;
  *
  */
 @Component
+@DependsOn("loadAppModelCategory")
 public final class LoadAppModelForAllEnvironment implements CommandLineRunner {
 	
 	
@@ -81,7 +83,6 @@ public final class LoadAppModelForAllEnvironment implements CommandLineRunner {
 		} catch (final Exception ex) {
 			ex.printStackTrace();
 			logger.debug("Load App Models failed ...");
-			
 		}
 
 	}

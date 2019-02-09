@@ -59,7 +59,8 @@ public abstract class AppInstalledEntityMapper {
         @Mapping(expression="java(appInstalledEntity.getTerminal().getId().toString())",
         		target = "terminalId" ),
         @Mapping(expression="java(appInstalledEntity.getAppRuleEnum().name())", target = "appRule" ),
-        @Mapping(source="appInstalledEntity.model.category", target="category")
+        @Mapping(source="appInstalledEntity.model.category.name", target="category"),
+        @Mapping(source="appInstalledEntity.model.category.catKey", target="catKey")
     })
     @Named("appInstalledEntityToAppInstalledDTO")
     public abstract AppInstalledDTO appInstalledEntityToAppInstalledDTO(final AppInstalledEntity appInstalledEntity); 
@@ -75,7 +76,8 @@ public abstract class AppInstalledEntityMapper {
         @Mapping(expression="java(terminalEntityDataMapper.terminalEntityToTerminalDTO(appInstalledEntity.getTerminal()))",
         		target = "terminal" ),
         @Mapping(expression="java(appInstalledEntity.getAppRuleEnum().name())", target = "appRule" ),
-        @Mapping(source="appInstalledEntity.model.category", target="category")
+        @Mapping(source="appInstalledEntity.model.category.name", target="category"),
+        @Mapping(source="appInstalledEntity.model.category.catKey", target="catKey")
     })
     @Named("appInstalledEntityToAppInstalledInTerminalDTO")
     public abstract AppInstalledInTerminalDTO appInstalledEntityToAppInstalledInTerminalDTO(final AppInstalledEntity appInstalledEntity); 

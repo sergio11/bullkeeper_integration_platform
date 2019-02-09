@@ -24,7 +24,6 @@ public interface IAppModelService {
 	 * @return
 	 */
 	Iterable<AppModelDTO> save(final List<SaveAppModelDTO> saveAppModels);
-	
-	
+
 
 }

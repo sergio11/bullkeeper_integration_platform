@@ -329,7 +329,10 @@ public final class TerminalServiceImpl implements ITerminalService {
 			final AppModelEntity appModelEntity = appModelRepository
 					.findOne(appIntalledToSave.getPackageName());
 			
-			appIntalledToSave.setModel(appModelEntity);
+			if(appModelEntity != null) {
+				appIntalledToSave.setModel(appModelEntity);
+				appIntalledToSave.setAppRuleEnum(appModelEntity.getCategory().getDefaultRule());
+			}
 		}
 			
 		
@@ -362,7 +365,10 @@ public final class TerminalServiceImpl implements ITerminalService {
 				final AppModelEntity appModelEntity = appModelRepository
 						.findOne(appInstalledToSave.getPackageName());
 				
-				appInstalledToSave.setModel(appModelEntity);
+				if(appModelEntity != null) {
+					appInstalledToSave.setModel(appModelEntity);
+					appInstalledToSave.setAppRuleEnum(appModelEntity.getCategory().getDefaultRule());
+				}
 			}
 			
 		}

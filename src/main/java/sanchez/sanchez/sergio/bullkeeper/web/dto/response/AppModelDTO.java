@@ -27,13 +27,7 @@ public final class AppModelDTO implements Serializable {
 	 * Category
 	 */
 	@JsonProperty("category")
-	private String category;
-	
-	/**
-	 * Cat Key
-	 */
-	@JsonProperty("cat_key")
-	private String catKey;
+	private AppModelCategoryDTO category;
 	
 	/**
 	 * Cat Keys
@@ -184,8 +178,6 @@ public final class AppModelDTO implements Serializable {
 	/**
 	 * 
 	 * @param packageName
-	 * @param category
-	 * @param catKey
 	 * @param catKeys
 	 * @param catType
 	 * @param title
@@ -211,7 +203,7 @@ public final class AppModelDTO implements Serializable {
 	 * @param numberRatings
 	 * @param price
 	 */
-	public AppModelDTO(String packageName, String category, String catKey, List<String> catKeys, Integer catType,
+	public AppModelDTO(String packageName, AppModelCategoryDTO category, List<String> catKeys, Integer catType,
 			String title, String description, String shortDesc, String icon, String icon72, String marketUrl,
 			String whatIsNew, String downloads, String downloadsMin, String downloadsMax, 
 			String promoVideo, String promoImage, Double rating, Integer size, List<String> screenShots, String version,
@@ -219,7 +211,6 @@ public final class AppModelDTO implements Serializable {
 		super();
 		this.packageName = packageName;
 		this.category = category;
-		this.catKey = catKey;
 		this.catKeys = catKeys;
 		this.catType = catType;
 		this.title = title;
@@ -245,19 +236,13 @@ public final class AppModelDTO implements Serializable {
 		this.price = price;
 	}
 
-
 	public String getPackageName() {
 		return packageName;
 	}
 
 
-	public String getCategory() {
+	public AppModelCategoryDTO getCategory() {
 		return category;
-	}
-
-
-	public String getCatKey() {
-		return catKey;
 	}
 
 
@@ -381,13 +366,8 @@ public final class AppModelDTO implements Serializable {
 	}
 
 
-	public void setCategory(String category) {
+	public void setCategory(AppModelCategoryDTO category) {
 		this.category = category;
-	}
-
-
-	public void setCatKey(String catKey) {
-		this.catKey = catKey;
 	}
 
 
@@ -450,6 +430,7 @@ public final class AppModelDTO implements Serializable {
 		this.downloadsMax = downloadsMax;
 	}
 
+
 	public void setPromoVideo(String promoVideo) {
 		this.promoVideo = promoVideo;
 	}
@@ -507,14 +488,17 @@ public final class AppModelDTO implements Serializable {
 
 	@Override
 	public String toString() {
-		return "AppModelDTO [packageName=" + packageName + ", category=" + category + ", catKey=" + catKey
-				+ ", catKeys=" + catKeys + ", catType=" + catType + ", title=" + title + ", description=" + description
-				+ ", shortDesc=" + shortDesc + ", icon=" + icon + ", icon72=" + icon72 + ", marketUrl=" + marketUrl
-				+ ", whatIsNew=" + whatIsNew + ", downloads=" + downloads + ", downloadsMin=" + downloadsMin
-				+ ", downloadsMax=" + downloadsMax + ", promoVideo=" + promoVideo
-				+ ", promoImage=" + promoImage + ", rating=" + rating + ", size=" + size + ", screenShots="
-				+ screenShots + ", version=" + version + ", website=" + website + ", developer=" + developer
-				+ ", contentRating=" + contentRating + ", numberRatings=" + numberRatings + ", price=" + price + "]";
+		return "AppModelDTO [packageName=" + packageName + ", category=" + category + ", catKeys=" + catKeys
+				+ ", catType=" + catType + ", title=" + title + ", description=" + description + ", shortDesc="
+				+ shortDesc + ", icon=" + icon + ", icon72=" + icon72 + ", marketUrl=" + marketUrl + ", whatIsNew="
+				+ whatIsNew + ", downloads=" + downloads + ", downloadsMin=" + downloadsMin + ", downloadsMax="
+				+ downloadsMax + ", promoVideo=" + promoVideo + ", promoImage=" + promoImage + ", rating=" + rating
+				+ ", size=" + size + ", screenShots=" + screenShots + ", version=" + version + ", website=" + website
+				+ ", developer=" + developer + ", contentRating=" + contentRating + ", numberRatings=" + numberRatings
+				+ ", price=" + price + "]";
 	}
+
+
+	
 	
 }

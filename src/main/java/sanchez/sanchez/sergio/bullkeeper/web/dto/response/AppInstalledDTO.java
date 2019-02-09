@@ -30,6 +30,12 @@ public class AppInstalledDTO extends ResourceSupport {
 	private String category;
 	
 	/**
+	 * Category Key
+	 */
+	@JsonProperty("cat_key")
+	private String catKey;
+	
+	/**
 	 * First Install Time
 	 */
 	@JsonProperty("first_install_time")
@@ -99,6 +105,8 @@ public class AppInstalledDTO extends ResourceSupport {
 	 * 
 	 * @param identity
 	 * @param packageName
+	 * @param category
+	 * @param catKey
 	 * @param firstInstallTime
 	 * @param lastUpdateTime
 	 * @param versionName
@@ -111,7 +119,7 @@ public class AppInstalledDTO extends ResourceSupport {
 	 * @param disabled
 	 */
 	public AppInstalledDTO(final String identity, final String packageName, 
-			final String category, long firstInstallTime, long lastUpdateTime,
+			final String category, final String catKey, long firstInstallTime, long lastUpdateTime,
 			final String versionName, final String versionCode, final String appName,
 			final String appRule, final String iconEncodedString, final String kid, 
 			final String terminalId, final Boolean disabled) {
@@ -131,7 +139,6 @@ public class AppInstalledDTO extends ResourceSupport {
 		this.disabled = disabled;
 	}
 
-	
 
 	public String getIdentity() {
 		return identity;
@@ -143,6 +150,10 @@ public class AppInstalledDTO extends ResourceSupport {
 
 	public String getCategory() {
 		return category;
+	}
+
+	public String getCatKey() {
+		return catKey;
 	}
 
 	public long getFirstInstallTime() {
@@ -197,6 +208,10 @@ public class AppInstalledDTO extends ResourceSupport {
 		this.category = category;
 	}
 
+	public void setCatKey(String catKey) {
+		this.catKey = catKey;
+	}
+
 	public void setFirstInstallTime(long firstInstallTime) {
 		this.firstInstallTime = firstInstallTime;
 	}
@@ -240,10 +255,10 @@ public class AppInstalledDTO extends ResourceSupport {
 	@Override
 	public String toString() {
 		return "AppInstalledDTO [identity=" + identity + ", packageName=" + packageName + ", category=" + category
-				+ ", firstInstallTime=" + firstInstallTime + ", lastUpdateTime=" + lastUpdateTime + ", versionName="
-				+ versionName + ", versionCode=" + versionCode + ", appName=" + appName + ", appRule=" + appRule
-				+ ", iconEncodedString=" + iconEncodedString + ", kid=" + kid + ", terminalId=" + terminalId
-				+ ", disabled=" + disabled + "]";
+				+ ", catKey=" + catKey + ", firstInstallTime=" + firstInstallTime + ", lastUpdateTime=" + lastUpdateTime
+				+ ", versionName=" + versionName + ", versionCode=" + versionCode + ", appName=" + appName
+				+ ", appRule=" + appRule + ", iconEncodedString=" + iconEncodedString + ", kid=" + kid + ", terminalId="
+				+ terminalId + ", disabled=" + disabled + "]";
 	}
 
 }
