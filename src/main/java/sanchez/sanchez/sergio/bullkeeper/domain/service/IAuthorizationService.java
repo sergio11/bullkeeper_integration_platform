@@ -108,10 +108,18 @@ public interface IAuthorizationService {
     Boolean isYourProfilePublic(final String id);
     
     /**
-     * Is Your Conversation
+     * Is Member of the conversation
      * @param id
      * @return
      */
-    Boolean isYourConversation(final String id);
+    Boolean isMemberOfTheConversation(final String id);
+    
+    /**
+     * Check If They can talk
+     * @param memberOne
+     * @param memberTwo
+     * @return
+     */
+    Boolean checkIfTheyCanTalk(final String memberOne, final String memberTwo);
     
 }

@@ -1,7 +1,6 @@
 package sanchez.sanchez.sergio.bullkeeper.web.dto.response;
 
 import java.io.Serializable;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -34,12 +33,17 @@ public final class ConversationDTO implements Serializable {
 	@JsonProperty("update_at")
 	private String updateAt;
 	
+	/**
+	 * Member One
+	 */
+	@JsonProperty("member_one")
+	private PersonDTO memberOne;
 	
 	/**
-	 * Kid Guardian
+	 * Member Two
 	 */
-	@JsonProperty("kid_guardian")
-	private KidGuardianDTO kidGuardian;
+	@JsonProperty("member_two")
+	private PersonDTO memberTwo; 
 	
 	
 	/**
@@ -56,63 +60,64 @@ public final class ConversationDTO implements Serializable {
 	 * @param identity
 	 * @param createAt
 	 * @param updateAt
-	 * @param kidGuardian
+	 * @param memberOne
+	 * @param memberTwo
 	 * @param messagesCount
 	 */
 	public ConversationDTO(final String identity, final String createAt,
-			final String updateAt, final KidGuardianDTO kidGuardian,
+			final String updateAt, final PersonDTO memberOne, final PersonDTO memberTwo,
 			final long messagesCount) {
 		super();
 		this.identity = identity;
 		this.createAt = createAt;
 		this.updateAt = updateAt;
-		this.kidGuardian = kidGuardian;
+		this.memberOne = memberOne;
+		this.memberTwo = memberTwo;
 		this.messagesCount = messagesCount;
 	}
-
 
 	public String getIdentity() {
 		return identity;
 	}
 
-
 	public String getCreateAt() {
 		return createAt;
 	}
-
 
 	public String getUpdateAt() {
 		return updateAt;
 	}
 
-
-	public KidGuardianDTO getKidGuardian() {
-		return kidGuardian;
+	public PersonDTO getMemberOne() {
+		return memberOne;
 	}
 
+	public PersonDTO getMemberTwo() {
+		return memberTwo;
+	}
+
+	public long getMessagesCount() {
+		return messagesCount;
+	}
 
 	public void setIdentity(String identity) {
 		this.identity = identity;
 	}
 
-
 	public void setCreateAt(String createAt) {
 		this.createAt = createAt;
 	}
-
 
 	public void setUpdateAt(String updateAt) {
 		this.updateAt = updateAt;
 	}
 
-
-	public void setKidGuardian(KidGuardianDTO kidGuardian) {
-		this.kidGuardian = kidGuardian;
+	public void setMemberOne(PersonDTO memberOne) {
+		this.memberOne = memberOne;
 	}
-	
 
-	public long getMessagesCount() {
-		return messagesCount;
+	public void setMemberTwo(PersonDTO memberTwo) {
+		this.memberTwo = memberTwo;
 	}
 
 	public void setMessagesCount(long messagesCount) {
@@ -122,7 +127,8 @@ public final class ConversationDTO implements Serializable {
 	@Override
 	public String toString() {
 		return "ConversationDTO [identity=" + identity + ", createAt=" + createAt + ", updateAt=" + updateAt
-				+ ", kidGuardian=" + kidGuardian + ", messagesCount=" + messagesCount + "]";
+				+ ", memberOne=" + memberOne + ", memberTwo=" + memberTwo + ", messagesCount=" + messagesCount + "]";
 	}
 
+	
 }

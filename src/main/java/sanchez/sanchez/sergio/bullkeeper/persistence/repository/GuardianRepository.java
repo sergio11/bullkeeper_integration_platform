@@ -23,6 +23,13 @@ public interface GuardianRepository extends MongoRepository<GuardianEntity, Obje
 	GuardianEntity findById(final ObjectId id);
 	
 	/**
+	 * Count By Id
+	 * @param id
+	 * @return
+	 */
+	long countById(final ObjectId id);
+	
+	/**
 	 * 
 	 * @param email
 	 * @return

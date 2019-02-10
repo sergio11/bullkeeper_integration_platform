@@ -1,13 +1,10 @@
 package sanchez.sanchez.sergio.bullkeeper.web.dto.request;
 
 import java.io.Serializable;
-
 import javax.validation.constraints.Size;
-
 import org.hibernate.validator.constraints.NotBlank;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-
+import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ConversationShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ValidObjectId;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.group.Extended;
 
@@ -22,6 +19,13 @@ public final class AddMessageDTO implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	
+	/**
+	 * Conversation
+	 */
+	@ConversationShouldExists(message = "{conversation.not.exists}")
+	@JsonProperty("conversation")
+	private String conversation;
 	
 	
 	/**
@@ -54,55 +58,55 @@ public final class AddMessageDTO implements Serializable {
 	 */
 	public AddMessageDTO() {}
 
-
 	/**
 	 * 
+	 * @param conversation
 	 * @param text
 	 * @param from
 	 * @param to
 	 */
-	public AddMessageDTO(final String text, final String from, final String to) {
+	public AddMessageDTO(String conversation,String text, String from, String to) {
 		super();
+		this.conversation = conversation;
 		this.text = text;
 		this.from = from;
 		this.to = to;
 	}
 
+	public String getConversation() {
+		return conversation;
+	}
 
 	public String getText() {
 		return text;
 	}
 
-
 	public String getFrom() {
 		return from;
 	}
-
 
 	public String getTo() {
 		return to;
 	}
 
+	public void setConversation(String conversation) {
+		this.conversation = conversation;
+	}
 
 	public void setText(String text) {
 		this.text = text;
 	}
 
-
 	public void setFrom(String from) {
 		this.from = from;
 	}
-
 
 	public void setTo(String to) {
 		this.to = to;
 	}
 
-
 	@Override
 	public String toString() {
-		return "AddMessageDTO [text=" + text + ", from=" + from + ", to=" + to + "]";
+		return "AddMessageDTO [conversation=" + conversation + ", text=" + text + ", from=" + from + ", to=" + to + "]";
 	}
-
-	
 }

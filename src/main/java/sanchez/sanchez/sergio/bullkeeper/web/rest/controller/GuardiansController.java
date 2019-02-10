@@ -1557,7 +1557,7 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
     	
     	// Get Conversation List
     	final Iterable<ConversationDTO> conversationList = 
-    			conversationService.getAllConversationsOfGuardian(selfGuardian.getUserId());
+    			conversationService.getConversationsByMemberId(selfGuardian.getUserId());
     	
     	
     	if(Iterables.isEmpty(conversationList))
@@ -1622,32 +1622,6 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
     	// Create and send response
     	return ApiHelper.<String>createAndSendResponse(ConversationResponseEnum.CONVERSATION_SUCCESSFULLY_DELETED, 
         		HttpStatus.OK, messageSourceResolver.resolver("conversation.delete"));
-    }
-    
-    
-    /**
-     * Delete Conversation
-     * @param id
-     * @return
-     * @throws Throwable
-     */
-    @RequestMapping(value = "/self/conversation", method = RequestMethod.DELETE)
-    @OnlyAccessForGuardian
-    @ApiOperation(value = "DELETE_ALL_CONVERSATION", 
-    	nickname = "DELETE_ALL_CONVERSATION", 
-    		notes = "Delete All Conversation", response = String.class)
-    public ResponseEntity<APIResponse<String>> deleteAllConversation(
-    		@ApiParam(hidden = true)  @CurrentUser 
-				final CommonUserDetailsAware<ObjectId> selfGuardian) throws Throwable {
-        
-    	logger.debug("Delete All Conversations");
-    	
-    	// Delete by guardian id
-    	conversationService.deleteByGuardianId(selfGuardian.getUserId());
-    	
-    	// Create and send response
-    	return ApiHelper.<String>createAndSendResponse(ConversationResponseEnum.ALL_CONVERSATIONS_SUCCESSFULLY_DELETED, 
-        		HttpStatus.OK, messageSourceResolver.resolver("all.conversation.deleted"));
     }
     
     

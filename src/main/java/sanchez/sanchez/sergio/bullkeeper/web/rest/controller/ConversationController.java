@@ -24,11 +24,10 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IConversationService;
 import sanchez.sanchez.sergio.bullkeeper.exception.ConversationNotFoundException;
-import sanchez.sanchez.sergio.bullkeeper.exception.MessageNotAllowedException;
+import sanchez.sanchez.sergio.bullkeeper.exception.NoConversationFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoMessagesFoundException;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ConversationShouldExists;
-import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.GuardianShouldExists;
-import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.KidShouldExists;
+import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ValidObjectId;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.group.ICommonSequence;
 import sanchez.sanchez.sergio.bullkeeper.util.ValidList;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.AddMessageDTO;
@@ -75,7 +74,7 @@ public class ConversationController extends BaseController {
 	 */
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	@PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-			+ "&& @authorizationService.isYourConversation(#id) )")
+			+ "&& @authorizationService.isMemberOfTheConversation(#id) )")
     @ApiOperation(value = "GET_CONVERSATION_BY_ID", 
     	nickname = "GET_CONVERSATION_BY_ID", notes = "Get Conversation by Id",
     	response = ConversationDTO.class)
@@ -101,7 +100,7 @@ public class ConversationController extends BaseController {
 	 */
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
 	@PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-			+ "&& @authorizationService.isYourConversation(#id) )")
+			+ "&& @authorizationService.isMemberOfTheConversation(#id) )")
     @ApiOperation(value = "DELETE_CONVERSATION_BY_ID", 
     	nickname = "DELETE_CONVERSATION_BY_ID", notes = "Delete Conversation by Id",
     	response = String.class)
@@ -128,7 +127,7 @@ public class ConversationController extends BaseController {
 	 */
 	@RequestMapping(value = "/{id}/messages", method = RequestMethod.GET)
 	@PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-			+ "&& @authorizationService.isYourConversation(#id) )")
+			+ "&& @authorizationService.isMemberOfTheConversation(#id) )")
     @ApiOperation(value = "GET_CONVERSATION_MESSAGES", 
     	nickname = "GET_CONVERSATION_MESSAGES", notes = "Get Conversation Messages",
     	response = Iterable.class)
@@ -159,7 +158,7 @@ public class ConversationController extends BaseController {
 	 */
 	@RequestMapping(value = "/{id}/messages", method = RequestMethod.DELETE)
 	@PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-			+ "&& @authorizationService.isYourConversation(#id) )")
+			+ "&& @authorizationService.isMemberOfTheConversation(#id) )")
     @ApiOperation(value = "DELETE_CONVERSATION_MESSAGES", 
     	nickname = "DELETE_CONVERSATION_MESSAGES", notes = "Delete Conversation Messages",
     	response = String.class)
@@ -194,7 +193,7 @@ public class ConversationController extends BaseController {
 	 */
 	@RequestMapping(value = "/{id}/messages", method = RequestMethod.POST)
 	@PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-			+ "&& @authorizationService.isYourConversation(#id) )")
+			+ "&& @authorizationService.isMemberOfTheConversation(#id) )")
     @ApiOperation(value = "ADD_MESSAGE", 
     	nickname = "ADD_MESSAGE", notes = "Add Message",
     	response = MessageDTO.class)
@@ -219,332 +218,248 @@ public class ConversationController extends BaseController {
 				
     }
 	
-	
-	
-	
-	/**
-	 * Get Conversation detail by kid
-	 * @param id
-	 * @return
-	 */
-	@RequestMapping(value = "/self/{kid}", method = RequestMethod.GET)
-	@PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-			+ "&& @authorizationService.isYourGuardian(#kid) )")
-    @ApiOperation(value = "GET_CONVERSATION_DETAIL", 
-    	nickname = "GET_CONVERSATION_DETAIL", notes = "Get Conversation Detail",
-    	response = ConversationDTO.class)
-    public ResponseEntity<APIResponse<ConversationDTO>> getConversationDetailByKid(
-    		@ApiParam(hidden = true) @CurrentUser 
-				final CommonUserDetailsAware<ObjectId> selfGuardian,
-    		@ApiParam(name= "kid", value = "Kid Identifier", 
-    				required = true)
-				@Valid @KidShouldExists(message = "{kid.id.notvalid}")
-		 			@PathVariable String kid) throws Throwable {
-		
-		logger.debug("Get Conversation by kid -> " + kid);
-		
-		return Optional.ofNullable(conversationService.getConversationByKidIdAndGuardianId(new ObjectId(kid), selfGuardian.getUserId()))
-				.map(conversationDTO -> ApiHelper.<ConversationDTO>createAndSendResponse(ConversationResponseEnum.CONVERSATION_DETAIL, 
-    		HttpStatus.OK, conversationDTO))
-				.orElseThrow(() -> { throw new ConversationNotFoundException(); });
-		
-		
-    }
-	
-	
-	/**
-	 * Get Conversation Messages By Kid
-	 * @param id
-	 * @return
-	 */
-	@RequestMapping(value = "/self/{kid}/messages", method = RequestMethod.GET)
-	@PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-			+ "&& @authorizationService.isYourGuardian(#kid) )")
-    @ApiOperation(value = "GET_CONVERSATION_MESSAGES", 
-    	nickname = "GET_CONVERSATION_MESSAGES", notes = "Get Conversation Messages",
-    	response = Iterable.class)
-    public ResponseEntity<APIResponse<Iterable<MessageDTO>>> getConversationMessagesByKid(
-    		@ApiParam(hidden = true) @CurrentUser 
-				final CommonUserDetailsAware<ObjectId> selfGuardian,
-    		@ApiParam(name= "kid", value = "Kid Identifier", 
-    				required = true)
-				@Valid @KidShouldExists(message = "{kid.id.notvalid}")
-		 		@PathVariable String kid) throws Throwable {
-		
-		logger.debug("Get Conversation Messages for kid -> " + kid );
-		// Get Conversation Messages
-		final Iterable<MessageDTO> messageList = conversationService
-				.getConversationMessagesByKidIdAndGuardianId(new ObjectId(kid),
-						selfGuardian.getUserId());
-		
-		if(Iterables.size(messageList) == 0)
-			throw new NoMessagesFoundException();
-		
-		// Create and Send response
-		return ApiHelper.<Iterable<MessageDTO>>createAndSendResponse(ConversationResponseEnum.CONVERSATION_SUCCESSFULLY_DELETED, 
-			    		HttpStatus.OK, messageList);
-		
-		
-    }
-	
-	
-	/**
-	 * Delete Conversation by kid
-	 * @param id
-	 * @return
-	 */
-	@RequestMapping(value = "/self/{kid}", method = RequestMethod.DELETE)
-	@PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-			+ "&& @authorizationService.isYourGuardian(#kid) )")
-    @ApiOperation(value = "DELETE_CONVERSATION", 
-    	nickname = "DELETE_CONVERSATION", notes = "Delete Conversation",
-    	response = String.class)
-    public ResponseEntity<APIResponse<String>> deleteConversation(
-    		@ApiParam(hidden = true) @CurrentUser 
-				final CommonUserDetailsAware<ObjectId> selfGuardian,
-    		@ApiParam(name= "kid", value = "kid Identifier", 
-    				required = true)
-				@Valid @KidShouldExists(message = "{kid.id.notvalid}")
-		 			@PathVariable String kid) throws Throwable {
-		
-		logger.debug("Delete Conversation by kid -> " + kid);
-		
-		// Delete Conversation By Kid and Guardian Id
-		conversationService.deleteByKidIdAndGuardianId(new ObjectId(kid),
-				selfGuardian.getUserId());
-		// Create and Send response
-		return ApiHelper.<String>createAndSendResponse(ConversationResponseEnum.CONVERSATION_SUCCESSFULLY_DELETED, 
-	    		HttpStatus.OK, this.messageSourceResolver.resolver("conversation.deleted"));
-		
-		
-    }
-	
-	
-	/**
-	 * Delete All Conversation Messages by kid 
-	 * @param id
-	 * @return
-	 */
-	@RequestMapping(value = "/self/{kid}/messages", method = RequestMethod.DELETE)
-	@PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-			+ "&& @authorizationService.isYourGuardian(#kid) )")
-    @ApiOperation(value = "DELETE_CONVERSATION_MESSAGES", 
-    	nickname = "DELETE_CONVERSATION_MESSAGES", notes = "Delete Conversation Messages",
-    	response = String.class)
-    public ResponseEntity<APIResponse<String>> deleteConversationMessagesByKid(
-    		@ApiParam(hidden = true) @CurrentUser 
-				final CommonUserDetailsAware<ObjectId> selfGuardian,
-    		@ApiParam(name= "kid", value = "kid Identifier", 
-    				required = true)
-				@Valid @KidShouldExists(message = "{kid.id.notvalid}")
-		 		@PathVariable String kid,
-		 	@ApiParam(value = "messages", required = false) 
-				@RequestParam(name="messages" , required=false)
-				 	final ValidList<ObjectId> messagesIds) throws Throwable {
 
-		logger.debug("Delete all messages for kid -> " + kid );
-		
-		if(messagesIds != null &&
-				!messagesIds.isEmpty())
-			conversationService.deleteConversationMessages(new ObjectId(kid), messagesIds);
-		else
-			// Delete All Conversation Messages
-			conversationService.deleteAllConversationMessagesByKidIdAndGuardianId(new ObjectId(kid),
-					selfGuardian.getUserId());
-		
-		// Create and Send response
-		return ApiHelper.<String>createAndSendResponse(ConversationResponseEnum.ALL_CONVERSATION_MESSAGES_SUCCESSFULLY_DELETED, 
-			HttpStatus.OK, this.messageSourceResolver.resolver("all.conversation.messages.deleted"));
-		
-    }
-	
-	
 	/**
-	 * Add Message
+	 * Get All Conversation for authenticated user
 	 * @param id
 	 * @return
 	 */
-	@RequestMapping(value = "/self/{kid}/messages", method = RequestMethod.POST)
-	@PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-			+ "&& @authorizationService.isYourGuardian(#kid) )")
-    @ApiOperation(value = "ADD_MESSAGE", 
-    	nickname = "ADD_MESSAGE", notes = "Add Message",
-    	response = String.class)
-    public ResponseEntity<APIResponse<MessageDTO>> addMessage(
+	@RequestMapping(value = "/members/self", method = RequestMethod.GET)
+	@PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() )")
+    @ApiOperation(value = "GET_ALL_CONVERSATION_FOR_SELF_USER", 
+    	nickname = "GET_ALL_CONVERSATION_FOR_SELF_USER", notes = "Get All Conversation for self user",
+    	response = Iterable.class)
+    public ResponseEntity<APIResponse<Iterable<ConversationDTO>>> getAllConversationForSelfUser(
     		@ApiParam(hidden = true) @CurrentUser 
-				final CommonUserDetailsAware<ObjectId> selfGuardian,
-    		@ApiParam(name= "kid", value = "kid Identifier", 
-    				required = true)
-				@Valid @KidShouldExists(message = "{kid.id.notvalid}")
-		 		@PathVariable String kid,
-		 	@ApiParam(value = "message", required = true) 
-				@Validated(ICommonSequence.class) 
-					@RequestBody final AddMessageDTO message) throws Throwable {
+				final CommonUserDetailsAware<ObjectId> selfGuardian) throws Throwable {
 		
 		
-		// Get Conversation
-		ConversationDTO conversation = conversationService.getConversationByKidIdAndGuardianId(new ObjectId(kid), 
-				selfGuardian.getUserId());
+		// Get All Conversation for self user id
+		final Iterable<ConversationDTO> conversationList = conversationService
+				.getConversationsByMemberId(selfGuardian.getUserId());
 		
-		// Create conversation
-		if(conversation == null)
-			conversation = conversationService.createConversation(selfGuardian.getUserId(), 
-					new ObjectId(kid));
+		// check if empty
+		if(Iterables.size(conversationList) == 0)
+			throw new NoConversationFoundException();
 		
-		if(conversation == null)
-			throw new MessageNotAllowedException();
+		// Create and send response
+		return ApiHelper.<Iterable<ConversationDTO>>createAndSendResponse(ConversationResponseEnum.ALL_SELF_CONVERSATIONS, 
+	    		HttpStatus.OK, conversationList);
+	
+    }
+	
+	
+	/**
+	 * Get All Conversation for authenticated user
+	 * @param id
+	 * @return
+	 */
+	@RequestMapping(value = "/members/{member}", method = RequestMethod.GET)
+	@PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole()"
+			+ "&& @authorizationService.isYourGuardianAndCanEditKidInformation(#member) )")
+    @ApiOperation(value = "GET_ALL_CONVERSATIONS_FOR_MEMBER", 
+    	nickname = "GET_ALL_CONVERSATIONS_FOR_MEMBER", notes = "Get All Conversation for member",
+    	response = Iterable.class)
+    public ResponseEntity<APIResponse<Iterable<ConversationDTO>>> getAllConversationsForMember(
+    		@ApiParam(name= "member", value = "Member Identifier", required = true)
+				@Valid @ValidObjectId(message = "{no.valid.object.id}")
+		 			@PathVariable String member) throws Throwable {
+	
 		
-		// Save Message
-		final MessageDTO messageDTO = 
-				conversationService.saveMessage(new ObjectId(conversation.getIdentity()),
-						message);
-				
-		// Create and Send response
-		return ApiHelper.<MessageDTO>createAndSendResponse(ConversationResponseEnum.MESSAGE_SUCCESSFULLY_CREATED, 
-				HttpStatus.OK, messageDTO);
+		// Get All Conversation for member
+		final Iterable<ConversationDTO> conversationList = conversationService
+				.getConversationsByMemberId(new ObjectId(member));
+		
+		// check if empty
+		if(Iterables.size(conversationList) == 0)
+			throw new NoConversationFoundException();
+		
+		// Create and send response
+		return ApiHelper.<Iterable<ConversationDTO>>createAndSendResponse(ConversationResponseEnum.ALL_SELF_CONVERSATIONS, 
+	    		HttpStatus.OK, conversationList);
+	
     }
 	
 	/**
-	 * Get Conversation detail by Guardian and kid
-	 * @param guardian
-	 * @param kid
+	 * Get Conversation detail
+	 * @param memberOne
+	 * @param memberTwo
 	 * @return
 	 */
-	@RequestMapping(value = "/{guardian}/{kid}", method = RequestMethod.GET)
+	@RequestMapping(value = "/members/{memberOne}/{memberTwo}", method = RequestMethod.GET)
 	@PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-			+ "&& @authorizationService.isYourGuardian(#guardian, #kid) )")
+			+ "&& @authorizationService.checkIfTheyCanTalk(#memberOne, #memberTwo) )")
     @ApiOperation(value = "GET_CONVERSATION_DETAIL", 
     	nickname = "GET_CONVERSATION_DETAIL", notes = "Get Conversation Detail",
     	response = ConversationDTO.class)
-    public ResponseEntity<APIResponse<ConversationDTO>> getConversationDetailByGuardianAndKid(
-    		@ApiParam(name= "guardian", value = "Guardian Identifier", 
+    public ResponseEntity<APIResponse<ConversationDTO>> getConversationDetailForMembers(
+    		@ApiParam(name= "memberOne", value = "Member One Identifier", 
 				required = true)
-    		@Valid @GuardianShouldExists(message = "{guardian.id.notvalid}")
- 				@PathVariable String guardian,
-    		@ApiParam(name= "kid", value = "Kid Identifier", 
+    		@Valid @ValidObjectId(message = "{no.valid.object.id}")
+ 				@PathVariable String memberOne,
+    		@ApiParam(name= "memberTwo", value = "Member Two Identifier", 
     				required = true)
-				@Valid @KidShouldExists(message = "{kid.id.notvalid}")
-		 			@PathVariable String kid) throws Throwable {
-		
-		logger.debug("Get Conversation by kid -> " + kid + " ad guardian -> " + guardian);
-		
+				@Valid @ValidObjectId(message = "{no.valid.object.id}")
+		 			@PathVariable String memberTwo) throws Throwable {
+
+		// Get Conversation For Members
 		return Optional.ofNullable(conversationService
-				.getConversationByKidIdAndGuardianId(new ObjectId(kid), new ObjectId(guardian)))
+				.getConversationForMembers(new ObjectId(memberOne), new ObjectId(memberTwo)))
 				.map(conversationDTO -> ApiHelper.<ConversationDTO>createAndSendResponse(ConversationResponseEnum.CONVERSATION_DETAIL, 
     		HttpStatus.OK, conversationDTO))
 				.orElseThrow(() -> { throw new ConversationNotFoundException(); });
-		
-		
+
     }
 	
 	
 	/**
-	 * Get Conversation Messages By Kid
-	 * @param id
+	 * Create Conversation
+	 * @param memberOne
+	 * @param memberTwo
 	 * @return
 	 */
-	@RequestMapping(value = "/{guardian}/{kid}/messages", method = RequestMethod.GET)
+	@RequestMapping(value = "/members/{memberOne}/{memberTwo}", method = RequestMethod.POST)
 	@PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-			+ "&& @authorizationService.isYourGuardian(#guardian, #kid) )")
-    @ApiOperation(value = "GET_CONVERSATION_MESSAGES", 
-    	nickname = "GET_CONVERSATION_MESSAGES", notes = "Get Conversation Messages",
-    	response = Iterable.class)
-    public ResponseEntity<APIResponse<Iterable<MessageDTO>>> getConversationMessagesByKidAndGuardian(
-    		@ApiParam(name= "guardian", value = "Guardian Identifier", 
+			+ "&& @authorizationService.checkIfTheyCanTalk(#memberOne, #memberTwo) )")
+    @ApiOperation(value = "CREATE_CONVERSATION_FOR_MEMBERS", 
+    	nickname = "CREATE_CONVERSATION_FOR_MEMBERS", notes = "Create Conversation for members",
+    	response = ConversationDTO.class)
+    public ResponseEntity<APIResponse<ConversationDTO>> createConversationForMembers(
+    		@ApiParam(name= "memberOne", value = "Member One Identifier", 
 				required = true)
-    		@Valid @GuardianShouldExists(message = "{guardian.id.notvalid}")
-				@PathVariable String guardian,
-    		@ApiParam(name= "kid", value = "Kid Identifier", 
+    		@Valid @ValidObjectId(message = "{no.valid.object.id}")
+ 				@PathVariable String memberOne,
+    		@ApiParam(name= "memberTwo", value = "Member Two Identifier", 
     				required = true)
-				@Valid @KidShouldExists(message = "{kid.id.notvalid}")
-		 		@PathVariable String kid) throws Throwable {
+				@Valid @ValidObjectId(message = "{no.valid.object.id}")
+		 			@PathVariable String memberTwo) throws Throwable {
 		
-		logger.debug("Get Conversation Messages for kid -> " + kid + " and guardian -> "+ guardian);
+		// Find Conversation To Delete
+		final ConversationDTO conversationSavedDTO = Optional.ofNullable(conversationService.getConversationForMembers(
+						new ObjectId(memberOne), new ObjectId(memberTwo)))
+				.orElseGet(() -> conversationService.createConversation(
+						new ObjectId(memberOne), new ObjectId(memberTwo)));
+
+		// Create And Send Response
+		return ApiHelper.<ConversationDTO>createAndSendResponse(ConversationResponseEnum.CONVERSATION_DETAIL, 
+	    		HttpStatus.OK, conversationSavedDTO);
+
+    }
+	
+	/**
+	 * Delete Conversation For Members
+	 * @param memberOne
+	 * @param memberTwo
+	 * @return
+	 */
+	@RequestMapping(value = "/members/{memberOne}/{memberTwo}", method = RequestMethod.DELETE)
+	@PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+			+ "&& @authorizationService.checkIfTheyCanTalk(#memberOne, #memberTwo) )")
+    @ApiOperation(value = "DELETE_CONVERSATION_FOR_MEMBERS", 
+    	nickname = "DELETE_CONVERSATION_FOR_MEMBERS", notes = "Delete Conversation For Members",
+    	response = String.class)
+    public ResponseEntity<APIResponse<String>> deleteConversationForMembers(
+    		@ApiParam(name= "memberOne", value = "Member One Identifier", 
+				required = true)
+    		@Valid @ValidObjectId(message = "{no.valid.object.id}")
+				@PathVariable String memberOne,
+    		@ApiParam(name= "memberTwo", value = "Member Two Identifier", 
+    				required = true)
+				@Valid @ValidObjectId(message = "{no.valid.object.id}")
+		 			@PathVariable String memberTwo) throws Throwable {
+
+		// Find Conversation To Delete
+		final ConversationDTO conversationToDelete = Optional.ofNullable(conversationService.getConversationForMembers(
+				new ObjectId(memberOne), new ObjectId(memberTwo)))
+			.orElseThrow(() -> { throw new ConversationNotFoundException(); });
+		
+		// Delete Conversation
+		conversationService.delete(new ObjectId(conversationToDelete.getIdentity()));
+		
+		// Create and Send response
+		return ApiHelper.<String>createAndSendResponse(ConversationResponseEnum.CONVERSATION_SUCCESSFULLY_DELETED, 
+	    		HttpStatus.OK, this.messageSourceResolver.resolver("conversation.deleted"));
+	
+    }
+	
+	
+	/**
+	 * Get Conversation Messages For Members
+	 * @param memberOne
+	 * @param memberTwo
+	 * @return
+	 */
+	@RequestMapping(value = "/members/{memberOne}/{memberTwo}/messages", method = RequestMethod.GET)
+	@PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+			+ "&& @authorizationService.checkIfTheyCanTalk(#memberOne, #memberTwo) )")
+    @ApiOperation(value = "GET_CONVERSATION_MESSAGES_FOR_MEMBERS", 
+    	nickname = "GET_CONVERSATION_MESSAGES_FOR_MEMBERS", notes = "Get Conversation Messages For Members",
+    	response = Iterable.class)
+    public ResponseEntity<APIResponse<Iterable<MessageDTO>>> getConversationMessagesForMembers(
+    		@ApiParam(name= "memberOne", value = "Member One Identifier", 
+				required = true)
+    		@Valid @ValidObjectId(message = "{no.valid.object.id}")
+				@PathVariable String memberOne,
+    		@ApiParam(name= "memberTwo", value = "Member Two Identifier", 
+    				required = true)
+				@Valid @ValidObjectId(message = "{no.valid.object.id}")
+		 		@PathVariable String memberTwo) throws Throwable {
+		
+		// Find Conversation
+		final ConversationDTO conversationDTO = Optional.ofNullable(conversationService.getConversationForMembers(
+						new ObjectId(memberOne), new ObjectId(memberTwo)))
+					.orElseThrow(() -> { throw new ConversationNotFoundException(); });
+		
 		// Get Conversation Messages
 		final Iterable<MessageDTO> messageList = conversationService
-				.getConversationMessagesByKidIdAndGuardianId(new ObjectId(kid),
-						new ObjectId(guardian));
+				.getConversationMessages(new ObjectId(conversationDTO.getIdentity()));
 		
 		if(Iterables.size(messageList) == 0)
 			throw new NoMessagesFoundException();
 		
 		// Create and Send response
-		return ApiHelper.<Iterable<MessageDTO>>createAndSendResponse(ConversationResponseEnum.CONVERSATION_SUCCESSFULLY_DELETED, 
+		return ApiHelper.<Iterable<MessageDTO>>createAndSendResponse(ConversationResponseEnum.ALL_CONVERSATION_MESSAGES, 
 			    		HttpStatus.OK, messageList);
 		
 		
     }
 	
-	
 	/**
-	 * Delete Conversation by Guardian and kid
-	 * @param id
+	 * Delete Conversation Messages for members
+	 * @param memberOne
+	 * @param memberTwo
 	 * @return
 	 */
-	@RequestMapping(value = "/{guardian}/{kid}", method = RequestMethod.DELETE)
+	@RequestMapping(value = "/members/{memberOne}/{memberTwo}/messages", method = RequestMethod.DELETE)
 	@PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-			+ "&& @authorizationService.isYourGuardian(#guardian, #kid) )")
-    @ApiOperation(value = "DELETE_CONVERSATION", 
-    	nickname = "DELETE_CONVERSATION", notes = "Delete Conversation",
-    	response = String.class)
-    public ResponseEntity<APIResponse<String>> deleteConversationByGuardianAndKid(
-    		@ApiParam(name= "guardian", value = "Guardian Identifier", 
-				required = true)
-    		@Valid @GuardianShouldExists(message = "{guardian.id.notvalid}")
-				@PathVariable String guardian,
-    		@ApiParam(name= "kid", value = "kid Identifier", 
-    				required = true)
-				@Valid @KidShouldExists(message = "{kid.id.notvalid}")
-		 			@PathVariable String kid) throws Throwable {
-		
-		logger.debug("Delete Conversation by kid -> " + kid + " and guardian -> " + guardian);
-		
-		// Delete Conversation By Kid and Guardian Id
-		conversationService.deleteByKidIdAndGuardianId(new ObjectId(kid),
-				new ObjectId(guardian));
-		
-		// Create and Send response
-		return ApiHelper.<String>createAndSendResponse(ConversationResponseEnum.CONVERSATION_SUCCESSFULLY_DELETED, 
-	    		HttpStatus.OK, this.messageSourceResolver.resolver("conversation.deleted"));
-		
-		
-    }
-	
-	
-	/**
-	 * Delete All Conversation Messages by kid 
-	 * @param id
-	 * @return
-	 */
-	@RequestMapping(value = "/{guardian}/{kid}/messages", method = RequestMethod.DELETE)
-	@PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-			+ "&& @authorizationService.isYourGuardian(#guardian, #kid) )")
+			+ "&& @authorizationService.checkIfTheyCanTalk(#memberOne, #memberTwo) )")
     @ApiOperation(value = "DELETE_CONVERSATION_MESSAGES", 
     	nickname = "DELETE_CONVERSATION_MESSAGES", notes = "Delete Conversation Messages",
     	response = String.class)
-    public ResponseEntity<APIResponse<String>> deleteConversationMessagesByKidAndGuardian(
-    		@ApiParam(name= "guardian", value = "Guardian Identifier", 
+    public ResponseEntity<APIResponse<String>> deleteConversationsMessagesForMembers(
+    		@ApiParam(name= "memberOne", value = "Member One Identifier", 
 				required = true)
-			@Valid @GuardianShouldExists(message = "{guardian.id.notvalid}")
-				@PathVariable String guardian,
-    		@ApiParam(name= "kid", value = "kid Identifier", 
+			@Valid @ValidObjectId(message = "{no.valid.object.id}")
+				@PathVariable String memberOne,
+    		@ApiParam(name= "memberTwo", value = "Member Two Identifier", 
     				required = true)
-				@Valid @KidShouldExists(message = "{kid.id.notvalid}")
-		 		@PathVariable String kid,
+				@Valid @ValidObjectId(message = "{no.valid.object.id}")
+		 		@PathVariable String memberTwo,
 		 	@ApiParam(value = "messages", required = false) 
     			@RequestParam(name="messages" , required=false)
 					 final ValidList<ObjectId> messagesIds) throws Throwable {
 
-		logger.debug("Delete all messages for kid -> " + kid );
+		// Find Conversation
+		final ConversationDTO conversationDTO = Optional.ofNullable(conversationService.getConversationForMembers(
+					new ObjectId(memberOne), new ObjectId(memberTwo)))
+					.orElseThrow(() -> { throw new ConversationNotFoundException(); });
 		
 		if(messagesIds != null &&
 				!messagesIds.isEmpty())
-			conversationService.deleteConversationMessagesByKidIdAndGuardianId(new ObjectId(kid), 
-					new ObjectId(guardian), messagesIds);
+			conversationService.deleteConversationMessages(new ObjectId(conversationDTO.getIdentity()), messagesIds);
 		else
 			// Delete All Conversation Messages
-			conversationService.deleteAllConversationMessagesByKidIdAndGuardianId(new ObjectId(kid),
-					new ObjectId(guardian));
+			conversationService.deleteAllConversationMessages(new ObjectId(conversationDTO.getIdentity()));
 		
 		// Create and Send response
 		return ApiHelper.<String>createAndSendResponse(ConversationResponseEnum.ALL_CONVERSATION_MESSAGES_SUCCESSFULLY_DELETED, 
@@ -555,50 +470,47 @@ public class ConversationController extends BaseController {
 	
 	/**
 	 * Add Message
-	 * @param id
+	 * @param memberOne
+	 * @param memberTwo
 	 * @return
 	 */
-	@RequestMapping(value = "/{guardian}/{kid}/messages", method = RequestMethod.POST)
+	@RequestMapping(value = "/members/{memberOne}/{memberTwo}/messages", method = RequestMethod.POST)
 	@PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-			+ "&& @authorizationService.isYourGuardian(#guardian, #kid) )")
+			+ "&& @authorizationService.checkIfTheyCanTalk(#memberOne, #memberTwo) )")
     @ApiOperation(value = "ADD_MESSAGE", 
     	nickname = "ADD_MESSAGE", notes = "Add Message",
-    	response = String.class)
+    	response = MessageDTO.class)
     public ResponseEntity<APIResponse<MessageDTO>> addMessage(
-    		@ApiParam(name= "guardian", value = "Guardian Identifier", 
+    		@ApiParam(name= "memberOne", value = "Member One Identifier", 
 				required = true)
-			@Valid @GuardianShouldExists(message = "{guardian.id.notvalid}")
-				@PathVariable String guardian,
-    		@ApiParam(name= "kid", value = "kid Identifier", 
+			@Valid @ValidObjectId(message = "{no.valid.object.id}")
+				@PathVariable String memberOne,
+    		@ApiParam(name= "memberTwo", value = "Member Two Identifier", 
     				required = true)
-				@Valid @KidShouldExists(message = "{kid.id.notvalid}")
-		 		@PathVariable String kid,
+				@Valid @ValidObjectId(message = "{no.valid.object.id}")
+		 		@PathVariable String memberTwo,
 		 	@ApiParam(value = "message", required = true) 
 				@Validated(ICommonSequence.class) 
 					@RequestBody final AddMessageDTO message) throws Throwable {
 		
-		
-		// Get Conversation
-		ConversationDTO conversation = conversationService.getConversationByKidIdAndGuardianId(new ObjectId(kid), 
-				new ObjectId(guardian));
-		
-		// Create conversation
-		if(conversation == null)
-			conversation = conversationService.createConversation(new ObjectId(guardian), 
-					new ObjectId(kid));
-		
-		if(conversation == null)
-			throw new MessageNotAllowedException();
+		// Find Conversation
+		final ConversationDTO conversationDTO = Optional.ofNullable(conversationService.getConversationForMembers(
+							new ObjectId(memberOne), new ObjectId(memberTwo)))
+					.orElseThrow(() -> { throw new ConversationNotFoundException(); });
+	
 		
 		// Save Message
 		final MessageDTO messageDTO = 
-				conversationService.saveMessage(new ObjectId(conversation.getIdentity()),
+				conversationService.saveMessage(new ObjectId(conversationDTO.getIdentity()),
 						message);
 				
 		// Create and Send response
 		return ApiHelper.<MessageDTO>createAndSendResponse(ConversationResponseEnum.MESSAGE_SUCCESSFULLY_CREATED, 
 				HttpStatus.OK, messageDTO);
     }
+	
+
+
 	
 	/**
 	 * 

@@ -38,38 +38,49 @@ public class ConversationEntity {
     private Date updateAt = new Date();
     
     /**
-     * Supervised Children
+     * Member One
      */
-    @Field("supervised_children")
     @DBRef
-    private SupervisedChildrenEntity supervisedChildrenEntity;
+    @Field("member_one")
+    private PersonEntity memberOne;
+    
+    
+    /**
+     * Member Two
+     */
+    @DBRef
+    @Field("member_two")
+    private PersonEntity memberTwo;
+    
 
-    
-    
     public ConversationEntity() {}
     
     /**
      * 
      * @param createAt
      * @param updateAt
-     * @param supervisedChildrenEntity
+     * @param memberOne
+     * @param memberTwo
      */
     @PersistenceConstructor
-	public ConversationEntity(Date createAt, Date updateAt, SupervisedChildrenEntity supervisedChildrenEntity) {
+	public ConversationEntity(final Date createAt, final Date updateAt, 
+			final PersonEntity memberOne, final PersonEntity memberTwo) {
 		super();
 		this.createAt = createAt;
 		this.updateAt = updateAt;
-		this.supervisedChildrenEntity = supervisedChildrenEntity;
+		this.memberOne = memberOne;
+		this.memberTwo = memberTwo;
 	}
 
     /**
-     * 
-     * @param supervisedChildrenEntity
+     * @param memberOne
+     * @param memberTwo
      */
-    public ConversationEntity(final SupervisedChildrenEntity supervisedChildrenEntity) {
-    	this.supervisedChildrenEntity = supervisedChildrenEntity;
+    public ConversationEntity(final PersonEntity memberOne, final PersonEntity memberTwo) {
+    	this.memberOne = memberOne;
+    	this.memberTwo = memberTwo;
     }
-    
+
 	public ObjectId getId() {
 		return id;
 	}
@@ -82,8 +93,12 @@ public class ConversationEntity {
 		return updateAt;
 	}
 
-	public SupervisedChildrenEntity getSupervisedChildrenEntity() {
-		return supervisedChildrenEntity;
+	public PersonEntity getMemberOne() {
+		return memberOne;
+	}
+
+	public PersonEntity getMemberTwo() {
+		return memberTwo;
 	}
 
 	public void setId(ObjectId id) {
@@ -98,8 +113,17 @@ public class ConversationEntity {
 		this.updateAt = updateAt;
 	}
 
-	public void setSupervisedChildrenEntity(SupervisedChildrenEntity supervisedChildrenEntity) {
-		this.supervisedChildrenEntity = supervisedChildrenEntity;
+	public void setMemberOne(PersonEntity memberOne) {
+		this.memberOne = memberOne;
 	}
 
+	public void setMemberTwo(PersonEntity memberTwo) {
+		this.memberTwo = memberTwo;
+	}
+
+	@Override
+	public String toString() {
+		return "ConversationEntity [id=" + id + ", createAt=" + createAt + ", updateAt=" + updateAt + ", memberOne="
+				+ memberOne + ", memberTwo=" + memberTwo + "]";
+	}
 }

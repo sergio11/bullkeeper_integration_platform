@@ -55,7 +55,9 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
                 @SuppressWarnings("unchecked")
                 CommonUserDetailsAware<Long> userDetails = (CommonUserDetailsAware<Long>) this.userDetailsService.loadUserByUsername(username);
                 
-                if (!userDetails.isPendingDelete() && jwtTokenUtil.validateToken(authToken, userDetails)) {
+                if (!userDetails.isPendingDelete() && userDetails.isEnabled() && 
+                		userDetails.isAccountNonExpired()
+                		&& jwtTokenUtil.validateToken(authToken, userDetails)) {
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     logger.info("authenticated user " + username + ", setting security context");

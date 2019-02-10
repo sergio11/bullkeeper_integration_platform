@@ -17,12 +17,6 @@ public interface IConversationService {
 	
 	
 	/**
-	 * Get All Conversations Of Guardian
-	 * @param guardian
-	 */
-	Iterable<ConversationDTO> getAllConversationsOfGuardian(final ObjectId guardian);
-	
-	/**
 	 * Get Conversation Detail
 	 * @param guardian
 	 * @return
@@ -30,22 +24,27 @@ public interface IConversationService {
 	ConversationDTO getConversationDetail(final ObjectId conversationId);
 	
 	/**
+	 * Get Conversations By Member Id
+	 * @param id
+	 * @return
+	 */
+	Iterable<ConversationDTO> getConversationsByMemberId(final ObjectId id);
+	
+	
+	/**
+	 * Get Conversation For Members
+	 * @param memberOne
+	 * @param memberTwo
+	 * @return
+	 */
+	ConversationDTO getConversationForMembers(final ObjectId memberOne, final ObjectId memberTwo);
+	
+	/**
 	 * Delete
 	 * @param id
 	 */
 	void delete(final ObjectId id);
 	
-	/**
-	 * Delete by guardian id
-	 * @param id
-	 */
-	void deleteByGuardianId(final ObjectId guardian);
-	
-	/**
-	 * Delete By Kid Id And Guardian Id
-	 * @param kid
-	 */
-	void deleteByKidIdAndGuardianId(final ObjectId kid, final ObjectId guardian);
 	
 	/**
 	 * Get Conversation Messages
@@ -61,46 +60,14 @@ public interface IConversationService {
 	void deleteAllConversationMessages(final ObjectId conversationId);
 	
 	/**
-	 * Delete All Conversation Messages
-	 * @param kid
-	 * @param guardian
-	 */
-	void deleteAllConversationMessagesByKidIdAndGuardianId(final ObjectId kid, final ObjectId guardian);
-	
-	
-	/**
 	 * Delete Conversation Messages
 	 * @param conversationId
 	 * @param messageIds
 	 */
 	void deleteConversationMessages(final ObjectId conversationId, final List<ObjectId> messageIds);
+
 	
-	/**
-	 * Delete Conversation Messages
-	 * @param kid
-	 * @param guardian
-	 * @param messageIds
-	 */
-	void deleteConversationMessagesByKidIdAndGuardianId(final ObjectId kid, final ObjectId guardian, final List<ObjectId> messageIds);
-	
-	
-	/**
-	 * Get Conversation By Kid and GUardian
-	 * @param kid
-	 * @param guardian
-	 * @return
-	 */
-	ConversationDTO getConversationByKidIdAndGuardianId(final ObjectId kid, final ObjectId guardian);
-	
-	
-	/**
-	 * Get Conversation Messages by Kid id and guardian id
-	 * @param kid
-	 * @param guardian
-	 * @return
-	 */
-	Iterable<MessageDTO> getConversationMessagesByKidIdAndGuardianId(final ObjectId kid, final ObjectId guardian);
-	
+
 	/**
 	 * Save Message
 	 * @param conversationId
@@ -111,10 +78,18 @@ public interface IConversationService {
 	
 	/**
 	 * Create Conversation
-	 * @param guardian
-	 * @param kid
+	 * @param memberOne
+	 * @param memberTwo
 	 * @return
 	 */
-	ConversationDTO createConversation(final ObjectId guardian, final ObjectId kid);
+	ConversationDTO createConversation(final ObjectId memberOne, final ObjectId memberTwo);
+	
+	/**
+	 * Get Conversation Messages For Members
+	 * @param memberOne
+	 * @param memberTwo
+	 * @return
+	 */
+	Iterable<MessageDTO> getConversationMessagesForMembers(final ObjectId memberOne, final ObjectId memberTwo);
 	
 }

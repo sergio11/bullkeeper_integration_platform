@@ -16,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import io.jsonwebtoken.lang.Assert;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IAuthorizationService;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ConversationEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.GuardianEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.GuardianRolesEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.KidEntity;
@@ -259,35 +260,7 @@ public class AuthorizationServiceImpl implements IAuthorizationService {
 		return userDetails.getUserId();
 	}
 	
-	/**
-	 * Is Your Conversation
-	 */
-	@Override
-	public Boolean isYourConversation(String id) {
-		boolean isAllowed = Boolean.FALSE;
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (!(auth instanceof AnonymousAuthenticationToken)) {
-        	CommonUserDetailsAware<ObjectId> userDetails = (CommonUserDetailsAware<ObjectId>) auth.getPrincipal();
-        	if(id != null && !id.isEmpty() && ObjectId.isValid(id)) {
-        		
-        		// Get Supervised Children
-        		final List<SupervisedChildrenEntity> supervisedChildrenListSaved =
-        					supervisedChildrenRepository.findByGuardianId(userDetails.getUserId());
-        		
-        		if(supervisedChildrenListSaved != null 
-        				&& !supervisedChildrenListSaved.isEmpty()) {
-        			
-        			isAllowed = conversationRepository
-        					.countByIdAndSupervisedChildrenEntityIdIn(new ObjectId(id), supervisedChildrenListSaved
-        							.stream().map(model -> model.getId()).collect(Collectors.toList())) > 0;
-        		}
-        		
-        	}
 
-        }
-        return isAllowed;
-	}
-	
 	/**
 	 * Is Your Guardian
 	 */
@@ -308,6 +281,92 @@ public class AuthorizationServiceImpl implements IAuthorizationService {
             
         }
         return isYourGuardian;
+	}
+	
+	/**
+	 * Is Member of the conversation
+	 * @param id
+	 */
+	@Override
+	public Boolean isMemberOfTheConversation(final String id) {
+		Assert.notNull(id, "Id can not be null");
+		boolean isMember = Boolean.FALSE;
+		final Authentication auth = 
+				SecurityContextHolder.getContext().getAuthentication();
+        if (!(auth instanceof AnonymousAuthenticationToken) 
+        		&& ObjectId.isValid(id)) {
+        	
+        	final ConversationEntity conversation = 
+        			conversationRepository.findOne(new ObjectId(id));
+        	
+        	if(conversation != null) {
+        		
+        		CommonUserDetailsAware<ObjectId> userDetails = (CommonUserDetailsAware<ObjectId>) auth.getPrincipal();
+        		
+        		isMember = conversation.getMemberOne().getId().equals(userDetails.getUserId()) || 
+        				conversation.getMemberTwo().getId().equals(userDetails.getUserId());
+        	}
+        
+            
+        }
+        return isMember;
+	}
+
+	/**
+	 * Check If they can talk
+	 * @param memberOne
+	 * @param memberTwo
+	 */
+	@Override
+	public Boolean checkIfTheyCanTalk(final String memberOne, final String memberTwo) {
+		Assert.notNull(memberOne, "Member One can not be null");
+		Assert.notNull(memberTwo, "Member Two can not be null");
+		
+		boolean canTalk = Boolean.FALSE;
+		final Authentication auth = 
+				SecurityContextHolder.getContext().getAuthentication();
+        if (!(auth instanceof AnonymousAuthenticationToken) 
+        		&& ObjectId.isValid(memberOne) && ObjectId.isValid(memberTwo) ) {
+        	
+        	
+        	boolean memberOneIsGuardian = 
+        			guardianRepository.countById(new ObjectId(memberOne)) > 0;
+        	boolean memberTwoIsGuardian = 
+                	guardianRepository.countById(new ObjectId(memberTwo)) > 0;
+                		
+            if(memberOneIsGuardian && memberTwoIsGuardian) {
+            	
+            	logger.debug("CAN_TALK: Member one and member two are guardians");
+            	final GuardianEntity memberOneEntity = guardianRepository.findOne(new ObjectId(memberOne));
+            	final GuardianEntity memberTwoEntity = guardianRepository.findOne(new ObjectId(memberTwo));
+            	canTalk = memberOneEntity.isVisible() && memberTwoEntity.isVisible();
+            } else {
+            	
+            	final ObjectId guardianId = memberOneIsGuardian ? new ObjectId(memberOne): new ObjectId(memberTwo);
+            	final ObjectId kidId = memberOneIsGuardian ? new ObjectId(memberTwo): new ObjectId(memberOne);
+            	
+            	logger.debug("CAN_TALK: Guardian Id -> " + guardianId.toString());
+            	logger.debug("CAN_TALK: Kid Id -> " + kidId.toString());
+            	
+            	// Get Supervised Children
+        		final List<SupervisedChildrenEntity> supervisedChildrenListSaved =
+        					supervisedChildrenRepository.findByGuardianId(guardianId);
+        		
+        		logger.debug("CAN_TALK: Total supervised childs -> " + supervisedChildrenListSaved.size());
+        		
+        		canTalk = supervisedChildrenListSaved != null 
+        				&& !supervisedChildrenListSaved.isEmpty() &&
+        				supervisedChildrenListSaved
+							.stream().map(model -> model.getKid().getId())
+							.collect(Collectors.toList()).contains(kidId);
+        		
+            	
+            }
+            
+        } else {
+        	logger.debug("CAN_TALK:NO valid");
+        }
+		return canTalk;
 	}
 
     /**

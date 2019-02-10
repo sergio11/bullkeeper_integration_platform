@@ -1,9 +1,7 @@
 package sanchez.sanchez.sergio.bullkeeper.domain.service.impl;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-
+import java.util.Optional;
 import javax.annotation.PostConstruct;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
@@ -11,15 +9,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IConversationService;
+import sanchez.sanchez.sergio.bullkeeper.exception.ConversationMemberNotExistsException;
 import sanchez.sanchez.sergio.bullkeeper.mapper.ConversationEntityMapper;
+import sanchez.sanchez.sergio.bullkeeper.mapper.ConversationMessageEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ConversationEntity;
-import sanchez.sanchez.sergio.bullkeeper.persistence.entity.GuardianEntity;
-import sanchez.sanchez.sergio.bullkeeper.persistence.entity.KidEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.MessageEntity;
-import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SupervisedChildrenEntity;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.PersonEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.ConversationRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.GuardianRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.KidRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.MessageRepository;
-import sanchez.sanchez.sergio.bullkeeper.persistence.repository.SupervisedChildrenRepository;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.conversation.MessageSavedSSE;
 import sanchez.sanchez.sergio.bullkeeper.sse.service.ISseService;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.AddMessageDTO;
@@ -57,63 +56,47 @@ public class ConversationServiceImpl implements IConversationService {
 	private final MessageRepository messageRepository;
 	
 	/**
-	 * Supervised Children Repository
+	 * Guardian Repository
 	 */
-	private final SupervisedChildrenRepository supervisedChildrenRepository;
-
+	private final GuardianRepository guardianRepository;
 	
+	/**
+	 * Kid Repository
+	 */
+	private final KidRepository kidRepository;
+	
+	/**
+	 * Conversation Message Entity Mapper
+	 */
+	private final ConversationMessageEntityMapper conversationMessageEntityMapper;
+
 
 	/**
 	 * @param messageSseService
 	 * @param conversationRepository
 	 * @param conversationEntityMapper
 	 * @param messageRepository
-	 * @param supervisedChildrenRepository
+	 * @param guardianRepository
+	 * @param kidRepository
 	 */
 	public ConversationServiceImpl(
 			final ISseService messageSseService,
 			final ConversationRepository conversationRepository,
 			final ConversationEntityMapper conversationEntityMapper,
 			final MessageRepository messageRepository,
-			final SupervisedChildrenRepository supervisedChildrenRepository) {
+			final GuardianRepository guardianRepository,
+			final KidRepository kidRepository,
+			final ConversationMessageEntityMapper conversationMessageEntityMapper) {
 		super();
 		this.messageSseService = messageSseService;
 		this.conversationRepository = conversationRepository;
 		this.conversationEntityMapper = conversationEntityMapper;
 		this.messageRepository = messageRepository;
-		this.supervisedChildrenRepository = supervisedChildrenRepository;
+		this.guardianRepository = guardianRepository;
+		this.kidRepository = kidRepository;
+		this.conversationMessageEntityMapper = conversationMessageEntityMapper;
 	}
 	
-	/**
-	 * Get All Conversations of guardian
-	 */
-	@Override
-	public Iterable<ConversationDTO> getAllConversationsOfGuardian(final ObjectId guardian) {
-		Assert.notNull(guardian, "Guardian can not be null");
-		
-		Iterable<ConversationDTO> conversationDTOs = new ArrayList<>();
-		
-		// Get Supervised Children
-		final List<SupervisedChildrenEntity> supervisedChildrenListSaved =
-					supervisedChildrenRepository.findByGuardianId(guardian);
-		
-		if(supervisedChildrenListSaved != null 
-				&& !supervisedChildrenListSaved.isEmpty()) {
-			
-			// Get All Conversation
-			final Iterable<ConversationEntity> conversationList =
-					conversationRepository.findAllBySupervisedChildrenEntityIdIn(
-							supervisedChildrenListSaved
-							.stream().map(model -> model.getId()).collect(Collectors.toList()));
-			
-			// Transforms results
-			conversationDTOs = conversationEntityMapper.conversationEntityToConversationDTOs(conversationList);
-			
-		}
-		
-		
-		return conversationDTOs;
-	}
 
 	/**
 	 * Get Conversation Detail
@@ -137,42 +120,6 @@ public class ConversationServiceImpl implements IConversationService {
 		conversationRepository.delete(id);
 	}
 
-	/**
-	 * Delete By Guardian Id
-	 */
-	@Override
-	public void deleteByGuardianId(final ObjectId guardian) {
-		Assert.notNull(guardian, "guardian can not be null");
-		
-		// Get Supervised Children
-		final List<SupervisedChildrenEntity> supervisedChildrenListSaved =
-					supervisedChildrenRepository.findByGuardianId(guardian);
-				
-		if(supervisedChildrenListSaved != null &&
-				!supervisedChildrenListSaved.isEmpty())
-			conversationRepository
-					.deleteBySupervisedChildrenEntityIdIn(supervisedChildrenListSaved
-							.stream().map(model -> model.getId()).collect(Collectors.toList()));
-		
-	}
-	
-	/**
-	 * Delete By KId id and guardian Id
-	 */
-	@Override
-	public void deleteByKidIdAndGuardianId(final ObjectId kid, final ObjectId guardian) {
-		Assert.notNull(kid, "kid can not be null");
-		Assert.notNull(guardian, "guardian can not be null");
-		
-		// Get Supervised Children
-		final SupervisedChildrenEntity supervisedChildrenSaved =
-						supervisedChildrenRepository.findByGuardianIdAndKidId(guardian, kid);
-		
-		if(supervisedChildrenSaved != null)
-			conversationRepository
-				.deleteBySupervisedChildrenEntityId(supervisedChildrenSaved.getId());
-		
-	}
 
 	/**
 	 * Get Conversation Messages
@@ -188,10 +135,11 @@ public class ConversationServiceImpl implements IConversationService {
 		// set viewed on true
 		messagesEntities.forEach(message -> message.setViewed(true));
 		
+		// Update Messages
 		messageRepository.save(messagesEntities);
 		
 		// Map Results
-		return conversationEntityMapper.messageEntityToMessageDTOs(messagesEntities);
+		return conversationMessageEntityMapper.messageEntityToMessageDTOs(messagesEntities);
 		
 	}
 
@@ -201,108 +149,13 @@ public class ConversationServiceImpl implements IConversationService {
 	@Override
 	public void deleteAllConversationMessages(ObjectId conversationId) {
 		Assert.notNull(conversationId, "Conversation Id can not be null");
-		
 		// Delete all messages
 		messageRepository.deleteByConversationId(conversationId);
 		// Delete conversation
 		conversationRepository.delete(conversationId);
-		
 	}
 
-	/**
-	 * Delete All Conversation Messages By Kid Id And Guardian Id
-	 */
-	@Override
-	public void deleteAllConversationMessagesByKidIdAndGuardianId(final ObjectId kid, 
-			final ObjectId guardian) {
-		Assert.notNull(kid, "kid can not be null");
-		Assert.notNull(guardian, "guardian can not be null");
-		
-		// Get Supervised Children
-		final SupervisedChildrenEntity supervisedChildrenSaved =
-				supervisedChildrenRepository.findByGuardianIdAndKidId(guardian, kid);
-		
-		if(supervisedChildrenSaved != null) {
-			
-			final ConversationEntity conversationEntity = conversationRepository
-					.findBySupervisedChildrenEntityId(supervisedChildrenSaved.getId());
-			
-			if(conversationEntity != null) {
-				messageRepository.deleteByConversationId(conversationEntity.getId());
-			}
-			
-		}
-	
-	}
 
-	/**
-	 * Get Conversation By Kid Id And GUardian Id
-	 */
-	@Override
-	public ConversationDTO getConversationByKidIdAndGuardianId(final ObjectId kid, final ObjectId guardian) {
-		Assert.notNull(kid, "kid can not be null");
-		Assert.notNull(guardian, "guardian can not be null");
-		
-		ConversationDTO conversationDTO = null;
-		
-		// Get Supervised Children
-		final SupervisedChildrenEntity supervisedChildrenSaved =
-				supervisedChildrenRepository.findByGuardianIdAndKidId(guardian, kid);
-		
-		if(supervisedChildrenSaved != null) {
-			
-			final ConversationEntity conversationEntity = conversationRepository
-					.findBySupervisedChildrenEntityId(supervisedChildrenSaved.getId());
-			
-			conversationDTO = conversationEntityMapper.conversationEntityToConversationDTO(conversationEntity);
-			
-		}
-		
-		// Map Results
-		return conversationDTO;
-	}
-
-	/**
-	 * Get Conversation Message BY Kid Id And Guardian Id
-	 */
-	@Override
-	public Iterable<MessageDTO> getConversationMessagesByKidIdAndGuardianId(final ObjectId kid, final ObjectId guardian) {
-		Assert.notNull(kid, "kid can not be null");
-		Assert.notNull(guardian, "guardian can not be null");
-		
-		// Messages
-		Iterable<MessageDTO> messages = new ArrayList<>();
-		
-		// Get Supervised Children
-		final SupervisedChildrenEntity supervisedChildrenSaved =
-					supervisedChildrenRepository.findByGuardianIdAndKidId(guardian, kid);
-		
-		if(supervisedChildrenSaved != null) {
-		
-			final ConversationEntity conversationEntity = conversationRepository
-					.findBySupervisedChildrenEntityId(supervisedChildrenSaved.getId());
-			
-			if(conversationEntity != null) {
-				
-				logger.debug("Get Meesages for conversation id -> " + conversationEntity.getId().toString());
-				// Find Messages by conversation id
-				final Iterable<MessageEntity> messagesEntities = 
-						messageRepository.findByConversationId(conversationEntity.getId());
-				
-				// set viewed on true
-				messagesEntities.forEach(message -> message.setViewed(true));
-				
-				messageRepository.save(messagesEntities);
-				
-				// Map Result
-				messages = conversationEntityMapper.messageEntityToMessageDTOs(messagesEntities);
-			}
-			
-		}
-		
-		return messages;
-	}
-	
 	/**
 	 * Save Message
 	 * @param conversationId
@@ -315,33 +168,13 @@ public class ConversationServiceImpl implements IConversationService {
 		Assert.notNull(message.getFrom(), "Message From can not be null");
 		Assert.notNull(message.getTo(), "Message To can not be null");
 		
-		// Get Conversation
-		final ConversationEntity conversationEntity = 
-				conversationRepository.findOne(conversationId);
-		
-		
-		// Create Message
-		final MessageEntity messageEntity = new MessageEntity();
-		messageEntity.setConversation(conversationEntity);
-		messageEntity.setText(message.getText());
-		
-		final GuardianEntity guardianEntity = conversationEntity
-				.getSupervisedChildrenEntity().getGuardian();
-		final KidEntity kidEntity = conversationEntity
-				.getSupervisedChildrenEntity().getKid();
-		
-		if(guardianEntity.getId()
-				.equals(new ObjectId(message.getFrom()))) {
-			messageEntity.setFrom(guardianEntity);
-			messageEntity.setTo(kidEntity);
-		} else {
-			messageEntity.setFrom(kidEntity);
-			messageEntity.setTo(guardianEntity);
-		}
+		// Map To Message to save
+		final MessageEntity messageToSave = conversationMessageEntityMapper
+				.addMessageDTOToMessageEntity(message);
 		
 		// Save Message
 		final MessageEntity messageEntitySaved = messageRepository
-				.save(messageEntity);
+				.save(messageToSave);
 		
 		
 		final String idFrom = messageEntitySaved.getFrom().getId().toString();
@@ -355,35 +188,28 @@ public class ConversationServiceImpl implements IConversationService {
 		messageSseService.push(idFrom, messageSavedSSE);
 		
 		// Map results
-		return conversationEntityMapper
+		return conversationMessageEntityMapper
 				.messageEntityToMessageDTO(messageEntitySaved);
 		
 	}
 
 	/**
 	 * Create Conversation
-	 * @param guardian
-	 * @param kid
+	 * @param memberOne
+	 * @param memberTwo
 	 */
 	@Override
-	public ConversationDTO createConversation(ObjectId guardian, ObjectId kid) {
-		Assert.notNull(guardian, "Guardian can not be null");
-		Assert.notNull(kid, "Kid can not be null");
+	public ConversationDTO createConversation(final ObjectId memberOne, final ObjectId memberTwo) {
+		Assert.notNull(memberOne, "Member One can not be null");
+		Assert.notNull(memberTwo, "Member Two can not be null");
 		
-		ConversationDTO conversationDTO = null;
-		
-		// Get Supervised Children
-		final SupervisedChildrenEntity supervisedChildrenSaved =
-				supervisedChildrenRepository.findByGuardianIdAndKidId(guardian, kid);
-		
-		if(supervisedChildrenSaved != null) {
-			final ConversationEntity conversationEntitySaved = conversationRepository
-				.save(new ConversationEntity(supervisedChildrenSaved));
-			conversationDTO = conversationEntityMapper
-					.conversationEntityToConversationDTO(conversationEntitySaved);
-		}
-			
-		return conversationDTO;
+		// Save Conversation
+		final ConversationEntity conversationEntitySaved = conversationRepository
+				.save(new ConversationEntity(getPersonEntity(memberOne), getPersonEntity(memberTwo)));
+	
+		// Map Conversation
+		return conversationEntityMapper
+				.conversationEntityToConversationDTO(conversationEntitySaved);
 	}
 	
 	/**
@@ -397,41 +223,70 @@ public class ConversationServiceImpl implements IConversationService {
 		Assert.notNull(conversationId, "Conversation Id can not be null");
 		Assert.notNull(messageIds, "Message Ids can not be null");
 		
+		// Delete Conversation Messages
 		messageRepository
 			.deleteByConversationIdAndIdIn(conversationId, messageIds);
 		
 	}
-
+	
 	/**
-	 * @param kid
-	 * @param guardian
-	 * @param messageIds
+	 * Get Conversations By Member Id
 	 */
 	@Override
-	public void deleteConversationMessagesByKidIdAndGuardianId(final ObjectId kid, 
-			final ObjectId guardian, final List<ObjectId> messageIds) {
-		Assert.notNull(kid, "Kid can not be null");
-		Assert.notNull(guardian, "Guardian can not be null");
-		Assert.notNull(messageIds, "Message Ids can not be null");
+	public Iterable<ConversationDTO> getConversationsByMemberId(final ObjectId id) {
+		Assert.notNull(id, "Id can not be null");
 		
-		// Get Supervised Children
-		final SupervisedChildrenEntity supervisedChildrenSaved =
-				supervisedChildrenRepository.findByGuardianIdAndKidId(guardian, kid);
-				
-		if(supervisedChildrenSaved != null) {
-			
-			final ConversationEntity conversationEntity = conversationRepository
-					.findBySupervisedChildrenEntityId(supervisedChildrenSaved.getId());
-			
-			if(conversationEntity != null) {
-				messageRepository
-					.deleteByConversationIdAndIdIn(conversationEntity.getId(), messageIds);
-			}
-			
-		}
-			
-					
+		// Find Conversations by member
+		final Iterable<ConversationEntity> conversationList = 
+				conversationRepository.findByMemberId(id);
+		// Map Result
+		return conversationEntityMapper
+				.conversationEntityToConversationDTOs(conversationList);
 	}
+
+	/**
+	 * Get Conversation For Member
+	 */
+	@Override
+	public ConversationDTO getConversationForMembers(final ObjectId memberOne, final ObjectId memberTwo) {
+		Assert.notNull(memberOne, "Member One can not be null");
+		Assert.notNull(memberTwo, "Member Two can not be null");
+		
+		// Find Conversation For Members
+		final ConversationEntity conversationSaved = 
+				conversationRepository.findByMemberOneIdAndMemberTwoId(memberOne, memberTwo);
+		
+		return conversationEntityMapper
+				.conversationEntityToConversationDTO(conversationSaved);
+	}
+	
+	
+	/**
+	 * Get Conversation Messages For Members
+	 */
+	@Override
+	public Iterable<MessageDTO> getConversationMessagesForMembers(
+			final ObjectId memberOne, final ObjectId memberTwo) {
+		Assert.notNull(memberOne, "Member One can not be null");
+		Assert.notNull(memberTwo, "Member Two can not be null");
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	
+	/**
+	 * Map To Person
+	 * @param id
+	 * @return
+	 */
+	private PersonEntity getPersonEntity(final ObjectId id) {
+		Assert.notNull(id, "Id can not be null");
+		return Optional.ofNullable((PersonEntity)guardianRepository.findOne(id))
+				.map(Optional::of)
+				.orElseGet(() -> Optional.ofNullable((PersonEntity)kidRepository.findOne(id)))
+				.orElseThrow(() -> new ConversationMemberNotExistsException());
+	}
+
 	
 	/**
 	 * Init
@@ -442,5 +297,4 @@ public class ConversationServiceImpl implements IConversationService {
 		Assert.notNull(conversationRepository, "Conversation Repository can not be null");
 		Assert.notNull(conversationEntityMapper, "Coversation ENtity can not be null");
 	}
-
 }
