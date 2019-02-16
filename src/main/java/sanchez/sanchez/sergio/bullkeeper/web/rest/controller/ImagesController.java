@@ -52,7 +52,7 @@ public class ImagesController extends BaseController {
     }
 
     /**
-     * 
+     * Upload Guardians Profile Image
      * @param id
      * @param profileImage
      * @return
@@ -79,7 +79,7 @@ public class ImagesController extends BaseController {
     }
     
     /**
-     * 
+     * Upload Children Profile Image
      * @param id
      * @param profileImage
      * @return
@@ -105,7 +105,7 @@ public class ImagesController extends BaseController {
     }
 
     /**
-     * 
+     * Download Guardian Profile Image
      * @param id
      * @return
      * @throws IOException
@@ -123,7 +123,7 @@ public class ImagesController extends BaseController {
     }
     
     /**
-     * 
+     * Download Kid Profile Image
      * @param id
      * @return
      * @throws IOException
@@ -139,7 +139,25 @@ public class ImagesController extends BaseController {
     }
     
     /**
-     * 
+     * Download Profile Image
+     * @param id
+     * @return
+     * @throws IOException
+     */
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    @PreAuthorize("@authorizationService.hasAdminRole() || "
+    		+ "( @authorizationService.hasGuardianRole() && @authorizationService.itIsAProfileImageOfSupervisedKid(#id)) || "
+    		+ "( @authorizationService.hasGuardianRole() && (@authorizationService.isYourProfilePublic(#id) || @authorizationService.isYourProfileImage(#id) ))")
+    @ApiOperation(value = "DOWNLOAD_PROFILE_IMAGE", nickname = "DOWNLOAD_PROFILE_IMAGE", notes = "Download Profile Image")
+    public ResponseEntity<byte[]> downloadProfileImage(
+            @ApiParam(name = "id", value = "Image Identifier", required = true) 
+                @Valid @PathVariable String id) throws IOException {
+        
+        return controllerHelper.downloadProfileImage(id);
+    }
+    
+    /**
+     * Delete Guardian Profile Image
      * @param id
      * @return
      */
@@ -156,7 +174,7 @@ public class ImagesController extends BaseController {
     }
     
     /**
-     * 
+     * Delete Kid Profile Image
      * @param id
      * @return
      */

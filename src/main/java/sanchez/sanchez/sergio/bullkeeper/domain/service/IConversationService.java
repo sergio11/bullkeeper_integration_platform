@@ -30,6 +30,12 @@ public interface IConversationService {
 	 */
 	Iterable<ConversationDTO> getConversationsByMemberId(final ObjectId id);
 	
+	/**
+	 * Delete Conversations By Member Id
+	 * @param id
+	 */
+	void deleteConversationsByMemberId(final ObjectId id);
+	
 	
 	/**
 	 * Get Conversation For Members
@@ -91,5 +97,11 @@ public interface IConversationService {
 	 * @return
 	 */
 	Iterable<MessageDTO> getConversationMessagesForMembers(final ObjectId memberOne, final ObjectId memberTwo);
+	
+	/**
+	 * Mark Messages As Viewed
+	 * @param messageIds
+	 */
+	void markMessagesAsViewed(final Iterable<ObjectId> messageIds);
 	
 }

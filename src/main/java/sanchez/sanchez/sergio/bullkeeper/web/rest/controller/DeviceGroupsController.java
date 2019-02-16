@@ -46,7 +46,7 @@ import springfox.documentation.annotations.ApiIgnore;
 @RestController("RestDeviceGroupsController")
 @Validated
 @RequestMapping("/api/v1/device-groups")
-@Api(tags = "devices-groups", value = "/device-groups/", description = "Manejo de grupo de dispositivos del padre/tutor", produces = "application/json")
+@Api(tags = "devices-groups", value = "/device-groups/", description = "Parent/guardian device group management", produces = "application/json")
 public class DeviceGroupsController extends BaseController {
 
     private static Logger logger = LoggerFactory.getLogger(DeviceGroupsController.class);

@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import io.jsonwebtoken.lang.Assert;
 import io.swagger.annotations.Api;
@@ -145,6 +147,13 @@ public class ConversationController extends BaseController {
 		if(Iterables.size(messageList) == 0)
 			throw new NoMessagesFoundException();
 		
+		conversationService.markMessagesAsViewed(Iterables.<MessageDTO, ObjectId>transform(messageList, new Function<MessageDTO, ObjectId>() {
+			@Override
+			public ObjectId apply(MessageDTO message) {
+				return new ObjectId(message.getIdentity());
+			}
+		}));
+		
 		// Create and Send response
 		return ApiHelper.<Iterable<MessageDTO>>createAndSendResponse(ConversationResponseEnum.CONVERSATION_SUCCESSFULLY_DELETED, 
 			    		HttpStatus.OK, messageList);
@@ -248,6 +257,31 @@ public class ConversationController extends BaseController {
 	
     }
 	
+	/**
+	 * Delete All Conversation for self user
+	 * @param id
+	 * @return
+	 */
+	@RequestMapping(value = "/members/self", method = RequestMethod.DELETE)
+	@PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() )")
+    @ApiOperation(value = "DELETE_ALL_CONVERSATION_FOR_SELF_USER", 
+    	nickname = "DELETE_ALL_CONVERSATION_FOR_SELF_USER", notes = "Delete All Conversation for self user",
+    	response = String.class)
+    public ResponseEntity<APIResponse<String>> deleteAllConversationForSelfUser(
+    		@ApiParam(hidden = true) @CurrentUser 
+				final CommonUserDetailsAware<ObjectId> selfGuardian) throws Throwable {
+		
+		
+		// Delete All Conversation for self user id
+		conversationService
+				.deleteConversationsByMemberId(selfGuardian.getUserId());
+
+		// Create and send response
+		return ApiHelper.<String>createAndSendResponse(ConversationResponseEnum.ALL_CONVERSATION_FOR_SELF_USER_DELETED, 
+	    		HttpStatus.OK, messageSourceResolver.resolver("all.conversations.for.self.user.deleted"));
+	
+    }
+	
 	
 	/**
 	 * Get All Conversation for authenticated user
@@ -277,6 +311,32 @@ public class ConversationController extends BaseController {
 		// Create and send response
 		return ApiHelper.<Iterable<ConversationDTO>>createAndSendResponse(ConversationResponseEnum.ALL_SELF_CONVERSATIONS, 
 	    		HttpStatus.OK, conversationList);
+	
+    }
+	
+	/**
+	 * Delete All Conversation for member
+	 * @param id
+	 * @return
+	 */
+	@RequestMapping(value = "/members/{member}", method = RequestMethod.DELETE)
+	@PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() )")
+    @ApiOperation(value = "DELETE_ALL_CONVERSATION_FOR_MEMBER", 
+    	nickname = "DELETE_ALL_CONVERSATION_FOR_MEMBER", notes = "Delete All Conversation for Member",
+    	response = String.class)
+    public ResponseEntity<APIResponse<String>> deleteAllConversationForMember(
+    		@ApiParam(name= "member", value = "Member Identifier", required = true)
+			@Valid @ValidObjectId(message = "{no.valid.object.id}")
+	 			@PathVariable String member) throws Throwable {
+		
+		
+		// Delete All Conversation for member
+		conversationService
+				.deleteConversationsByMemberId(new ObjectId(member));
+
+		// Create and send response
+		return ApiHelper.<String>createAndSendResponse(ConversationResponseEnum.ALL_CONVERSATION_FOR_MEMBER_DELETED, 
+	    		HttpStatus.OK, messageSourceResolver.resolver("all.conversations.for.member.deleted"));
 	
     }
 	
@@ -416,6 +476,13 @@ public class ConversationController extends BaseController {
 		
 		if(Iterables.size(messageList) == 0)
 			throw new NoMessagesFoundException();
+		
+		conversationService.markMessagesAsViewed(Iterables.<MessageDTO, ObjectId>transform(messageList, new Function<MessageDTO, ObjectId>() {
+			@Override
+			public ObjectId apply(MessageDTO message) {
+				return new ObjectId(message.getIdentity());
+			}
+		}));
 		
 		// Create and Send response
 		return ApiHelper.<Iterable<MessageDTO>>createAndSendResponse(ConversationResponseEnum.ALL_CONVERSATION_MESSAGES, 

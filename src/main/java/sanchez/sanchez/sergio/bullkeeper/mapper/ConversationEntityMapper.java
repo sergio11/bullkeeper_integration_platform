@@ -1,5 +1,6 @@
 package sanchez.sanchez.sergio.bullkeeper.mapper;
 
+
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -31,7 +32,7 @@ public abstract class ConversationEntityMapper {
 	@Autowired
 	protected PersonEntityMapper personEntityMapper;
 	
-	
+
 	/**
 	 * 
 	 * @param conversationEntity
@@ -51,7 +52,17 @@ public abstract class ConversationEntityMapper {
         		+ ".personEntityToPersonDTO(conversationEntity.getMemberTwo()))", 
         		target = "memberTwo"),
         @Mapping(expression = "java(messageRepository.countByConversationId(conversationEntity.getId()))",
-        	target = "messagesCount")
+        	target = "messagesCount"),
+        @Mapping(expression = "java(messageRepository.countByConversationIdAndToAndViewedFalse(conversationEntity.getId(), conversationEntity.getMemberOne().getId()))",
+    		target = "pendingMessagesForMemberOne"),
+        @Mapping(expression = "java(messageRepository.countByConversationIdAndToAndViewedFalse(conversationEntity.getId(), conversationEntity.getMemberTwo().getId()))",
+    		target = "pendingMessagesForMemberTwo"),
+        @Mapping(expression = "java(messageRepository.findFirstByConversationIdAndToOrderByCreateAtDesc(conversationEntity.getId(), conversationEntity.getMemberOne().getId()))",
+    		target = "lastMessageForMemberOne"),
+        @Mapping(expression = "java(messageRepository.findFirstByConversationIdAndToOrderByCreateAtDesc(conversationEntity.getId(), conversationEntity.getMemberTwo().getId()))",
+    		target = "lastMessageForMemberTwo"),
+        @Mapping(expression = "java(messageRepository.findFirstByConversationIdOrderByCreateAtDesc(conversationEntity.getId()))",
+			target = "lastMessage")
     })
     @Named("conversationEntityToConversationDTO")
     public abstract ConversationDTO conversationEntityToConversationDTO(

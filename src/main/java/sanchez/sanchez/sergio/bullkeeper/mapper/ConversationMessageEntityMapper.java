@@ -9,6 +9,8 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import sanchez.sanchez.sergio.bullkeeper.exception.MemberNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.MessageEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.PersonEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.ConversationRepository;
@@ -58,7 +60,7 @@ public abstract class ConversationMessageEntityMapper {
 		return Optional.ofNullable((PersonEntity)guardianRepository.findOne(new ObjectId(id)))
 				.map(Optional::of)
 				.orElseGet(() -> Optional.ofNullable((PersonEntity)kidRepository.findOne(new ObjectId(id))))
-				.orElseThrow(() -> new RuntimeException(""));
+				.orElseThrow(() -> new MemberNotFoundException());
 	}
 
     /**
@@ -70,7 +72,7 @@ public abstract class ConversationMessageEntityMapper {
         @Mapping(expression="java(messageEntity.getId().toString())", 
         		target = "identity" ),
         @Mapping(source = "messageEntity.createAt", target = "createAt", 
-        	dateFormat = "yyyy/MM/dd"),
+        	dateFormat = "yyyy/MM/dd HH:mm:ss.SSS"),
         @Mapping(expression="java(messageEntity.getConversation()"
         		+ ".getId().toString())", target = "conversation"),
         @Mapping(expression="java(personEntityMapper.personEntityToPersonDTO(messageEntity.getFrom()))", 

@@ -130,13 +130,8 @@ public class ConversationServiceImpl implements IConversationService {
 		
 		// Get Message List
 		final Iterable<MessageEntity> messagesEntities = 
-				messageRepository.findByConversationId(conversationId);
+				messageRepository.findByConversationIdOrderByCreateAtDesc(conversationId);
 		
-		// set viewed on true
-		messagesEntities.forEach(message -> message.setViewed(true));
-		
-		// Update Messages
-		messageRepository.save(messagesEntities);
 		
 		// Map Results
 		return conversationMessageEntityMapper.messageEntityToMessageDTOs(messagesEntities);
@@ -151,8 +146,6 @@ public class ConversationServiceImpl implements IConversationService {
 		Assert.notNull(conversationId, "Conversation Id can not be null");
 		// Delete all messages
 		messageRepository.deleteByConversationId(conversationId);
-		// Delete conversation
-		conversationRepository.delete(conversationId);
 	}
 
 
@@ -269,10 +262,38 @@ public class ConversationServiceImpl implements IConversationService {
 			final ObjectId memberOne, final ObjectId memberTwo) {
 		Assert.notNull(memberOne, "Member One can not be null");
 		Assert.notNull(memberTwo, "Member Two can not be null");
-		// TODO Auto-generated method stub
-		return null;
+		
+		// Find Conversation For Members
+		final ConversationEntity conversationSaved = 
+				conversationRepository.findByMemberOneIdAndMemberTwoId(memberOne, memberTwo);
+		
+		final List<MessageEntity> messages = 
+				messageRepository.findByConversationIdOrderByCreateAtDesc(conversationSaved.getId());
+		
+		return conversationMessageEntityMapper
+				.messageEntityToMessageDTOs(messages);
+	}
+
+
+	/**
+	 * Delete Conversations By Member Id
+	 */
+	@Override
+	public void deleteConversationsByMemberId(final ObjectId id) {
+		Assert.notNull(id, "Id can not be null");
+		conversationRepository.deleteByMemberId(id);
 	}
 	
+	/**
+	 * Mark Messages As Viewed
+	 */
+	@Override
+	public void markMessagesAsViewed(final Iterable<ObjectId> messageIds) {
+		Assert.notNull(messageIds, "Message Ids can not be null");
+		
+		messageRepository.markMessagesAsViewed(messageIds);
+		
+	}
 	
 	/**
 	 * Map To Person
@@ -286,7 +307,6 @@ public class ConversationServiceImpl implements IConversationService {
 				.orElseGet(() -> Optional.ofNullable((PersonEntity)kidRepository.findOne(id)))
 				.orElseThrow(() -> new ConversationMemberNotExistsException());
 	}
-
 	
 	/**
 	 * Init
@@ -297,4 +317,7 @@ public class ConversationServiceImpl implements IConversationService {
 		Assert.notNull(conversationRepository, "Conversation Repository can not be null");
 		Assert.notNull(conversationEntityMapper, "Coversation ENtity can not be null");
 	}
+
+
+	
 }

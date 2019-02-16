@@ -15,6 +15,7 @@ import sanchez.sanchez.sergio.bullkeeper.exception.ConversationNotFoundException
 import sanchez.sanchez.sergio.bullkeeper.exception.MessageNotAllowedException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoConversationFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoMessagesFoundException;
+import sanchez.sanchez.sergio.bullkeeper.exception.MemberNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.ApiHelper;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.controller.BaseController;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.response.APIResponse;
@@ -98,5 +99,19 @@ public class ConversationErrorController extends BaseController {
     	return ApiHelper.<String>createAndSendErrorResponseWithHeader(ConversationResponseEnum.CONVERSATION_MEMBER_NOT_FOUND, 
     			HttpStatus.NOT_FOUND, messageSourceResolver.resolver("conversation.member.not.exists"));
     }
+    
+    
+    /**
+     * @param conversationMemberNotExistsException
+     * @param request
+     * @return
+     */
+    @ExceptionHandler(MemberNotFoundException.class)
+    @ResponseBody
+    protected ResponseEntity<APIResponse<String>> handleMemberNotFoundException(MemberNotFoundException memberNotFoundException, HttpServletRequest request) {
+    	return ApiHelper.<String>createAndSendErrorResponseWithHeader(ConversationResponseEnum.MEMBER_NOT_FOUND_EXCEPTION, 
+    			HttpStatus.NOT_FOUND, messageSourceResolver.resolver("member.not.found.exception"));
+    }
+    
     
 }

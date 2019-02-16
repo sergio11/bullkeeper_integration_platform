@@ -95,4 +95,19 @@ public final class ConversationRepositoryImpl implements ConversationRepositoryC
 		return conversationEntity;
 	}
 
+	/**
+	 * Delete By Member Id
+	 */
+	@Override
+	public void deleteByMemberId(final ObjectId id) {
+		Assert.notNull(id, "Id can not be null");
+		
+		final Criteria criteriaQuery = new Criteria();
+		criteriaQuery.orOperator(
+				Criteria.where("member_one.$id").is(id),
+				Criteria.where("member_two.$id").is(id));
+		
+		mongoTemplate.remove(new Query(criteriaQuery), ConversationEntity.class);
+	}
+
 }

@@ -1,7 +1,6 @@
 package sanchez.sanchez.sergio.bullkeeper.web.dto.request;
 
 import java.io.Serializable;
-import javax.validation.constraints.Size;
 import org.hibernate.validator.constraints.NotBlank;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ConversationShouldExists;
@@ -32,7 +31,6 @@ public final class AddMessageDTO implements Serializable {
 	 * Text
 	 */
 	@NotBlank(message = "{message.text.notnull}")
-    @Size(min = 3, max = 15, message = "{message.text.size}", groups = Extended.class)
 	@JsonProperty("text")
 	private String text;
 	

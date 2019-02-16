@@ -41,7 +41,7 @@ import springfox.documentation.annotations.ApiIgnore;
 @RestController("RestAdminController")
 @Validated
 @RequestMapping("/api/v1/admin/")
-@Api(tags = "admin", value = "/admin/", description = "Manejo de la información de los administradores", produces = "application/json")
+@Api(tags = "admin", value = "/admin/", description = "Management of information of administrators", produces = "application/json")
 public class AdminController extends BaseController {
 	
 	private static Logger logger = LoggerFactory.getLogger(AdminController.class);

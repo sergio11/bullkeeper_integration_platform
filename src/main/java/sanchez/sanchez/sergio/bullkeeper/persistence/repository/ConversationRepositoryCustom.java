@@ -17,6 +17,12 @@ public interface ConversationRepositoryCustom {
 	Iterable<ConversationEntity> findByMemberId(final ObjectId id);
 	
 	/**
+	 * Delete By Member Id
+	 * @param id
+	 */
+	void deleteByMemberId(final ObjectId id);
+	
+	/**
 	 * 
 	 * @param id
 	 * @return

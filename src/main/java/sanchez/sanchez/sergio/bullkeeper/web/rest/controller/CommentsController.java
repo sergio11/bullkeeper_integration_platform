@@ -63,7 +63,7 @@ import springfox.documentation.annotations.ApiIgnore;
 @RestController("RestCommentsController")
 @Validated
 @RequestMapping("/api/v1/comments/")
-@Api(tags = "comments", value = "/comments/", description = "Punto de Entrada para el manejo de comentarios y/o opiniones", produces = "application/json")
+@Api(tags = "comments", value = "/comments/", description = "Administration of comments and/or opinions", produces = "application/json")
 public class CommentsController extends BaseController implements ICommentHAL {
 
     private static Logger logger = LoggerFactory.getLogger(CommentsController.class);

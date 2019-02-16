@@ -13,14 +13,15 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.MessageEntity;
  */
 @Repository
 public interface MessageRepository 
-		extends MongoRepository<MessageEntity, ObjectId>{
+		extends MongoRepository<MessageEntity, ObjectId>, MessageRepositoryCustom {
 	
 	/**
 	 * 
 	 * @param id
 	 * @return
 	 */
-	List<MessageEntity> findByConversationId(final ObjectId id);
+	List<MessageEntity> findByConversationIdOrderByCreateAtDesc(final ObjectId id);
+
 	
 	/**
 	 * 
@@ -28,6 +29,8 @@ public interface MessageRepository
 	 * @return
 	 */
 	long countByConversationId(final ObjectId id);
+	
+
 		
 	/**
 	 * 

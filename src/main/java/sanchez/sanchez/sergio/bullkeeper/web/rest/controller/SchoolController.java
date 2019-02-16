@@ -54,7 +54,7 @@ import springfox.documentation.annotations.ApiIgnore;
 @Validated
 @RequestMapping("/api/v1/schools/")
 @Api(tags = "schools", value = "/schools/", 
-	description = "Manejo de la información del Colegio", 
+	description = "Administration of school information", 
 	produces = "application/json")
 public class SchoolController extends BaseController implements ISchoolHAL {
 

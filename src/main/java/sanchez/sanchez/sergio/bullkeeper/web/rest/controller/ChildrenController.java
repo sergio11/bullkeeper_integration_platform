@@ -201,7 +201,7 @@ import org.springframework.util.Assert;
 @Validated
 @RequestMapping("/api/v1/children/")
 @Api(tags = "children", value = "/children/",
-		description = "Administration of the children / adolescents of the platform", 
+		description = "Administration of the children/adolescents of the platform", 
 produces = "application/json")
 public class ChildrenController extends BaseController 
 	implements IKidHAL, ICommentHAL, ISocialMediaHAL {

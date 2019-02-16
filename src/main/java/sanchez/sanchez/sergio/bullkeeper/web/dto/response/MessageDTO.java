@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author sergiosanchezsanchez
  *
  */
-public final class MessageDTO implements Serializable {
+public class MessageDTO implements Serializable {
 
 	/**
 	 * 
