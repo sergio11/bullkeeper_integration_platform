@@ -99,9 +99,9 @@ public interface IConversationService {
 	Iterable<MessageDTO> getConversationMessagesForMembers(final ObjectId memberOne, final ObjectId memberTwo);
 	
 	/**
-	 * Mark Messages As Viewed
+	 * Set Messages As Viewed
 	 * @param messageIds
 	 */
-	void markMessagesAsViewed(final Iterable<ObjectId> messageIds);
+	void setMessagesAsViewed(final Iterable<ObjectId> messageIds);
 	
 }

@@ -37,6 +37,13 @@ public interface SupervisedChildrenRepository extends
 	 */
 	List<SupervisedChildrenEntity> findByKidId(final ObjectId id);
 	
+	/**
+	 * 
+	 * @param id
+	 * @return
+	 */
+	List<SupervisedChildrenEntity> findByKidIdAndIsConfirmedTrue(final ObjectId id);
+	
 	
 	/**
 	 * Find By Guardian Id And Role And Is Confirmed

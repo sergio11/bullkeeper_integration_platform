@@ -19,7 +19,6 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.repository.ConversationRepo
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.GuardianRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.KidRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.MessageRepository;
-import sanchez.sanchez.sergio.bullkeeper.sse.models.conversation.MessageSavedSSE;
 import sanchez.sanchez.sergio.bullkeeper.sse.service.ISseService;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.AddMessageDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ConversationDTO;
@@ -170,16 +169,6 @@ public class ConversationServiceImpl implements IConversationService {
 				.save(messageToSave);
 		
 		
-		final String idFrom = messageEntitySaved.getFrom().getId().toString();
-	
-		// Push Event
-		final MessageSavedSSE messageSavedSSE = new MessageSavedSSE(
-				idFrom, idFrom, messageEntitySaved.getText());
-		
-		logger.debug("Message Saved SSE -> " + messageSavedSSE.toString());
-		
-		messageSseService.push(idFrom, messageSavedSSE);
-		
 		// Map results
 		return conversationMessageEntityMapper
 				.messageEntityToMessageDTO(messageEntitySaved);
@@ -288,7 +277,7 @@ public class ConversationServiceImpl implements IConversationService {
 	 * Mark Messages As Viewed
 	 */
 	@Override
-	public void markMessagesAsViewed(final Iterable<ObjectId> messageIds) {
+	public void setMessagesAsViewed(final Iterable<ObjectId> messageIds) {
 		Assert.notNull(messageIds, "Message Ids can not be null");
 		
 		messageRepository.markMessagesAsViewed(messageIds);

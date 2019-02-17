@@ -147,6 +147,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.response.DimensionsStatisticsDT
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.FunTimeScheduledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.GeofenceAlertDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.GeofenceDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.GuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ImageDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidGuardianDTO;
@@ -388,6 +389,38 @@ public class ChildrenController extends BaseController
     	// Save Guardians
     	final Iterable<KidGuardianDTO> kidGuardiansDTOs = 
     			kidService.getGuardians(new ObjectId(id));
+    	
+    	if(Iterables.size(kidGuardiansDTOs) == 0)
+    		throw new NoKidGuardianFoundException();
+    	
+    	// Create and send response
+        return ApiHelper.<Iterable<KidGuardianDTO>>createAndSendResponse(ChildrenResponseCode.CHILD_GUARDIANS,
+                HttpStatus.OK, kidGuardiansDTOs);
+    	
+    }
+    
+
+    /**
+     * Get Confirmed Guardians
+     * @param id
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{id}/guardians/confirmed", method = RequestMethod.GET)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && "
+    		+ "@authorizationService.isYourGuardianAndCanEditKidInformation(#id) )")
+    @ApiOperation(value = "GET_CONFIRMED_GUARDIANS_FOR_KID", nickname = "GET_CONFIRMED_GUARDIANS_FOR_KID", 
+    	notes = "Get Confirmed Guardians for kid", response = Iterable.class)
+    public ResponseEntity<APIResponse<Iterable<KidGuardianDTO>>> getConfirmedGuardians(
+    		@ApiParam(name= "id", value = "Kid identified", required = true)
+    			@Valid @KidShouldExists(message = "{son.id.notvalid}")
+    		 		@PathVariable String id) throws Throwable {
+    	
+    	logger.debug("Get Guardians for -> " + id);
+    	
+    	// Save Guardians
+    	final Iterable<KidGuardianDTO> kidGuardiansDTOs = 
+    			kidService.getConfirmedGuardians(new ObjectId(id));
     	
     	if(Iterables.size(kidGuardiansDTOs) == 0)
     		throw new NoKidGuardianFoundException();

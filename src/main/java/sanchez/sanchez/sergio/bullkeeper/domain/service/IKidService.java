@@ -173,6 +173,13 @@ public interface IKidService {
     Iterable<KidGuardianDTO> getGuardians(final ObjectId id);
     
     /**
+     * Get Confirmed Guardians
+     * @param id
+     * @return
+     */
+    Iterable<KidGuardianDTO> getConfirmedGuardians(final ObjectId id);
+    
+    /**
      * Save Current Location
      * @param kid
      * @param location

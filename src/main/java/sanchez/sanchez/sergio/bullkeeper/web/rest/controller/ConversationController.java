@@ -17,14 +17,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import io.jsonwebtoken.lang.Assert;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IConversationService;
+import sanchez.sanchez.sergio.bullkeeper.events.conversation.AllConversationDeletedEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.conversation.AllConversationMessagesDeletedEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.conversation.ConversationDeletedEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.conversation.ConversationMessagesDeletedEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.conversation.MessageSavedEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.conversation.SetMessagesAsViewedEvent;
 import sanchez.sanchez.sergio.bullkeeper.exception.ConversationNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoConversationFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoMessagesFoundException;
@@ -68,7 +72,6 @@ public class ConversationController extends BaseController {
 		this.conversationService = conversationService;
 	}
 	
-
 	/**
 	 * Get Conversation By Id
 	 * @param id
@@ -112,14 +115,20 @@ public class ConversationController extends BaseController {
 				@Valid @ConversationShouldExists(message = "{conversation.id.notvalid}")
 		 		@PathVariable String id) throws Throwable {
 		
-		logger.debug("Delete Conversation by id -> " + id);
+		final ConversationDTO conversationDTO =  Optional.ofNullable(conversationService.getConversationDetail(new ObjectId(id)))
+				.orElseThrow(() -> { throw new ConversationNotFoundException(); });
+		
 		// Delete Conversation By Id
-		conversationService.delete(new ObjectId(id));
+		conversationService.delete(new ObjectId(conversationDTO.getIdentity()));
+		// Push Event
+    	applicationEventPublisher
+    			.publishEvent(new ConversationDeletedEvent(this, id,
+    					conversationDTO.getMemberOne().getIdentity(),
+    					conversationDTO.getMemberTwo().getIdentity()));
 		// Create and Send response
 		return ApiHelper.<String>createAndSendResponse(ConversationResponseEnum.CONVERSATION_SUCCESSFULLY_DELETED, 
 	    		HttpStatus.OK, this.messageSourceResolver.resolver("conversation.deleted"));
-		
-		
+	
     }
 	
 	/**
@@ -146,13 +155,7 @@ public class ConversationController extends BaseController {
 		
 		if(Iterables.size(messageList) == 0)
 			throw new NoMessagesFoundException();
-		
-		conversationService.markMessagesAsViewed(Iterables.<MessageDTO, ObjectId>transform(messageList, new Function<MessageDTO, ObjectId>() {
-			@Override
-			public ObjectId apply(MessageDTO message) {
-				return new ObjectId(message.getIdentity());
-			}
-		}));
+	
 		
 		// Create and Send response
 		return ApiHelper.<Iterable<MessageDTO>>createAndSendResponse(ConversationResponseEnum.CONVERSATION_SUCCESSFULLY_DELETED, 
@@ -180,15 +183,29 @@ public class ConversationController extends BaseController {
 				@RequestParam(name="messages" , required=false)
 				 	final ValidList<ObjectId> messagesIds) throws Throwable {
 		
-		logger.debug("Delete all messages for conversation -> " + id );
+		final ConversationDTO conversationDTO =  Optional.ofNullable(conversationService.getConversationDetail(new ObjectId(id)))
+				.orElseThrow(() -> { throw new ConversationNotFoundException(); });
 		
-		if(messagesIds != null && 
-				!messagesIds.isEmpty())
+		logger.debug("Delete all messages for conversation -> " + id );
+
+		if(messagesIds != null &&
+				!messagesIds.isEmpty()) {
 			conversationService.deleteConversationMessages(new ObjectId(id), messagesIds);
-		else
+			// Push Event
+	    	this.applicationEventPublisher
+	    		.publishEvent(new ConversationMessagesDeletedEvent(this, id, messagesIds,
+	    				conversationDTO.getMemberOne().getIdentity(),
+	    				conversationDTO.getMemberTwo().getIdentity()));
+		} else {
 			// Delete All Conversation Messages
 			conversationService.deleteAllConversationMessages(new ObjectId(id));
-		
+			// Push Event
+	    	this.applicationEventPublisher
+	    		.publishEvent(new AllConversationMessagesDeletedEvent(this, id,
+	    				conversationDTO.getMemberOne().getIdentity(),
+	    				conversationDTO.getMemberTwo().getIdentity()));
+		}
+	
 		// Create and Send response
 		return ApiHelper.<String>createAndSendResponse(ConversationResponseEnum.ALL_CONVERSATION_MESSAGES_SUCCESSFULLY_DELETED, 
 			HttpStatus.OK, this.messageSourceResolver.resolver("all.conversation.messages.deleted"));
@@ -196,7 +213,7 @@ public class ConversationController extends BaseController {
     }
 	
 	/**
-	 * Delete Conversation messages
+	 * Add Message
 	 * @param id
 	 * @return
 	 */
@@ -220,10 +237,54 @@ public class ConversationController extends BaseController {
 		// Save Message
 		final MessageDTO messageDTO = 
 				conversationService.saveMessage(new ObjectId(id), message);
+	
+		// Push Event
+    	this.applicationEventPublisher
+    		.publishEvent(new MessageSavedEvent(this, messageDTO));
 		
 		// Create and Send response
 		return ApiHelper.<MessageDTO>createAndSendResponse(ConversationResponseEnum.MESSAGE_SUCCESSFULLY_CREATED, 
 					HttpStatus.OK, messageDTO);
+				
+    }
+	
+	/**
+	 * Set Messages as Viewed
+	 * @param id
+	 * @return
+	 */
+	@RequestMapping(value = "/{id}/messages/viewed", method = RequestMethod.POST)
+	@PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+			+ "&& @authorizationService.isMemberOfTheConversation(#id) )")
+    @ApiOperation(value = "SET_MESSAGES_AS_VIEWED", 
+    	nickname = "SET_MESSAGES_AS_VIEWED", notes = "Set Messages As Viewed",
+    	response = String.class)
+    public ResponseEntity<APIResponse<String>> setMessagesAsViewed(
+    		@ApiParam(name= "id", value = "Conversation Identifier", 
+    				required = true)
+				@Valid @ConversationShouldExists(message = "{conversation.id.notvalid}")
+		 		@PathVariable String id,
+		 	@ApiParam(value = "message", required = true) 
+    			@Validated(ICommonSequence.class) 
+					@RequestBody
+						final ValidList<ObjectId> messagesIds) throws Throwable {
+		
+		final ConversationDTO conversationDTO =  Optional.ofNullable(conversationService.getConversationDetail(new ObjectId(id)))
+				.orElseThrow(() -> { throw new ConversationNotFoundException(); });
+	
+		// Set Messages As Viewed
+		conversationService.setMessagesAsViewed(messagesIds);
+	
+		// Push Event
+    	this.applicationEventPublisher
+    		.publishEvent(new SetMessagesAsViewedEvent(this, conversationDTO.getIdentity(),
+    				conversationDTO.getMemberOne().getIdentity(),
+    						conversationDTO.getMemberTwo().getIdentity(),
+    						messagesIds));
+		
+		// Create and Send response
+		return ApiHelper.<String>createAndSendResponse(ConversationResponseEnum.SET_MESSAGES_AS_VIEWED_SUCCESSFULLY, 
+					HttpStatus.OK, this.messageSourceResolver.resolver("set.messages.as.viewed.success"));
 				
     }
 	
@@ -241,7 +302,6 @@ public class ConversationController extends BaseController {
     public ResponseEntity<APIResponse<Iterable<ConversationDTO>>> getAllConversationForSelfUser(
     		@ApiParam(hidden = true) @CurrentUser 
 				final CommonUserDetailsAware<ObjectId> selfGuardian) throws Throwable {
-		
 		
 		// Get All Conversation for self user id
 		final Iterable<ConversationDTO> conversationList = conversationService
@@ -271,10 +331,13 @@ public class ConversationController extends BaseController {
     		@ApiParam(hidden = true) @CurrentUser 
 				final CommonUserDetailsAware<ObjectId> selfGuardian) throws Throwable {
 		
-		
 		// Delete All Conversation for self user id
 		conversationService
 				.deleteConversationsByMemberId(selfGuardian.getUserId());
+		
+		// Push Event
+    	this.applicationEventPublisher
+    		.publishEvent(new AllConversationDeletedEvent(this, selfGuardian.getUserId().toString()));
 
 		// Create and send response
 		return ApiHelper.<String>createAndSendResponse(ConversationResponseEnum.ALL_CONVERSATION_FOR_SELF_USER_DELETED, 
@@ -297,9 +360,8 @@ public class ConversationController extends BaseController {
     public ResponseEntity<APIResponse<Iterable<ConversationDTO>>> getAllConversationsForMember(
     		@ApiParam(name= "member", value = "Member Identifier", required = true)
 				@Valid @ValidObjectId(message = "{no.valid.object.id}")
-		 			@PathVariable String member) throws Throwable {
+		 			@PathVariable final String member) throws Throwable {
 	
-		
 		// Get All Conversation for member
 		final Iterable<ConversationDTO> conversationList = conversationService
 				.getConversationsByMemberId(new ObjectId(member));
@@ -327,18 +389,23 @@ public class ConversationController extends BaseController {
     public ResponseEntity<APIResponse<String>> deleteAllConversationForMember(
     		@ApiParam(name= "member", value = "Member Identifier", required = true)
 			@Valid @ValidObjectId(message = "{no.valid.object.id}")
-	 			@PathVariable String member) throws Throwable {
-		
+	 			@PathVariable final String member) throws Throwable {
 		
 		// Delete All Conversation for member
 		conversationService
 				.deleteConversationsByMemberId(new ObjectId(member));
+		
+		// Push Event
+    	this.applicationEventPublisher
+			.publishEvent(new AllConversationDeletedEvent(this, member));
 
 		// Create and send response
 		return ApiHelper.<String>createAndSendResponse(ConversationResponseEnum.ALL_CONVERSATION_FOR_MEMBER_DELETED, 
 	    		HttpStatus.OK, messageSourceResolver.resolver("all.conversations.for.member.deleted"));
 	
     }
+	
+	
 	
 	/**
 	 * Get Conversation detail
@@ -356,11 +423,11 @@ public class ConversationController extends BaseController {
     		@ApiParam(name= "memberOne", value = "Member One Identifier", 
 				required = true)
     		@Valid @ValidObjectId(message = "{no.valid.object.id}")
- 				@PathVariable String memberOne,
+ 				@PathVariable final String memberOne,
     		@ApiParam(name= "memberTwo", value = "Member Two Identifier", 
     				required = true)
 				@Valid @ValidObjectId(message = "{no.valid.object.id}")
-		 			@PathVariable String memberTwo) throws Throwable {
+		 			@PathVariable final String memberTwo) throws Throwable {
 
 		// Get Conversation For Members
 		return Optional.ofNullable(conversationService
@@ -370,7 +437,6 @@ public class ConversationController extends BaseController {
 				.orElseThrow(() -> { throw new ConversationNotFoundException(); });
 
     }
-	
 	
 	/**
 	 * Create Conversation
@@ -399,7 +465,7 @@ public class ConversationController extends BaseController {
 						new ObjectId(memberOne), new ObjectId(memberTwo)))
 				.orElseGet(() -> conversationService.createConversation(
 						new ObjectId(memberOne), new ObjectId(memberTwo)));
-
+	
 		// Create And Send Response
 		return ApiHelper.<ConversationDTO>createAndSendResponse(ConversationResponseEnum.CONVERSATION_DETAIL, 
 	    		HttpStatus.OK, conversationSavedDTO);
@@ -428,20 +494,25 @@ public class ConversationController extends BaseController {
 				@Valid @ValidObjectId(message = "{no.valid.object.id}")
 		 			@PathVariable String memberTwo) throws Throwable {
 
-		// Find Conversation To Delete
-		final ConversationDTO conversationToDelete = Optional.ofNullable(conversationService.getConversationForMembers(
+		// Find Conversation DTO
+		final ConversationDTO conversationDTO = Optional.ofNullable(conversationService.getConversationForMembers(
 				new ObjectId(memberOne), new ObjectId(memberTwo)))
 			.orElseThrow(() -> { throw new ConversationNotFoundException(); });
 		
 		// Delete Conversation
-		conversationService.delete(new ObjectId(conversationToDelete.getIdentity()));
+		conversationService.delete(new ObjectId(conversationDTO.getIdentity()));
+		
+		// Push Event
+    	this.applicationEventPublisher
+    		.publishEvent(new ConversationDeletedEvent(this, conversationDTO.getIdentity(),
+    				conversationDTO.getMemberOne().getIdentity(),
+    				conversationDTO.getMemberTwo().getIdentity()));
 		
 		// Create and Send response
 		return ApiHelper.<String>createAndSendResponse(ConversationResponseEnum.CONVERSATION_SUCCESSFULLY_DELETED, 
 	    		HttpStatus.OK, this.messageSourceResolver.resolver("conversation.deleted"));
 	
     }
-	
 	
 	/**
 	 * Get Conversation Messages For Members
@@ -476,13 +547,7 @@ public class ConversationController extends BaseController {
 		
 		if(Iterables.size(messageList) == 0)
 			throw new NoMessagesFoundException();
-		
-		conversationService.markMessagesAsViewed(Iterables.<MessageDTO, ObjectId>transform(messageList, new Function<MessageDTO, ObjectId>() {
-			@Override
-			public ObjectId apply(MessageDTO message) {
-				return new ObjectId(message.getIdentity());
-			}
-		}));
+	
 		
 		// Create and Send response
 		return ApiHelper.<Iterable<MessageDTO>>createAndSendResponse(ConversationResponseEnum.ALL_CONVERSATION_MESSAGES, 
@@ -522,12 +587,24 @@ public class ConversationController extends BaseController {
 					.orElseThrow(() -> { throw new ConversationNotFoundException(); });
 		
 		if(messagesIds != null &&
-				!messagesIds.isEmpty())
+				!messagesIds.isEmpty()) {
 			conversationService.deleteConversationMessages(new ObjectId(conversationDTO.getIdentity()), messagesIds);
-		else
+			// Push Event
+	    	this.applicationEventPublisher
+	    		.publishEvent(new ConversationMessagesDeletedEvent(this, 
+	    				conversationDTO.getIdentity(), messagesIds,
+	    				conversationDTO.getMemberOne().getIdentity(),
+	    				conversationDTO.getMemberTwo().getIdentity()));
+		} else {
 			// Delete All Conversation Messages
 			conversationService.deleteAllConversationMessages(new ObjectId(conversationDTO.getIdentity()));
-		
+			// Push Event
+	    	this.applicationEventPublisher
+	    		.publishEvent(new AllConversationMessagesDeletedEvent(this, 
+	    				conversationDTO.getIdentity(),
+	    				conversationDTO.getMemberOne().getIdentity(),
+	    				conversationDTO.getMemberTwo().getIdentity()));
+		}
 		// Create and Send response
 		return ApiHelper.<String>createAndSendResponse(ConversationResponseEnum.ALL_CONVERSATION_MESSAGES_SUCCESSFULLY_DELETED, 
 			HttpStatus.OK, this.messageSourceResolver.resolver("all.conversation.messages.deleted"));
@@ -565,19 +642,66 @@ public class ConversationController extends BaseController {
 							new ObjectId(memberOne), new ObjectId(memberTwo)))
 					.orElseThrow(() -> { throw new ConversationNotFoundException(); });
 	
-		
 		// Save Message
 		final MessageDTO messageDTO = 
 				conversationService.saveMessage(new ObjectId(conversationDTO.getIdentity()),
 						message);
+		
+		// Push Event
+    	this.applicationEventPublisher
+    		.publishEvent(new MessageSavedEvent(this, messageDTO));
 				
 		// Create and Send response
 		return ApiHelper.<MessageDTO>createAndSendResponse(ConversationResponseEnum.MESSAGE_SUCCESSFULLY_CREATED, 
 				HttpStatus.OK, messageDTO);
     }
 	
+	
+	/**
+	 * Set Messages as Viewed
+	 * @param id
+	 * @return
+	 */
+	@RequestMapping(value = "/members/{memberOne}/{memberTwo}/messages/viewed", method = RequestMethod.POST)
+	@PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+			+ "&& @authorizationService.isMemberOfTheConversation(#id) )")
+    @ApiOperation(value = "SET_MESSAGES_AS_VIEWED", 
+    	nickname = "SET_MESSAGES_AS_VIEWED", notes = "Set Messages As Viewed",
+    	response = String.class)
+    public ResponseEntity<APIResponse<String>> setMessagesAsViewed(
+    		@ApiParam(name= "memberOne", value = "Member One Identifier", 
+				required = true)
+			@Valid @ValidObjectId(message = "{no.valid.object.id}")
+				@PathVariable String memberOne,
+			@ApiParam(name= "memberTwo", value = "Member Two Identifier", 
+					required = true)
+			@Valid @ValidObjectId(message = "{no.valid.object.id}")
+		 		@PathVariable String memberTwo,
+		 	@ApiParam(value = "message", required = true) 
+    			@Validated(ICommonSequence.class) 
+					@RequestBody
+						final ValidList<ObjectId> messagesIds) throws Throwable {
+		
+		// Find Conversation
+		final ConversationDTO conversationDTO = Optional.ofNullable(conversationService.getConversationForMembers(
+						new ObjectId(memberOne), new ObjectId(memberTwo)))
+				.orElseThrow(() -> { throw new ConversationNotFoundException(); });
 
-
+		// Set Messages As Viewed
+		conversationService.setMessagesAsViewed(messagesIds);
+	
+		// Push Event
+    	this.applicationEventPublisher
+    		.publishEvent(new SetMessagesAsViewedEvent(this, conversationDTO.getIdentity(),
+    				conversationDTO.getMemberOne().getIdentity(),
+    						conversationDTO.getMemberTwo().getIdentity(),
+    						messagesIds));
+		
+		// Create and Send response
+		return ApiHelper.<String>createAndSendResponse(ConversationResponseEnum.SET_MESSAGES_AS_VIEWED_SUCCESSFULLY, 
+					HttpStatus.OK, this.messageSourceResolver.resolver("set.messages.as.viewed.success"));
+				
+    }
 	
 	/**
 	 * 

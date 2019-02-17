@@ -69,7 +69,7 @@ public abstract class SupervisedChildrenEntityMapper {
         @Mapping(expression="java(supervisedChildrenEntity.getId().toString())", target = "identity" ),
         @Mapping(expression="java(kidEntityMapper.kidEntityToKidDTO(supervisedChildrenEntity.getKid()))", target = "kid" ),
         @Mapping(expression="java(supervisedChildrenEntity.getRole().name())", target = "role" ),
-        @Mapping(expression="java(messageRepository.countByToIdAndViewedTrue(supervisedChildrenEntity.getGuardian().getId()))", 
+        @Mapping(expression="java(messageRepository.countByFromIdAndToIdAndViewedFalse(supervisedChildrenEntity.getKid().getId(), supervisedChildrenEntity.getGuardian().getId()))", 
     		target = "pendingMessagesCount" )
     })
     @Named("supervisedChildrenEntityToSupervisedChildrenDTO")
@@ -130,7 +130,7 @@ public abstract class SupervisedChildrenEntityMapper {
         @Mapping(source = "supervisedChildrenEntity.requestAt", target = "requestAt", dateFormat = "yyyy/MM/dd"),
         @Mapping(expression="java(supervisedChildrenEntity.getRole().name())", 
         	target = "role" ),
-        @Mapping(expression="java(messageRepository.countByToIdAndViewedTrue(supervisedChildrenEntity.getGuardian().getId()))", 
+        @Mapping(expression="java(messageRepository.countByFromIdAndToIdAndViewedFalse(supervisedChildrenEntity.getKid().getId(), supervisedChildrenEntity.getGuardian().getId()))", 
     		target = "pendingMessagesCount" )
     })
     @Named("supervisedChildrenEntityToKidGuardiansDTO")

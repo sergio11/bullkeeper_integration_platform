@@ -40,4 +40,12 @@ public interface MessageRepositoryCustom {
 	 */
 	void markMessagesAsViewed(final Iterable<ObjectId> ids);
 	
+	/**
+	 * 
+	 * @param from
+	 * @param to
+	 * @return
+	 */
+	long countByFromIdAndToIdAndViewedFalse(final ObjectId from, final ObjectId to);
+	
 }
