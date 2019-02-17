@@ -75,7 +75,7 @@ public class ConversationEventHandlers {
 		
 		final String subscriberIdOne = conversationDeletedEvent.getMemberOne();
 		
-		sseService.push(conversationDeletedEvent.getMemberOne(), new DeletedConversationSSE(
+		sseService.push(subscriberIdOne, new DeletedConversationSSE(
 				subscriberIdOne,
 				conversationDeletedEvent.getConversation(),
 				conversationDeletedEvent.getMemberOne(),
@@ -83,7 +83,7 @@ public class ConversationEventHandlers {
 		
 		final String subscriberIdTwo = conversationDeletedEvent.getMemberTwo();
 		
-		sseService.push(conversationDeletedEvent.getMemberOne(), new DeletedConversationSSE(
+		sseService.push(subscriberIdTwo, new DeletedConversationSSE(
 				subscriberIdTwo,
 				conversationDeletedEvent.getConversation(),
 				conversationDeletedEvent.getMemberOne(),
