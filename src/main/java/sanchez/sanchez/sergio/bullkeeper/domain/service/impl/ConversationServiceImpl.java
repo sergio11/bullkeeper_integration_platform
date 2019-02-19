@@ -1,5 +1,6 @@
 package sanchez.sanchez.sergio.bullkeeper.domain.service.impl;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.PostConstruct;
@@ -277,7 +278,7 @@ public class ConversationServiceImpl implements IConversationService {
 	 * Mark Messages As Viewed
 	 */
 	@Override
-	public void setMessagesAsViewed(final Iterable<ObjectId> messageIds) {
+	public void setMessagesAsViewed(final Collection<ObjectId> messageIds) {
 		Assert.notNull(messageIds, "Message Ids can not be null");
 		
 		messageRepository.markMessagesAsViewed(messageIds);

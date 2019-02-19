@@ -1,5 +1,6 @@
 package sanchez.sanchez.sergio.bullkeeper.domain.service;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.bson.types.ObjectId;
@@ -102,6 +103,6 @@ public interface IConversationService {
 	 * Set Messages As Viewed
 	 * @param messageIds
 	 */
-	void setMessagesAsViewed(final Iterable<ObjectId> messageIds);
+	void setMessagesAsViewed(final Collection<ObjectId> messageIds);
 	
 }

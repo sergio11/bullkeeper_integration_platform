@@ -272,6 +272,9 @@ public class ConversationController extends BaseController {
 		final ConversationDTO conversationDTO =  Optional.ofNullable(conversationService.getConversationDetail(new ObjectId(id)))
 				.orElseThrow(() -> { throw new ConversationNotFoundException(); });
 	
+		logger.debug("Message Ids -> " + messagesIds.size());
+		for(final ObjectId messageId: messagesIds)
+			logger.debug("Message Id -> " + messageId);
 		// Set Messages As Viewed
 		conversationService.setMessagesAsViewed(messagesIds);
 	
@@ -687,6 +690,9 @@ public class ConversationController extends BaseController {
 						new ObjectId(memberOne), new ObjectId(memberTwo)))
 				.orElseThrow(() -> { throw new ConversationNotFoundException(); });
 
+		logger.debug("Message Ids -> " + messagesIds.size());
+		for(final ObjectId messageId: messagesIds)
+			logger.debug("Message Id -> " + messageId);
 		// Set Messages As Viewed
 		conversationService.setMessagesAsViewed(messagesIds);
 	

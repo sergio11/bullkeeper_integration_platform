@@ -3,7 +3,6 @@ package sanchez.sanchez.sergio.bullkeeper.domain.service.impl;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import javax.annotation.PostConstruct;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
@@ -27,7 +26,6 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.repository.KidRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.SupervisedChildrenRepository;
 import sanchez.sanchez.sergio.bullkeeper.web.security.AuthoritiesConstants;
 import sanchez.sanchez.sergio.bullkeeper.web.security.userdetails.CommonUserDetailsAware;
-
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
 /**
@@ -183,7 +181,8 @@ public class AuthorizationServiceImpl implements IAuthorizationService {
         if (!(auth instanceof AnonymousAuthenticationToken)) {
             CommonUserDetailsAware<ObjectId> userDetails = (CommonUserDetailsAware<ObjectId>) auth.getPrincipal();
             final KidEntity kidEntity = kidRepository.findByProfileImage(id);
-            itIsAProfileImageOfYourSupervisedKid = 
+            if(kidEntity != null)
+            	itIsAProfileImageOfYourSupervisedKid = 
             		supervisedChildrenRepository.countByGuardianIdAndKidId(
             				userDetails.getUserId(), kidEntity.getId()) > 0;
         }

@@ -1,6 +1,7 @@
 package sanchez.sanchez.sergio.bullkeeper.persistence.repository;
 
-import java.util.List;
+
+import java.util.Collection;
 
 import org.bson.types.ObjectId;
 
@@ -38,7 +39,7 @@ public interface MessageRepositoryCustom {
 	 * Mark Messages As Viewed
 	 * @param ids
 	 */
-	void markMessagesAsViewed(final Iterable<ObjectId> ids);
+	void markMessagesAsViewed(final Collection<ObjectId> ids);
 	
 	/**
 	 * 

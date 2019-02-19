@@ -1,7 +1,10 @@
 package sanchez.sanchez.sergio.bullkeeper.persistence.repository.impl;
 
+import java.util.Collection;
 import java.util.List;
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -18,6 +21,8 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.repository.MessageRepositor
  *
  */
 public final class MessageRepositoryImpl implements MessageRepositoryCustom {
+	
+	private static Logger logger = LoggerFactory.getLogger(MessageRepositoryImpl.class);
 	
 	/**
 	 * Mongo Template
@@ -100,7 +105,8 @@ public final class MessageRepositoryImpl implements MessageRepositoryCustom {
 		final Criteria criteriaQuery = new Criteria();
 		criteriaQuery.andOperator(
 				Criteria.where("to.$id").is(to),
-				Criteria.where("conversation.$id").is(conversation));
+				Criteria.where("conversation.$id").is(conversation),
+				Criteria.where("viewed").is(false));
 		
 		return mongoTemplate.count(new Query(criteriaQuery), MessageEntity.class);
 	}
@@ -109,8 +115,11 @@ public final class MessageRepositoryImpl implements MessageRepositoryCustom {
 	 * Mark Messages Ad Viewed
 	 */
 	@Override
-	public void markMessagesAsViewed(final Iterable<ObjectId> ids) {
+	public void markMessagesAsViewed(final Collection<ObjectId> ids) {
 		Assert.notNull(ids, "Ids can not be null");
+		
+		
+		logger.debug("Message Repository update ids size -> " + ids.size());
 
 		mongoTemplate.updateMulti(
         		new Query(Criteria.where("_id").in(ids)),
@@ -131,7 +140,8 @@ public final class MessageRepositoryImpl implements MessageRepositoryCustom {
 		final Criteria criteriaQuery = new Criteria();
 		criteriaQuery.andOperator(
 				Criteria.where("to.$id").is(to),
-				Criteria.where("from.$id").is(from));
+				Criteria.where("from.$id").is(from),
+				Criteria.where("viewed").is(false));
 		
 		return mongoTemplate.count(new Query(criteriaQuery), MessageEntity.class);
 	}
