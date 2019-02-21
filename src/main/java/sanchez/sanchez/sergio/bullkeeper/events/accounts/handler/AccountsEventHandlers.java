@@ -1,24 +1,27 @@
-package sanchez.sanchez.sergio.bullkeeper.events.handlers;
+package sanchez.sanchez.sergio.bullkeeper.events.accounts.handler;
 
 import java.util.Locale;
 import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IGuardianService;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.ITokenGeneratorService;
-import sanchez.sanchez.sergio.bullkeeper.events.AccountDeletionRequestEvent;
-import sanchez.sanchez.sergio.bullkeeper.events.ParentAccountActivatedEvent;
-import sanchez.sanchez.sergio.bullkeeper.events.ParentRegistrationByFacebookSuccessEvent;
-import sanchez.sanchez.sergio.bullkeeper.events.ParentRegistrationByGoogleSuccessEvent;
-import sanchez.sanchez.sergio.bullkeeper.events.ParentRegistrationSuccessEvent;
-import sanchez.sanchez.sergio.bullkeeper.events.PasswordChangedEvent;
-import sanchez.sanchez.sergio.bullkeeper.events.PasswordResetEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.accounts.AccountDeletionRequestEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.accounts.ParentAccountActivatedEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.accounts.ParentRegistrationByFacebookSuccessEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.accounts.ParentRegistrationByGoogleSuccessEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.accounts.ParentRegistrationSuccessEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.accounts.PasswordChangedEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.accounts.PasswordResetEvent;
 import sanchez.sanchez.sergio.bullkeeper.mail.service.IMailClientService;
 
+/**
+ * 
+ * @author sergiosanchezsanchez
+ *
+ */
 @Component
 public class AccountsEventHandlers {
 	

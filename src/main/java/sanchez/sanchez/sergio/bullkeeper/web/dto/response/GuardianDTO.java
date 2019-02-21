@@ -3,34 +3,94 @@ package sanchez.sanchez.sergio.bullkeeper.web.dto.response;
 import org.springframework.hateoas.ResourceSupport;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * 
+ * @author sergiosanchezsanchez
+ *
+ */
 public class GuardianDTO extends ResourceSupport {
 
+	/**
+	 * Identity
+	 */
     @JsonProperty("identity")
     private String identity;
+    
+    /**
+     * First Name
+     */
     @JsonProperty("first_name")
     private String firstName;
+    
+    /**
+     * Last Name
+     */
     @JsonProperty("last_name")
     private String lastName;
+    
+    /**
+     * Birthdate
+     */
     @JsonProperty("birthdate")
     private String birthdate;
+    
+    /**
+     * Age
+     */
     @JsonProperty("age")
     private Integer age;
+    
+    /**
+     * Email
+     */
     @JsonProperty("email")
     private String email;
+    
+    /**
+     * Phone Prefix
+     */
     @JsonProperty("phone_prefix")
     private String phonePrefix;
+    
+    /**
+     * Phone Number 
+     */
     @JsonProperty("phone_number")
     private Long phoneNumber;
+    
+    /**
+     * FbId
+     */
     @JsonProperty("fb_id")
     private String fbId;
+    
+    /**
+     * Google Id
+     */
     @JsonProperty("google_id")
     private String googleId;
+    
+    /**
+     * Children
+     */
     @JsonProperty("children")
     private Long children;
+    
+    /**
+     * Locale
+     */
     @JsonProperty("locale")
     private String locale;
+    
+    /**
+     * Profile Image
+     */
     @JsonProperty("profile_image")
     private String profileImage;
+    
+    /**
+     * Visible
+     */
     @JsonProperty("visible")
     private boolean visible;
 

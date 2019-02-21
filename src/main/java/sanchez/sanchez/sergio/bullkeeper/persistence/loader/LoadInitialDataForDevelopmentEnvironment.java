@@ -93,11 +93,13 @@ public class LoadInitialDataForDevelopmentEnvironment implements CommandLineRunn
     	
     	
     	// SCHOOL
-    	SchoolEntity school1 = new SchoolEntity("C.E.I.P. Fernando Gavilán", "Avda. Herrera Oria, s/n", "Cádiz", 956128801, "11008033.edu@juntadeandalucia.es");
+    	SchoolEntity school1 = new SchoolEntity("C.E.I.P. Fernando Gavilán", "Avda. Herrera Oria, s/n", 
+    			"Cádiz", "+34958399591", "11008033.edu@juntadeandalucia.es");
     	
     	schoolList.add(school1);
     	
-    	SchoolEntity school2 = new SchoolEntity("C.E.I.P. San Juan de Ávila", "C/ Erillas, s/n", "Granada", 958399591, "18005475.edu@juntadeandalucia.es");
+    	SchoolEntity school2 = new SchoolEntity("C.E.I.P. San Juan de Ávila", 
+    			"C/ Erillas, s/n", "Granada", "+34958399591", "18005475.edu@juntadeandalucia.es");
     	
     	schoolList.add(school2);
     	

@@ -338,7 +338,7 @@ public final class TerminalServiceImpl implements ITerminalService {
 		
 		// Save App Installed
 		appInstalledSaved = 
-				appsInstalledRepository.save(appInstalledSaved);
+				appsInstalledRepository.save(appIntalledToSave);
 		
 		return appInstalledEntityDataMapper
 				.appInstalledEntityToAppInstalledDTO(appInstalledSaved);
@@ -419,7 +419,6 @@ public final class TerminalServiceImpl implements ITerminalService {
 		// Get terminal
 		final TerminalEntity terminalEntity = terminalRepository
 				.findByIdAndKidId(terminalId, kid);
-	
 		/**
 		 * Terminal Entity to terminal DTO
 		 */

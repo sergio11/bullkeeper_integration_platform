@@ -1,4 +1,4 @@
-package sanchez.sanchez.sergio.bullkeeper.events.handlers;
+package sanchez.sanchez.sergio.bullkeeper.events.geofences.handler;
 
 import java.util.List;
 import org.bson.types.ObjectId;

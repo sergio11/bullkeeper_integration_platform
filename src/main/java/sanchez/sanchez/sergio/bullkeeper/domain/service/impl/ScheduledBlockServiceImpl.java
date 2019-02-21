@@ -3,6 +3,8 @@ package sanchez.sanchez.sergio.bullkeeper.domain.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.google.common.collect.Iterables;
@@ -24,6 +26,8 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ScheduledBlockDTO;
  */
 @Service
 public final class ScheduledBlockServiceImpl implements IScheduledBlockService {
+	
+	private Logger logger = LoggerFactory.getLogger(ScheduledBlockServiceImpl.class);
 
 	/**
 	 * Scheduled Block Repository
@@ -35,7 +39,6 @@ public final class ScheduledBlockServiceImpl implements IScheduledBlockService {
 	 */
 	private final ScheduledBlockMapper scheduledBlockMapper;
 
-	
 	/**
 	 * 
 	 * @param scheduledBlockRepository
@@ -53,6 +56,7 @@ public final class ScheduledBlockServiceImpl implements IScheduledBlockService {
 
 	/**
 	 * Get Scheduled Block By Child
+	 * @param kid
 	 */
 	@Override
 	public Iterable<ScheduledBlockDTO> getScheduledBlockByChild(final ObjectId kid) {
@@ -66,6 +70,7 @@ public final class ScheduledBlockServiceImpl implements IScheduledBlockService {
 	
 	/**
 	 * Save Scheduled Block
+	 * @param saveScheduledBlockDTO
 	 */
 	@Override
 	public ScheduledBlockDTO save(final SaveScheduledBlockDTO saveScheduledBlockDTO) {
@@ -74,10 +79,13 @@ public final class ScheduledBlockServiceImpl implements IScheduledBlockService {
 		final ScheduledBlockEntity scheduledBlockEntityToSave = 
 				scheduledBlockMapper.saveScheduledBlockDTOToScheduledBlockEntity(saveScheduledBlockDTO);
 	
+		
+		logger.debug("Scheduled Block Image After Mapping -> " + scheduledBlockEntityToSave.getImage());
+		
 		boolean canBeSaved = true;
 		
-		
-		if(scheduledBlockEntityToSave.getStartAt().isBefore(scheduledBlockEntityToSave.getEndAt())) {
+		if(scheduledBlockEntityToSave.getStartAt()
+				.isBefore(scheduledBlockEntityToSave.getEndAt())) {
 			
 			
 			// Get all blocks configured for the child
@@ -140,15 +148,19 @@ public final class ScheduledBlockServiceImpl implements IScheduledBlockService {
 		if(!canBeSaved) 
 			throw new ScheduledBlockNotValidException();
 		
+		logger.debug("Scheduled Block Image Before Save-> " + scheduledBlockEntityToSave.getImage());
+		
 		final ScheduledBlockEntity scheduledBlockEntitySaved = 
 				scheduledBlockRepository.save(scheduledBlockEntityToSave);
 		
+		logger.debug("Scheduled Block Image After Save-> " + scheduledBlockEntityToSave.getImage());
 		
 		return scheduledBlockMapper.scheduledBlockEntityToScheduledBlockDTO(scheduledBlockEntitySaved);
 	}
 
 	/**
 	 * Delete By Child ID
+	 * @param id
 	 */
 	@Override
 	public void deleteByKidId(final ObjectId id) {
@@ -158,6 +170,7 @@ public final class ScheduledBlockServiceImpl implements IScheduledBlockService {
 
 	/**
 	 * Delete By ID
+	 * @param id
 	 */
 	@Override
 	public void delete(final ObjectId id) {
@@ -169,6 +182,8 @@ public final class ScheduledBlockServiceImpl implements IScheduledBlockService {
 
 	/**
 	 * Get Scheduled Block By ID
+	 * 
+	 * @parma id
 	 */
 	@Override
 	public ScheduledBlockDTO getScheduledBlockById(final ObjectId id) {
@@ -187,6 +202,8 @@ public final class ScheduledBlockServiceImpl implements IScheduledBlockService {
 
 	/**
 	 * Save Status
+	 * 
+	 * @param scheduledStatus
 	 */
 	@Override
 	public void saveStatus(Iterable<SaveScheduledBlockStatusDTO> scheduledStatus) {

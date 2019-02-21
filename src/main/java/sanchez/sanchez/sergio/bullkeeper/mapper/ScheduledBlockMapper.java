@@ -1,5 +1,6 @@
 package sanchez.sanchez.sergio.bullkeeper.mapper;
 
+import org.bson.types.ObjectId;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -11,6 +12,7 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ScheduledBlockEntity
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.AppInstalledRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.GeofenceRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.KidRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.ScheduledBlockRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.TerminalRepository;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.scheduledblocks.ScheduledBlockSavedSSE;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveScheduledBlockDTO;
@@ -67,6 +69,14 @@ public abstract class ScheduledBlockMapper {
 	protected GeofenceEntityMapper geofenceEntityMapper;
 	
 	/**
+	 * Scheduled Block Repository
+	 */
+	@Autowired
+	protected ScheduledBlockRepository scheduledBlockRepository;
+	
+	
+	
+	/**
 	 * Scheduled Block Entity To Scheduled Block DTO
 	 * @param scheduledBlockEntity
 	 * @return
@@ -121,6 +131,8 @@ public abstract class ScheduledBlockMapper {
     @Mappings({
     	@Mapping(expression="java((saveScheduledBlockDTO.getIdentity() != null && !saveScheduledBlockDTO.getIdentity().isEmpty()) ? new org.bson.types.ObjectId(saveScheduledBlockDTO.getIdentity()) : null )", 
     			target="id"),
+    	@Mapping(expression="java((saveScheduledBlockDTO.getIdentity() != null && !saveScheduledBlockDTO.getIdentity().isEmpty()) ? getScheduledBlockImage(new org.bson.types.ObjectId(saveScheduledBlockDTO.getIdentity())) : null )", 
+			target="image"),
         @Mapping(expression="java(kidRepository.findOne(new org.bson.types.ObjectId(saveScheduledBlockDTO.getKid())))", 
         		target = "kid" ),
         @Mapping(expression="java(saveAppAllowedByScheduledBlockDTOToAppAllowedByScheduledBlockEntity(saveScheduledBlockDTO.getAppAllowedList()))", 
@@ -181,5 +193,12 @@ public abstract class ScheduledBlockMapper {
     @IterableMapping(qualifiedByName = "appAllowedByScheduledBlockEntityToAppAllowedByScheduledBlockDTO")
     public abstract Iterable<ScheduledBlockDTO.AppAllowedByScheduledBlockDTO> appAllowedByScheduledBlockEntityToAppAllowedByScheduledBlockDTO(final Iterable<AppAllowedByScheduledBlockEntity> appAllowedByScheduledBlockEntitites);
     
-   
+   /**
+    * Get Scheduled Block Image
+    * @param id
+    */
+    protected String getScheduledBlockImage(final ObjectId id) {
+    	return scheduledBlockRepository.getImageForScheduledBlock(id);
+    }
+    
 }

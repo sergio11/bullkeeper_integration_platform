@@ -11,7 +11,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.Assert;
-
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ScheduledBlockEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.ScheduledBlockRepositoryCustom;
 
@@ -55,6 +54,27 @@ public class ScheduledBlockRepositoryImpl implements ScheduledBlockRepositoryCus
         		new Query(Criteria.where("_id").in(ids)),
         		Update.update("enable", false), 
         			ScheduledBlockEntity.class);
+	}
+
+	/**
+	 * Get Image For Scheduled Block
+	 * @param id
+	 */
+	@Override
+	public String getImageForScheduledBlock(final ObjectId id) {
+		Assert.notNull(id, "Id can not be null");
+		
+		// Create Query
+        final Query query = new Query(Criteria.where("_id").is(id));
+        
+        query.fields()
+        	.include("image");    
+        
+        final ScheduledBlockEntity scheduledBlockEntity = 
+        		mongoTemplate.findOne(query, ScheduledBlockEntity.class);
+        
+        return scheduledBlockEntity != null 
+        		? scheduledBlockEntity.getImage(): null;
 	}
 
 }

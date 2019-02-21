@@ -3179,7 +3179,7 @@ public class ChildrenController extends BaseController
     	notes = "Add app installed", response = AppInstalledDTO.class)
     public ResponseEntity<APIResponse<AppInstalledDTO>> addNewAppInstalled(
             @ApiParam(name = "kid", value = "Kid Identifier", required = true)
-            	@Valid @KidShouldExists(message = "{son.id.notvalid}")
+            	@Valid @KidShouldExists(message = "{kid.id.notvalid}")
              		@PathVariable String kid,
             @ApiParam(name = "terminal", value = "Terminal id", required = true)
         		@Valid @TerminalShouldExists(message = "{terminal.not.exists}")

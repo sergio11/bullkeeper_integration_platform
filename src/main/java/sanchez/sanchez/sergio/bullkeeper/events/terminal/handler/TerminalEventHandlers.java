@@ -1,4 +1,4 @@
-package sanchez.sanchez.sergio.bullkeeper.events.handlers;
+package sanchez.sanchez.sergio.bullkeeper.events.terminal.handler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

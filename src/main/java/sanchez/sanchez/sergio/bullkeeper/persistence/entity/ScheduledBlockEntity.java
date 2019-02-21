@@ -42,7 +42,7 @@ public class ScheduledBlockEntity implements Serializable {
 	 * Enable
 	 */
 	@Field("enable")
-    private boolean enable;
+    private Boolean enable;
 	
 	/**
 	 * Create At
@@ -54,14 +54,14 @@ public class ScheduledBlockEntity implements Serializable {
 	 * Repeatable
 	 */
 	@Field("repeatable")
-    private boolean repeatable;
+    private Boolean repeatable;
 	
 	
 	/**
 	 * Allow Calls
 	 */
 	@Field("allow_calls")
-    private boolean allowCalls;
+    private Boolean allowCalls;
 	
 	/**
 	 * Description
@@ -138,9 +138,9 @@ public class ScheduledBlockEntity implements Serializable {
 	 * @param geofence
 	 */
 	@PersistenceConstructor
-	public ScheduledBlockEntity(ObjectId id, String name, boolean enable, 
-			final Date createAt, boolean repeatable, 
-			boolean allowCalls, String description, LocalTime startAt, LocalTime endAt, 
+	public ScheduledBlockEntity(ObjectId id, String name, Boolean enable, 
+			final Date createAt, Boolean repeatable, 
+			Boolean allowCalls, String description, LocalTime startAt, LocalTime endAt, 
 			int[] weeklyFrequency, KidEntity kid, final String image,
 			final Iterable<AppAllowedByScheduledBlockEntity> appAllowed,
 			final GeofenceEntity geofence) {
@@ -168,7 +168,7 @@ public class ScheduledBlockEntity implements Serializable {
 		return name;
 	}
 
-	public boolean isEnable() {
+	public Boolean isEnable() {
 		return enable;
 	}
 
@@ -180,7 +180,7 @@ public class ScheduledBlockEntity implements Serializable {
 		this.createAt = createAt;
 	}
 
-	public boolean isRepeatable() {
+	public Boolean isRepeatable() {
 		return repeatable;
 	}
 
@@ -204,11 +204,11 @@ public class ScheduledBlockEntity implements Serializable {
 		this.name = name;
 	}
 
-	public void setEnable(boolean enable) {
+	public void setEnable(Boolean enable) {
 		this.enable = enable;
 	}
 
-	public void setRepeatable(boolean repeatable) {
+	public void setRepeatable(Boolean repeatable) {
 		this.repeatable = repeatable;
 	}
 
@@ -217,7 +217,7 @@ public class ScheduledBlockEntity implements Serializable {
 		return allowCalls;
 	}
 
-	public void setAllowCalls(boolean allowCalls) {
+	public void setAllowCalls(Boolean allowCalls) {
 		this.allowCalls = allowCalls;
 	}
 	

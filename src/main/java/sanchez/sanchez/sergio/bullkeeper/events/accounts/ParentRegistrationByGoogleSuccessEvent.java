@@ -1,4 +1,4 @@
-package sanchez.sanchez.sergio.bullkeeper.events;
+package sanchez.sanchez.sergio.bullkeeper.events.accounts;
 
 import org.springframework.context.ApplicationEvent;
 
@@ -6,12 +6,12 @@ import org.springframework.context.ApplicationEvent;
  *
  * @author sergio
  */
-public class ParentRegistrationByFacebookSuccessEvent extends ApplicationEvent {
+public class ParentRegistrationByGoogleSuccessEvent extends ApplicationEvent {
     
 	private static final long serialVersionUID = 1L;
 	private final String identity;
 
-    public ParentRegistrationByFacebookSuccessEvent(String identity, Object source) {
+    public ParentRegistrationByGoogleSuccessEvent(String identity, Object source) {
         super(source);
         this.identity = identity;
     }

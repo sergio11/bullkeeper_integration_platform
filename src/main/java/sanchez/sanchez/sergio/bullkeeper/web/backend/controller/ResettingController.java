@@ -15,11 +15,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IAuthorizationService;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IGuardianService;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IPasswordResetTokenService;
-import sanchez.sanchez.sergio.bullkeeper.events.PasswordChangedEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.accounts.PasswordChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.GuardianEntity;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.UpdatePasswordDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.controller.BaseController;
@@ -48,6 +47,13 @@ public class ResettingController extends BaseController {
 		this.parentService = parentService;
 	}
 	
+	/**
+	 * 
+	 * @param id
+	 * @param token
+	 * @param model
+	 * @return
+	 */
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	public String show(@RequestParam("id") String id, 
 			@RequestParam("token") String token, Model model) {
@@ -67,7 +73,14 @@ public class ResettingController extends BaseController {
 		return CHANGE_PASSWORD_VIEW_NAME;
 	}
 	
-	
+	/**
+	 * 
+	 * @param updatePassword
+	 * @param bindingResult
+	 * @param redirectAttributes
+	 * @param sessionStatus
+	 * @return
+	 */
 	@RequestMapping(value = "/", method = RequestMethod.POST)
 	@OnlyAccessWithChangePasswordPrivilege
 	public String changePassword(

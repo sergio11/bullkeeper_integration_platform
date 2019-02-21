@@ -1,4 +1,4 @@
-package sanchez.sanchez.sergio.bullkeeper.events.handlers;
+package sanchez.sanchez.sergio.bullkeeper.events.scheduledblock.handler;
 
 import java.util.ArrayList;
 import java.util.List;

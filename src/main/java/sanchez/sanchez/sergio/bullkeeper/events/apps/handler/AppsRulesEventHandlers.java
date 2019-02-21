@@ -1,4 +1,4 @@
-package sanchez.sanchez.sergio.bullkeeper.events.handlers;
+package sanchez.sanchez.sergio.bullkeeper.events.apps.handler;
 
 import java.util.ArrayList;
 import java.util.Arrays;

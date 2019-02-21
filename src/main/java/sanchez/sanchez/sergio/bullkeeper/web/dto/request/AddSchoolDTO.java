@@ -5,11 +5,14 @@ import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
 
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.SchoolEmailShouldExistsIfPresent;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.SchoolNameShouldNotExists;
+import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ValidPhoneNumber;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.group.Extended;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.deserializers.ClearStringDeserializer;
+import sanchez.sanchez.sergio.bullkeeper.web.rest.deserializers.PhoneNumberDeserializer;
 
 
 /**
@@ -20,14 +23,14 @@ import sanchez.sanchez.sergio.bullkeeper.web.rest.deserializers.ClearStringDeser
 public class AddSchoolDTO {
 	
 	/**
-	 * School Name
+	 * Name
 	 */
 	@NotBlank(message = "{school.name.notblank}")
     @Size(min = 5, max = 30, message = "{school.name.size}", groups = Extended.class)
 	@SchoolNameShouldNotExists(message="{school.name.should.not.exists}", groups = Extended.class)
 	@JsonProperty("name")
 	@JsonDeserialize(using = ClearStringDeserializer.class)
-	private String schoolName;
+	private String name;
 	
 	/**
 	 * Residence
@@ -55,11 +58,14 @@ public class AddSchoolDTO {
 	@JsonProperty("province")
 	private String province;
 	
+
 	/**
-	 * Tfno
-	 */
+     * Telephone
+     */
+    @ValidPhoneNumber(message = "{school.telephone.not.valid}")
 	@JsonProperty("tfno")
-	private Integer tfno;
+	@JsonDeserialize(using = PhoneNumberDeserializer.class)
+	private PhoneNumber tfno;
 	
 	/**
 	 * Email
@@ -72,11 +78,26 @@ public class AddSchoolDTO {
 	
 	public AddSchoolDTO(){}
 	
-	
-	public AddSchoolDTO(String name, String residence,  Double latitude, Double longitude, String province, Integer tfno,
-			String email) {
+	/**
+	 * 
+	 * @param name
+	 * @param residence
+	 * @param latitude
+	 * @param longitude
+	 * @param province
+	 * @param tfno
+	 * @param email
+	 */
+	public AddSchoolDTO(
+			final String name, 
+			final String residence, 
+			final Double latitude, 
+			final Double longitude, 
+			final String province, 
+			final PhoneNumber tfno,
+			final String email) {
 		super();
-		this.schoolName = name;
+		this.name = name;
 		this.residence = residence;
 		this.latitude = latitude;
 		this.longitude = longitude;
@@ -87,12 +108,12 @@ public class AddSchoolDTO {
 
 
 	public String getName() {
-		return schoolName;
+		return name;
 	}
 
 
 	public void setName(String name) {
-		this.schoolName = name;
+		this.name = name;
 	}
 
 
@@ -135,15 +156,13 @@ public class AddSchoolDTO {
 	}
 
 
-	public Integer getTfno() {
+	public PhoneNumber getTfno() {
 		return tfno;
 	}
 
-
-	public void setTfno(Integer tfno) {
+	public void setTfno(PhoneNumber tfno) {
 		this.tfno = tfno;
 	}
-
 
 	public String getEmail() {
 		return email;
@@ -153,4 +172,11 @@ public class AddSchoolDTO {
 	public void setEmail(String email) {
 		this.email = email;
 	}
+
+	@Override
+	public String toString() {
+		return "AddSchoolDTO [name=" + name + ", residence=" + residence + ", latitude=" + latitude + ", longitude="
+				+ longitude + ", province=" + province + ", tfno=" + tfno + ", email=" + email + "]";
+	}
+	
 }

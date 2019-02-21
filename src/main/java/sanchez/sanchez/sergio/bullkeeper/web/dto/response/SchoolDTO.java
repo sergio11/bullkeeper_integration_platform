@@ -10,27 +10,84 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class SchoolDTO extends ResourceSupport {
 	
+	/**
+	 * Identity
+	 */
 	@JsonProperty("identity")
 	private String identity;
+	
+	/**
+	 * Name
+	 */
 	@JsonProperty("name")
 	private String name;
+	
+	/**
+	 * Residence
+	 */
 	@JsonProperty("residence")
 	private String residence;
+	
+	/**
+	 * Latitude
+	 */
 	@JsonProperty("latitude")
 	private Double latitude;
+	
+	/**
+	 * Longitude
+	 */
 	@JsonProperty("longitude")
 	private Double longitude;
+	
+	/**
+	 * Province
+	 */
 	@JsonProperty("province")
 	private String province;
-	@JsonProperty("tfno")
-	private Integer tfno;
+	
+	 /**
+     * Phone Prefix
+     */
+    @JsonProperty("phone_prefix")
+    private String phonePrefix;
+    
+    /**
+     * Phone Number 
+     */
+    @JsonProperty("phone_number")
+    private Long phoneNumber;
+	
+	/**
+	 * Email
+	 */
 	@JsonProperty("email")
 	private String email;
 	
 	public SchoolDTO(){}
 	
-	public SchoolDTO(String identity, String name, String residence,  Double latitude, Double longitude, String province, Integer tfno,
-			String email) {
+	/**
+	 * 
+	 * @param identity
+	 * @param name
+	 * @param residence
+	 * @param latitude
+	 * @param longitude
+	 * @param province
+	 * @param phonePrefix
+	 * @param phoneNumber
+	 * @param email
+	 */
+	public SchoolDTO(
+			final String identity, 
+			final String name, 
+			final String residence, 
+			final Double latitude, 
+			final Double longitude, 
+			final String province,
+			final String phonePrefix,
+			final Long phoneNumber,
+			final String email) {
 		super();
 		this.identity = identity;
 		this.name = name;
@@ -38,7 +95,8 @@ public class SchoolDTO extends ResourceSupport {
 		this.latitude = latitude;
 		this.longitude = longitude;
 		this.province = province;
-		this.tfno = tfno;
+		this.phonePrefix = phonePrefix;
+		this.phoneNumber = phoneNumber;
 		this.email = email;
 	}
 
@@ -47,21 +105,17 @@ public class SchoolDTO extends ResourceSupport {
 		return identity;
 	}
 
-
 	public void setIdentity(String identity) {
 		this.identity = identity;
 	}
-
 
 	public String getName() {
 		return name;
 	}
 
-
 	public void setName(String name) {
 		this.name = name;
 	}
-
 
 	public String getResidence() {
 		return residence;
@@ -97,23 +151,36 @@ public class SchoolDTO extends ResourceSupport {
 		this.province = province;
 	}
 
-
-	public Integer getTfno() {
-		return tfno;
+	public String getPhonePrefix() {
+		return phonePrefix;
 	}
 
-
-	public void setTfno(Integer tfno) {
-		this.tfno = tfno;
+	public Long getPhoneNumber() {
+		return phoneNumber;
 	}
 
+	public void setPhonePrefix(String phonePrefix) {
+		this.phonePrefix = phonePrefix;
+	}
+
+	public void setPhoneNumber(Long phoneNumber) {
+		this.phoneNumber = phoneNumber;
+	}
 
 	public String getEmail() {
 		return email;
 	}
 
-
 	public void setEmail(String email) {
 		this.email = email;
 	}
+
+	@Override
+	public String toString() {
+		return "SchoolDTO [identity=" + identity + ", name=" + name + ", residence=" + residence + ", latitude="
+				+ latitude + ", longitude=" + longitude + ", province=" + province + ", phonePrefix=" + phonePrefix
+				+ ", phoneNumber=" + phoneNumber + ", email=" + email + "]";
+	}
+	
+	
 }

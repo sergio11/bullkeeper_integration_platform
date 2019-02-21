@@ -22,4 +22,11 @@ public interface ScheduledBlockRepositoryCustom {
 	 */
 	void disableScheduledBlocks(final Collection<ObjectId> ids);
 	
+	/**
+	 * 
+	 * @param id
+	 * @return
+	 */
+	String getImageForScheduledBlock(final ObjectId id);
+	
 }

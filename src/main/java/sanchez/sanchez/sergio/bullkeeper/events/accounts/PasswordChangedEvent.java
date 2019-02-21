@@ -1,4 +1,4 @@
-package sanchez.sanchez.sergio.bullkeeper.events;
+package sanchez.sanchez.sergio.bullkeeper.events.accounts;
 
 import org.springframework.context.ApplicationEvent;
 

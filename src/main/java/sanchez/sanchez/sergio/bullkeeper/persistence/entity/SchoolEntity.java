@@ -50,7 +50,7 @@ public class SchoolEntity {
 	 * Tfno
 	 */
 	@Field("tfno")
-	private Integer tfno;
+	private String tfno;
 	
 	/**
 	 * Email
@@ -61,8 +61,19 @@ public class SchoolEntity {
 	
 	public SchoolEntity(){}
 	
+	/**
+	 * 
+	 * @param name
+	 * @param residence
+	 * @param location
+	 * @param province
+	 * @param tfno
+	 * @param email
+	 */
 	@PersistenceConstructor
-	public SchoolEntity(String name, String residence, SchoolLocation location, String province, Integer tfno, String email) {
+	public SchoolEntity(final String name, final String residence, 
+			final SchoolLocation location, final String province, 
+			final String tfno, final String email) {
 		super();
 		this.name = name;
 		this.residence = residence;
@@ -72,7 +83,16 @@ public class SchoolEntity {
 		this.email = email;
 	}
 	
-	public SchoolEntity(String name, String residence, String province, Integer tfno, String email) {
+	/**
+	 * 
+	 * @param name
+	 * @param residence
+	 * @param province
+	 * @param tfno
+	 * @param email
+	 */
+	public SchoolEntity(final String name, final String residence, 
+			final String province, final String tfno, final String email) {
 		super();
 		this.name = name;
 		this.residence = residence;
@@ -121,11 +141,11 @@ public class SchoolEntity {
 		this.province = province;
 	}
 
-	public Integer getTfno() {
+	public String getTfno() {
 		return tfno;
 	}
 
-	public void setTfno(Integer tfno) {
+	public void setTfno(String tfno) {
 		this.tfno = tfno;
 	}
 
@@ -137,19 +157,35 @@ public class SchoolEntity {
 		this.email = email;
 	}
 	
+	
+	/**
+	 * 
+	 * @author sergiosanchezsanchez
+	 *
+	 */
 	public static class SchoolLocation {
 		
+		/**
+		 * Latitude
+		 */
 		@Field("latitude")
 		private Double latitude;
 		
+		/**
+		 * Longitude
+		 */
 		@Field("longitude")
 		private Double longitude;
 		
 		public SchoolLocation(){}
 		
-
+		/**
+		 * 
+		 * @param latitude
+		 * @param longitude
+		 */
 		@PersistenceConstructor
-		public SchoolLocation(Double latitude, Double longitude) {
+		public SchoolLocation(final Double latitude, final Double longitude) {
 			super();
 			this.latitude = latitude;
 			this.longitude = longitude;
