@@ -35,7 +35,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.security.utils.OnlyAccessForAdmin;
 import springfox.documentation.annotations.ApiIgnore;
 
 /**
- * 
+ * Social Media Contoller
  * @author sergiosanchezsanchez
  *
  */

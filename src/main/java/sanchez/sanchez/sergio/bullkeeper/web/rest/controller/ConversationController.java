@@ -179,7 +179,7 @@ public class ConversationController extends BaseController {
     				required = true)
 				@Valid @ConversationShouldExists(message = "{guardian.id.notvalid}")
 		 		@PathVariable String id,
-		 	@ApiParam(value = "messages", required = false) 
+		 	@ApiParam(name="messages", value = "messages ids", required = false) 
 				@RequestParam(name="messages" , required=false)
 				 	final ValidList<ObjectId> messagesIds) throws Throwable {
 		
@@ -228,7 +228,7 @@ public class ConversationController extends BaseController {
     				required = true)
 				@Valid @ConversationShouldExists(message = "{conversation.id.notvalid}")
 		 		@PathVariable String id,
-		 	@ApiParam(value = "message", required = true) 
+		 	@ApiParam(name="message", value = "message to save", required = true) 
 				@Validated(ICommonSequence.class) 
 					@RequestBody final AddMessageDTO message) throws Throwable {
 		
@@ -264,7 +264,7 @@ public class ConversationController extends BaseController {
     				required = true)
 				@Valid @ConversationShouldExists(message = "{conversation.id.notvalid}")
 		 		@PathVariable String id,
-		 	@ApiParam(value = "message", required = true) 
+		 	@ApiParam(name="messageids", value = "message ids", required = true) 
     			@Validated(ICommonSequence.class) 
 					@RequestBody
 						final ValidList<ObjectId> messagesIds) throws Throwable {
@@ -568,8 +568,8 @@ public class ConversationController extends BaseController {
 	@RequestMapping(value = "/members/{memberOne}/{memberTwo}/messages", method = RequestMethod.DELETE)
 	@PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
 			+ "&& @authorizationService.checkIfTheyCanTalk(#memberOne, #memberTwo) )")
-    @ApiOperation(value = "DELETE_CONVERSATION_MESSAGES", 
-    	nickname = "DELETE_CONVERSATION_MESSAGES", notes = "Delete Conversation Messages",
+    @ApiOperation(value = "DELETE_CONVERSATION_MESSAGES_FOR_MEMBERS", 
+    	nickname = "DELETE_CONVERSATION_MESSAGES_FOR_MEMBERS", notes = "Delete Conversation Messages For Members",
     	response = String.class)
     public ResponseEntity<APIResponse<String>> deleteConversationsMessagesForMembers(
     		@ApiParam(name= "memberOne", value = "Member One Identifier", 
@@ -580,7 +580,7 @@ public class ConversationController extends BaseController {
     				required = true)
 				@Valid @ValidObjectId(message = "{no.valid.object.id}")
 		 		@PathVariable String memberTwo,
-		 	@ApiParam(value = "messages", required = false) 
+		 	@ApiParam(name="messages", value = "messages ids", required = false) 
     			@RequestParam(name="messages" , required=false)
 					 final ValidList<ObjectId> messagesIds) throws Throwable {
 
@@ -636,7 +636,7 @@ public class ConversationController extends BaseController {
     				required = true)
 				@Valid @ValidObjectId(message = "{no.valid.object.id}")
 		 		@PathVariable String memberTwo,
-		 	@ApiParam(value = "message", required = true) 
+		 	@ApiParam(name="message", value = "message to save", required = true) 
 				@Validated(ICommonSequence.class) 
 					@RequestBody final AddMessageDTO message) throws Throwable {
 		
@@ -680,7 +680,7 @@ public class ConversationController extends BaseController {
 					required = true)
 			@Valid @ValidObjectId(message = "{no.valid.object.id}")
 		 		@PathVariable String memberTwo,
-		 	@ApiParam(value = "message", required = true) 
+		 	@ApiParam(name="messageIds", value = "message ids", required = true) 
     			@Validated(ICommonSequence.class) 
 					@RequestBody
 						final ValidList<ObjectId> messagesIds) throws Throwable {

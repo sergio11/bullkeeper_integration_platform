@@ -1,7 +1,5 @@
 package sanchez.sanchez.sergio.bullkeeper.web.rest.controller;
 
-
-
 import java.util.Date;
 import java.util.Optional;
 import javax.validation.Valid;
@@ -16,9 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.google.common.collect.Iterables;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -50,7 +46,6 @@ import sanchez.sanchez.sergio.bullkeeper.web.security.userdetails.CommonUserDeta
 import sanchez.sanchez.sergio.bullkeeper.web.security.utils.CurrentUser;
 import sanchez.sanchez.sergio.bullkeeper.web.security.utils.OnlyAccessForAdmin;
 import sanchez.sanchez.sergio.bullkeeper.web.security.utils.OnlyAccessForGuardian;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -60,6 +55,11 @@ import org.springframework.hateoas.Resource;
 import springfox.documentation.annotations.ApiIgnore;
 
 
+/**
+ * Comments Controller
+ * @author ssanchez
+ *
+ */
 @RestController("RestCommentsController")
 @Validated
 @RequestMapping("/api/v1/comments/")

@@ -342,7 +342,7 @@ public class ChildrenController extends BaseController
     		@ApiParam(name= "id", value = "Kid identified", required = true)
     			@Valid @KidShouldExists(message = "{son.id.notvalid}")
     		 		@PathVariable String id,
-    		@ApiParam(value = "guardians", required = true) 
+    		@ApiParam(name="guadians", value = "guardians", required = true) 
 				@Validated(ICommonSequence.class)
     				@RequestBody final ValidList<SaveGuardianDTO> guardians) throws Throwable {
     	
@@ -585,7 +585,7 @@ public class ChildrenController extends BaseController
     @ApiOperation(value = "ADD_SOCIAL_MEDIA", nickname = "ADD_SOCIAL_MEDIA", notes = "Add Social Media",
             response = SocialMediaDTO.class)
     public ResponseEntity<APIResponse<SocialMediaDTO>> deleteAllSocialMedia(
-            @ApiParam(value = "socialMedia", required = true) 
+            @ApiParam(name="socialMedia", value = "socialMedia", required = true) 
 				@Validated(ICommonSequence.class) @RequestBody SaveSocialMediaDTO socialMedia) throws Throwable {
     		
         return Optional.ofNullable(socialMediaService.create(socialMedia))
@@ -607,7 +607,7 @@ public class ChildrenController extends BaseController
     @ApiOperation(value = "UPDATE_SOCIAL_MEDIA", nickname = "UPDATE_SOCIAL_MEDIA", notes = "Update Social Media",
             response = SocialMediaDTO.class)
     public ResponseEntity<APIResponse<SocialMediaDTO>> updateSocialMediaToSon(
-            @ApiParam(value = "socialMedia", required = true) 
+            @ApiParam(name="socialMedia", value = "socialMedia", required = true) 
 				@Validated(ICommonSequence.class) @RequestBody SaveSocialMediaDTO socialMedia) throws Throwable {
     		
         return Optional.ofNullable(socialMediaService.update(socialMedia))
@@ -629,7 +629,7 @@ public class ChildrenController extends BaseController
     @ApiOperation(value = "SAVE_SOCIAL_MEDIA", nickname = "SAVE_SOCIAL_MEDIA", notes = "Save Social Media",
             response = SocialMediaDTO.class)
     public ResponseEntity<APIResponse<SocialMediaDTO>> saveSocialMediaToSon(
-            @ApiParam(value = "socialMedia", required = true) 
+            @ApiParam(name="socialMedia", value = "socialMedia", required = true) 
 				@Validated(ICommonSequence.class) @RequestBody SaveSocialMediaDTO socialMedia) throws Throwable {
     		
         return Optional.ofNullable(socialMediaService.insertOrUpdate(socialMedia))
@@ -780,7 +780,7 @@ public class ChildrenController extends BaseController
     		@ApiParam(name = "id", value = "Kid Identifier", required = true)
         	@Valid @ValidObjectId(message = "{son.id.notvalid}")
          		@PathVariable String id,
-            @ApiParam(value = "socialMedias", required = true) 
+            @ApiParam(name="socialMedias", value = "Social Medias", required = true) 
 				@Validated(ICommonSequence.class) 
     		@RequestBody ValidList<SaveSocialMediaDTO> socialMedias) throws Throwable {
     	
@@ -1345,7 +1345,7 @@ public class ChildrenController extends BaseController
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
         	@Valid @KidShouldExists(message = "{son.id.notvalid}")
          		@PathVariable String kid,
-            @ApiParam(value = "terminal", required = true) 
+            @ApiParam(name="terminal", value = "Terminal to save", required = true) 
 				@Validated(ICommonSequence.class) 
             		@RequestBody SaveTerminalDTO saveTerminalDTO) throws Throwable {
     		
@@ -1855,7 +1855,7 @@ public class ChildrenController extends BaseController
          	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
     			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
      				@PathVariable String terminal,
-     		@ApiParam(value = "ids", required = true) 
+     		@ApiParam(name="ids", value = "SMS ids", required = true) 
 				@Validated(ICommonSequence.class) 
 					@RequestBody ValidList<ObjectId> smsList) 
     		throws Throwable {
@@ -1933,7 +1933,7 @@ public class ChildrenController extends BaseController
          	@ApiParam(name = "terminal", value = "Terminal Identity", required = true)
             	@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
              		@PathVariable String terminal,
-            @ApiParam(value = "sms", required = true) 
+            @ApiParam(name="sms", value = "sms list", required = true) 
  				@Validated(ICommonSequence.class) 
     				@RequestBody ValidList<SaveSmsDTO> sms) throws Throwable {
     	
@@ -1972,7 +1972,7 @@ public class ChildrenController extends BaseController
          	@ApiParam(name = "terminal", value = "Terminal Identity", required = true)
             	@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
              		@PathVariable String terminal,
-            @ApiParam(value = "sms", required = true) 
+            @ApiParam(name="sms", value = "SMS to save", required = true) 
  				@Validated(ICommonSequence.class) 
     				@RequestBody SaveSmsDTO sms) throws Throwable {
     	
@@ -2132,7 +2132,7 @@ public class ChildrenController extends BaseController
         @ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
    			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
     			@PathVariable String terminal,
-    	@ApiParam(value = "ids", required = true) 
+    	@ApiParam(name="ids", value = "Call ids", required = true) 
    			@Validated(ICommonSequence.class) 
 				@RequestBody ValidList<ObjectId> callsList) 
    		throws Throwable {
@@ -2220,7 +2220,7 @@ public class ChildrenController extends BaseController
         	@ApiParam(name = "terminal", value = "Terminal Identity", required = true)
            	@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
             		@PathVariable String terminal,
-           @ApiParam(value = "calls", required = true) 
+           @ApiParam(name="calls", value = "calls", required = true) 
 				@Validated(ICommonSequence.class) 
    				@RequestBody ValidList<SaveCallDetailDTO> calls) throws Throwable {
    	
@@ -2258,7 +2258,7 @@ public class ChildrenController extends BaseController
         	@ApiParam(name = "terminal", value = "Terminal Identity", required = true)
            	@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
             		@PathVariable String terminal,
-           @ApiParam(value = "call", required = true) 
+           @ApiParam(name="call", value = "call", required = true) 
 				@Validated(ICommonSequence.class) 
    				@RequestBody SaveCallDetailDTO callDetail) throws Throwable {
 	   
@@ -2289,7 +2289,7 @@ public class ChildrenController extends BaseController
         @ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
    			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
     			@PathVariable final String terminal,
-    	@ApiParam(value = "text", required = false) 
+    	@ApiParam(name="text", value = "text", required = false) 
    			@RequestParam(value = "text", required = false) 
    				final String text) 
    		throws Throwable {
@@ -2419,7 +2419,7 @@ public class ChildrenController extends BaseController
        	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
   			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
    				@PathVariable String terminal,
-   		@ApiParam(value = "ids", required = true) 
+   		@ApiParam(name="ids", value = "Contacts ids", required = true) 
 			@Validated(ICommonSequence.class) 
 				@RequestBody ValidList<ObjectId> contactsList) 
   		throws Throwable {
@@ -2507,7 +2507,7 @@ public class ChildrenController extends BaseController
        	@ApiParam(name = "terminal", value = "Terminal Identity", required = true)
           	@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
            		@PathVariable String terminal,
-        @ApiParam(value = "contacts", required = true) 
+        @ApiParam(name="contacts", value = "Contacts to save", required = true) 
 			@Validated(ICommonSequence.class) 
   				@RequestBody ValidList<SaveContactDTO> contacts) throws Throwable {
   	
@@ -2545,7 +2545,7 @@ public class ChildrenController extends BaseController
        	@ApiParam(name = "terminal", value = "Terminal Identity", required = true)
           	@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
            		@PathVariable String terminal,
-          @ApiParam(value = "contact", required = true) 
+          @ApiParam(name="contact", value = "Contact to save", required = true) 
 				@Validated(ICommonSequence.class) 
   				@RequestBody SaveContactDTO contact) throws Throwable {
 	   
@@ -2580,7 +2580,7 @@ public class ChildrenController extends BaseController
   		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
       		@Valid @KidShouldExists(message = "{son.not.exists}")
        			@PathVariable final String kid,
-       	@ApiParam(value = "text", required = false) 
+       	@ApiParam(name="text", value = "text", required = false) 
  				@RequestParam(value = "text", required = false) 
  					final String text) 
   		throws Throwable {
@@ -2621,7 +2621,7 @@ public class ChildrenController extends BaseController
          	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
         		@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
          			@PathVariable final String terminal,
-         	@ApiParam(value = "text", required = false) 
+         	@ApiParam(name="text", value = "text", required = false) 
    				@RequestParam(value = "text", required = false) 
    					final String text) 
     		throws Throwable {
@@ -2711,7 +2711,7 @@ public class ChildrenController extends BaseController
          	@ApiParam(name = "terminal", value = "Terminal Identity", required = true)
             	@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
              		@PathVariable String terminal,
-            @ApiParam(value = "apps", required = true) 
+            @ApiParam(name="apps", value = "apps", required = true) 
 				@Validated(ICommonSequence.class) 
     				@RequestBody ValidList<SaveAppInstalledDTO> appsInstalled) throws Throwable {
     	
@@ -2760,7 +2760,7 @@ public class ChildrenController extends BaseController
      	@ApiParam(name = "app", value = "App Identifier", required = true)
 			@Valid @AppInstalledShouldExists(message = "{app.id.notvalid}")
 				@PathVariable String app,
-     	@ApiParam(value = "rules", required = true) 
+     	@ApiParam(name="rules", value = "rules", required = true) 
 			@Validated(ICommonSequence.class) 
 				@RequestBody SaveAppRulesDTO appRules) throws Throwable {
     	
@@ -2810,7 +2810,7 @@ public class ChildrenController extends BaseController
  		@ApiParam(name = "terminal", value = "Terminal Identity", required = true)
     		@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
      			@PathVariable String terminal,
-     	@ApiParam(value = "rules", required = true) 
+     	@ApiParam(name="rules", value = "rules", required = true) 
 			@Validated(ICommonSequence.class) 
 				@RequestBody ValidList<SaveAppRulesDTO> appRules) throws Throwable {
     	
@@ -3077,7 +3077,7 @@ public class ChildrenController extends BaseController
             @ApiParam(name = "terminal", value = "Terminal id", required = true)
         		@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
          			@PathVariable String terminal,
-         	@ApiParam(value = "ids", required = true) 
+         	@ApiParam(name="ids", value = "ids", required = true) 
 				@Validated(ICommonSequence.class) 
 					@RequestBody ValidList<ObjectId> appsList) throws Throwable {
         
@@ -3184,7 +3184,7 @@ public class ChildrenController extends BaseController
             @ApiParam(name = "terminal", value = "Terminal id", required = true)
         		@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
          			@PathVariable String terminal,
-         	@ApiParam(value = "app", required = true) 
+         	@ApiParam(name="app", value = "app", required = true) 
 				@Validated(ICommonSequence.class) 
 					@RequestBody SaveAppInstalledDTO appInstalledDTO) throws Throwable {
         
@@ -3237,7 +3237,7 @@ public class ChildrenController extends BaseController
          	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
         		@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
          			@PathVariable final String terminal,
-         	@ApiParam(value = "total", required = false) 
+         	@ApiParam(name="total", value = "total", required = false) 
    				@RequestParam(value = "total", required = false, defaultValue = "10") 
    					final Integer total) 
     		throws Throwable {
@@ -3280,7 +3280,7 @@ public class ChildrenController extends BaseController
          	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
     			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
      				@PathVariable String terminal,
-     		@ApiParam(value = "ids", required = true) 
+     		@ApiParam(name="ids", value = "ids", required = true) 
 				@Validated(ICommonSequence.class) 
 					@RequestBody ValidList<ObjectId> ids) 
     		throws Throwable {
@@ -3371,7 +3371,7 @@ public class ChildrenController extends BaseController
             @ApiParam(name = "terminal", value = "Terminal id", required = true)
         		@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
          			@PathVariable String terminal,
-         	@ApiParam(value = "stats", required = true) 
+         	@ApiParam(name="stats", value = "stats", required = true) 
 				@Validated(ICommonSequence.class) 
 					@RequestBody ValidList<SaveAppStatsDTO> statsList) throws Throwable {
     	
@@ -3450,7 +3450,7 @@ public class ChildrenController extends BaseController
           	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
      			@Valid @TerminalShouldExists(message = "{terminal.should.be.exists}")
       				@PathVariable String terminal,
-      		@ApiParam(value = "phonenumber", required = true) 
+      		@ApiParam(name="phonenumber", value = "phonenumber", required = true) 
 				@Validated(ICommonSequence.class) 
 					@RequestBody AddPhoneNumberBlockedDTO addPhoneNumberBlocked) throws Throwable {
     	
@@ -3585,7 +3585,7 @@ public class ChildrenController extends BaseController
 	      	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
 	 			@Valid @TerminalShouldExists(message = "{terminal.should.be.exists}")
 	  				@PathVariable String terminal,
-	  		@ApiParam(value = "heartbeat", required = true) 
+	  		@ApiParam(name="heartbeat", value = "heartbeat", required = true) 
 				@Validated(ICommonSequence.class) 
 					@RequestBody TerminalHeartbeatDTO terminalHeartbeat) throws Throwable {
     	
@@ -3689,7 +3689,7 @@ public class ChildrenController extends BaseController
 			@ApiParam(name = "day", value = "Day", required = true)
 				@Valid @DayNameValidator(message = "{day.not.valid}")
 					@PathVariable String day,
-			@ApiParam(value = "day_scheduled", required = true) 
+			@ApiParam(name="day_scheduled", value = "day_scheduled", required = true) 
 				@Validated(ICommonSequence.class) 
 					@RequestBody SaveDayScheduledDTO saveDayScheduled
 			) throws Throwable {
@@ -3724,7 +3724,7 @@ public class ChildrenController extends BaseController
          	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
     			@Valid @TerminalShouldExists(message = "{terminal.should.be.exists}")
     				@PathVariable String terminal,
-         	@ApiParam(value = "funtime", required = true) 
+         	@ApiParam(name="funtime", value = "funtime", required = true) 
 				@Validated(ICommonSequence.class) 
 					@RequestBody SaveFunTimeScheduledDTO saveFunTimeScheduledDTO) 
     		throws Throwable {
@@ -3825,7 +3825,7 @@ public class ChildrenController extends BaseController
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
         	@Valid @KidShouldExists(message = "{son.not.exists}")
          		@PathVariable String kid,
-            @ApiParam(value = "scheduled_block", required = true) 
+            @ApiParam(name="scheduled_block", value = "Scheduled Block", required = true) 
 				@Validated(ICommonSequence.class) 
     				@RequestBody SaveScheduledBlockDTO saveScheduledBlockDTO) throws Throwable {
     	
@@ -3861,7 +3861,7 @@ public class ChildrenController extends BaseController
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
         	@Valid @KidShouldExists(message = "{son.not.exists}")
          		@PathVariable String kid,
-         	@ApiParam(value = "scheduled_blocks", required = true) 
+         	@ApiParam(name="scheduled_blocks", value = "Scheduled Blocks list", required = true) 
 				@Validated(ICommonSequence.class) 
 					@RequestBody ValidList<SaveScheduledBlockStatusDTO> saveScheduledBlockStatus) throws Throwable {
     	
@@ -4064,7 +4064,7 @@ public class ChildrenController extends BaseController
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
          		@Valid @KidShouldExists(message = "{son.should.be.exists}")
           			@PathVariable final String kid,
-          	@ApiParam(value = "save_location", required = true) 
+          	@ApiParam(name="save_location", value = "Save Location", required = true) 
 				@Validated(ICommonSequence.class) 
 					@RequestBody final SaveLocationDTO saveLocation) throws Throwable {
     	
@@ -4100,7 +4100,7 @@ public class ChildrenController extends BaseController
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
          		@Valid @KidShouldExists(message = "{son.should.be.exists}")
           			@PathVariable String kid,
-          	@ApiParam(value = "request", required = true) 
+          	@ApiParam(name="request", value = "request", required = true) 
     			@Validated(ICommonSequence.class) 
     			@RequestBody AddKidRequestDTO kidRequest
           	) throws Throwable {
@@ -4200,7 +4200,7 @@ public class ChildrenController extends BaseController
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
          		@Valid @KidShouldExists(message = "{son.should.be.exists}")
           			@PathVariable String kid,
-          	@ApiParam(value = "ids", required = true) 
+          	@ApiParam(name="ids", value = "ids", required = true) 
         		@Validated(ICommonSequence.class) 
         			@RequestBody ValidList<ObjectId> ids) throws Throwable {
     	
@@ -4285,7 +4285,7 @@ public class ChildrenController extends BaseController
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
          		@Valid @KidShouldExists(message = "{son.should.be.exists}")
           			@PathVariable String kid,
-          	@ApiParam(value = "geofence", required = true) 
+          	@ApiParam(name="geofence", value = "geofence", required = true) 
     			@Validated(ICommonSequence.class) 
     			@RequestBody SaveGeofenceDTO saveGeofenceDTO
           	) throws Throwable {
@@ -4449,7 +4449,7 @@ public class ChildrenController extends BaseController
           	@ApiParam(name = "id", value = "Geofence Id", required = true)
      			@Valid @GeofenceShouldExists(message = "{geofence.should.be.exists}")
       				@PathVariable String id,
-      		@ApiParam(value = "alert", required = true) 
+      		@ApiParam(name="alert", value = "alert", required = true) 
 				@Validated(ICommonSequence.class) 
 					@RequestBody SaveGeofenceAlertDTO saveGeofenceAlertDTO) throws Throwable {
     	
@@ -4490,7 +4490,7 @@ public class ChildrenController extends BaseController
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
          		@Valid @KidShouldExists(message = "{son.should.be.exists}")
           			@PathVariable String kid,
-          	@ApiParam(value = "ids", required = true) 
+          	@ApiParam(name="ids", value = "ids", required = true) 
         		@Validated(ICommonSequence.class) 
         			@RequestBody ValidList<ObjectId> ids) throws Throwable {
     	

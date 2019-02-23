@@ -1,6 +1,5 @@
 package sanchez.sanchez.sergio.bullkeeper.web.rest.controller;
 
-
 import java.util.List;
 import javax.annotation.PostConstruct;
 import org.bson.types.ObjectId;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import com.google.common.collect.Iterables;
-
 import io.jsonwebtoken.lang.Assert;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -37,12 +35,15 @@ import sanchez.sanchez.sergio.bullkeeper.web.rest.response.DeviceGroupResponseCo
 import sanchez.sanchez.sergio.bullkeeper.web.security.userdetails.CommonUserDetailsAware;
 import sanchez.sanchez.sergio.bullkeeper.web.security.utils.CurrentUser;
 import sanchez.sanchez.sergio.bullkeeper.web.security.utils.OnlyAccessForGuardian;
-
 import javax.validation.Valid;
-
 import springfox.documentation.annotations.ApiIgnore;
 
 
+/**
+ * Device Groups Controller
+ * @author ssanchez
+ *
+ */
 @RestController("RestDeviceGroupsController")
 @Validated
 @RequestMapping("/api/v1/device-groups")

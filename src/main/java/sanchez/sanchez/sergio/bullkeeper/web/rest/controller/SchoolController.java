@@ -142,7 +142,7 @@ public class SchoolController extends BaseController implements ISchoolHAL {
     @ApiOperation(value = "FIND_SCHOOLS_BY_NAME", nickname = "FIND_SCHOOLS_BY_NAME", notes = "Find Schools by name",
             response = PagedResources.class)
     public ResponseEntity<APIResponse<Iterable<SchoolDTO>>> getSchoolsByName(
-    		@ApiParam(value = "name", required = true) 
+    		@ApiParam(name="name", value = "name", required = true) 
     			@Valid @NotBlank(message = "{school.name.notblank}") 
     				@RequestParam(value = "name", required = false) String name) throws Throwable {
     	
@@ -192,7 +192,7 @@ public class SchoolController extends BaseController implements ISchoolHAL {
     		@ApiResponse(code = 403, message = "Validation Errors", response = ValidationErrorDTO.class)
     })
     public ResponseEntity<APIResponse<SchoolDTO>> saveSchool(
-    		@ApiParam(value = "school", required = true) 
+    		@ApiParam(name="school", value = "school", required = true) 
 				@Validated(ICommonSequence.class) @RequestBody AddSchoolDTO school) throws Throwable {        
         return Optional.ofNullable(schoolService.save(school))
                 .map(schoolResource -> addLinksToSchool(schoolResource))
