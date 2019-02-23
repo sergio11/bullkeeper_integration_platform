@@ -9,7 +9,6 @@ import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -43,10 +42,9 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.repository.UserSystemReposi
  */
 
 @Component
-@Profile("dev")
-public class LoadInitialDataForDevelopmentEnvironment implements CommandLineRunner {
+public class LoadInitialDataForAllEnvironment implements CommandLineRunner {
     
-    private static final Logger logger = LoggerFactory.getLogger(LoadInitialDataForDevelopmentEnvironment.class);
+    private static final Logger logger = LoggerFactory.getLogger(LoadInitialDataForAllEnvironment.class);
     
     
     /**
@@ -271,7 +269,7 @@ public class LoadInitialDataForDevelopmentEnvironment implements CommandLineRunn
 
 
     
-    public LoadInitialDataForDevelopmentEnvironment(SchoolRepository schoolRepository, GuardianRepository parentRepository,
+    public LoadInitialDataForAllEnvironment(SchoolRepository schoolRepository, GuardianRepository parentRepository,
 			KidRepository sonRepository, SocialMediaRepository socialMediaRepository, AuthorityRepository authorityRepository, 
 			UserSystemRepository userSystemRepository, AlertRepository alertRepository, DeviceGroupRepository deviceGroupRepository, 
 			CommentRepository commentRepository, SupervisedChildrenRepository supervisedChildrenRepository) {
