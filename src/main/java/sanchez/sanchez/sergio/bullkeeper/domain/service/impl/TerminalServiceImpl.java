@@ -42,6 +42,7 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.PhoneNumberBlockedEn
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ScreenStatusEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SmsEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.TerminalEntity;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.TerminalStatusEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.AppInstalledRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.AppModelRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.AppStatsRepository;
@@ -63,6 +64,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveFunTimeScheduledDTO
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveSmsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveTerminalDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.TerminalHeartbeatDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.TerminalStatusDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledDetailDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledInTerminalDTO;
@@ -280,10 +282,17 @@ public final class TerminalServiceImpl implements ITerminalService {
 	 * Delete By Id
 	 */
 	@Override
-	public void deleteById(ObjectId id) {
-		Assert.notNull(id, "Id can not be null");
-		
-		terminalRepository.delete(id);
+	public void delete(final ObjectId kid, final ObjectId terminal) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		appsInstalledRepository.deleteByKidIdAndTerminalId(kid, terminal);
+		callDetailRepository.deleteByKidIdAndTerminalId(kid, terminal);
+		smsRepository.deleteByKidIdAndTerminalId(kid, terminal);
+		phoneNumberBlockedRepository.deleteByTerminalIdAndKidId(terminal, kid);
+		contactRepository.deleteByKidIdAndTerminalId(kid, terminal);
+		appStatsRepository.deleteByKidIdAndTerminalId(kid, terminal);
+		kidRequestRepository.deleteByKidIdAndTerminalId(kid, terminal);
+		terminalRepository.delete(terminal);
 	}
 
 	/**
@@ -915,7 +924,9 @@ public final class TerminalServiceImpl implements ITerminalService {
 				terminalHeartbeat.isReadCallLogEnabled(),
 				terminalHeartbeat.isWriteExternalStorageEnabled(),
 				terminalHeartbeat.isUsageStatsAllowed(),
-				terminalHeartbeat.isAdminAccessEnabled());
+				terminalHeartbeat.isAdminAccessEnabled(),
+				terminalHeartbeat.getBatteryLevel(),
+				terminalHeartbeat.isBatteryCharging());
 		
 	}
 
@@ -1465,5 +1476,32 @@ public final class TerminalServiceImpl implements ITerminalService {
 		Assert.notNull(terminal, "Terminal can not be null");
 		return appInstalledEntityDataMapper.appInstalledEntityToAppInstalledDetailDTO(
 				appsInstalledRepository.findByIdAndTerminalId(app, terminal));
+	}
+
+	/**
+	 * Save Status
+	 * @param terminalStatus
+	 */
+	@Override
+	public void saveStatus(final TerminalStatusDTO terminalStatus) {
+		Assert.notNull(terminalStatus, "Terminal Status can not be null");
+		
+		this.terminalRepository.saveTerminalStatus(new ObjectId(terminalStatus.getTerminal()),
+				new ObjectId(terminalStatus.getKid()), TerminalStatusEnum.valueOf(terminalStatus.getStatus()));
+		
+		
+	}
+
+	/**
+	 * Delete By Kid
+	 * @param kid
+	 */
+	@Override
+	public void deleteByKid(final ObjectId kid) {
+		Assert.notNull(kid, "Kid can not be null");
+		final List<TerminalEntity> terminalEntities = terminalRepository.findByKidId(kid);
+		for(final TerminalEntity terminalEntity: terminalEntities) {
+			delete(terminalEntity.getKid().getId(), terminalEntity.getId());
+		}
 	}
 }

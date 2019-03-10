@@ -114,6 +114,8 @@ public class GuardianServiceImpl implements IGuardianService {
 
     /**
      * Find Paginated
+     * @param page
+     * @param size
      */
     @Override
     public Page<GuardianDTO> findPaginated(Integer page, Integer size) {
@@ -129,6 +131,7 @@ public class GuardianServiceImpl implements IGuardianService {
 
     /**
      * Find Paginated
+     * @param pageable
      */
     @Override
     public Page<GuardianDTO> findPaginated(Pageable pageable) {
@@ -143,6 +146,7 @@ public class GuardianServiceImpl implements IGuardianService {
 
     /**
      * Get Guardian By Id
+     * @param id
      */
     @Override
     public GuardianDTO getGuardianById(final String id) {
@@ -152,6 +156,7 @@ public class GuardianServiceImpl implements IGuardianService {
 
     /**
      * Get Kids Of Guardian
+     * @param id
      */
     @Override
     public ChildrenOfGuardianDTO getKidsOfGuardian(String id) {
@@ -198,6 +203,7 @@ public class GuardianServiceImpl implements IGuardianService {
 
     /**
      * Save
+     * @param registerGuardian
      */
     @Override
     public GuardianDTO save(final RegisterGuardianDTO registerGuardian) {
@@ -212,6 +218,7 @@ public class GuardianServiceImpl implements IGuardianService {
 
     /**
      * Save
+     * @param registerGuardian
      */
     @Override
     public GuardianDTO save(final RegisterGuardianByFacebookDTO registerGuardian) {
@@ -226,6 +233,7 @@ public class GuardianServiceImpl implements IGuardianService {
     
     /**
      * Save
+     * @param registerGuardian
      */
     @Override
     public GuardianDTO save(final RegisterGuardianByGoogleDTO registerGuardian) {
@@ -240,6 +248,8 @@ public class GuardianServiceImpl implements IGuardianService {
 
     /**
      * Add Kid
+     * @param guardian
+     * @parma regiterKidDTO
      */
     @Override
     public KidDTO addKid(final String guardian, final RegisterKidDTO regiterKidDTO) {
@@ -271,6 +281,8 @@ public class GuardianServiceImpl implements IGuardianService {
 
     /**
      * Update Kid
+     * @param guardian
+     * @param updateKidDTO
      */
     @Override
     public KidDTO updateKid(String guardian, UpdateKidDTO updateKidDTO) {
@@ -284,7 +296,8 @@ public class GuardianServiceImpl implements IGuardianService {
     }
 
     /**
-     * 
+     * Get Guardian By Id
+     * @param id
      */
     @Override
     public GuardianDTO getGuardianById(final ObjectId id) {
@@ -293,25 +306,30 @@ public class GuardianServiceImpl implements IGuardianService {
     }
 
     /**
-     * 
+     * Set As Not Active and Confirmation Token
+     * @param id
+     * @param confirmationToken
      */
     @Override
-    public void setAsNotActiveAndConfirmationToken(String id, String confirmationToken) {
+    public void setAsNotActiveAndConfirmationToken(final String id, final String confirmationToken) {
         guardianRepository.setAsNotActiveAndConfirmationToken(new ObjectId(id),
         		confirmationToken);
     }
 
     /**
      * Get Guardian By Email
+     * @param email
      */
     @Override
-    public GuardianDTO getGuardianByEmail(String email) {
+    public GuardianDTO getGuardianByEmail(final String email) {
         GuardianEntity parentEntity = (GuardianEntity) guardianRepository.findOneByEmail(email);
         return guardianEntityMapper.guardianEntityToGuardianDTO(parentEntity);
     }
 
     /**
-     * 
+     * Update
+     * @param id
+     * @param updateGuardianDTO
      */
     @Override
     public GuardianDTO update(final ObjectId id, final UpdateGuardianDTO updateGuardianDTO) {
@@ -331,7 +349,9 @@ public class GuardianServiceImpl implements IGuardianService {
     }
 
     /**
-     * 
+     * Change User Password
+     * @param id
+     * @param newPassword
      */
     @Override
     public void changeUserPassword(final ObjectId id, final String newPassword) {
@@ -339,7 +359,8 @@ public class GuardianServiceImpl implements IGuardianService {
     }
 
     /**
-     * 
+     * Active Account
+     * @param token
      */
     @Override
     public Boolean activateAccount(final String token) {
@@ -360,6 +381,7 @@ public class GuardianServiceImpl implements IGuardianService {
 
     /**
      * Lock Account
+     * @param id
      */
     @Override
     public void lockAccount(final String id) {
@@ -368,6 +390,7 @@ public class GuardianServiceImpl implements IGuardianService {
 
     /**
      * UnLock Account
+     * @param id
      */
     @Override
     public void unlockAccount(final String id) {
@@ -376,35 +399,40 @@ public class GuardianServiceImpl implements IGuardianService {
 
     /**
      * Get Guardian By FB Id
+     * @param fbId
      */
     @Override
-    public GuardianDTO getGuardianByFbId(String fbId) {
+    public GuardianDTO getGuardianByFbId(final String fbId) {
         return guardianEntityMapper.guardianEntityToGuardianDTO(
         		guardianRepository.findByFbId(fbId));
     }
     
     /**
-     * 
+     * Get Guardian By Google Id
+     * @param googleId
      */
     @Override
-	public GuardianDTO getGuardianByGoogleId(String googleId) {
+	public GuardianDTO getGuardianByGoogleId(final String googleId) {
     	 return guardianEntityMapper.guardianEntityToGuardianDTO(
     			 guardianRepository.findByGoogleId(googleId));
 	}
 
     /**
-     * 
+     * Update FB Access Token
+     * @param fbId
+     * @param fbAccessToken
      */
     @Override
-    public void updateFbAccessToken(String fbId, String fbAccessToken) {
+    public void updateFbAccessToken(final String fbId, final String fbAccessToken) {
         guardianRepository.setFbAccessTokenByFbId(fbAccessToken, fbId);
     }
 
     /**
      * Delete Account
+     * @param confirmationToken
      */
     @Override
-    public void deleteAccount(String confirmationToken) {
+    public void deleteAccount(final String confirmationToken) {
     	Assert.notNull(confirmationToken, "Confirmation Token can not be null");
     	
     	// Get Guardian by confirmation token
@@ -414,16 +442,7 @@ public class GuardianServiceImpl implements IGuardianService {
     	if(guardian == null)
     		throw new GuardianNotFoundException();
     	
-    	// Delete Image
-    	uploadFilesService.deleteImage(guardianRepository
-    			.getGuardianImageIdByUserId(guardian.getId()));
     	
-    	// Delete Guardian
-		guardianRepository.delete(guardian);
-		
-		// Remove Device Group
-		deviceGroupsService.removeDeviceGroupOf(guardian.getId());
-		
 		// Get Supervised Children Entities
 		final List<SupervisedChildrenEntity> supervisedChildrenEntities = 
 				this.supervisedChildrenRepository.findByGuardianId(guardian.getId());
@@ -446,13 +465,28 @@ public class GuardianServiceImpl implements IGuardianService {
 			
 		// Delete Relations
 		supervisedChildrenRepository.delete(supervisedChildrenEntities);
+		
+		final String imageId = guardianRepository
+			.getGuardianImageIdByUserId(guardian.getId());
+		
+		if(imageId != null && !imageId.isEmpty())
+			// Delete Image
+	    	uploadFilesService.deleteImage(imageId);
+    	
+    	// Delete Guardian
+		guardianRepository.delete(guardian);
+		
+		// Remove Device Group
+		deviceGroupsService.removeDeviceGroupOf(guardian.getId());
+		
     }
 
     /**
-     * 
+     * Cancel Account Deletion Process
+     * @param confirmationToken
      */
     @Override
-    public void cancelAccountDeletionProcess(String confirmationToken) {
+    public void cancelAccountDeletionProcess(final String confirmationToken) {
     	
     	Long exists = guardianRepository.countByConfirmationToken(confirmationToken);
     	if(exists == 0)
@@ -462,16 +496,18 @@ public class GuardianServiceImpl implements IGuardianService {
     }
 
     /**
-     * 
+     * Start Account Deletion Process
+     * @param id
+     * @param confirmationToken
      */
     @Override
-    public void startAccountDeletionProcess(ObjectId id, String confirmationToken) {
+    public void startAccountDeletionProcess(final ObjectId id, final String confirmationToken) {
         guardianRepository.setPendingDeletionAsTrueAndConfirmationTokenById(id, confirmationToken);
     }
 
     
     /**
-     * 
+     * Delete Unactivated Accounts
      */
     @Override
     public Long deleteUnactivatedAccounts() {
@@ -479,7 +515,7 @@ public class GuardianServiceImpl implements IGuardianService {
     }
 
     /**
-     * 
+     * Cancel All Account Deletion Process
      */
     @Override
     public void cancelAllAccountDeletionProcess() {
@@ -487,27 +523,31 @@ public class GuardianServiceImpl implements IGuardianService {
     }
 
     /**
-     * 
+     * Update Last Access To Alerts
+     * @param id
      */
     @Override
-    public void updateLastAccessToAlerts(ObjectId id) {
+    public void updateLastAccessToAlerts(final ObjectId id) {
         guardianRepository.setLastAccessToAlerts(id);
     }
 
     /**
-     * 
+     * Get Profile Image
+     * @param id
      */
     @Override
-    public String getProfileImage(ObjectId id) {
+    public String getProfileImage(final ObjectId id) {
         return guardianRepository.getGuardianImageIdByUserId(id);
     }
     
     /**
-     * 
+     * Save Preferences
+     * @param preferences
+     * @param guardian
      */
     @Override
-	public UserSystemPreferencesDTO savePreferences(SaveUserSystemPreferencesDTO preferences, 
-			ObjectId guardian) {
+	public UserSystemPreferencesDTO savePreferences(final SaveUserSystemPreferencesDTO preferences, 
+			final ObjectId guardian) {
     	Assert.notNull(preferences, "Preferences can not be null");
     	Assert.notNull(guardian, "guardian can not be null");
     	
@@ -523,15 +563,18 @@ public class GuardianServiceImpl implements IGuardianService {
     
     /**
      * Get Prefences
+     * @param guardian
      */
     @Override
-	public UserSystemPreferencesDTO getPreferences(ObjectId idParent) {
-    	Assert.notNull(idParent, "Id Parent can not be null");
-    	return preferencesEntityMapper.preferencesEntityToUserSystemPreferencesDTO(guardianRepository.getPreferences(idParent));
+	public UserSystemPreferencesDTO getPreferences(final ObjectId guardian) {
+    	Assert.notNull(guardian, "Id Parent can not be null");
+    	return preferencesEntityMapper.preferencesEntityToUserSystemPreferencesDTO(guardianRepository.getPreferences(guardian));
 	}
     
     /**
      * Search Guardians
+     * @param text
+     * @param exclude
      */
     @Override
 	public Iterable<GuardianDTO> search(final String text, final List<ObjectId> exclude) {

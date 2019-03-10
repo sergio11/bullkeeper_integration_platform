@@ -14,6 +14,7 @@ import com.google.common.collect.Iterables;
 
 import io.jsonwebtoken.lang.Assert;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IKidService;
+import sanchez.sanchez.sergio.bullkeeper.domain.service.ITerminalService;
 import sanchez.sanchez.sergio.bullkeeper.mapper.KidEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.LocationEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.SupervisedChildrenEntityMapper;
@@ -97,6 +98,12 @@ public class KidServiceImpl implements IKidService {
      */
     private final LocationEntityMapper locationEntityMapper;
     
+    /**
+     * Terminal Service
+     */
+    private final ITerminalService terminalService;
+    
+    
 
     /**
      * 
@@ -111,6 +118,7 @@ public class KidServiceImpl implements IKidService {
      * @param supervisedChildrenEntityMapper
      * @param locationEntityMapper
      * @param funTimeScheduledEntityMapper
+     * @param terminalService
      */
     public KidServiceImpl(KidRepository kidRepository, 
             KidEntityMapper kidEntityMapper, AlertRepository alertRepository,
@@ -118,7 +126,8 @@ public class KidServiceImpl implements IKidService {
             TaskRepository taskRepository, IUploadFilesService uploadFilesService,
             final SupervisedChildrenRepository supervisedChildrenRepository,
             final SupervisedChildrenEntityMapper supervisedChildrenEntityMapper,
-            final LocationEntityMapper locationEntityMapper) {
+            final LocationEntityMapper locationEntityMapper,
+            final ITerminalService terminalService) {
         super();
         this.kidRepository = kidRepository;
         this.kidEntityMapper = kidEntityMapper;
@@ -130,6 +139,7 @@ public class KidServiceImpl implements IKidService {
         this.supervisedChildrenRepository = supervisedChildrenRepository;
         this.supervisedChildrenEntityMapper = supervisedChildrenEntityMapper;
         this.locationEntityMapper = locationEntityMapper;
+        this.terminalService = terminalService;
     }
 
     /**
@@ -203,7 +213,10 @@ public class KidServiceImpl implements IKidService {
     @Override
     public void deleteById(ObjectId id) {
     	Assert.notNull(id, "Id can not be null");
-    	uploadFilesService.deleteImage(getProfileImage(id));
+    	terminalService.deleteByKid(id);
+    	final String imageId = getProfileImage(id);
+    	if(imageId != null && !imageId.isEmpty())
+    		uploadFilesService.deleteImage(imageId);
     	alertRepository.deleteByKidId(id);
         commentRepository.deleteByKid(id);
         socialMediaRepository.deleteByKidId(id);

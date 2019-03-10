@@ -22,6 +22,13 @@ public interface PhoneNumberBlockedRepository
 	void deleteByTerminalIdAndKidIdAndId(final ObjectId terminal, final ObjectId kid, final ObjectId id);
 	
 	/**
+	 * Delete By Terminal Id And Kid Id
+	 * @param terminal
+	 * @param kid
+	 */
+	void deleteByTerminalIdAndKidId(final ObjectId terminal, final ObjectId kid);
+	
+	/**
 	 * Count By Id
 	 * @param id
 	 * @return

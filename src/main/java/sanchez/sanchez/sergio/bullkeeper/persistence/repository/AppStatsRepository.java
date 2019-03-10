@@ -50,6 +50,13 @@ public interface AppStatsRepository extends MongoRepository<AppStatsEntity, Long
 	AppStatsEntity findOneByAppIdAndTerminalIdAndKidId(
 			final ObjectId app, final ObjectId terminal, final ObjectId kid);
 	
+	/**
+	 * Delete By Kid Id And Terminal Id
+	 * @param kid
+	 * @param terminal
+	 */
+	void deleteByKidIdAndTerminalId(final ObjectId kid, final ObjectId terminal);
+	
 	
 	/**
 	 * 

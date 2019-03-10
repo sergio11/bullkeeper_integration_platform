@@ -1,7 +1,6 @@
 package sanchez.sanchez.sergio.bullkeeper.web.dto.response;
 
 import java.io.Serializable;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 
@@ -20,6 +19,12 @@ public class TerminalDTO implements Serializable {
 	 */
 	@JsonProperty("identity")
 	protected String identity;
+	
+	/**
+	 * Status
+	 */
+	@JsonProperty("status")
+	protected String status;
 	
 	/**
 	 * App Version Name
@@ -114,13 +119,25 @@ public class TerminalDTO implements Serializable {
 	@JsonProperty("settings_enabled")
 	private Boolean settingsEnabled;
 	
+	/**
+	 * Battery Level
+	 */
+	@JsonProperty("battery_level")
+	private Integer batteryLevel;
 	
+	/**
+	 * Is Battery Charging
+	 */
+	@JsonProperty("is_battery_charging")
+	private Boolean isBatteryCharging;
 	
 	public TerminalDTO() {}
 
+	
 	/**
 	 * 
 	 * @param identity
+	 * @param status
 	 * @param appVersionName
 	 * @param appVersionCode
 	 * @param osVersion
@@ -136,14 +153,16 @@ public class TerminalDTO implements Serializable {
 	 * @param screenEnabled
 	 * @param cameraEnabled
 	 * @param settingsEnabled
+	 * @param batteryLevel
+	 * @param isBatteryCharging
 	 */
-	public TerminalDTO(String identity, String appVersionName, String appVersionCode, String osVersion,
+	public TerminalDTO(String identity, String status, String appVersionName, String appVersionCode, String osVersion,
 			String sdkVersion, String manufacturer, String marketName, String model, String codeName, String deviceName,
-			String deviceId, String kid, Boolean bedTimeEnabled, 
-			Boolean screenEnabled, Boolean cameraEnabled,
-			Boolean settingsEnabled) {
+			String deviceId, String kid, Boolean bedTimeEnabled, Boolean screenEnabled, Boolean cameraEnabled,
+			Boolean settingsEnabled, Integer batteryLevel, Boolean isBatteryCharging) {
 		super();
 		this.identity = identity;
+		this.status = status;
 		this.appVersionName = appVersionName;
 		this.appVersionCode = appVersionCode;
 		this.osVersion = osVersion;
@@ -159,10 +178,22 @@ public class TerminalDTO implements Serializable {
 		this.screenEnabled = screenEnabled;
 		this.cameraEnabled = cameraEnabled;
 		this.settingsEnabled = settingsEnabled;
+		this.batteryLevel = batteryLevel;
+		this.isBatteryCharging = isBatteryCharging;
 	}
+
+
 
 	public String getIdentity() {
 		return identity;
+	}
+	
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
 	}
 
 	public String getAppVersionName() {
@@ -288,6 +319,22 @@ public class TerminalDTO implements Serializable {
 	public void setSettingsEnabled(Boolean settingsEnabled) {
 		this.settingsEnabled = settingsEnabled;
 	}
+	
+	public Integer getBatteryLevel() {
+		return batteryLevel;
+	}
+
+	public void setBatteryLevel(Integer batteryLevel) {
+		this.batteryLevel = batteryLevel;
+	}
+
+	public Boolean getIsBatteryCharging() {
+		return isBatteryCharging;
+	}
+
+	public void setIsBatteryCharging(Boolean isBatteryCharging) {
+		this.isBatteryCharging = isBatteryCharging;
+	}
 
 	@Override
 	public String toString() {
@@ -296,7 +343,9 @@ public class TerminalDTO implements Serializable {
 				+ manufacturer + ", marketName=" + marketName + ", model=" + model + ", codeName=" + codeName
 				+ ", deviceName=" + deviceName + ", deviceId=" + deviceId + ", kid=" + kid + ", bedTimeEnabled="
 				+ bedTimeEnabled + ", screenEnabled=" + screenEnabled + ", cameraEnabled=" + cameraEnabled
-				+ ", settingsEnabled=" + settingsEnabled + "]";
+				+ ", settingsEnabled=" + settingsEnabled + ", batteryLevel=" + batteryLevel + ", isBatteryCharging="
+				+ isBatteryCharging + "]";
 	}
+
 	
 }

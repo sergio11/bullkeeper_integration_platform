@@ -15,6 +15,7 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.FunTimeDaysEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.FunTimeScheduledEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ScreenStatusEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.TerminalEntity;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.TerminalStatusEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.TerminalRepositoryCustom;
 
 /**
@@ -37,7 +38,8 @@ public class TerminalRepositoryImpl implements TerminalRepositoryCustom {
     		final ScreenStatusEnum screenStatus, final boolean accessFineLocationEnabled,
     		final boolean readContactsEnabled, final boolean readCallLogEnabled,
     		final boolean writeExternalStorageEnabled, final boolean usageStatsAllowed,
-    		final boolean adminAccessEnabled) {
+    		final boolean adminAccessEnabled, 
+    		final int batteryLevel, final boolean isBatteryCharging) {
 		Assert.notNull(terminal, "Terminal can not be null");
 		Assert.notNull(kid, "Kid can not be null");
 		Assert.notNull(screenStatus, "Screen Status can not be null");
@@ -53,7 +55,10 @@ public class TerminalRepositoryImpl implements TerminalRepositoryCustom {
 	                	.set("contacts_list_permission_enabled", readContactsEnabled)
 	                	.set("storage_permission_enabled", writeExternalStorageEnabled)
 	                	.set("usage_stats_allowed", usageStatsAllowed)
-	                	.set("admin_access_allowed", adminAccessEnabled), TerminalEntity.class);
+	                	.set("admin_access_allowed", adminAccessEnabled)
+	                	.set("battery_level", batteryLevel)
+	                	.set("is_battery_charging", isBatteryCharging)
+	                	.set("status", TerminalStatusEnum.STATE_ON.name()), TerminalEntity.class);
 		
 	}
 
@@ -102,7 +107,7 @@ public class TerminalRepositoryImpl implements TerminalRepositoryCustom {
                 new Query(Criteria.where("_id").in(terminal)
                 		.andOperator(Criteria.where("kid").in(kid))),
                 new Update()
-                	.set("lock_screen_enabled", true), TerminalEntity.class);
+                	.set("screen_enabled", false), TerminalEntity.class);
 	}
 
 	/**
@@ -117,7 +122,7 @@ public class TerminalRepositoryImpl implements TerminalRepositoryCustom {
                 new Query(Criteria.where("_id").in(terminal)
                 		.andOperator(Criteria.where("kid").in(kid))),
                 new Update()
-                	.set("lock_screen_enabled", false), TerminalEntity.class);
+                	.set("screen_enabled", true), TerminalEntity.class);
 	}
 
 	/**
@@ -133,7 +138,7 @@ public class TerminalRepositoryImpl implements TerminalRepositoryCustom {
                 new Query(Criteria.where("_id").in(terminal)
                 		.andOperator(Criteria.where("kid").in(kid))),
                 new Update()
-                	.set("lock_camera_enabled", true), TerminalEntity.class);
+                	.set("camera_enabled", false), TerminalEntity.class);
 		
 	}
 
@@ -149,7 +154,7 @@ public class TerminalRepositoryImpl implements TerminalRepositoryCustom {
                 new Query(Criteria.where("_id").in(terminal)
                 		.andOperator(Criteria.where("kid").in(kid))),
                 new Update()
-                	.set("lock_camera_enabled", false), TerminalEntity.class);
+                	.set("camera_enabled", true), TerminalEntity.class);
 		
 	}
 
@@ -323,6 +328,26 @@ public class TerminalRepositoryImpl implements TerminalRepositoryCustom {
 				.set(String.format("funtime_scheduled.%s.total_hours", 
 						day.name().toLowerCase()), dayScheduled.getTotalHours()), 
 					TerminalEntity.class);
+		
+	}
+
+	/**
+	 * Save Terminal Status
+	 * @param status
+	 * @param kid
+	 * @param status
+	 */
+	@Override
+	public void saveTerminalStatus(final ObjectId terminal, final ObjectId kid, final TerminalStatusEnum status) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		Assert.notNull(status, "Terminal Status can not be null");
+		
+		mongoTemplate.updateFirst(
+                new Query(Criteria.where("_id").in(terminal)
+                		.andOperator(Criteria.where("kid").in(kid))),
+                new Update()
+                	.set("status", status.name()), TerminalEntity.class);
 		
 	}
 

@@ -77,6 +77,20 @@ public final class TerminalHeartbeatDTO implements Serializable {
      */
     @JsonProperty("admin_access_enabled")
     private boolean adminAccessEnabled = false;
+    
+    /**
+     * Battery Level
+     */
+    @JsonProperty("battery_level")
+    private int batteryLevel = 0;
+    
+    /**
+     * Is Battery Charging
+     */
+    @JsonProperty("is_battery_charging")
+    private boolean isBatteryCharging = false;
+    
+    
 	
 	
 	public TerminalHeartbeatDTO() {}
@@ -92,10 +106,13 @@ public final class TerminalHeartbeatDTO implements Serializable {
 	 * @param writeExternalStorageEnabled
 	 * @param usageStatsAllowed
 	 * @param adminAccessEnabled
+	 * @param batteryLevel
+	 * @param isBatteryCharging
 	 */
 	public TerminalHeartbeatDTO(String screenStatus, String terminal, String kid, boolean accessFineLocationEnabled,
 			boolean readContactsEnabled, boolean readCallLogEnabled, boolean writeExternalStorageEnabled,
-			boolean usageStatsAllowed, boolean adminAccessEnabled) {
+			boolean usageStatsAllowed, boolean adminAccessEnabled, final int batteryLevel,
+			final boolean isBatteryCharging) {
 		super();
 		this.screenStatus = screenStatus;
 		this.terminal = terminal;
@@ -106,6 +123,8 @@ public final class TerminalHeartbeatDTO implements Serializable {
 		this.writeExternalStorageEnabled = writeExternalStorageEnabled;
 		this.usageStatsAllowed = usageStatsAllowed;
 		this.adminAccessEnabled = adminAccessEnabled;
+		this.batteryLevel = batteryLevel;
+		this.isBatteryCharging = isBatteryCharging;
 	}
 
 	public String getScreenStatus() {
@@ -179,6 +198,22 @@ public final class TerminalHeartbeatDTO implements Serializable {
 	public void setAdminAccessEnabled(boolean adminAccessEnabled) {
 		this.adminAccessEnabled = adminAccessEnabled;
 	}
+	
+	public int getBatteryLevel() {
+		return batteryLevel;
+	}
+
+	public void setBatteryLevel(int batteryLevel) {
+		this.batteryLevel = batteryLevel;
+	}
+
+	public boolean isBatteryCharging() {
+		return isBatteryCharging;
+	}
+
+	public void setBatteryCharging(boolean isBatteryCharging) {
+		this.isBatteryCharging = isBatteryCharging;
+	}
 
 	@Override
 	public String toString() {
@@ -186,9 +221,9 @@ public final class TerminalHeartbeatDTO implements Serializable {
 				+ ", accessFineLocationEnabled=" + accessFineLocationEnabled + ", readContactsEnabled="
 				+ readContactsEnabled + ", readCallLogEnabled=" + readCallLogEnabled + ", writeExternalStorageEnabled="
 				+ writeExternalStorageEnabled + ", usageStatsAllowed=" + usageStatsAllowed + ", adminAccessEnabled="
-				+ adminAccessEnabled + "]";
+				+ adminAccessEnabled + ", batteryLevel=" + batteryLevel + ", isBatteryCharging=" + isBatteryCharging
+				+ "]";
 	}
 
-	
 
 }

@@ -102,6 +102,7 @@ public final class TerminalDetailDTO extends TerminalDTO {
 	/**
 	 * 
 	 * @param identity
+	 * @param status
 	 * @param appVersionName
 	 * @param appVersionCode
 	 * @param osVersion
@@ -117,6 +118,8 @@ public final class TerminalDetailDTO extends TerminalDTO {
 	 * @param screenEnabled
 	 * @param cameraEnabled
 	 * @param settingsEnabled
+	 * @param batteryLevel
+	 * @param isBatteryCharging
 	 * @param totalApps
 	 * @param totalSms
 	 * @param totalCalls
@@ -131,16 +134,17 @@ public final class TerminalDetailDTO extends TerminalDTO {
 	 * @param usageStatsAllowed
 	 * @param adminAccessAllowed
 	 */
-	public TerminalDetailDTO(String identity, String appVersionName, String appVersionCode, String osVersion,
-			String sdkVersion, String manufacturer, String marketName, String model, String codeName, String deviceName,
-			String deviceId, String kid, Boolean bedTimeEnabled, Boolean screenEnabled, Boolean cameraEnabled,
-			Boolean settingsEnabled, long totalApps, long totalSms, long totalCalls, long totalContacts,
-			String lastTimeUsed, String screenStatus, Boolean locationPermissionEnabled,
-			Boolean callsHistoryPermissionEnabled, Boolean contactsListPermissionEnabled,
-			Boolean textMessagePermissionEnabled, Boolean storagePermissionEnabled, Boolean usageStatsAllowed,
-			Boolean adminAccessAllowed) {
-		super(identity, appVersionName, appVersionCode, osVersion, sdkVersion, manufacturer, marketName, model,
-				codeName, deviceName, deviceId, kid, bedTimeEnabled, screenEnabled, cameraEnabled, settingsEnabled);
+	public TerminalDetailDTO(String identity, String status, String appVersionName, String appVersionCode,
+			String osVersion, String sdkVersion, String manufacturer, String marketName, String model, String codeName,
+			String deviceName, String deviceId, String kid, Boolean bedTimeEnabled, Boolean screenEnabled,
+			Boolean cameraEnabled, Boolean settingsEnabled, Integer batteryLevel, Boolean isBatteryCharging,
+			long totalApps, long totalSms, long totalCalls, long totalContacts, String lastTimeUsed,
+			String screenStatus, Boolean locationPermissionEnabled, Boolean callsHistoryPermissionEnabled,
+			Boolean contactsListPermissionEnabled, Boolean textMessagePermissionEnabled,
+			Boolean storagePermissionEnabled, Boolean usageStatsAllowed, Boolean adminAccessAllowed) {
+		super(identity, status, appVersionName, appVersionCode, osVersion, sdkVersion, manufacturer, marketName, model,
+				codeName, deviceName, deviceId, kid, bedTimeEnabled, screenEnabled, cameraEnabled, settingsEnabled,
+				batteryLevel, isBatteryCharging);
 		this.totalApps = totalApps;
 		this.totalSms = totalSms;
 		this.totalCalls = totalCalls;
@@ -157,10 +161,12 @@ public final class TerminalDetailDTO extends TerminalDTO {
 	}
 
 
+
+
+
 	public long getTotalApps() {
 		return totalApps;
 	}
-
 
 	public long getTotalSms() {
 		return totalSms;

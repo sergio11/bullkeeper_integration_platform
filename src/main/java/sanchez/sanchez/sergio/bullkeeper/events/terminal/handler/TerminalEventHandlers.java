@@ -9,10 +9,12 @@ import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalBedTimeStatusCh
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalCameraStatusChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalScreenStatusChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalSettingsStatusChangedEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.terminal.UnlinkTerminalEvent;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.terminal.TerminalBedTimeStatusChangedSSE;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.terminal.TerminalCameraStatusChangedSSE;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.terminal.TerminalScreenStatusChangedSSE;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.terminal.TerminalSettingsStatusChangedSSE;
+import sanchez.sanchez.sergio.bullkeeper.sse.models.terminal.UnlinkTerminalSSE;
 import sanchez.sanchez.sergio.bullkeeper.sse.service.ISseService;
 
 
@@ -140,8 +142,23 @@ public class TerminalEventHandlers {
 		sseService.push(subscriberId, terminalSettingsStatus);
 	}
 	
-	
-	
-	
+	/**
+	 * Handle for Unlink Terminal Event
+	 * @param unlinkTerminalEvent
+	 */
+	@EventListener
+	public void handle(final UnlinkTerminalEvent unlinkTerminalEvent) {
+		Assert.notNull(unlinkTerminalEvent, "Event can not be null");
+		
+		final String subscriberId = unlinkTerminalEvent.getTerminal();
+		
+		final UnlinkTerminalSSE unlinkTerminalSSE = 
+				new UnlinkTerminalSSE(subscriberId, unlinkTerminalEvent.getKid(),
+						unlinkTerminalEvent.getTerminal());
+		 
+		// Push Event
+		sseService.push(subscriberId, unlinkTerminalSSE);
+	}
+
 	
 }

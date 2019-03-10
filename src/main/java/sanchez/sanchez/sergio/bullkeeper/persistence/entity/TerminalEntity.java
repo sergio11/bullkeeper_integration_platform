@@ -113,6 +113,12 @@ public class TerminalEntity implements Serializable {
 	private ScreenStatusEnum screenStatus = ScreenStatusEnum.STATE_OFF;
 	
 	/**
+	 * Terminal Status
+	 */
+	@Field("status")
+	private TerminalStatusEnum status = TerminalStatusEnum.STATE_ON;
+	
+	/**
      * Bed Time Enabled
      */
 	@Field("bed_time_enabled")
@@ -177,6 +183,18 @@ public class TerminalEntity implements Serializable {
      */
     @Field("admin_access_allowed")
 	private Boolean adminAccessAllowed;
+    
+    /**
+     * Battery Level
+     */
+    @Field("battery_level")
+    private Integer batteryLevel = 100;
+    
+    /**
+     * Is Battery Charging
+     */
+    @Field("is_battery_charging")
+    private Boolean isBatteryCharging = false;
 	
 	/**
 	 * KId
@@ -231,7 +249,8 @@ public class TerminalEntity implements Serializable {
 			final Boolean contactsListPermissionEnabled, 
 			final Boolean textMessagePermissionEnabled, final Boolean storagePermissionEnabled,
 			final Boolean usageStatsAllowed, final Boolean adminAccessAllowed, 
-			KidEntity kid, FunTimeScheduledEntity funTimeScheduled) {
+			KidEntity kid, FunTimeScheduledEntity funTimeScheduled, final Integer batteryLevel,
+			final Boolean isBatteryCharging, final TerminalStatusEnum status) {
 		super();
 		this.id = id;
 		this.appVersionName = appVersionName;
@@ -260,6 +279,9 @@ public class TerminalEntity implements Serializable {
 		this.usageStatsAllowed = usageStatsAllowed;
 		this.kid = kid;
 		this.funTimeScheduled = funTimeScheduled;
+		this.batteryLevel = batteryLevel;
+		this.isBatteryCharging = isBatteryCharging;
+		this.status= status;
 	}
 
 	public ObjectId getId() {
@@ -479,6 +501,31 @@ public class TerminalEntity implements Serializable {
 	public void setFunTimeScheduled(FunTimeScheduledEntity funTimeScheduled) {
 		this.funTimeScheduled = funTimeScheduled;
 	}
+	
+
+	public Integer getBatteryLevel() {
+		return batteryLevel;
+	}
+
+	public void setBatteryLevel(Integer batteryLevel) {
+		this.batteryLevel = batteryLevel;
+	}
+
+	public Boolean getIsBatteryCharging() {
+		return isBatteryCharging;
+	}
+
+	public void setIsBatteryCharging(Boolean isBatteryCharging) {
+		this.isBatteryCharging = isBatteryCharging;
+	}
+	
+	public TerminalStatusEnum getStatus() {
+		return status;
+	}
+
+	public void setStatus(TerminalStatusEnum status) {
+		this.status = status;
+	}
 
 	@Override
 	public String toString() {
@@ -486,8 +533,16 @@ public class TerminalEntity implements Serializable {
 				+ ", osVersion=" + osVersion + ", sdkVersion=" + sdkVersion + ", manufacturer=" + manufacturer
 				+ ", marketName=" + marketName + ", model=" + model + ", codeName=" + codeName + ", deviceName="
 				+ deviceName + ", deviceId=" + deviceId + ", lastTimeUsed=" + lastTimeUsed + ", createAt=" + createAt
-				+ ", screenStatus=" + screenStatus + ", bedTimeEnabled=" + bedTimeEnabled + ", screenEnabled="
-				+ screenEnabled + ", cameraEnabled=" + cameraEnabled + ", settingsEnabled=" + settingsEnabled + ", kid="
-				+ kid + "]";
+				+ ", screenStatus=" + screenStatus + ", status=" + status + ", bedTimeEnabled=" + bedTimeEnabled
+				+ ", screenEnabled=" + screenEnabled + ", cameraEnabled=" + cameraEnabled + ", settingsEnabled="
+				+ settingsEnabled + ", locationPermissionEnabled=" + locationPermissionEnabled
+				+ ", callsHistoryPermissionEnabled=" + callsHistoryPermissionEnabled
+				+ ", contactsListPermissionEnabled=" + contactsListPermissionEnabled + ", textMessagePermissionEnabled="
+				+ textMessagePermissionEnabled + ", storagePermissionEnabled=" + storagePermissionEnabled
+				+ ", usageStatsAllowed=" + usageStatsAllowed + ", adminAccessAllowed=" + adminAccessAllowed
+				+ ", batteryLevel=" + batteryLevel + ", isBatteryCharging=" + isBatteryCharging + ", kid=" + kid
+				+ ", funTimeScheduled=" + funTimeScheduled + "]";
 	}
+
+	
 }

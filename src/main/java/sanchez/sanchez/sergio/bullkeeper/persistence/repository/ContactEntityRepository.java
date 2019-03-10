@@ -85,6 +85,13 @@ public interface ContactEntityRepository extends MongoRepository<ContactEntity, 
 	void deleteByIdAndKidIdAndTerminalId(final ObjectId id, final ObjectId kid, final ObjectId terminal);
 	
 	/**
+	 * Delete Kid Id And Terminal Id
+	 * @param kid
+	 * @param terminal
+	 */
+	void deleteByKidIdAndTerminalId(final ObjectId kid, final ObjectId terminal);
+	
+	/**
 	 * Find One By Local id
 	 * @param localId
 	 * @return

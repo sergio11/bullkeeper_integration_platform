@@ -6,6 +6,7 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.DayScheduledEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.FunTimeDaysEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.FunTimeScheduledEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ScreenStatusEnum;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.TerminalStatusEnum;
 
 /**
  * Terminal Repository Custom
@@ -14,6 +15,14 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ScreenStatusEnum;
  */
 public interface TerminalRepositoryCustom {
 
+	/**
+	 * Save Terminal Status
+	 * @param terminal
+	 * @param kid
+	 * @param status
+	 */
+	void saveTerminalStatus(final ObjectId terminal, final ObjectId kid, final TerminalStatusEnum status);
+	
     /**
      * Update Screen Status
      * @param terminal
@@ -24,7 +33,7 @@ public interface TerminalRepositoryCustom {
     		final ScreenStatusEnum screenStatus, final boolean accessFineLocationEnabled,
     		final boolean readContactsEnabled, final boolean readCallLogEnabled,
     		final boolean writeExternalStorageEnabled, final boolean usageStatsAllowed,
-    		final boolean adminAccessEnabled);
+    		final boolean adminAccessEnabled, final int batteryLevel, final boolean isBatteryCharging);
     
     /**
      * Enable Bed Time

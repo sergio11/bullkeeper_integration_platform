@@ -17,6 +17,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveFunTimeScheduledDTO
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveSmsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveTerminalDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.TerminalHeartbeatDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.TerminalStatusDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledDetailDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledInTerminalDTO;
@@ -62,10 +63,17 @@ public interface ITerminalService {
     TerminalDetailDTO getTerminalDetail(final ObjectId id, final String terminalId);
     
     /**
-     * Delete By Id
-     * @param id
+     * Delete 
+     * @param kid
+     * @param terminal
      */
-    void deleteById(final ObjectId id);
+    void delete(final ObjectId kid, final ObjectId terminal);
+    
+    /**
+     * Delete By kid
+     * @param kid
+     */
+    void deleteByKid(final ObjectId kid);
     
     /**
      * 
@@ -406,6 +414,12 @@ public interface ITerminalService {
      * @param terminalHeartbeat
      */
     void saveHeartbeat(final TerminalHeartbeatDTO terminalHeartbeat);
+    
+    /**
+     * Save Status
+     * @param terminalStatus
+     */
+    void saveStatus(final TerminalStatusDTO terminalStatus);
     
     /**
      * Get App Rules

@@ -60,6 +60,13 @@ public interface KidRequestRepository extends MongoRepository<KidRequestEntity, 
 	void deleteByIdAndKid(final ObjectId id, final ObjectId kid);
 	
 	/**
+	 * Delete By Kid And Terminal Id
+	 * @param kid
+	 * @param terminal
+	 */
+	void deleteByKidIdAndTerminalId(final ObjectId kid, final ObjectId terminal);
+	
+	/**
 	 * Count By Id
 	 * @param id
 	 * @return

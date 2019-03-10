@@ -362,11 +362,31 @@ public class LoadInitialDataForAllEnvironment implements CommandLineRunner {
         comment7.setCreatedTime(new Date());
         comment7.setExtractedAt(new Date());
         comment7.setKid(kid);
-        comment7.setLikes(12L);
+        comment7.setLikes(1L);
         comment7.setAuthor(author);
         comment7.setMessage("Oye... de verdad, más gilipollas no se puede nacer");
         comment7.setSocialMedia(SocialMediaTypeEnum.FACEBOOK);
         commentsList.add(comment7);
+        
+        final CommentEntity comment8 = new CommentEntity();
+        comment8.setCreatedTime(new Date());
+        comment8.setExtractedAt(new Date());
+        comment8.setKid(kid);
+        comment8.setLikes(0L);
+        comment8.setAuthor(author);
+        comment8.setMessage("Que te den por el puto culo macho, más tonto no se puede ser");
+        comment8.setSocialMedia(SocialMediaTypeEnum.FACEBOOK);
+        commentsList.add(comment8);
+        
+        final CommentEntity comment9 = new CommentEntity();
+        comment9.setCreatedTime(new Date());
+        comment9.setExtractedAt(new Date());
+        comment9.setKid(kid);
+        comment9.setLikes(2L);
+        comment9.setAuthor(author);
+        comment9.setMessage("Tú sigue por ahí subnormal, que te van llover ostias");
+        comment9.setSocialMedia(SocialMediaTypeEnum.FACEBOOK);
+        commentsList.add(comment9);
     	
     	return commentsList;
     }

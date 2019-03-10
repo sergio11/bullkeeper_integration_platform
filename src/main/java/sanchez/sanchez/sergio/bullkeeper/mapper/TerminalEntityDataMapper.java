@@ -98,7 +98,8 @@ public abstract class TerminalEntityDataMapper {
 	 */
     @Mappings({
         @Mapping(expression="java(terminalEntity.getId().toString())", target = "identity" ),
-        @Mapping(expression="java(terminalEntity.getKid().getId().toString())", target = "kid" )
+        @Mapping(expression="java(terminalEntity.getKid().getId().toString())", target = "kid" ),
+        @Mapping(expression="java(terminalEntity.getStatus().name())", target="status")
     })
     @Named("terminalEntityToTerminalDTO")
     public abstract TerminalDTO terminalEntityToTerminalDTO(final TerminalEntity terminalEntity); 

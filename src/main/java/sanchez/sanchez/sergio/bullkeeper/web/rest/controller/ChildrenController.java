@@ -58,6 +58,7 @@ import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalBedTimeStatusCh
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalCameraStatusChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalScreenStatusChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalSettingsStatusChangedEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.terminal.UnlinkTerminalEvent;
 import sanchez.sanchez.sergio.bullkeeper.exception.AlertNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.AppInstalledNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.AppStatsNotFoundException;
@@ -132,6 +133,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveSmsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveSocialMediaDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveTerminalDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.TerminalHeartbeatDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.TerminalStatusDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AlertDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledDetailDTO;
@@ -1313,7 +1315,6 @@ public class ChildrenController extends BaseController
         		@Valid @KidShouldExists(message = "{son.id.notvalid}")
          			@PathVariable String kid,
          	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
-    			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
      				@PathVariable String terminal	) 
     		throws Throwable {
         
@@ -1392,12 +1393,10 @@ public class ChildrenController extends BaseController
         final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
     			new ObjectId(terminal), new ObjectId(kid)))
     			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
-        
-        // Delete Apps installed by child id an terminal id
-        terminalService.deleteApps(new ObjectId(kid), new ObjectId(terminalDTO.getIdentity()));
+      
         
         // Delete terminal by id)
-        terminalService.deleteById(new ObjectId(terminalDTO.getIdentity()));
+        terminalService.delete(new ObjectId(terminalDTO.getKid()), new ObjectId(terminalDTO.getIdentity()));
        
         
         // Save Alert
@@ -1405,6 +1404,10 @@ public class ChildrenController extends BaseController
     			messageSourceResolver.resolver("terminal.deleted.description", 
     					new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ), 
     			new ObjectId(kid), AlertCategoryEnum.TERMINALS);
+    	
+    	 // Publish Event
+    	this.applicationEventPublisher
+    		.publishEvent(new UnlinkTerminalEvent(this, kid, terminal));
         
         // Create And Send Response
         return ApiHelper.<String>createAndSendResponse(
@@ -3600,6 +3603,41 @@ public class ChildrenController extends BaseController
         		messageSourceResolver.resolver("terminal.heartbeat.notified.successfully"));
     
     }
+    
+    /**
+     * Terminal Status
+     * @param id
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{kid}/terminal/{terminal}/status", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(value = "TERMINAL_STATUS", nickname = "TERMINAL_STATUS",
+    notes = "Terminal Status", response = String.class)
+    public ResponseEntity<APIResponse<String>> terminalStatus(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+     			@Valid @KidShouldExists(message = "{son.should.be.exists}")
+      				@PathVariable String kid,
+	      	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
+	 			@Valid @TerminalShouldExists(message = "{terminal.should.be.exists}")
+	  				@PathVariable String terminal,
+	  		@ApiParam(name="status", value = "status", required = true) 
+				@Validated(ICommonSequence.class) 
+					@RequestBody TerminalStatusDTO terminalStatusDTO) throws Throwable {
+    	
+    	logger.debug("Terminal Status");
+    	
+    	// Save HeartBeat
+    	terminalService.saveStatus(terminalStatusDTO);
+    	
+    	// Create and send response
+    	return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.TERMINAL_STATUS_NOTIFIED_SUCCESSFULLY, HttpStatus.OK, 
+        		messageSourceResolver.resolver("terminal.status.notified.successfully"));
+    
+    }
+    
+    // TerminalStatusType
     
     /**
      * Get Fun Time Scheduled
