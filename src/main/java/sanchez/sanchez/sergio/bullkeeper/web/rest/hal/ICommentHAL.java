@@ -4,7 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.hateoas.Link;
 
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CommentDTO;
-import sanchez.sanchez.sergio.bullkeeper.web.rest.controller.CommentsController;
+import sanchez.sanchez.sergio.bullkeeper.web.rest.controller.AnalysisStatisticsController;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 /**
@@ -14,7 +14,7 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 public interface ICommentHAL {
     
     default CommentDTO addLinksToComment(final CommentDTO commentResource) {
-        Link selfLink = linkTo(CommentsController.class).slash(commentResource.getIdentity()).withSelfRel();
+        Link selfLink = linkTo(AnalysisStatisticsController.class).slash(commentResource.getIdentity()).withSelfRel();
         commentResource.add(selfLink);
         return commentResource;
     }

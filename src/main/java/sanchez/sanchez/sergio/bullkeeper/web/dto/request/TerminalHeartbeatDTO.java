@@ -91,6 +91,19 @@ public final class TerminalHeartbeatDTO implements Serializable {
     private boolean isBatteryCharging = false;
     
     
+    /**
+     * High Accuraccy Location Enabled
+     */
+	@JsonProperty("high_accuraccy_location_enabled")
+    private boolean highAccuraccyLocationEnabled;
+    
+    /**
+     * Apps Overlay Enabled
+     */
+	@JsonProperty("apps_overlay_enabled")
+    private boolean appsOverlayEnabled;
+	
+    
 	
 	
 	public TerminalHeartbeatDTO() {}
@@ -108,11 +121,14 @@ public final class TerminalHeartbeatDTO implements Serializable {
 	 * @param adminAccessEnabled
 	 * @param batteryLevel
 	 * @param isBatteryCharging
+	 * @param highAccuraccyLocationEnabled
+	 * @param appsOverlayEnabled
 	 */
 	public TerminalHeartbeatDTO(String screenStatus, String terminal, String kid, boolean accessFineLocationEnabled,
 			boolean readContactsEnabled, boolean readCallLogEnabled, boolean writeExternalStorageEnabled,
 			boolean usageStatsAllowed, boolean adminAccessEnabled, final int batteryLevel,
-			final boolean isBatteryCharging) {
+			final boolean isBatteryCharging, final boolean highAccuraccyLocationEnabled,
+			final boolean appsOverlayEnabled) {
 		super();
 		this.screenStatus = screenStatus;
 		this.terminal = terminal;
@@ -125,6 +141,8 @@ public final class TerminalHeartbeatDTO implements Serializable {
 		this.adminAccessEnabled = adminAccessEnabled;
 		this.batteryLevel = batteryLevel;
 		this.isBatteryCharging = isBatteryCharging;
+		this.highAccuraccyLocationEnabled = highAccuraccyLocationEnabled;
+		this.appsOverlayEnabled = appsOverlayEnabled;
 	}
 
 	public String getScreenStatus() {
@@ -214,6 +232,24 @@ public final class TerminalHeartbeatDTO implements Serializable {
 	public void setBatteryCharging(boolean isBatteryCharging) {
 		this.isBatteryCharging = isBatteryCharging;
 	}
+	
+	
+
+	public boolean isHighAccuraccyLocationEnabled() {
+		return highAccuraccyLocationEnabled;
+	}
+
+	public void setHighAccuraccyLocationEnabled(boolean highAccuraccyLocationEnabled) {
+		this.highAccuraccyLocationEnabled = highAccuraccyLocationEnabled;
+	}
+
+	public boolean isAppsOverlayEnabled() {
+		return appsOverlayEnabled;
+	}
+
+	public void setAppsOverlayEnabled(boolean appsOverlayEnabled) {
+		this.appsOverlayEnabled = appsOverlayEnabled;
+	}
 
 	@Override
 	public String toString() {
@@ -222,8 +258,9 @@ public final class TerminalHeartbeatDTO implements Serializable {
 				+ readContactsEnabled + ", readCallLogEnabled=" + readCallLogEnabled + ", writeExternalStorageEnabled="
 				+ writeExternalStorageEnabled + ", usageStatsAllowed=" + usageStatsAllowed + ", adminAccessEnabled="
 				+ adminAccessEnabled + ", batteryLevel=" + batteryLevel + ", isBatteryCharging=" + isBatteryCharging
-				+ "]";
+				+ ", highAccuraccyLocationEnabled=" + highAccuraccyLocationEnabled + ", appsOverlayEnabled="
+				+ appsOverlayEnabled + "]";
 	}
 
-
+	
 }

@@ -19,7 +19,7 @@ import sanchez.sanchez.sergio.bullkeeper.domain.service.IKidService;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IPasswordResetTokenService;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.ISchoolService;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.ISocialMediaService;
-import sanchez.sanchez.sergio.bullkeeper.domain.service.IStatisticsService;
+import sanchez.sanchez.sergio.bullkeeper.domain.service.IAnalysisStatisticsService;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.ITerminalService;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.ITokenGeneratorService;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IUserSystemService;
@@ -72,7 +72,7 @@ public class BeansManager {
 	private IKidService kidService;
 	
 	@Autowired
-	private IStatisticsService statisticsService;
+	private IAnalysisStatisticsService statisticsService;
 	
 	@Autowired
 	private ITokenGeneratorService tokenGeneratorService;
@@ -192,11 +192,11 @@ public class BeansManager {
 		this.kidService = sonService;
 	}
 
-	public IStatisticsService getStatisticsService() {
+	public IAnalysisStatisticsService getStatisticsService() {
 		return statisticsService;
 	}
 
-	public void setStatisticsService(IStatisticsService statisticsService) {
+	public void setStatisticsService(IAnalysisStatisticsService statisticsService) {
 		this.statisticsService = statisticsService;
 	}
 

@@ -15,16 +15,26 @@ public class SocialMediaLikesStatisticsDTO {
 	@JsonProperty("subtitle")
 	private String subtitle;
 	
+    @JsonProperty("total_likes")
+    private long totalLikes;
+	
 	@JsonProperty("likes")
 	private List<SocialMediaLikesDTO> data;
     
 	public SocialMediaLikesStatisticsDTO(){}
 	
-
-	public SocialMediaLikesStatisticsDTO(String title, String subtitle, List<SocialMediaLikesDTO> data) {
+	/**
+	 * 
+	 * @param title
+	 * @param subtitle
+	 * @param totalLikes
+	 * @param data
+	 */
+	public SocialMediaLikesStatisticsDTO(String title, String subtitle, long totalLikes, List<SocialMediaLikesDTO> data) {
 		super();
 		this.title = title;
 		this.subtitle = subtitle;
+		this.totalLikes = totalLikes;
 		this.data = data;
 	}
 
@@ -49,6 +59,14 @@ public class SocialMediaLikesStatisticsDTO {
 		this.subtitle = subtitle;
 	}
 
+
+	public long getTotalLikes() {
+		return totalLikes;
+	}
+
+	public void setTotalLikes(long totalLikes) {
+		this.totalLikes = totalLikes;
+	}
 
 	public List<SocialMediaLikesDTO> getData() {
 		return data;
@@ -112,11 +130,9 @@ public class SocialMediaLikesStatisticsDTO {
 
 	@Override
 	public String toString() {
-		return "SocialMediaLikesStatisticsDTO [title=" + title + ", subtitle=" + subtitle + ", data=" + data + "]";
+		return "SocialMediaLikesStatisticsDTO [title=" + title + ", subtitle=" + subtitle + ", totalLikes=" + totalLikes
+				+ ", data=" + data + "]";
 	}
-
-
-	
 
 	
 }

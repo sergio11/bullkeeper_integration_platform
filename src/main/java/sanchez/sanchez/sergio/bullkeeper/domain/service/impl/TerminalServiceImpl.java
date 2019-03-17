@@ -926,7 +926,9 @@ public final class TerminalServiceImpl implements ITerminalService {
 				terminalHeartbeat.isUsageStatsAllowed(),
 				terminalHeartbeat.isAdminAccessEnabled(),
 				terminalHeartbeat.getBatteryLevel(),
-				terminalHeartbeat.isBatteryCharging());
+				terminalHeartbeat.isBatteryCharging(),
+				terminalHeartbeat.isHighAccuraccyLocationEnabled(),
+				terminalHeartbeat.isAppsOverlayEnabled());
 		
 	}
 
@@ -1503,5 +1505,28 @@ public final class TerminalServiceImpl implements ITerminalService {
 		for(final TerminalEntity terminalEntity: terminalEntities) {
 			delete(terminalEntity.getKid().getId(), terminalEntity.getId());
 		}
+	}
+
+	
+	/**
+	 * Lock Screen In All Kid Terminals
+	 */
+	@Override
+	public void lockScreenInAllKidTerminals(final ObjectId kid) {
+		Assert.notNull(kid,  "Kid can not be null");
+		
+		terminalRepository.lockScreen(kid);
+		
+	}
+
+	/**
+	 * Unlock Screen in all kid terminals
+	 */
+	@Override
+	public void unlockScreenInAllKidTerminals(final ObjectId kid) {
+		Assert.notNull(kid, "Kid can not be null");
+		
+		terminalRepository.unlockScreen(kid);
+		
 	}
 }

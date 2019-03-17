@@ -191,6 +191,32 @@ public interface CommentRepository extends MongoRepository<CommentEntity, Object
     
     /**
      * 
+     * @param kids
+     * @param from
+     * @return
+     */
+    List<CommentEntity> findByKidIdInAndAnalysisResultsSentimentFinishAtGreaterThanEqual(final List<ObjectId> kids, 
+    		final Date from);
+    
+    /**
+     * 
+     * @param kid
+     * @param status
+     * @return
+     */
+    List<CommentEntity> findByKidIdAndAnalysisResultsSentimentStatus(final ObjectId kid, final AnalysisStatusEnum status);
+    
+    /**
+     * 
+     * @param kids
+     * @param from
+     * @return
+     */
+    List<CommentEntity> findByKidIdAndAnalysisResultsSentimentFinishAtGreaterThanEqual(final List<ObjectId> kids, 
+    		final Date from);
+    
+    /**
+     * 
      * @param kid
      * @param from
      * @return
@@ -230,6 +256,15 @@ public interface CommentRepository extends MongoRepository<CommentEntity, Object
      * @return
      */
     List<CommentEntity> findByKidAndExtractedAtGreaterThanEqual(final ObjectId kid, 
+    		final Date from);
+    
+    /**
+     * 
+     * @param kids
+     * @param from
+     * @return
+     */
+    List<CommentEntity> findByKidInAndExtractedAtGreaterThanEqual(final List<ObjectId> kids, 
     		final Date from);
     
     /**
@@ -286,12 +321,50 @@ public interface CommentRepository extends MongoRepository<CommentEntity, Object
     
     /**
      * 
+     * @param kids
+     * @param from
+     * @param result
+     * @return
+     */
+    Long countByKidIdInAndAnalysisResultsViolenceFinishAtGreaterThanEqualAndAnalysisResultsViolenceResult(final List<ObjectId> kids, 
+    		final Date from, final Integer result);
+    
+    /**
+     * 
+     * @param kids
+     * @param from
+     * @param result
+     * @return
+     */
+    Long countByKidIdAndAnalysisResultsViolenceResult(final ObjectId kid, final Integer result);
+    
+    /**
+     * 
      * @param kid
      * @param from
      * @param result
      * @return
      */
     Long countByKidIdAndAnalysisResultsDrugsFinishAtGreaterThanEqualAndAnalysisResultsDrugsResult(final ObjectId kid, final Date from, final Integer result);
+    
+    
+    /**
+     * 
+     * @param kids
+     * @param from
+     * @param result
+     * @return
+     */
+    Long countByKidIdInAndAnalysisResultsDrugsFinishAtGreaterThanEqualAndAnalysisResultsDrugsResult(final List<ObjectId> kids, final Date from, final Integer result);
+    
+    
+    /**
+     * 
+     * @param kid
+     * @param result
+     * @return
+     */
+    Long countByKidIdAndAnalysisResultsDrugsResult(final ObjectId kid, final Integer result);
     
     /**
      * 
@@ -303,6 +376,22 @@ public interface CommentRepository extends MongoRepository<CommentEntity, Object
     Long countByKidIdAndAnalysisResultsAdultFinishAtGreaterThanEqualAndAnalysisResultsAdultResult(final ObjectId kid, 
     		final Date from, final Integer result);
     
+    /**
+     * 
+     * @param kids
+     * @param from
+     * @param result
+     * @return
+     */
+    Long countByKidIdInAndAnalysisResultsAdultFinishAtGreaterThanEqualAndAnalysisResultsAdultResult(final List<ObjectId> kids, 
+    		final Date from, final Integer result);
+    
+    /**
+     * @param kid
+     * @param result
+     * @return
+     */
+    Long countByKidIdAndAnalysisResultsAdultResult(final ObjectId kid, final Integer result);
     
     /**
      * 
@@ -316,12 +405,42 @@ public interface CommentRepository extends MongoRepository<CommentEntity, Object
     
     /**
      * 
+     * @param kids
+     * @param from
+     * @param result
+     * @return
+     */
+    Long countByKidIdInAndAnalysisResultsBullyingFinishAtGreaterThanEqualAndAnalysisResultsBullyingResult(final List<ObjectId> kids, 
+    		final Date from, final Integer result);
+    
+    /**
+     * 
+     * @param kid
+     * @param result
+     * @return
+     */
+    Long countByKidIdAndAnalysisResultsBullyingResult(final ObjectId kid, final Integer result);
+    
+    /**
+     * 
      * @param kid
      * @param from
      * @param result
      * @return
      */
     List<CommentEntity> findByKidIdAndAnalysisResultsViolenceFinishAtGreaterThanEqualAndAnalysisResultsViolenceResult(final ObjectId kid, 
+    		final Date from, final Integer result);
+    
+
+    
+    /**
+     * 
+     * @param kids
+     * @param from
+     * @param result
+     * @return
+     */
+    List<CommentEntity> findByKidIdInAndAnalysisResultsViolenceFinishAtGreaterThanEqualAndAnalysisResultsViolenceResult(final List<ObjectId> kids, 
     		final Date from, final Integer result);
     
     /**
@@ -336,12 +455,32 @@ public interface CommentRepository extends MongoRepository<CommentEntity, Object
     
     /**
      * 
+     * @param kids
+     * @param from
+     * @param result
+     * @return
+     */
+    List<CommentEntity> findByKidIdInAndAnalysisResultsDrugsFinishAtGreaterThanEqualAndAnalysisResultsDrugsResult(final List<ObjectId> kids, 
+    		final Date from, final Integer result);
+    
+    /**
+     * 
      * @param kid
      * @param from
      * @param result
      * @return
      */
     List<CommentEntity> findByKidIdAndAnalysisResultsAdultFinishAtGreaterThanEqualAndAnalysisResultsAdultResult(final ObjectId kid, 
+    		final Date from, final Integer result);
+    
+    /**
+     * 
+     * @param kids
+     * @param from
+     * @param result
+     * @return
+     */
+    List<CommentEntity> findByKidIdInAndAnalysisResultsAdultFinishAtGreaterThanEqualAndAnalysisResultsAdultResult(final List<ObjectId> kids, 
     		final Date from, final Integer result);
     
     /**
@@ -354,5 +493,13 @@ public interface CommentRepository extends MongoRepository<CommentEntity, Object
     List<CommentEntity> findByKidIdAndAnalysisResultsBullyingFinishAtGreaterThanEqualAndAnalysisResultsBullyingResult(final ObjectId kid, 
     		final Date from, final Integer result);
     
-   
+    /**
+     * 
+     * @param kids
+     * @param from
+     * @param result
+     * @return
+     */
+    List<CommentEntity> findByKidIdInAndAnalysisResultsBullyingFinishAtGreaterThanEqualAndAnalysisResultsBullyingResult(final List<ObjectId> kids, 
+    		final Date from, final Integer result);
 }

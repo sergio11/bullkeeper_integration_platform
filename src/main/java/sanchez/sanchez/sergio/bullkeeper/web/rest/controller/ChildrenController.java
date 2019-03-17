@@ -30,7 +30,6 @@ import sanchez.sanchez.sergio.bullkeeper.domain.service.IGeofenceService;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IKidService;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IScheduledBlockService;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.ISocialMediaService;
-import sanchez.sanchez.sergio.bullkeeper.domain.service.IStatisticsService;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.ITerminalService;
 import sanchez.sanchez.sergio.bullkeeper.events.apps.AppDisabledEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.apps.AppEnabledEvent;
@@ -54,10 +53,12 @@ import sanchez.sanchez.sergio.bullkeeper.events.scheduledblock.DeleteScheduledBl
 import sanchez.sanchez.sergio.bullkeeper.events.scheduledblock.ScheduledBlockImageChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.scheduledblock.ScheduledBlockSavedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.scheduledblock.ScheduledBlockStatusChangedEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.terminal.AllTerminalScreenStatusChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalBedTimeStatusChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalCameraStatusChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalScreenStatusChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalSettingsStatusChangedEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.terminal.UnlinkAllKidTerminalsEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.UnlinkTerminalEvent;
 import sanchez.sanchez.sergio.bullkeeper.exception.AlertNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.AppInstalledNotFoundException;
@@ -75,18 +76,14 @@ import sanchez.sanchez.sergio.bullkeeper.exception.NoAlertsByKidFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoAppStatsFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoAppsInstalledFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoChildrenFoundException;
-import sanchez.sanchez.sergio.bullkeeper.exception.NoCommunityStatisticsForThisPeriodException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoContactsFoundException;
-import sanchez.sanchez.sergio.bullkeeper.exception.NoDimensionsStatisticsForThisPeriodException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoGeofenceAlertsFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoGeofenceFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoKidGuardianFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoKidRequestFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoPhoneNumberBlockedFound;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoScheduledBlockFoundException;
-import sanchez.sanchez.sergio.bullkeeper.exception.NoSentimentAnalysisStatisticsForThisPeriodException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoSmsFoundException;
-import sanchez.sanchez.sergio.bullkeeper.exception.NoSocialMediaActivityFoundForThisPeriodException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoTerminalsFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.SingleSmsNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.SocialMediaNotFoundException;
@@ -142,14 +139,11 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppRuleDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppStatsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CallDetailDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CommentDTO;
-import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CommunitiesStatisticsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ContactDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.DayScheduledDTO;
-import sanchez.sanchez.sergio.bullkeeper.web.dto.response.DimensionsStatisticsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.FunTimeScheduledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.GeofenceAlertDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.GeofenceDTO;
-import sanchez.sanchez.sergio.bullkeeper.web.dto.response.GuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ImageDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidGuardianDTO;
@@ -157,9 +151,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidRequestDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.LocationDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.PhoneNumberBlockedDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ScheduledBlockDTO;
-import sanchez.sanchez.sergio.bullkeeper.web.dto.response.SentimentAnalysisStatisticsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.SmsDTO;
-import sanchez.sanchez.sergio.bullkeeper.web.dto.response.SocialMediaActivityStatisticsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.SocialMediaDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.TerminalDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.TerminalDetailDTO;
@@ -216,7 +208,6 @@ public class ChildrenController extends BaseController
     private final ISocialMediaService socialMediaService;
     private final IUploadFilesService uploadFilesService;
     private final IAlertService alertService;
-    private final IStatisticsService statisticsService;
     private final ITerminalService terminalService;
     private final IScheduledBlockService scheduledBlockService;
     private final IGeofenceService geofenceService;
@@ -228,14 +219,12 @@ public class ChildrenController extends BaseController
      * @param socialMediaService
      * @param uploadFilesService
      * @param alertService
-     * @param statisticsService
      * @param terminalService
      * @param scheduledBlockService
      * @param geofenceService
      */
     public ChildrenController(IKidService kidService, ICommentsService commentService, ISocialMediaService socialMediaService,
-    		IUploadFilesService uploadFilesService, IAlertService alertService, IStatisticsService statisticsService,
-    		final ITerminalService terminalService, 
+    		IUploadFilesService uploadFilesService, IAlertService alertService,final ITerminalService terminalService, 
     		final IScheduledBlockService scheduledBlockService,
     		final IGeofenceService geofenceService) {
         this.kidService = kidService;
@@ -243,7 +232,6 @@ public class ChildrenController extends BaseController
         this.socialMediaService = socialMediaService;
         this.uploadFilesService = uploadFilesService;
         this.alertService = alertService;
-        this.statisticsService = statisticsService;
         this.terminalService = terminalService;
         this.scheduledBlockService = scheduledBlockService;
         this.geofenceService = geofenceService;
@@ -641,128 +629,7 @@ public class ChildrenController extends BaseController
         		.orElseThrow(() -> { throw new SocialMediaNotFoundException(); });        
     }
     
-    /**
-     * Get Social Media Statistics Activity
-     * @param id
-     * @param from
-     * @return
-     * @throws Throwable
-     */
-    @RequestMapping(value = "/{id}/statistics/social-activity", method = RequestMethod.GET)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#id) )")
-    @ApiOperation(value = "SOCIAL_MEDIA_ACTIVITY_STATISTICS", nickname = "SOCIAL_MEDIA_ACTIVITY_STATISTICS", 
-            notes = "Social Media Activity Statistics", response = SocialMediaActivityStatisticsDTO.class)
-    public ResponseEntity<APIResponse<SocialMediaActivityStatisticsDTO>> getSocialMediaStatisticsActivity(
-            @ApiParam(name = "id", value = "Kid Identifier", required = true)
-    			@Valid @ValidObjectId(message = "{son.id.notvalid}")
-            		@KidShouldExists(message = "{son.should.be.exists}")
-    						@PathVariable String id,
-    		@ApiParam(name = "days_ago", value = "Days Ago", required = false)
-            	@RequestParam(name = "days_ago", defaultValue = "1", required = false) Date from) throws Throwable {
-        
-        logger.debug("Get Social Media Activity Statistics for Son -> " + id );
-        
-        final SocialMediaActivityStatisticsDTO socialMediaActivityStatistics = 
-        		statisticsService.getSocialMediaActivityStatistics(id, from);
-       
-        if(socialMediaActivityStatistics.getData().isEmpty())
-        	throw new NoSocialMediaActivityFoundForThisPeriodException(from);
-        
-        // Create and send response
-        return ApiHelper.<SocialMediaActivityStatisticsDTO>createAndSendResponse(ChildrenResponseCode.SOCIAL_MEDIA_ACTIVITY_STATISTICS, 
-				HttpStatus.OK, socialMediaActivityStatistics);  
-    }
     
-    /**
-     * Get Sentiment Analysis Statistics
-     * @param id
-     * @param from
-     * @return
-     * @throws Throwable
-     */
-    @RequestMapping(value = "/{id}/statistics/sentiment-analysis", method = RequestMethod.GET)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#id) )")
-    @ApiOperation(value = "SENTIMENT_ANALYSIS_STATISTICS", nickname = "SENTIMENT_ANALYSIS_STATISTICS", 
-            notes = "Sentiment Analysis Statistics", response = SentimentAnalysisStatisticsDTO.class)
-    public ResponseEntity<APIResponse<SentimentAnalysisStatisticsDTO>> getSentimentAnalysisStatistics(
-            @ApiParam(name = "id", value = "Kid Identifier", required = true)
-    			@Valid @ValidObjectId(message = "{son.id.notvalid}")
-            		@KidShouldExists(message = "{son.should.be.exists}")
-    					@PathVariable String id,
-    		@ApiParam(name = "days_ago", value = "Days Ago", required = false)
-        		@RequestParam(name = "days_ago", defaultValue = "1", required = false) Date from) throws Throwable {
-        
-        logger.debug("Get Sentiment Analysis Statistics for -> " + id );
-        
-        SentimentAnalysisStatisticsDTO sentimentAnalysisStatistics = statisticsService.getSentimentAnalysisStatistics(id, from);
-      
-        if(sentimentAnalysisStatistics.getData().isEmpty())
-        	throw new NoSentimentAnalysisStatisticsForThisPeriodException(from);
-        // Create and send response
-        return ApiHelper.<SentimentAnalysisStatisticsDTO>createAndSendResponse(ChildrenResponseCode.SENTIMENT_ANALYSIS_STATISTICS, 
-				HttpStatus.OK, sentimentAnalysisStatistics);  
-    }
-    
-    /**
-     * Get Communities Statistics
-     * @param id
-     * @param from
-     * @return
-     * @throws Throwable
-     */
-    @RequestMapping(value = "/{id}/statistics/communities", method = RequestMethod.GET)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#id) )")
-    @ApiOperation(value = "COMMUNITIES_STATISTICS", nickname = "COMMUNITIES_STATISTICS", 
-            notes = "Communities Statistics", response = CommunitiesStatisticsDTO.class)
-    public ResponseEntity<APIResponse<CommunitiesStatisticsDTO>> getCommunitiesStatistics(
-            @ApiParam(name = "id", value = "Kid Identifier", required = true)
-    			@Valid @ValidObjectId(message = "{son.id.notvalid}")
-            		@KidShouldExists(message = "{son.should.be.exists}")
-    					@PathVariable String id,
-    		@ApiParam(name = "days_ago", value = "Days Ago", required = false)
-    			@RequestParam(name = "days_ago", defaultValue = "1", required = false) Date from) throws Throwable {
-        
-        logger.debug("Get Communities Statistics for -> " + id);
-        
-        CommunitiesStatisticsDTO communitiesStatistics = statisticsService.getCommunitiesStatistics(id, from);
-        
-        if(communitiesStatistics.getData().isEmpty())
-        	throw new NoCommunityStatisticsForThisPeriodException(from);
-        // Create and send response
-        return ApiHelper.<CommunitiesStatisticsDTO>createAndSendResponse(ChildrenResponseCode.COMMUNITIES_STATISTICS, 
-				HttpStatus.OK, communitiesStatistics);  
-    }
-    
-    /**
-     * Get Four Dimensions Statistics
-     * @param id
-     * @param from
-     * @return
-     * @throws Throwable
-     */
-    @RequestMapping(value = "/{id}/statistics/dimensions", method = RequestMethod.GET)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#id) )")
-    @ApiOperation(value = "FOUR_DIMENSIONS_STATISTICS", nickname = "FOUR_DIMENSIONS_STATISTICS", 
-            notes = "Four Dimensions Statistics", response = DimensionsStatisticsDTO.class)
-    public ResponseEntity<APIResponse<DimensionsStatisticsDTO>> getFourDimensionsStatistics(
-            @ApiParam(name = "id", value = "Kid Identifier", required = true)
-    			@Valid @ValidObjectId(message = "{son.id.notvalid}")
-            		@KidShouldExists(message = "{son.should.be.exists}")
-    					@PathVariable String id,
-    		@ApiParam(name = "days_ago", value = "Days Ago", required = false)
-				@RequestParam(name = "days_ago", defaultValue = "1", required = false) Date from) throws Throwable {
-        
-        logger.debug("Get Four Dimensions Statistics for -> " + id );
-        
-        DimensionsStatisticsDTO fourDimensionsStatistics = statisticsService.getDimensionsStatistics(id, from);
-     
-        if(fourDimensionsStatistics.getData().isEmpty())
-        	throw new NoDimensionsStatisticsForThisPeriodException(from);
-        
-        
-        return ApiHelper.<DimensionsStatisticsDTO>createAndSendResponse(ChildrenResponseCode.FOUR_DIMENSIONS_STATISTICS, 
-				HttpStatus.OK, fourDimensionsStatistics);  
-    }
     
    
    
@@ -1415,6 +1282,51 @@ public class ChildrenController extends BaseController
         
     }
     
+    
+    /**
+     * Delete Terminal By Id
+     * @param kid
+     * @param alert
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{kid}/terminal", method = RequestMethod.DELETE)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(value = "DELETE_ALL_TERMINAL_FOR_KID", nickname = "DELETE_ALL_TERMINAL_FOR_KID", notes = "Delete All Terminal for kid",
+            response = String.class)
+    public ResponseEntity<APIResponse<String>> deleteAllTerminalForKid(
+            @ApiParam(name = "kid", value = "Kid Identifier", required = true)
+            	@Valid @KidShouldExists(message = "{kid.not.exists}")
+             		@PathVariable String kid) throws Throwable {
+        
+        logger.debug("Delete all terminal for kid: " + kid);
+        
+        final Iterable<TerminalDTO> terminals = terminalService
+    			.getTerminalsByKidId(kid);
+        
+        if(Iterables.isEmpty(terminals))
+        	throw new NoTerminalsFoundException();
+        	
+ 
+        // Delete terminal by id)
+        terminalService.deleteByKid(new ObjectId(kid));
+      
+        // Save Alert
+    	alertService.save(AlertLevelEnum.WARNING, messageSourceResolver.resolver("all.terminal.by.kid.deleted.title"),
+    			messageSourceResolver.resolver("all.terminal.by.kid.deleted.description" ), 
+    			new ObjectId(kid), AlertCategoryEnum.TERMINALS);
+    	
+    	 // Publish Event
+    	this.applicationEventPublisher
+    		.publishEvent(new UnlinkAllKidTerminalsEvent(this, kid, terminals));
+        
+        // Create And Send Response
+        return ApiHelper.<String>createAndSendResponse(
+                ChildrenResponseCode.ALL_TERMINAL_BY_KID_DELETED, HttpStatus.OK, 
+                messageSourceResolver.resolver("all.terminal.by.kid.deleted"));
+        
+    }
+    
     /**
      * Enable Bed Time
      */
@@ -1604,6 +1516,36 @@ public class ChildrenController extends BaseController
     }
     
     /**
+     * Lock Screen
+     */
+    @RequestMapping(value = "/{kid}/terminal/screen/lock", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(value = "LOCK_SCREEN_FOR_ALL_KID_TERMINAL", nickname = "LOCK_SCREEN_FOR_ALL_KID_TERMINAL",
+    	notes = "Lock Screen for all kid terminal", response = String.class)
+    public ResponseEntity<APIResponse<String>> lockScreenForAllKidTerminal(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+        		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+         			@PathVariable String kid) 
+    		throws Throwable {
+
+        // Lock Screen
+        terminalService.lockScreenInAllKidTerminals(new ObjectId(kid));
+        
+        // Publish Event
+    	this.applicationEventPublisher
+    		.publishEvent(new AllTerminalScreenStatusChangedEvent(
+    				this, kid, false));
+        
+        // Create and send response
+        return ApiHelper.<String>createAndSendResponse(
+        		ChildrenResponseCode.LOCK_SCREEN_FOR_ALL_KID_TERMINALS_ENABLED_SUCCESSFULLY, HttpStatus.OK, 
+        		messageSourceResolver.resolver("lock.screen.for.all.kid.terminals.enabled.successfully"));
+    }
+    
+    
+    
+    /**
      * Unlock Screen
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/screen/unlock", method = RequestMethod.POST)
@@ -1640,6 +1582,37 @@ public class ChildrenController extends BaseController
         return ApiHelper.<String>createAndSendResponse(
         		ChildrenResponseCode.LOCK_SCREEN_DISABLED_SUCCESSFULLY, HttpStatus.OK, 
         		messageSourceResolver.resolver("lock.screen.disabled.successfully"));
+    }
+    
+    /**
+     * Unlock Screen
+     */
+    @RequestMapping(value = "/{kid}/terminal/screen/unlock", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(
+    		value = "UNLOCK_SCREEN_FOR_ALL_KID_TERMINAL", 
+    		nickname = "UNLOCK_SCREEN_FOR_ALL_KID_TERMINAL",
+    		notes = "Unlock Screen for all kid terminal", response = String.class)
+    public ResponseEntity<APIResponse<String>> unLockScreenForAllKidTerminal(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+        		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+         			@PathVariable String kid) 
+    		throws Throwable {
+    	
+  
+        // Unlock screen for all kid terminal
+        terminalService.unlockScreenInAllKidTerminals(new ObjectId(kid));
+        
+        // Publish Event
+    	this.applicationEventPublisher
+    		.publishEvent(new AllTerminalScreenStatusChangedEvent(
+    				this, kid, true));
+        
+        // Create and send response
+        return ApiHelper.<String>createAndSendResponse(
+        		ChildrenResponseCode.LOCK_SCREEN_FOR_ALL_KID_TERMINALS_DISABLED_SUCCESSFULLY, HttpStatus.OK, 
+        		messageSourceResolver.resolver("lock.screen.for.all.kid.terminals.disabled.successfully"));
     }
     
     /**

@@ -195,6 +195,18 @@ public class TerminalEntity implements Serializable {
      */
     @Field("is_battery_charging")
     private Boolean isBatteryCharging = false;
+    
+    /**
+     * High Accuraccy Location Enabled
+     */
+    @Field("high_accuraccy_location_enabled")
+    private Boolean highAccuraccyLocationEnabled;
+    
+    /**
+     * Apps Overlay Enabled
+     */
+    @Field("apps_overlay_enabled")
+    private Boolean appsOverlayEnabled;
 	
 	/**
 	 * KId
@@ -238,6 +250,8 @@ public class TerminalEntity implements Serializable {
 	 * @param textMessagePermissionEnabled
 	 * @param kid
 	 * @param funTimeScheduled
+	 * @param highAccuraccyLocationEnabled
+	 * @param appsOverlayEnabled
 	 */
 	@PersistenceConstructor
 	public TerminalEntity(ObjectId id, String appVersionName, String appVersionCode, String osVersion,
@@ -250,7 +264,8 @@ public class TerminalEntity implements Serializable {
 			final Boolean textMessagePermissionEnabled, final Boolean storagePermissionEnabled,
 			final Boolean usageStatsAllowed, final Boolean adminAccessAllowed, 
 			KidEntity kid, FunTimeScheduledEntity funTimeScheduled, final Integer batteryLevel,
-			final Boolean isBatteryCharging, final TerminalStatusEnum status) {
+			final Boolean isBatteryCharging, final TerminalStatusEnum status,
+			final Boolean highAccuraccyLocationEnabled, final Boolean appsOverlayEnabled) {
 		super();
 		this.id = id;
 		this.appVersionName = appVersionName;
@@ -282,6 +297,8 @@ public class TerminalEntity implements Serializable {
 		this.batteryLevel = batteryLevel;
 		this.isBatteryCharging = isBatteryCharging;
 		this.status= status;
+		this.highAccuraccyLocationEnabled = highAccuraccyLocationEnabled;
+		this.appsOverlayEnabled = appsOverlayEnabled;
 	}
 
 	public ObjectId getId() {
@@ -526,6 +543,24 @@ public class TerminalEntity implements Serializable {
 	public void setStatus(TerminalStatusEnum status) {
 		this.status = status;
 	}
+	
+	
+
+	public Boolean getHighAccuraccyLocationEnabled() {
+		return highAccuraccyLocationEnabled;
+	}
+
+	public void setHighAccuraccyLocationEnabled(Boolean highAccuraccyLocationEnabled) {
+		this.highAccuraccyLocationEnabled = highAccuraccyLocationEnabled;
+	}
+
+	public Boolean getAppsOverlayEnabled() {
+		return appsOverlayEnabled;
+	}
+
+	public void setAppsOverlayEnabled(Boolean appsOverlayEnabled) {
+		this.appsOverlayEnabled = appsOverlayEnabled;
+	}
 
 	@Override
 	public String toString() {
@@ -540,9 +575,13 @@ public class TerminalEntity implements Serializable {
 				+ ", contactsListPermissionEnabled=" + contactsListPermissionEnabled + ", textMessagePermissionEnabled="
 				+ textMessagePermissionEnabled + ", storagePermissionEnabled=" + storagePermissionEnabled
 				+ ", usageStatsAllowed=" + usageStatsAllowed + ", adminAccessAllowed=" + adminAccessAllowed
-				+ ", batteryLevel=" + batteryLevel + ", isBatteryCharging=" + isBatteryCharging + ", kid=" + kid
-				+ ", funTimeScheduled=" + funTimeScheduled + "]";
+				+ ", batteryLevel=" + batteryLevel + ", isBatteryCharging=" + isBatteryCharging
+				+ ", highAccuraccyLocationEnabled=" + highAccuraccyLocationEnabled + ", appsOverlayEnabled="
+				+ appsOverlayEnabled + ", kid=" + kid + ", funTimeScheduled=" + funTimeScheduled + "]";
 	}
+
+
+	
 
 	
 }

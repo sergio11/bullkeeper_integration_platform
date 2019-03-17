@@ -24,16 +24,28 @@ public interface TerminalRepositoryCustom {
 	void saveTerminalStatus(final ObjectId terminal, final ObjectId kid, final TerminalStatusEnum status);
 	
     /**
-     * Update Screen Status
+     * Save terminal status
      * @param terminal
      * @param kid
      * @param screenStatus
+     * @param accessFineLocationEnabled
+     * @param readContactsEnabled
+     * @param readCallLogEnabled
+     * @param writeExternalStorageEnabled
+     * @param usageStatsAllowed
+     * @param adminAccessEnabled
+     * @param batteryLevel
+     * @param isBatteryCharging
+     * @param highAccuraccyLocationEnabled
+     * @param appsOverlayEnabled
      */
     void saveTerminalStatus(final ObjectId terminal, final ObjectId kid,
     		final ScreenStatusEnum screenStatus, final boolean accessFineLocationEnabled,
     		final boolean readContactsEnabled, final boolean readCallLogEnabled,
     		final boolean writeExternalStorageEnabled, final boolean usageStatsAllowed,
-    		final boolean adminAccessEnabled, final int batteryLevel, final boolean isBatteryCharging);
+    		final boolean adminAccessEnabled, final int batteryLevel, 
+    		final boolean isBatteryCharging, final boolean highAccuraccyLocationEnabled,
+    		final boolean appsOverlayEnabled);
     
     /**
      * Enable Bed Time
@@ -58,11 +70,23 @@ public interface TerminalRepositoryCustom {
     void lockScreen(final ObjectId kid, final ObjectId terminal);
     
     /**
+     * Lock Screen
+     * @param kid
+     */
+    void lockScreen(final ObjectId kid);
+    
+    /**
      * Un lock screen
      * @param kid
      * @param terminal
      */
     void unlockScreen(final ObjectId kid, final ObjectId terminal);
+    
+    /**
+     * Unlock Screen
+     * @param kid
+     */
+    void unlockScreen(final ObjectId kid);
     
     /**
      * Lock Camera

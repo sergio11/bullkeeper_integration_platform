@@ -1,6 +1,5 @@
 package sanchez.sanchez.sergio.bullkeeper.web.dto.response;
 
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -90,6 +89,18 @@ public final class TerminalDetailDTO extends TerminalDTO {
 	@JsonProperty("admin_access_allowed")
 	protected Boolean adminAccessAllowed;
 	
+	  /**
+     * High Accuraccy Location Enabled
+     */
+	@JsonProperty("high_accuraccy_location_enabled")
+    private Boolean highAccuraccyLocationEnabled;
+    
+    /**
+     * Apps Overlay Enabled
+     */
+	@JsonProperty("apps_overlay_enabled")
+    private Boolean appsOverlayEnabled;
+	
 
 	/**
 	 * 
@@ -133,6 +144,8 @@ public final class TerminalDetailDTO extends TerminalDTO {
 	 * @param storagePermissionEnabled
 	 * @param usageStatsAllowed
 	 * @param adminAccessAllowed
+	 * @param highAccuraccyLocationEnabled
+	 * @param appsOverlayEnabled
 	 */
 	public TerminalDetailDTO(String identity, String status, String appVersionName, String appVersionCode,
 			String osVersion, String sdkVersion, String manufacturer, String marketName, String model, String codeName,
@@ -141,7 +154,8 @@ public final class TerminalDetailDTO extends TerminalDTO {
 			long totalApps, long totalSms, long totalCalls, long totalContacts, String lastTimeUsed,
 			String screenStatus, Boolean locationPermissionEnabled, Boolean callsHistoryPermissionEnabled,
 			Boolean contactsListPermissionEnabled, Boolean textMessagePermissionEnabled,
-			Boolean storagePermissionEnabled, Boolean usageStatsAllowed, Boolean adminAccessAllowed) {
+			Boolean storagePermissionEnabled, Boolean usageStatsAllowed, Boolean adminAccessAllowed,
+			Boolean highAccuraccyLocationEnabled, Boolean appsOverlayEnabled) {
 		super(identity, status, appVersionName, appVersionCode, osVersion, sdkVersion, manufacturer, marketName, model,
 				codeName, deviceName, deviceId, kid, bedTimeEnabled, screenEnabled, cameraEnabled, settingsEnabled,
 				batteryLevel, isBatteryCharging);
@@ -158,11 +172,9 @@ public final class TerminalDetailDTO extends TerminalDTO {
 		this.storagePermissionEnabled = storagePermissionEnabled;
 		this.usageStatsAllowed = usageStatsAllowed;
 		this.adminAccessAllowed = adminAccessAllowed;
+		this.highAccuraccyLocationEnabled = highAccuraccyLocationEnabled;
+		this.appsOverlayEnabled = appsOverlayEnabled;
 	}
-
-
-
-
 
 	public long getTotalApps() {
 		return totalApps;
@@ -291,6 +303,26 @@ public final class TerminalDetailDTO extends TerminalDTO {
 	public void setAdminAccessAllowed(Boolean adminAccessAllowed) {
 		this.adminAccessAllowed = adminAccessAllowed;
 	}
+	
+
+	public Boolean getHighAccuraccyLocationEnabled() {
+		return highAccuraccyLocationEnabled;
+	}
+
+
+	public void setHighAccuraccyLocationEnabled(Boolean highAccuraccyLocationEnabled) {
+		this.highAccuraccyLocationEnabled = highAccuraccyLocationEnabled;
+	}
+
+
+	public Boolean getAppsOverlayEnabled() {
+		return appsOverlayEnabled;
+	}
+
+
+	public void setAppsOverlayEnabled(Boolean appsOverlayEnabled) {
+		this.appsOverlayEnabled = appsOverlayEnabled;
+	}
 
 
 	@Override
@@ -301,9 +333,10 @@ public final class TerminalDetailDTO extends TerminalDTO {
 				+ ", callsHistoryPermissionEnabled=" + callsHistoryPermissionEnabled
 				+ ", contactsListPermissionEnabled=" + contactsListPermissionEnabled + ", textMessagePermissionEnabled="
 				+ textMessagePermissionEnabled + ", storagePermissionEnabled=" + storagePermissionEnabled
-				+ ", usageStatsAllowed=" + usageStatsAllowed + ", adminAccessAllowed=" + adminAccessAllowed + "]";
+				+ ", usageStatsAllowed=" + usageStatsAllowed + ", adminAccessAllowed=" + adminAccessAllowed
+				+ ", highAccuraccyLocationEnabled=" + highAccuraccyLocationEnabled + ", appsOverlayEnabled="
+				+ appsOverlayEnabled + "]";
 	}
-
 
 	
 }

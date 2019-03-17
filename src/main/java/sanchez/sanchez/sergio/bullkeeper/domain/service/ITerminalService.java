@@ -523,11 +523,23 @@ public interface ITerminalService {
     void lockScreenInTheTerminal(final ObjectId kid, final ObjectId terminal);
     
     /**
+     * Lock Screen in All kid terminal
+     * @param kid
+     */
+    void lockScreenInAllKidTerminals(final ObjectId kid);
+    
+    /**
      * UnLock Screen In The Terminal
      * @param kid
      * @param terminal
      */
     void unlockScreenInTheTerminal(final ObjectId kid, final ObjectId terminal);
+    
+    /**
+     * Unlock Screen In All Kid Terminals
+     * @param kid
+     */
+    void unlockScreenInAllKidTerminals(final ObjectId kid);
     
     /**
      * Lock Camera In The Terminal

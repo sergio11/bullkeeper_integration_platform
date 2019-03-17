@@ -31,7 +31,7 @@ public class TerminalRepositoryImpl implements TerminalRepositoryCustom {
     private MongoTemplate mongoTemplate;
 
 	/**
-	 * Update Screen Status
+	 * Save Terminal Status
 	 */
 	@Override
 	public void saveTerminalStatus(final ObjectId terminal, final ObjectId kid,
@@ -39,7 +39,9 @@ public class TerminalRepositoryImpl implements TerminalRepositoryCustom {
     		final boolean readContactsEnabled, final boolean readCallLogEnabled,
     		final boolean writeExternalStorageEnabled, final boolean usageStatsAllowed,
     		final boolean adminAccessEnabled, 
-    		final int batteryLevel, final boolean isBatteryCharging) {
+    		final int batteryLevel, final boolean isBatteryCharging,
+    		final boolean highAccuraccyLocationEnabled,
+    		final boolean appsOverlayEnabled) {
 		Assert.notNull(terminal, "Terminal can not be null");
 		Assert.notNull(kid, "Kid can not be null");
 		Assert.notNull(screenStatus, "Screen Status can not be null");
@@ -58,6 +60,8 @@ public class TerminalRepositoryImpl implements TerminalRepositoryCustom {
 	                	.set("admin_access_allowed", adminAccessEnabled)
 	                	.set("battery_level", batteryLevel)
 	                	.set("is_battery_charging", isBatteryCharging)
+	                	.set("high_accuraccy_location_enabled", highAccuraccyLocationEnabled)
+	                	.set("apps_overlay_enabled", appsOverlayEnabled)
 	                	.set("status", TerminalStatusEnum.STATE_ON.name()), TerminalEntity.class);
 		
 	}
@@ -348,6 +352,36 @@ public class TerminalRepositoryImpl implements TerminalRepositoryCustom {
                 		.andOperator(Criteria.where("kid").in(kid))),
                 new Update()
                 	.set("status", status.name()), TerminalEntity.class);
+		
+	}
+
+	/**
+	 * Lock Screen
+	 * @param kid
+	 */
+	@Override
+	public void lockScreen(final ObjectId kid) {
+		Assert.notNull(kid, "Kid can not be null");
+		
+		mongoTemplate.updateMulti(
+                new Query(Criteria.where("kid").in(kid)),
+                new Update()
+                	.set("screen_enabled", false), TerminalEntity.class);
+		
+	}
+
+	/**
+	 * Unlock Screen
+	 * @param kid
+	 */
+	@Override
+	public void unlockScreen(final ObjectId kid) {
+		Assert.notNull(kid, "Kid can not be null");
+		
+		mongoTemplate.updateMulti(
+                new Query(Criteria.where("kid").in(kid)),
+                new Update()
+                	.set("screen_enabled", true), TerminalEntity.class);
 		
 	}
 

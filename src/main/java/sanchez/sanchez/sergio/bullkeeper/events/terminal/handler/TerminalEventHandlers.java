@@ -1,14 +1,20 @@
 package sanchez.sanchez.sergio.bullkeeper.events.terminal.handler;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
+
+import sanchez.sanchez.sergio.bullkeeper.domain.service.ITerminalService;
+import sanchez.sanchez.sergio.bullkeeper.events.terminal.AllTerminalScreenStatusChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalBedTimeStatusChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalCameraStatusChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalScreenStatusChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalSettingsStatusChangedEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.terminal.UnlinkAllKidTerminalsEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.UnlinkTerminalEvent;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.terminal.TerminalBedTimeStatusChangedSSE;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.terminal.TerminalCameraStatusChangedSSE;
@@ -16,6 +22,7 @@ import sanchez.sanchez.sergio.bullkeeper.sse.models.terminal.TerminalScreenStatu
 import sanchez.sanchez.sergio.bullkeeper.sse.models.terminal.TerminalSettingsStatusChangedSSE;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.terminal.UnlinkTerminalSSE;
 import sanchez.sanchez.sergio.bullkeeper.sse.service.ISseService;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.TerminalDTO;
 
 
 /**
@@ -30,15 +37,23 @@ public class TerminalEventHandlers {
 	 * SSE Service
 	 */
 	private final ISseService sseService;
+	
+	/**
+	 * Terminal Service
+	 */
+	private final ITerminalService terminalService;
 
 	/**
 	 * 
 	 * @param sseService
+	 * @param terminalService
 	 */
 	public TerminalEventHandlers(
-			final ISseService sseService) {
+			final ISseService sseService,
+			final ITerminalService terminalService) {
 		super();
 		this.sseService = sseService;
+		this.terminalService = terminalService;
 	}
 
 	/**
@@ -159,6 +174,63 @@ public class TerminalEventHandlers {
 		// Push Event
 		sseService.push(subscriberId, unlinkTerminalSSE);
 	}
+	
+	
+	/**
+	 * Handle for Unlink All Kid Terminals Event
+	 * @param unlinkAllKidTerminalsEvent
+	 */
+	@EventListener
+	public void handle(final UnlinkAllKidTerminalsEvent unlinkAllKidTerminalsEvent) {
+		Assert.notNull(unlinkAllKidTerminalsEvent, "Event can not be null");
+	
+		
+		for(final TerminalDTO terminal: unlinkAllKidTerminalsEvent.getTerminals()) {
+			
+			final String subscriberId = terminal.getIdentity();
+			
+			final UnlinkTerminalSSE unlinkTerminalSSE = 
+					new UnlinkTerminalSSE(subscriberId, terminal.getKid(),
+							terminal.getIdentity());
+			 
+			// Push Event
+			sseService.push(subscriberId, unlinkTerminalSSE);
+			
+		}
+	
+	}
 
+	
+	/**
+	 * Handle for All Terminal Screen Status Changed Event
+	 * @param allTerminalScreenStatusChangedEvent
+	 */
+	@EventListener
+	public void handle(final AllTerminalScreenStatusChangedEvent 
+			allTerminalScreenStatusChangedEvent) {
+		Assert.notNull(allTerminalScreenStatusChangedEvent, "Event can not be null");
+		
+		
+		final Iterable<TerminalDTO> terminals = terminalService
+				.getTerminalsByKidId(allTerminalScreenStatusChangedEvent.getKid());
+		
+		for(final TerminalDTO terminal: terminals) {
+			
+			final String subscriberId = terminal.getIdentity();
+			
+			// Screen Status
+			final TerminalScreenStatusChangedSSE terminalScreenStatus = 
+					new TerminalScreenStatusChangedSSE(
+							subscriberId, terminal.getKid(),
+							terminal.getIdentity(),
+							allTerminalScreenStatusChangedEvent.getEnabled());
+			
+			
+			// Push Event
+			sseService.push(subscriberId, terminalScreenStatus);
+			
+		}
+		
+	}
 	
 }

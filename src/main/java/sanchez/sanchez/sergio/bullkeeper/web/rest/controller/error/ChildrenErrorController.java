@@ -10,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
-
 import io.jsonwebtoken.lang.Assert;
 import sanchez.sanchez.sergio.bullkeeper.exception.AlertNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.CommentsByKidNotFoundException;
@@ -19,12 +18,8 @@ import sanchez.sanchez.sergio.bullkeeper.exception.KidNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.KidRequestNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoAlertsByKidFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoChildrenFoundException;
-import sanchez.sanchez.sergio.bullkeeper.exception.NoCommunityStatisticsForThisPeriodException;
-import sanchez.sanchez.sergio.bullkeeper.exception.NoDimensionsStatisticsForThisPeriodException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoKidRequestFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoPhoneNumberBlockedFound;
-import sanchez.sanchez.sergio.bullkeeper.exception.NoSentimentAnalysisStatisticsForThisPeriodException;
-import sanchez.sanchez.sergio.bullkeeper.exception.NoSocialMediaActivityFoundForThisPeriodException;
 import sanchez.sanchez.sergio.bullkeeper.exception.PhoneNumberAlreadyBlockedException;
 import sanchez.sanchez.sergio.bullkeeper.exception.PreviousRequestHasNotExpiredYetException;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.ApiHelper;
@@ -116,62 +111,6 @@ public class ChildrenErrorController extends BaseController {
         return ApiHelper.<String>createAndSendErrorResponseWithHeader(
         		ChildrenResponseCode.ALERT_NOT_FOUND, HttpStatus.NOT_FOUND,
         		messageSourceResolver.resolver("alert.not.found"));
-    }
-    
-    /**
-     * Exception handler for no social media activity found for this period exception
-     * @param noSocialMediaActivityFoundForThisPeriodException
-     * @param request
-     * @return
-     */
-    @ExceptionHandler(NoSocialMediaActivityFoundForThisPeriodException.class)
-    @ResponseBody
-    protected ResponseEntity<APIResponse<String>> handleNoSocialMediaActivityFoundForThisPeriodException(NoSocialMediaActivityFoundForThisPeriodException noSocialMediaActivityFoundForThisPeriodException, HttpServletRequest request){
-        return ApiHelper.<String>createAndSendErrorResponseWithHeader(
-        		ChildrenResponseCode.SOCIAL_MEDIA_ACTIVITY_STATISTICS_NOT_FOUND, HttpStatus.NOT_FOUND,
-        		messageSourceResolver.resolver("children.social.media.activity.statistics.not.found", new Object[] {  prettyTime.format(noSocialMediaActivityFoundForThisPeriodException.getFrom()) } ));
-    }
-    
-    /**
-     * Exception handler no sentiment analysis statistics for this period exception
-     * @param noSentimentAnalysisStatisticsForThisPeriodException
-     * @param request
-     * @return
-     */
-    @ExceptionHandler(NoSentimentAnalysisStatisticsForThisPeriodException.class)
-    @ResponseBody
-    protected ResponseEntity<APIResponse<String>> handleNoSentimentAnalysisStatisticsForThisPeriodException(NoSentimentAnalysisStatisticsForThisPeriodException noSentimentAnalysisStatisticsForThisPeriodException, HttpServletRequest request){
-        return ApiHelper.<String>createAndSendErrorResponseWithHeader(
-        		ChildrenResponseCode.NO_SENTIMENT_ANALYSIS_STATISTICS_FOR_THIS_PERIOD, HttpStatus.NOT_FOUND,
-        		messageSourceResolver.resolver("children.no.sentiment.analysis.statistics.for.this.period", new Object[] { prettyTime.format(noSentimentAnalysisStatisticsForThisPeriodException.getFrom()) }));
-    }
-    
-    /**
-     * Exception handler for no community statistics for this period exception
-     * @param noCommunityStatisticsForThisPeriodException
-     * @param request
-     * @return
-     */
-    @ExceptionHandler(NoCommunityStatisticsForThisPeriodException.class)
-    @ResponseBody
-    protected ResponseEntity<APIResponse<String>> handleNoCommunityStatisticsForThisPeriodException(NoCommunityStatisticsForThisPeriodException noCommunityStatisticsForThisPeriodException, HttpServletRequest request){
-        return ApiHelper.<String>createAndSendErrorResponseWithHeader(
-        		ChildrenResponseCode.NO_COMMUNITY_STATISTICS_FOR_THIS_PERIOD, HttpStatus.NOT_FOUND,
-        		messageSourceResolver.resolver("children.no.community.statistics.for.this.period", new Object[] { prettyTime.format(noCommunityStatisticsForThisPeriodException.getFrom())} ));
-    }
-    
-    /**
-     * Exception handler for no dimensions statistics for this period exception
-     * @param noDimensionsStatisticsForThisPeriodException
-     * @param request
-     * @return
-     */
-    @ExceptionHandler(NoDimensionsStatisticsForThisPeriodException.class)
-    @ResponseBody
-    protected ResponseEntity<APIResponse<String>> handleNoDimensionsStatisticsForThisPeriodException(NoDimensionsStatisticsForThisPeriodException noDimensionsStatisticsForThisPeriodException, HttpServletRequest request){
-        return ApiHelper.<String>createAndSendErrorResponseWithHeader(
-        		ChildrenResponseCode.NO_DIMENSIONS_STATISTICS_FOR_THIS_PERIOD, HttpStatus.NOT_FOUND,
-        		messageSourceResolver.resolver("children.no.dimensions.statistics.for.this.period", new Object[] { prettyTime.format(noDimensionsStatisticsForThisPeriodException.getFrom())} ));
     }
     
     /**

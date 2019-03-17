@@ -19,13 +19,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.ICommentsService;
-import sanchez.sanchez.sergio.bullkeeper.domain.service.IStatisticsService;
 import sanchez.sanchez.sergio.bullkeeper.exception.CommentNotFoundException;
-import sanchez.sanchez.sergio.bullkeeper.exception.NoActiveFriendsInThisPeriodException;
-import sanchez.sanchez.sergio.bullkeeper.exception.NoCommentsExtractedException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoCommentsFoundException;
-import sanchez.sanchez.sergio.bullkeeper.exception.NoLikesFoundInThisPeriodException;
-import sanchez.sanchez.sergio.bullkeeper.exception.NoNewFriendsAtThisTimeException;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ValidObjectId;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AdultLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.BullyingLevelEnum;
@@ -34,10 +29,6 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SocialMediaTypeEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ViolenceLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.util.ValidList;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CommentDTO;
-import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CommentsStatisticsDTO;
-import sanchez.sanchez.sergio.bullkeeper.web.dto.response.MostActiveFriendsDTO;
-import sanchez.sanchez.sergio.bullkeeper.web.dto.response.NewFriendsDTO;
-import sanchez.sanchez.sergio.bullkeeper.web.dto.response.SocialMediaLikesStatisticsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.ApiHelper;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.hal.ICommentHAL;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.response.APIResponse;
@@ -45,7 +36,6 @@ import sanchez.sanchez.sergio.bullkeeper.web.rest.response.CommentResponseCode;
 import sanchez.sanchez.sergio.bullkeeper.web.security.userdetails.CommonUserDetailsAware;
 import sanchez.sanchez.sergio.bullkeeper.web.security.utils.CurrentUser;
 import sanchez.sanchez.sergio.bullkeeper.web.security.utils.OnlyAccessForAdmin;
-import sanchez.sanchez.sergio.bullkeeper.web.security.utils.OnlyAccessForGuardian;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -63,17 +53,19 @@ import springfox.documentation.annotations.ApiIgnore;
 @RestController("RestCommentsController")
 @Validated
 @RequestMapping("/api/v1/comments/")
-@Api(tags = "comments", value = "/comments/", description = "Administration of comments and/or opinions", produces = "application/json")
+@Api(tags = "comments", value = "/comments/", 
+	description = "Comments and/or opinions", produces = "application/json")
 public class CommentsController extends BaseController implements ICommentHAL {
 
     private static Logger logger = LoggerFactory.getLogger(CommentsController.class);
     
     private final ICommentsService commentsService;
-    private final IStatisticsService statisticsService;
 
-    public CommentsController(ICommentsService commentsService, IStatisticsService statisticsService) {
+    /**
+     * @param commentsService
+     */
+    public CommentsController(ICommentsService commentsService) {
         this.commentsService = commentsService;
-        this.statisticsService = statisticsService;
     }
     
     /**
@@ -102,12 +94,12 @@ public class CommentsController extends BaseController implements ICommentHAL {
        
     }
 
-    /**
-     * 
-     * @param id
-     * @return
-     * @throws Throwable
-     */
+   /**
+    * 
+    * @param id
+    * @return
+    * @throws Throwable
+    */
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     @ApiOperation(value = "GET_COMMENT_BY_ID", nickname = "GET_COMMENT_BY_ID", notes = "Get Comment By Id",
             response = CommentDTO.class)
@@ -137,7 +129,7 @@ public class CommentsController extends BaseController implements ICommentHAL {
      * @return
      * @throws Throwable
      */
-    @RequestMapping(value = "/comments", method = RequestMethod.GET)
+    @RequestMapping(value = "/search", method = RequestMethod.GET)
     @ApiOperation(value = "GET_COMMENTS", nickname = "GET_COMMENTS", 
             notes = "Get Comments", response = PagedResources.class)
     public ResponseEntity<APIResponse<Iterable<CommentDTO>>> getComments(
@@ -187,128 +179,5 @@ public class CommentsController extends BaseController implements ICommentHAL {
        
     }
     
-    /**
-     * 
-     * @param selfGuardian
-     * @param identities
-     * @param from
-     * @return
-     * @throws Throwable
-     */
-    @RequestMapping(value = {"/comments-extracted"}, method = RequestMethod.GET)
-    @OnlyAccessForGuardian
-    @ApiOperation(value = "GET_COMMENTS_EXTRACTED", nickname = "GET_COMMENTS_EXTRACTED", notes = "Get Comments Extracted",
-            response = CommentsStatisticsDTO.class)
-    public ResponseEntity<APIResponse<CommentsStatisticsDTO>> getCommentsAnalyzed(
-            @ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfGuardian,
-            @ApiParam(name = "identities", value = "Children's Identifiers", required = false)
-            	@RequestParam(name="identities" , required=false)
-            		ValidList<String> identities,
-            @ApiParam(name = "days_ago", value = "Days Ago", required = false)
-        		@RequestParam(name = "days_ago", defaultValue = "1", required = false) Date from) throws Throwable {
 
-   	
-    	CommentsStatisticsDTO commentsStatistics = statisticsService.getCommentsStatistics(selfGuardian.getUserId(), identities, from);
-
-    	if(commentsStatistics.getData().isEmpty())
-    		throw new NoCommentsExtractedException(from);
-    	
-        return ApiHelper.<CommentsStatisticsDTO>createAndSendResponse(CommentResponseCode.COMMENTS_EXTRACTED_BY_SON,
-                HttpStatus.OK, commentsStatistics);
-    }
-    
-    /**
-     * 
-     * @param selfGuardian
-     * @param identities
-     * @param from
-     * @return
-     * @throws Throwable
-     */
-    @RequestMapping(value = {"/social-media-Likes"}, method = RequestMethod.GET)
-    @OnlyAccessForGuardian
-    @ApiOperation(value = "SOCIAL_MEDIA_LIKES", nickname = "SOCIAL_MEDIA_LIKES", notes = "Social Media Likes",
-            response = SocialMediaLikesStatisticsDTO.class)
-    public ResponseEntity<APIResponse<SocialMediaLikesStatisticsDTO>> getSocialMediaLikes(
-            @ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfGuardian,
-            @ApiParam(name = "identities", value = "Children's Identifiers", required = false)
-            	@RequestParam(name="identities" , required=false)
-            		ValidList<String> identities,
-            @ApiParam(name = "days_ago", value = "Days Ago", required = false)
-        		@RequestParam(name = "days_ago", defaultValue = "1", required = false) Date from) throws Throwable {
-
-    	
-    	SocialMediaLikesStatisticsDTO socialMediaLikes = statisticsService.getSocialMediaLikesStatistics(selfGuardian.getUserId(), identities, from);
-
-    	if(socialMediaLikes.getData().isEmpty())
-    		throw new NoLikesFoundInThisPeriodException(from);
-    	
-        return ApiHelper.<SocialMediaLikesStatisticsDTO>createAndSendResponse(CommentResponseCode.SOCIAL_MEDIA_LIKES,
-                HttpStatus.OK, socialMediaLikes);
-    }
-    
-    
-    /**
-     * 
-     * @param selfGuardian
-     * @param identities
-     * @param from
-     * @return
-     * @throws Throwable
-     */
-    @RequestMapping(value = {"/most-active-friends"}, method = RequestMethod.GET)
-    @OnlyAccessForGuardian
-    @ApiOperation(value = "MOST_ACTIVE_FRIENDS", nickname = "MOST_ACTIVE_FRIENDS", notes = "Most Active Friends",
-            response = MostActiveFriendsDTO.class)
-    public ResponseEntity<APIResponse<MostActiveFriendsDTO>> getMostActiveFriends(
-            @ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfGuardian,
-            @ApiParam(name = "identities", value = "Children's Identifiers", required = false)
-            	@RequestParam(name="identities" , required=false)
-            		ValidList<String> identities,
-            @ApiParam(name = "days_ago", value = "Days Ago", required = false)
-        		@RequestParam(name = "days_ago", defaultValue = "1", required = false) Date from) throws Throwable {
-
-    	
-    	MostActiveFriendsDTO mostActiveFriends = statisticsService
-    			.getMostActiveFriends(selfGuardian.getUserId(), identities, from);
-    	
-    	if(mostActiveFriends.getUsers().isEmpty())
-    		throw new NoActiveFriendsInThisPeriodException(from);
-    	
-
-        return ApiHelper.<MostActiveFriendsDTO>createAndSendResponse(CommentResponseCode.MOST_ACTIVE_FRIENDS,
-                HttpStatus.OK, mostActiveFriends);
-    }
-    
-    
-    /**
-     * 
-     * @param selfGuardian
-     * @param identities
-     * @param from
-     * @return
-     * @throws Throwable
-     */
-    @RequestMapping(value = {"/new-friends"}, method = RequestMethod.GET)
-    @OnlyAccessForGuardian
-    @ApiOperation(value = "NEW_FRIENDS", nickname = "NEW_FRIENDS", notes = "New Friends",
-            response = NewFriendsDTO.class)
-    public ResponseEntity<APIResponse<NewFriendsDTO>> getNewFriends(
-            @ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfGuardian,
-            @ApiParam(name = "identities", value = "Children's Identifiers", required = false)
-            	@RequestParam(name="identities" , required=false)
-            		ValidList<String> identities,
-            @ApiParam(name = "days_ago", value = "Days limit", required = false)
-        		@RequestParam(name = "days_ago", defaultValue = "1", required = false) Date from) throws Throwable {
-
-    	
-    	NewFriendsDTO newFriends = statisticsService.getNewFriends(selfGuardian.getUserId(), identities, from);
-    	
-    	if(newFriends.getUsers().isEmpty())
-    		throw new NoNewFriendsAtThisTimeException(from);
-
-        return ApiHelper.<NewFriendsDTO>createAndSendResponse(CommentResponseCode.NEW_FRIENDS,
-                HttpStatus.OK, newFriends);
-    }
-    
 }
