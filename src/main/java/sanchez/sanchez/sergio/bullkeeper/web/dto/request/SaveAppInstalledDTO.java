@@ -26,7 +26,7 @@ public class SaveAppInstalledDTO implements Serializable {
 	/**
 	 * Package Name
 	 */
-	@NotBlank(message = "{app.packagename.notblank}")
+	@NotBlank(message = "{app.packagename.not.blank}")
     @Size(min = 5, message = "{app.packagename.size}")
 	@JsonProperty("package_name")
 	private String packageName;
@@ -46,21 +46,21 @@ public class SaveAppInstalledDTO implements Serializable {
 	/**
 	 * Version Name
 	 */
-	@NotBlank(message = "{app.versionname.notblank}")
+	@NotBlank(message = "{app.versionname.not.blank}")
 	@JsonProperty("version_name")
 	private String versionName;
 	
 	/**
 	 * Version Code
 	 */
-	@NotBlank(message = "{app.versioncode.notblank}")
+	@NotBlank(message = "{app.versioncode.not.blank}")
 	@JsonProperty("version_code")
 	private String versionCode;
 	
 	/**
 	 * App Name
 	 */
-	@NotBlank(message = "{app.appname.notblank}")
+	@NotBlank(message = "{app.appname.not.blank}")
     @Size(min = 2, message = "{app.appname.size}")
 	@JsonProperty("app_name")
 	private String appName;
@@ -82,15 +82,15 @@ public class SaveAppInstalledDTO implements Serializable {
 	/**
 	 * Son ID
 	 */
-	@ValidObjectId(message = "{son.id.notvalid}")
-    @KidShouldExists(message = "{social.son.not.exists}", groups = Extended.class)
+	@ValidObjectId(message = "{id.not.valid}")
+    @KidShouldExists(message = "{kid.should.be.exists}", groups = Extended.class)
 	@JsonProperty("kid")
 	private String kid;
 	
 	/**
 	 * Terminal Id
 	 */
-	@ValidObjectId(message = "{terminal.id.notvalid}")
+	@ValidObjectId(message = "{id.not.valid}")
     @TerminalShouldExists(message = "{terminal.not.exists}", groups = Extended.class)
 	@JsonProperty("terminal_id")
 	private String terminalId;

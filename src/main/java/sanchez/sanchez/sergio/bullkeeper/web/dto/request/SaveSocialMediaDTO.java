@@ -19,7 +19,7 @@ public class SaveSocialMediaDTO {
 	/**
 	 * Access Token
 	 */
-    @NotBlank(message = "{social.token.notnull}")
+    @NotBlank(message = "{social.token.not.null}")
     @JsonProperty("access_token")
     private String accessToken;
     
@@ -57,7 +57,7 @@ public class SaveSocialMediaDTO {
     /**
      * Kid
      */
-    @KidShouldExists(message = "{social.son.not.exists}")
+    @KidShouldExists(message = "{kid.should.be.exists}")
     @JsonProperty("kid")
     private String kid;
     

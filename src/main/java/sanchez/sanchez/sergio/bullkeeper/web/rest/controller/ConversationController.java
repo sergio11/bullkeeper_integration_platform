@@ -86,7 +86,7 @@ public class ConversationController extends BaseController {
     public ResponseEntity<APIResponse<ConversationDTO>> getConversationById(
     		@ApiParam(name= "id", value = "Conversation Identifier", 
     				required = true)
-				@Valid @ConversationShouldExists(message = "{conversation.id.notvalid}")
+				@Valid @ConversationShouldExists(message = "{conversation.not.exists}")
 		 		@PathVariable String id) throws Throwable {
 		
 		logger.debug("Get Conversation by id -> " + id);
@@ -112,7 +112,7 @@ public class ConversationController extends BaseController {
     public ResponseEntity<APIResponse<String>> deleteConversationById(
     		@ApiParam(name= "id", value = "Conversation Identifier", 
     				required = true)
-				@Valid @ConversationShouldExists(message = "{conversation.id.notvalid}")
+				@Valid @ConversationShouldExists(message = "{conversation.not.exists}")
 		 		@PathVariable String id) throws Throwable {
 		
 		final ConversationDTO conversationDTO =  Optional.ofNullable(conversationService.getConversationDetail(new ObjectId(id)))
@@ -145,7 +145,7 @@ public class ConversationController extends BaseController {
     public ResponseEntity<APIResponse<Iterable<MessageDTO>>> getConversationMessages(
     		@ApiParam(name= "id", value = "Conversation Identifier", 
     				required = true)
-				@Valid @ConversationShouldExists(message = "{conversation.id.notvalid}")
+				@Valid @ConversationShouldExists(message = "{conversation.not.exists}")
 		 		@PathVariable String id) throws Throwable{
 		
 		logger.debug("Get Conversation Messages for conversation -> " + id );
@@ -177,7 +177,7 @@ public class ConversationController extends BaseController {
     public ResponseEntity<APIResponse<String>> deleteConversationMessage(
     		@ApiParam(name= "id", value = "Conversation Identifier", 
     				required = true)
-				@Valid @ConversationShouldExists(message = "{guardian.id.notvalid}")
+				@Valid @ConversationShouldExists(message = "{conversation.not.exists}")
 		 		@PathVariable String id,
 		 	@ApiParam(name="messages", value = "messages ids", required = false) 
 				@RequestParam(name="messages" , required=false)
@@ -226,7 +226,7 @@ public class ConversationController extends BaseController {
     public ResponseEntity<APIResponse<MessageDTO>> addMessage(
     		@ApiParam(name= "id", value = "Conversation Identifier", 
     				required = true)
-				@Valid @ConversationShouldExists(message = "{conversation.id.notvalid}")
+				@Valid @ConversationShouldExists(message = "{conversation.not.exists}")
 		 		@PathVariable String id,
 		 	@ApiParam(name="message", value = "message to save", required = true) 
 				@Validated(ICommonSequence.class) 
@@ -262,7 +262,7 @@ public class ConversationController extends BaseController {
     public ResponseEntity<APIResponse<String>> setMessagesAsViewed(
     		@ApiParam(name= "id", value = "Conversation Identifier", 
     				required = true)
-				@Valid @ConversationShouldExists(message = "{conversation.id.notvalid}")
+				@Valid @ConversationShouldExists(message = "{conversation.not.exists}")
 		 		@PathVariable String id,
 		 	@ApiParam(name="messageids", value = "message ids", required = true) 
     			@Validated(ICommonSequence.class) 
@@ -287,7 +287,8 @@ public class ConversationController extends BaseController {
 		
 		// Create and Send response
 		return ApiHelper.<String>createAndSendResponse(ConversationResponseEnum.SET_MESSAGES_AS_VIEWED_SUCCESSFULLY, 
-					HttpStatus.OK, this.messageSourceResolver.resolver("set.messages.as.viewed.success"));
+					HttpStatus.OK, 
+					this.messageSourceResolver.resolver("set.messages.as.viewed.success"));
 				
     }
 	
@@ -362,7 +363,7 @@ public class ConversationController extends BaseController {
     	response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<ConversationDTO>>> getAllConversationsForMember(
     		@ApiParam(name= "member", value = "Member Identifier", required = true)
-				@Valid @ValidObjectId(message = "{no.valid.object.id}")
+				@Valid @ValidObjectId(message = "{id.not.valid}")
 		 			@PathVariable final String member) throws Throwable {
 	
 		// Get All Conversation for member
@@ -391,7 +392,7 @@ public class ConversationController extends BaseController {
     	response = String.class)
     public ResponseEntity<APIResponse<String>> deleteAllConversationForMember(
     		@ApiParam(name= "member", value = "Member Identifier", required = true)
-			@Valid @ValidObjectId(message = "{no.valid.object.id}")
+			@Valid @ValidObjectId(message = "{id.not.valid}")
 	 			@PathVariable final String member) throws Throwable {
 		
 		// Delete All Conversation for member
@@ -425,11 +426,11 @@ public class ConversationController extends BaseController {
     public ResponseEntity<APIResponse<ConversationDTO>> getConversationDetailForMembers(
     		@ApiParam(name= "memberOne", value = "Member One Identifier", 
 				required = true)
-    		@Valid @ValidObjectId(message = "{no.valid.object.id}")
+    		@Valid @ValidObjectId(message = "{id.not.valid}")
  				@PathVariable final String memberOne,
     		@ApiParam(name= "memberTwo", value = "Member Two Identifier", 
     				required = true)
-				@Valid @ValidObjectId(message = "{no.valid.object.id}")
+				@Valid @ValidObjectId(message = "{id.not.valid}")
 		 			@PathVariable final String memberTwo) throws Throwable {
 
 		// Get Conversation For Members
@@ -456,11 +457,11 @@ public class ConversationController extends BaseController {
     public ResponseEntity<APIResponse<ConversationDTO>> createConversationForMembers(
     		@ApiParam(name= "memberOne", value = "Member One Identifier", 
 				required = true)
-    		@Valid @ValidObjectId(message = "{no.valid.object.id}")
+    		@Valid @ValidObjectId(message = "{id.not.valid}")
  				@PathVariable String memberOne,
     		@ApiParam(name= "memberTwo", value = "Member Two Identifier", 
     				required = true)
-				@Valid @ValidObjectId(message = "{no.valid.object.id}")
+				@Valid @ValidObjectId(message = "{id.not.valid}")
 		 			@PathVariable String memberTwo) throws Throwable {
 		
 		// Find Conversation To Delete
@@ -490,11 +491,11 @@ public class ConversationController extends BaseController {
     public ResponseEntity<APIResponse<String>> deleteConversationForMembers(
     		@ApiParam(name= "memberOne", value = "Member One Identifier", 
 				required = true)
-    		@Valid @ValidObjectId(message = "{no.valid.object.id}")
+    		@Valid @ValidObjectId(message = "{id.not.valid}")
 				@PathVariable String memberOne,
     		@ApiParam(name= "memberTwo", value = "Member Two Identifier", 
     				required = true)
-				@Valid @ValidObjectId(message = "{no.valid.object.id}")
+				@Valid @ValidObjectId(message = "{id.not.valid}")
 		 			@PathVariable String memberTwo) throws Throwable {
 
 		// Find Conversation DTO
@@ -532,11 +533,11 @@ public class ConversationController extends BaseController {
     public ResponseEntity<APIResponse<Iterable<MessageDTO>>> getConversationMessagesForMembers(
     		@ApiParam(name= "memberOne", value = "Member One Identifier", 
 				required = true)
-    		@Valid @ValidObjectId(message = "{no.valid.object.id}")
+    		@Valid @ValidObjectId(message = "{id.not.valid}")
 				@PathVariable String memberOne,
     		@ApiParam(name= "memberTwo", value = "Member Two Identifier", 
     				required = true)
-				@Valid @ValidObjectId(message = "{no.valid.object.id}")
+				@Valid @ValidObjectId(message = "{id.not.valid}")
 		 		@PathVariable String memberTwo) throws Throwable {
 		
 		// Find Conversation
@@ -574,11 +575,11 @@ public class ConversationController extends BaseController {
     public ResponseEntity<APIResponse<String>> deleteConversationsMessagesForMembers(
     		@ApiParam(name= "memberOne", value = "Member One Identifier", 
 				required = true)
-			@Valid @ValidObjectId(message = "{no.valid.object.id}")
+			@Valid @ValidObjectId(message = "{id.not.valid}")
 				@PathVariable String memberOne,
     		@ApiParam(name= "memberTwo", value = "Member Two Identifier", 
     				required = true)
-				@Valid @ValidObjectId(message = "{no.valid.object.id}")
+				@Valid @ValidObjectId(message = "{id.not.valid}")
 		 		@PathVariable String memberTwo,
 		 	@ApiParam(name="messages", value = "messages ids", required = false) 
     			@RequestParam(name="messages" , required=false)
@@ -630,11 +631,11 @@ public class ConversationController extends BaseController {
     public ResponseEntity<APIResponse<MessageDTO>> addMessage(
     		@ApiParam(name= "memberOne", value = "Member One Identifier", 
 				required = true)
-			@Valid @ValidObjectId(message = "{no.valid.object.id}")
+			@Valid @ValidObjectId(message = "{id.not.valid}")
 				@PathVariable String memberOne,
     		@ApiParam(name= "memberTwo", value = "Member Two Identifier", 
     				required = true)
-				@Valid @ValidObjectId(message = "{no.valid.object.id}")
+				@Valid @ValidObjectId(message = "{id.not.valid}")
 		 		@PathVariable String memberTwo,
 		 	@ApiParam(name="message", value = "message to save", required = true) 
 				@Validated(ICommonSequence.class) 
@@ -674,11 +675,11 @@ public class ConversationController extends BaseController {
     public ResponseEntity<APIResponse<String>> setMessagesAsViewed(
     		@ApiParam(name= "memberOne", value = "Member One Identifier", 
 				required = true)
-			@Valid @ValidObjectId(message = "{no.valid.object.id}")
+			@Valid @ValidObjectId(message = "{id.not.valid}")
 				@PathVariable String memberOne,
 			@ApiParam(name= "memberTwo", value = "Member Two Identifier", 
 					required = true)
-			@Valid @ValidObjectId(message = "{no.valid.object.id}")
+			@Valid @ValidObjectId(message = "{id.not.valid}")
 		 		@PathVariable String memberTwo,
 		 	@ApiParam(name="messageIds", value = "message ids", required = true) 
     			@Validated(ICommonSequence.class) 

@@ -46,7 +46,7 @@ public class AddPhoneNumberBlockedDTO implements Serializable {
 	 * Kid
 	 */
 	@JsonProperty("kid")
-	@KidShouldExists(message="{kid.not.exists}")
+	@KidShouldExists(message="{kid.request.should.be.exists}")
 	private String kid;
 	
 	/**

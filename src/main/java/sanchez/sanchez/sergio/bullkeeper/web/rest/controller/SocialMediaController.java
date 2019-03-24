@@ -93,7 +93,7 @@ public class SocialMediaController extends BaseController implements ISocialMedi
             response = SocialMediaDTO.class)
     public ResponseEntity<APIResponse<SocialMediaDTO>> getSocialMediaById(
     		@ApiParam(name = "id", value = "Social Media Identifier", required = true)
-    			@Valid @ValidObjectId(message = "{socialmedia.id.notvalid}")
+    			@Valid @ValidObjectId(message = "{id.not.valid}")
              		@PathVariable String id) throws Throwable {
         logger.debug("Get Social Media by Id " + id);
         return Optional.ofNullable(socialMediaService.getSocialMediaById(id))

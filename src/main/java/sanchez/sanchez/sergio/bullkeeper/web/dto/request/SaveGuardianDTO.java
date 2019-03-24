@@ -36,15 +36,15 @@ public final class SaveGuardianDTO implements Serializable {
 	/**
 	 * Kid
 	 */
-	@ValidObjectId(message = "{son.id.notvalid}")
-	@KidShouldExists(message = "{kid.not.exists}", groups = Extended.class)
+	@ValidObjectId(message = "{id.not.valid}")
+	@KidShouldExists(message = "{kid.should.be.exists}", groups = Extended.class)
 	@JsonProperty("kid")
 	private String kid;
 	
 	/**
 	 * Guardian
 	 */
-	@ValidObjectId(message = "{guardian.id.notvalid}")
+	@ValidObjectId(message = "{id.not.valid}")
 	@GuardianShouldExists(message = "{guardian.not.exists}", groups = Extended.class)
 	@JsonProperty("guardian")
 	private String guardian;

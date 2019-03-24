@@ -143,7 +143,7 @@ public class SchoolController extends BaseController implements ISchoolHAL {
             response = PagedResources.class)
     public ResponseEntity<APIResponse<Iterable<SchoolDTO>>> getSchoolsByName(
     		@ApiParam(name="name", value = "name", required = true) 
-    			@Valid @NotBlank(message = "{school.name.notblank}") 
+    			@Valid @NotBlank(message = "{school.name.not.blank}") 
     				@RequestParam(value = "name", required = false) String name) throws Throwable {
     	
     	Iterable<SchoolDTO> schools = schoolService.findByName(name);
@@ -168,7 +168,7 @@ public class SchoolController extends BaseController implements ISchoolHAL {
     })
     public ResponseEntity<APIResponse<SchoolDTO>> getSchoolById(
     		@ApiParam(name = "id", value = "Identificador del Centro escolar", required = true)
-    			@Valid @ValidObjectId(message = "{school.id.notvalid}")
+    			@Valid @ValidObjectId(message = "{id.not.valid}")
     		 		@PathVariable String id) throws Throwable {
         logger.debug("Get User with id: " + id);
         
@@ -216,7 +216,7 @@ public class SchoolController extends BaseController implements ISchoolHAL {
     })
     public ResponseEntity<APIResponse<SchoolDTO>> deleteSchool(
     		@ApiParam(name = "id", value = "Identificador del Centro escolar", required = true)
-    			@Valid @SchoolMustExists(message = "{school.id.notvalid}")
+    			@Valid @SchoolMustExists(message = "{school.not.exists}")
     		 		@PathVariable String id) throws Throwable {        
     	
         return Optional.ofNullable(schoolService.delete(id))

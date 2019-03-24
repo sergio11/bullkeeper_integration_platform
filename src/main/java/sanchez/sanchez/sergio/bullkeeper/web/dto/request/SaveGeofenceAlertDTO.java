@@ -23,22 +23,22 @@ public final class SaveGeofenceAlertDTO implements Serializable {
 	/**
 	 * Geofence
 	 */
-	@GeofenceShouldExists(message = "geofence.not.exists")
+	@GeofenceShouldExists(message = "{geofence.not.exists}")
 	@JsonProperty("geofence")
 	private String geofence;
 	
 	/**
 	 * Kid
 	 */
-	@ValidObjectId(message = "{id.notvalid}")
-	@KidShouldExists(message = "{kid.not.exists}", groups = Extended.class)
+	@ValidObjectId(message = "{id.not.valid}")
+	@KidShouldExists(message = "{kid.should.be.exists}", groups = Extended.class)
 	@JsonProperty("kid")
 	private String kid;
 	
 	/**
 	 * Type
 	 */
-	@GeofenceTransitionType(message = "geofence.transition.not.valid")
+	@GeofenceTransitionType(message = "{geofence.transition.not.valid}")
 	@JsonProperty("type")
 	private String type;
 

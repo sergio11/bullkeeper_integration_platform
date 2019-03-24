@@ -30,14 +30,14 @@ public final class AddMessageDTO implements Serializable {
 	/**
 	 * Text
 	 */
-	@NotBlank(message = "{message.text.notnull}")
+	@NotBlank(message = "{message.text.not.null}")
 	@JsonProperty("text")
 	private String text;
 	
 	/**
 	 * Origin Id
 	 */
-	@NotBlank(message = "{message.from.notnull}")
+	@NotBlank(message = "{message.from.not.null}")
 	@ValidObjectId(message = "{message.from.no.valid}",  groups = Extended.class)
 	@JsonProperty("from")
 	private String from;
@@ -45,7 +45,7 @@ public final class AddMessageDTO implements Serializable {
 	/**
 	 * Target Id
 	 */
-	@NotBlank(message = "{message.to.notnull}")
+	@NotBlank(message = "{message.to.not.null}")
 	@ValidObjectId(message = "{message.to.no.valid}",  groups = Extended.class)
 	@JsonProperty("to")
 	private String to;

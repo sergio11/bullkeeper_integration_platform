@@ -41,7 +41,7 @@ public class AppInstalledErrorController extends BaseController {
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleNoAppsInstalledFoundException(NoAppsInstalledFoundException resourceNotFound, HttpServletRequest request) {
         return ApiHelper.<String>createAndSendErrorResponseWithHeader(AppsResponseCode.NO_APPS_INSTALLED_FOUND, HttpStatus.NOT_FOUND,
-        		messageSourceResolver.resolver("app.installed.not.found"));
+        		messageSourceResolver.resolver("no.apps.installed.found"));
     }
     
     

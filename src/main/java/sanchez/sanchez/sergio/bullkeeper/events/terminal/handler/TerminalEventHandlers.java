@@ -1,7 +1,5 @@
 package sanchez.sanchez.sergio.bullkeeper.events.terminal.handler;
 
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
@@ -12,12 +10,14 @@ import sanchez.sanchez.sergio.bullkeeper.domain.service.ITerminalService;
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.AllTerminalScreenStatusChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalBedTimeStatusChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalCameraStatusChangedEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalPhoneCallsStatusChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalScreenStatusChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalSettingsStatusChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.UnlinkAllKidTerminalsEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.UnlinkTerminalEvent;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.terminal.TerminalBedTimeStatusChangedSSE;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.terminal.TerminalCameraStatusChangedSSE;
+import sanchez.sanchez.sergio.bullkeeper.sse.models.terminal.TerminalPhoneCallsStatusChangedSSE;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.terminal.TerminalScreenStatusChangedSSE;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.terminal.TerminalSettingsStatusChangedSSE;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.terminal.UnlinkTerminalSSE;
@@ -230,6 +230,32 @@ public class TerminalEventHandlers {
 			sseService.push(subscriberId, terminalScreenStatus);
 			
 		}
+		
+	}
+	
+	/**
+	 * Handle for Terminal Phone Calls Status Changed Event
+	 * @param allTerminalScreenStatusChangedEvent
+	 */
+	@EventListener
+	public void handle(final TerminalPhoneCallsStatusChangedEvent 
+			terminalPhoneCallsStatusChangedEvent) {
+		Assert.notNull(terminalPhoneCallsStatusChangedEvent, "Event can not be null");
+		
+		
+		final String subscriberId = terminalPhoneCallsStatusChangedEvent.getTerminal();
+		
+		// Phone Calls Status
+		final TerminalPhoneCallsStatusChangedSSE terminalPhoneCallsStatus = 
+				new TerminalPhoneCallsStatusChangedSSE(
+						subscriberId, terminalPhoneCallsStatusChangedEvent.getKid(),
+						terminalPhoneCallsStatusChangedEvent.getTerminal(),
+						terminalPhoneCallsStatusChangedEvent.getEnabled()
+						);
+		
+		
+		// Push Event
+		sseService.push(subscriberId, terminalPhoneCallsStatus);
 		
 	}
 	

@@ -1,11 +1,8 @@
 package sanchez.sanchez.sergio.bullkeeper.persistence.repository;
 
-
 import java.util.List;
-
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
@@ -42,6 +39,18 @@ public interface AppStatsRepository extends MongoRepository<AppStatsEntity, Long
 	Page<AppStatsEntity> findByTerminalIdAndKidIdAndTotalTimeInForegroundGreaterThan(final ObjectId terminal, 
 			final ObjectId kidId, final Long value,
 			final Pageable pageRequest);
+	
+	/**
+	 * 
+	 * @param terminal
+	 * @param kidId
+	 * @param pageRequest
+	 * @return
+	 */
+	Page<AppStatsEntity> findByTerminalIdAndKidIdAndTotalTimeInForegroundGreaterThanAndAppNotNull(final ObjectId terminal, 
+			final ObjectId kidId, final Long value,
+			final Pageable pageRequest);
+	
  
 	/**
 	 * Find One By App Id And Terminal Id And Kid Id
@@ -66,5 +75,19 @@ public interface AppStatsRepository extends MongoRepository<AppStatsEntity, Long
 	 */
 	void deleteByKidIdAndTerminalIdAndIdIn(final ObjectId kid, 
 			final ObjectId terminal, final List<ObjectId> ids);
+	
+	/**
+	 * Delete By App Id
+	 * @param id
+	 */
+	void deleteByAppId(final ObjectId id);
+	
+	/**
+	 * 
+	 * @param kidId
+	 * @param terminalId
+	 * @param ids
+	 */
+	void deleteByKidIdAndTerminalIdAndAppIdIn(final ObjectId kidId, final ObjectId terminalId, final List<ObjectId> ids);
 	
 }

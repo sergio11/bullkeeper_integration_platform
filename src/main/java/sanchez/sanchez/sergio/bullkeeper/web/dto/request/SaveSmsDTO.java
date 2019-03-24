@@ -30,7 +30,7 @@ public final class SaveSmsDTO implements Serializable {
 	 * Address
 	 */
 	@JsonProperty("address")
-	@NotBlank(message = "{sms.address.notnull}")
+	@NotBlank(message = "{sms.address.not.null}")
 	@JsonDeserialize(using = ClearStringNoSpacesDeserializer.class)
 	private String address;
 	
@@ -38,7 +38,7 @@ public final class SaveSmsDTO implements Serializable {
 	 * Message
 	 */
 	@JsonProperty("message")
-	@NotBlank(message = "{sms.message.notnull}")
+	@NotBlank(message = "{sms.message.not.null}")
 	private String message;
 	
 	/**
@@ -66,7 +66,7 @@ public final class SaveSmsDTO implements Serializable {
 	 * Local Id
 	 */
 	@JsonProperty("local_id")
-	@NotBlank(message = "{sms.localid.notnull}")
+	@NotBlank(message = "{sms.localid.not.null}")
 	private String localId;
 	
 	/**
@@ -80,7 +80,7 @@ public final class SaveSmsDTO implements Serializable {
 	 * KId
 	 */
 	@JsonProperty("kid")
-	@KidShouldExists(message="{kid.not.exists}")
+	@KidShouldExists(message="{kid.should.be.exists}")
 	private String kid;
 	
 	

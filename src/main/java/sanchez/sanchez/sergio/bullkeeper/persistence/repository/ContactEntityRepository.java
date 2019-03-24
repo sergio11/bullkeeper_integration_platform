@@ -13,7 +13,8 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ContactEntity;
  *
  */
 @Repository
-public interface ContactEntityRepository extends MongoRepository<ContactEntity, Long>{
+public interface ContactEntityRepository extends MongoRepository<ContactEntity, Long>
+		, ContactEntityRepositoryCustom {
 
 	/**
 	 * Count By Id
@@ -21,6 +22,12 @@ public interface ContactEntityRepository extends MongoRepository<ContactEntity, 
 	 * @return
 	 */
 	long countById(final ObjectId id);
+	
+	/**
+	 * @param id
+	 * @return
+	 */
+	long countByIdAndDisabledFalse(final ObjectId id);
 	
 	/**
 	 * Count By Kid And Terminal
@@ -31,13 +38,21 @@ public interface ContactEntityRepository extends MongoRepository<ContactEntity, 
 	long countByKidIdAndTerminalId(final ObjectId kid, final ObjectId terminal);
 	
 	/**
-	 * 
+	 *
 	 * @param kid
 	 * @param terminal
 	 * @return
 	 */
-	Iterable<ContactEntity> findAllByKidIdAndTerminalId(final ObjectId kid, final ObjectId terminal);
+	Iterable<ContactEntity> findAllByKidIdAndTerminalIdAndDisabledFalse(final ObjectId kid, final ObjectId terminal);
 	
+	
+	/**
+	 *
+	 * @param kid
+	 * @param terminal
+	 * @return
+	 */
+	Iterable<ContactEntity> findAllByKidIdAndTerminalIdAndDisabledTrue(final ObjectId kid, final ObjectId terminal);
 	
 	/**
 	 * 
@@ -46,7 +61,7 @@ public interface ContactEntityRepository extends MongoRepository<ContactEntity, 
 	 * @param name
 	 * @return
 	 */
-	Iterable<ContactEntity> findAllByKidIdAndTerminalIdAndNameIgnoreCaseContaining(final ObjectId kid, 
+	Iterable<ContactEntity> findAllByKidIdAndTerminalIdAndNameIgnoreCaseContainingAndDisabledFalse(final ObjectId kid, 
 			final ObjectId terminal, final String text);
 	
 
@@ -58,7 +73,7 @@ public interface ContactEntityRepository extends MongoRepository<ContactEntity, 
 	 * @param terminal
 	 * @return
 	 */
-	ContactEntity findOneByIdAndKidIdAndTerminalId(final ObjectId id, final ObjectId kid, final ObjectId terminal);
+	ContactEntity findOneByIdAndKidIdAndTerminalIdAndDisabledFalse(final ObjectId id, final ObjectId kid, final ObjectId terminal);
 	
 	/**
 	 * 

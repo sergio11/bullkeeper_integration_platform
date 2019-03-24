@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public final class JwtAuthenticationRequestDTO {
 
-	@NotBlank(message = "{user.email.notnull}")
+	@NotBlank(message = "{user.email.not.null}")
 	@Email(message="{user.email.invalid}")
 	@JsonProperty("email")
 	private String email;

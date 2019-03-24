@@ -27,7 +27,7 @@ public final class SaveGeofenceDTO implements Serializable {
 	/**
 	 * Identity
 	 */
-	@GeofenceShouldExistsIfPresent(message = "id.not.exists")
+	@GeofenceShouldExistsIfPresent(message = "{geofence.not.exists}")
 	@JsonProperty("identity")
 	private String identity;
 	

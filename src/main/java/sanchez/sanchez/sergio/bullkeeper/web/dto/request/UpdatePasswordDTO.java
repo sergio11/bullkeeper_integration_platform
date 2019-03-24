@@ -7,21 +7,21 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.FieldMatch;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.FieldNotMatch;
 
-@FieldMatch(first = "passwordClear", second = "confirmPassword", message = "{parent.pass.not.match}")
-@FieldNotMatch(first = "currentClearPassword", second = "passwordClear", message = "{parent.current.pass.not.match}" )
+@FieldMatch(first = "passwordClear", second = "confirmPassword", message = "{guardian.pass.not.match}")
+@FieldNotMatch(first = "currentClearPassword", second = "passwordClear", message = "{guardian.current.pass.not.match}" )
 public final class UpdatePasswordDTO {
 	
-	@NotBlank(message="{parent.current.password.notnull}")
-    @Size(min=8, max=25, message="{parent.current.password.size}")
+	@NotBlank(message="{guardian.current.password.not.null}")
+    @Size(min=8, max=25, message="{guardian.current.password.size}")
 	@JsonProperty("current_clear_password")
     private String currentClearPassword;
 	
-	@NotBlank(message="{parent.new.pass.notnull}")
-    @Size(min=8, max=25, message="{parent.new.pass.size}")
+	@NotBlank(message="{guardian.new.pass.not.null}")
+    @Size(min=8, max=25, message="{guardian.new.pass.size}")
 	@JsonProperty("password_clear")
     private String passwordClear;
     
-    @NotBlank(message="{parent.new.pass.confirm.notnull}")
+    @NotBlank(message="{guardian.new.pass.confirm.not.null}")
     @JsonProperty("confirm_password")
     private String confirmPassword;
     

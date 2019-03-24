@@ -30,7 +30,7 @@ public final class SaveCallDetailDTO implements Serializable {
 	 * Phone Number
 	 */
 	@JsonProperty("phone_number")
-	@NotBlank(message = "{call.phonenumber.notnull}")
+	@NotBlank(message = "{call.phonenumber.not.null}")
 	@JsonDeserialize(using = ClearStringNoSpacesDeserializer.class)
 	private String phoneNumber;
 	
@@ -47,7 +47,7 @@ public final class SaveCallDetailDTO implements Serializable {
 	 * Call Duration
 	 */
 	@JsonProperty("call_duration")
-	@NotBlank(message = "{call.duration.notnull}")
+	@NotBlank(message = "{call.duration.not.null}")
 	private String callDuration;
 	
 	/**
@@ -61,7 +61,7 @@ public final class SaveCallDetailDTO implements Serializable {
 	 * Local Id
 	 */
 	@JsonProperty("local_id")
-	@NotBlank(message = "{call.detail.localid.notnull}")
+	@NotBlank(message = "{call.detail.localid.not.null}")
 	private String localId;
 	
 	/**
@@ -75,7 +75,7 @@ public final class SaveCallDetailDTO implements Serializable {
 	 * Kid
 	 */
 	@JsonProperty("kid")
-	@KidShouldExists(message="{kid.not.exists}")
+	@KidShouldExists(message="{kid.should.be.exists}")
 	private String kid;
 	
 	

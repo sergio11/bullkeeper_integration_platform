@@ -20,72 +20,84 @@ public final class SaveTerminalDTO implements Serializable {
 	/**
 	 * App Version Name
 	 */
-	@NotBlank(message = "{terminal.app.version.name.notblank}")
+	@NotBlank(message = "{terminal.app.version.name.not.blank}")
 	@JsonProperty("app_version_name")
 	private String appVersionName;
 	
 	/**
 	 * App Version Code
 	 */
-	@NotBlank(message = "{terminal.app.version.code.notblank}")
+	@NotBlank(message = "{terminal.app.version.code.not.blank}")
 	@JsonProperty("app_version_code")
 	private String appVersionCode;
 	
 	/**
 	 * Os Version
 	 */
-	@NotBlank(message = "{terminal.os.version.notblank}")
+	@NotBlank(message = "{terminal.os.version.not.blank}")
 	@JsonProperty("os_version")
 	private String osVersion;
 	
 	/**
 	 * Sdk Version
 	 */
-	@NotBlank(message = "{terminal.sdk.version.notblank}")
+	@NotBlank(message = "{terminal.sdk.version.not.blank}")
 	@JsonProperty("sdk_version")
 	private String sdkVersion;
 	
 	/**
 	 * Manufacturer
 	 */
-	@NotBlank(message = "{terminal.manufacturer.notblank}")
+	@NotBlank(message = "{terminal.manufacturer.not.blank}")
 	@JsonProperty("manufacturer")
 	private String manufacturer;
 	
 	/**
 	 * Market Name
 	 */
-	@NotBlank(message = "{terminal.market.name.notblank}")
+	@NotBlank(message = "{terminal.market.name.not.blank}")
 	@JsonProperty("market_name")
 	private String marketName;
 	
 	/**
 	 * Model
 	 */
-	@NotBlank(message = "{terminal.model.notblank}")
+	@NotBlank(message = "{terminal.model.not.blank}")
 	@JsonProperty("model")
 	private String model;
 	
 	/**
 	 * Code Name
 	 */
-	@NotBlank(message = "{terminal.code.name.notblank}")
+	@NotBlank(message = "{terminal.code.name.not.blank}")
 	@JsonProperty("code_name")
 	private String codeName;
 	
 	/**
 	 * Device Name
 	 */
-	@NotBlank(message = "{terminal.device.name.notblank}")
+	@NotBlank(message = "{terminal.device.name.not.blank}")
 	@JsonProperty("device_name")
 	private String deviceName;
 	
 	/**
 	 * Device ID
 	 */
-	@NotBlank(message = "{terminal.device.id.notblank}")
+	@NotBlank(message = "{terminal.device.id.not.blank}")
 	@JsonProperty("device_id")
 	private String deviceId;
+	
+	/**
+	 * Carrier Name
+	 */
+	@JsonProperty("carrier_name")
+	private String carrierName;
+	
+	/**
+	 * Phone Number
+	 */
+	@JsonProperty("phone_number")
+	private String phoneNumber;
 	
 	/**
 	 * Son Should Exists
@@ -108,11 +120,13 @@ public final class SaveTerminalDTO implements Serializable {
 	 * @param codeName
 	 * @param deviceName
 	 * @param deviceId
+	 * @param carrierName
+	 * @param phoneNumber
 	 * @param kid
 	 */
 	public SaveTerminalDTO(String appVersionName, String appVersionCode, String osVersion, String sdkVersion,
 			String manufacturer, String marketName, String model, String codeName, String deviceName,
-			String deviceId, String kid) {
+			String deviceId, String carrierName, String phoneNumber, String kid) {
 		super();
 		this.appVersionName = appVersionName;
 		this.appVersionCode = appVersionCode;
@@ -124,6 +138,8 @@ public final class SaveTerminalDTO implements Serializable {
 		this.codeName = codeName;
 		this.deviceName = deviceName;
 		this.deviceId = deviceId;
+		this.carrierName = carrierName;
+		this.phoneNumber= phoneNumber;
 		this.kid = kid;
 	}
 
@@ -208,6 +224,24 @@ public final class SaveTerminalDTO implements Serializable {
 	public void setDeviceId(String deviceId) {
 		this.deviceId = deviceId;
 	}
+	
+	
+
+	public String getCarrierName() {
+		return carrierName;
+	}
+
+	public void setCarrierName(String carrierName) {
+		this.carrierName = carrierName;
+	}
+
+	public String getPhoneNumber() {
+		return phoneNumber;
+	}
+
+	public void setPhoneNumber(String phoneNumber) {
+		this.phoneNumber = phoneNumber;
+	}
 
 	public String getKid() {
 		return kid;
@@ -222,7 +256,8 @@ public final class SaveTerminalDTO implements Serializable {
 		return "SaveTerminalDTO [appVersionName=" + appVersionName + ", appVersionCode=" + appVersionCode
 				+ ", osVersion=" + osVersion + ", sdkVersion=" + sdkVersion + ", manufacturer=" + manufacturer
 				+ ", marketName=" + marketName + ", model=" + model + ", codeName=" + codeName + ", deviceName="
-				+ deviceName + ", deviceId=" + deviceId + ", kid=" + kid + "]";
+				+ deviceName + ", deviceId=" + deviceId + ", carrierName=" + carrierName + ", phoneNumber="
+				+ phoneNumber + ", kid=" + kid + "]";
 	}
 
 	

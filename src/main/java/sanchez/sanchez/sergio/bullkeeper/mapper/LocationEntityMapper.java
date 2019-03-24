@@ -50,10 +50,7 @@ public abstract class LocationEntityMapper {
      * @param saveLocation
      * @return
      */
-    @Mappings({
-		@Mapping(expression = "java(googleMapGateway"
-				+ ".getFormattedAddress(saveLocation.getLat(), saveLocation.getLog()))", target = "address")
-	})
+    @Mappings({})
     @Named("saveLocationToLocationEntity")
     public abstract LocationEntity saveLocationToLocationEntity(
     		final SaveLocationDTO saveLocation);

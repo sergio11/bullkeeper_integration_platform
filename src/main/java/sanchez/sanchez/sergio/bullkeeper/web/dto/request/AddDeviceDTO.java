@@ -18,7 +18,7 @@ public class AddDeviceDTO {
 	/**
 	 * Registration
 	 */
-	@NotBlank(message = "{device.registration.token.notblank}")
+	@NotBlank(message = "{device.registration.token.not.blank}")
 	@JsonProperty("registration_token")
 	private String registrationToken;
 	

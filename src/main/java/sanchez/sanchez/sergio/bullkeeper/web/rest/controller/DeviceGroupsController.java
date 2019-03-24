@@ -167,7 +167,7 @@ public class DeviceGroupsController extends BaseController {
             response = String.class)
     public ResponseEntity<APIResponse<String>> deleteDeviceFromGroup(
     		@ApiParam(name = "id", value = "Device Id", required = true)
-            	@Valid @DeviceShouldExists(message = "{device.should.exists}")
+            	@Valid @DeviceShouldExists(message = "{device.not.exists}")
              		@PathVariable String id,
             @ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfParent
     ) {

@@ -7,11 +7,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class SaveDeviceDTO {
 	
-	@NotBlank(message = "{device.id.notblank}")
+	@NotBlank(message = "{device.id.not.blank}")
 	@JsonProperty("device_id")
 	private String deviceId;
 	
-	@NotBlank(message = "{device.registration.token.notblank}")
+	@NotBlank(message = "{device.registration.token.not.blank}")
 	@JsonProperty("registration_token")
 	private String registrationToken;
 	

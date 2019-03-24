@@ -37,6 +37,7 @@ import sanchez.sanchez.sergio.bullkeeper.events.apps.AppRulesListSavedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.apps.AppRulesSavedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.apps.NewAppInstalledEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.apps.UninstallAppEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.contacts.ContactDisabledEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.funtime.DayScheduledSavedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.funtime.SaveFunTimeScheduledEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.geofences.AllGeofencesDeletedEvent;
@@ -56,6 +57,7 @@ import sanchez.sanchez.sergio.bullkeeper.events.scheduledblock.ScheduledBlockSta
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.AllTerminalScreenStatusChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalBedTimeStatusChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalCameraStatusChangedEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalPhoneCallsStatusChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalScreenStatusChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalSettingsStatusChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.UnlinkAllKidTerminalsEvent;
@@ -91,6 +93,7 @@ import sanchez.sanchez.sergio.bullkeeper.exception.TerminalNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.AppInstalledShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.CallDetailShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ContactShouldExists;
+import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ContactShouldExistsAndEnabled;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.DayNameValidator;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.GeofenceShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.KidRequestShouldExists;
@@ -129,7 +132,8 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveScheduledBlockStatu
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveSmsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveSocialMediaDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveTerminalDTO;
-import sanchez.sanchez.sergio.bullkeeper.web.dto.request.TerminalHeartbeatDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveTerminalHeartBeatConfigurationDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveTerminalHeartbeatDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.TerminalStatusDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AlertDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledDTO;
@@ -155,6 +159,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.response.SmsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.SocialMediaDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.TerminalDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.TerminalDetailDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.TerminalHeartbeatDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.ApiHelper;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.hal.ICommentHAL;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.hal.IKidHAL;
@@ -277,7 +282,7 @@ public class ChildrenController extends BaseController
     response = KidDTO.class)
     public ResponseEntity<APIResponse<KidDTO>> getSonById(
     		@ApiParam(name= "id", value = "Kid identified", required = true)
-    			@Valid @ValidObjectId(message = "{son.id.notvalid}")
+    			@Valid @ValidObjectId(message = "{id.not.valid}")
     		 		@PathVariable String id) throws Throwable {
         
     	logger.debug("Get Kid with id: " + id);
@@ -301,8 +306,8 @@ public class ChildrenController extends BaseController
     		response = String.class)
     public ResponseEntity<APIResponse<String>> deleteKidById(
     		@ApiParam(name= "id", value = "Kid Identified", required = true)
-    			@Valid @ValidObjectId(message = "{son.id.notvalid}")
-                                @KidShouldExists(message = "{son.should.be.exists}")
+    			@Valid @ValidObjectId(message = "{id.not.valid}")
+                                @KidShouldExists(message = "{kid.should.be.exists}")
     		 		@PathVariable String id) throws Throwable {
         
         logger.debug("Delete Kid with id: " + id);
@@ -313,7 +318,7 @@ public class ChildrenController extends BaseController
         
         // Create and send response
         return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.CHILD_DELETED_SUCCESSFULLY,
-                HttpStatus.OK, messageSourceResolver.resolver("son.deleted.successfully"));
+                HttpStatus.OK, messageSourceResolver.resolver("kid.deleted.successfully"));
     }
     
    
@@ -330,7 +335,7 @@ public class ChildrenController extends BaseController
     	notes = "Save Guardians for kid", response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<KidGuardianDTO>>> saveGuardians(
     		@ApiParam(name= "id", value = "Kid identified", required = true)
-    			@Valid @KidShouldExists(message = "{son.id.notvalid}")
+    			@Valid @KidShouldExists(message = "{id.not.valid}")
     		 		@PathVariable String id,
     		@ApiParam(name="guadians", value = "guardians", required = true) 
 				@Validated(ICommonSequence.class)
@@ -371,7 +376,7 @@ public class ChildrenController extends BaseController
     	notes = "Get Guardians for kid", response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<KidGuardianDTO>>> getGuardians(
     		@ApiParam(name= "id", value = "Kid identified", required = true)
-    			@Valid @KidShouldExists(message = "{son.id.notvalid}")
+    			@Valid @KidShouldExists(message = "{id.not.valid}")
     		 		@PathVariable String id) throws Throwable {
     	
     	logger.debug("Get Guardians for -> " + id);
@@ -403,7 +408,7 @@ public class ChildrenController extends BaseController
     	notes = "Get Confirmed Guardians for kid", response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<KidGuardianDTO>>> getConfirmedGuardians(
     		@ApiParam(name= "id", value = "Kid identified", required = true)
-    			@Valid @KidShouldExists(message = "{son.id.notvalid}")
+    			@Valid @KidShouldExists(message = "{id.not.valid}")
     		 		@PathVariable String id) throws Throwable {
     	
     	logger.debug("Get Guardians for -> " + id);
@@ -441,7 +446,7 @@ public class ChildrenController extends BaseController
     	notes = "Get Comments By Kid Id", response = List.class)
     public ResponseEntity<APIResponse<Iterable<CommentDTO>>> getCommentsByKidId(
             @ApiParam(name = "id", value = "Kid Identifier", required = true)
-            	@Valid @ValidObjectId(message = "{son.id.notvalid}")
+            	@Valid @ValidObjectId(message = "{id.not.valid}")
              		@PathVariable String id,
             @ApiParam(name = "author", value = "Author's identifier", required = false)	
         			@RequestParam(name="author" , required=false)
@@ -500,7 +505,7 @@ public class ChildrenController extends BaseController
     })
     public ResponseEntity<APIResponse<ImageDTO>> uploadProfileImageForKid(
     		@ApiParam(name = "id", value = "Kid Identifier", required = true)
-         	@Valid @ValidObjectId(message = "{son.id.notvalid}")
+         	@Valid @ValidObjectId(message = "{id.not.valid}")
           		@PathVariable String id,
             @RequestPart("profile_image") MultipartFile profileImage,
             @ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfGuard) throws Throwable {
@@ -526,7 +531,7 @@ public class ChildrenController extends BaseController
     	notes = "Download Kid Profile Image")
     public ResponseEntity<byte[]> downloadKidProfileImage(
             @ApiParam(name = "id", value = "Kid Identifier", required = true)
-            	@Valid @ValidObjectId(message = "{son.id.notvalid}")
+            	@Valid @ValidObjectId(message = "{id.not.valid}")
              		@PathVariable String id) throws Throwable {
        
     	logger.debug("Download Kid Profile Image");
@@ -549,7 +554,7 @@ public class ChildrenController extends BaseController
     	notes = "Get Social Madia By Kid", response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<SocialMediaDTO>>> getSocialMediaByKidId(
     		@ApiParam(name = "id", value = "Kid Identifier", required = true)
-    			@Valid @ValidObjectId(message = "{son.id.notvalid}")
+    			@Valid @ValidObjectId(message = "{id.not.valid}")
     				@PathVariable String id) throws Throwable {
         
     	logger.debug("Get Social Media by Kid Id " + id);
@@ -647,7 +652,7 @@ public class ChildrenController extends BaseController
             response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<SocialMediaDTO>>> saveAllSocialMediaToSon(
     		@ApiParam(name = "id", value = "Kid Identifier", required = true)
-        	@Valid @ValidObjectId(message = "{son.id.notvalid}")
+        	@Valid @ValidObjectId(message = "{id.not.valid}")
          		@PathVariable String id,
             @ApiParam(name="socialMedias", value = "Social Medias", required = true) 
 				@Validated(ICommonSequence.class) 
@@ -675,7 +680,7 @@ public class ChildrenController extends BaseController
     //@OnlyAccessForAdminOrGuardianOfTheKid(son = "#id")
     public ResponseEntity<APIResponse<Long>> deleteAllSocialMedia(
     		@ApiParam(name = "id", value = "Kid Identifier", required = true)
-            	@Valid @ValidObjectId(message = "{son.id.notvalid}")
+            	@Valid @ValidObjectId(message = "{id.not.valid}")
              		@PathVariable String id) throws Throwable {
         
         Long socialMediaEntitiesDeleted = socialMediaService.deleteSocialMediaByKid(id);
@@ -700,11 +705,11 @@ public class ChildrenController extends BaseController
     	notes = "Delete a single social media", response = String.class)
     public ResponseEntity<APIResponse<String>> deleteSocialMedia(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-            	@Valid @ValidObjectId(message = "{son.id.notvalid}")
+            	@Valid @ValidObjectId(message = "{id.not.valid}")
              		@PathVariable String kid,
             @ApiParam(name = "social", value = "Social Media Identifier", required = true)
             	@Validated(ICommonSequence.class) 
-    					@ValidObjectId(message = "{social.id.notvalid}")
+    					@ValidObjectId(message = "{id.not.valid}")
             			@SocialMediaShouldExists(message = "{social.not.exists}")
              				@PathVariable String social) throws Throwable {
         
@@ -728,7 +733,7 @@ public class ChildrenController extends BaseController
     	notes = "Get Social Madia By Kid with invalid token", response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<SocialMediaDTO>>> getInvalidSocialMediaByKidId(
     		@ApiParam(name = "id", value = "Kid Identifier", required = true)
-    			@Valid @ValidObjectId(message = "{son.id.notvalid}")
+    			@Valid @ValidObjectId(message = "{id.not.valid}")
              		@PathVariable String id) throws Throwable {
         logger.debug("Get Invalid Social  Media by Kid Id " + id);
         
@@ -752,7 +757,7 @@ public class ChildrenController extends BaseController
             response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<SocialMediaDTO>>> getValidSocialMediaByKidId(
     		@ApiParam(name = "id", value = "Kid identifier", required = true)
-    			@Valid @ValidObjectId(message = "{son.id.notvalid}")
+    			@Valid @ValidObjectId(message = "{id.not.valid}")
              		@PathVariable String id) throws Throwable {
        
     	logger.debug("Get Valid Social  Media by kid Id " + id);
@@ -780,7 +785,7 @@ public class ChildrenController extends BaseController
             response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<AlertDTO>>> getAlertsByKidId(
             @ApiParam(name = "id", value = "Kid Identifier", required = true)
-            	@Valid @ValidObjectId(message = "{son.id.notvalid}")
+            	@Valid @ValidObjectId(message = "{id.not.valid}")
              		@PathVariable String id,
              @ApiParam(name = "count", value = "Number of alerts", required = false)
     				@RequestParam(name = "count", defaultValue = "0", required = false) Integer count,
@@ -820,7 +825,7 @@ public class ChildrenController extends BaseController
     	notes = "Get Warning Alerts By Kid Id", response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<AlertDTO>>> getWarningAlertsByKidId(
             @ApiParam(name = "id", value = "Kid Identifier", required = true)
-            	@Valid @ValidObjectId(message = "{son.id.notvalid}")
+            	@Valid @ValidObjectId(message = "{id.not.valid}")
              		@PathVariable String id,
              @ApiParam(name = "count", value = "Number of alerts", required = false)
     				@RequestParam(name = "count", defaultValue = "0", required = false) Integer count,
@@ -856,7 +861,7 @@ public class ChildrenController extends BaseController
             response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<AlertDTO>>> getInformationAlertsByKidId(
             @ApiParam(name = "id", value = "Kid Identifier", required = true)
-            	@Valid @ValidObjectId(message = "{son.id.notvalid}")
+            	@Valid @ValidObjectId(message = "{id.not.valid}")
              		@PathVariable String id,
              @ApiParam(name = "count", value = "Number of alerts", required = false)
     				@RequestParam(name = "count", defaultValue = "0", required = false) Integer count,
@@ -892,7 +897,7 @@ public class ChildrenController extends BaseController
             response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<AlertDTO>>> getDangerAlertsByKidId(
             @ApiParam(name = "id", value = "Kid Identifier", required = true)
-            	@Valid @ValidObjectId(message = "{son.id.notvalid}")
+            	@Valid @ValidObjectId(message = "{id.not.valid}")
              		@PathVariable String id,
              @ApiParam(name = "count", value = "Number of alerts", required = false)
     				@RequestParam(name = "count", defaultValue = "0", required = false) Integer count,
@@ -929,7 +934,7 @@ public class ChildrenController extends BaseController
             response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<AlertDTO>>> getSuccessAlertsByKidId(
             @ApiParam(name = "id", value = "Kid Identifier", required = true)
-            	@Valid @ValidObjectId(message = "{son.id.notvalid}")
+            	@Valid @ValidObjectId(message = "{id.not.valid}")
              		@PathVariable String id,
              @ApiParam(name = "count", value = "Number of alerts", required = false)
     				@RequestParam(name = "count", defaultValue = "0", required = false) Integer count,
@@ -963,7 +968,7 @@ public class ChildrenController extends BaseController
             response = String.class)
     public ResponseEntity<APIResponse<String>> clearChildWarningAlerts(
             @ApiParam(name = "id", value = "Kid Identifier", required = true)
-            	@Valid @ValidObjectId(message = "{son.id.notvalid}")
+            	@Valid @ValidObjectId(message = "{id.not.valid}")
              		@PathVariable String id) throws Throwable {
         
     	logger.debug("Clear alerts of son with id: " + id);
@@ -990,7 +995,7 @@ public class ChildrenController extends BaseController
             response = String.class)
     public ResponseEntity<APIResponse<String>> clearChildInfoAlerts(
             @ApiParam(name = "id", value = "Kid Identifier", required = true)
-            	@Valid @ValidObjectId(message = "{son.id.notvalid}")
+            	@Valid @ValidObjectId(message = "{id.not.valid}")
              		@PathVariable String id) throws Throwable {
         
     	logger.debug("Clear Info alerts of kid with id: " + id);
@@ -1015,7 +1020,7 @@ public class ChildrenController extends BaseController
             response = String.class)
     public ResponseEntity<APIResponse<String>> clearChildDangerAlerts(
             @ApiParam(name = "id", value = "Kid Identifier", required = true)
-            	@Valid @ValidObjectId(message = "{son.id.notvalid}")
+            	@Valid @ValidObjectId(message = "{id.not.valid}")
              		@PathVariable String id) throws Throwable {
         
     	logger.debug("Clear Danger alerts of kid with id: " + id);
@@ -1040,7 +1045,7 @@ public class ChildrenController extends BaseController
             response = String.class)
     public ResponseEntity<APIResponse<String>> clearChildSuccessAlerts(
             @ApiParam(name = "id", value = "Kid Identifier", required = true)
-            	@Valid @ValidObjectId(message = "{son.id.notvalid}")
+            	@Valid @ValidObjectId(message = "{id.not.valid}")
              		@PathVariable String id) throws Throwable {
         
     	logger.debug("Clear Success alerts of kid with id: " + id);
@@ -1064,7 +1069,7 @@ public class ChildrenController extends BaseController
             response = String.class)
     public ResponseEntity<APIResponse<String>> clearChildAlerts(
             @ApiParam(name = "id", value = "Kid Identifier", required = true)
-            	@Valid @ValidObjectId(message = "{son.id.notvalid}")
+            	@Valid @ValidObjectId(message = "{id.not.valid}")
              		@PathVariable String id) throws Throwable {
         
     	logger.debug("Clear alerts of kid with id: " + id);
@@ -1089,10 +1094,10 @@ public class ChildrenController extends BaseController
             response = AlertDTO.class)
     public ResponseEntity<APIResponse<AlertDTO>> getAlertById(
             @ApiParam(name = "kid", value = "Kid Identifier", required = true)
-            	@Valid @ValidObjectId(message = "{son.id.notvalid}")
+            	@Valid @ValidObjectId(message = "{id.not.valid}")
              		@PathVariable String kid,
              @ApiParam(name = "alert", value = "Alert Identfier", required = true)
-            	@Valid @ValidObjectId(message = "{alert.id.notvalid}")
+            	@Valid @ValidObjectId(message = "{id.not.valid}")
              		@PathVariable String alert) throws Throwable {
         
         
@@ -1116,10 +1121,10 @@ public class ChildrenController extends BaseController
             response = String.class)
     public ResponseEntity<APIResponse<String>> deleteAlertById(
             @ApiParam(name = "kid", value = "Kid Identfier", required = true)
-            	@Valid @ValidObjectId(message = "{son.id.notvalid}")
+            	@Valid @ValidObjectId(message = "{id.not.valid}")
              		@PathVariable String kid,
              @ApiParam(name = "alert", value = "Alert Identifier", required = true)
-            	@Valid @ValidObjectId(message = "{alert.id.notvalid}")
+            	@Valid @ValidObjectId(message = "{id.not.valid}")
              		@PathVariable String alert) throws Throwable {
         
         logger.debug("Delete Alert by id: " + alert);
@@ -1127,7 +1132,8 @@ public class ChildrenController extends BaseController
         alertService.deleteById(new ObjectId(alert));
         
         return ApiHelper.<String>createAndSendResponse(
-                ChildrenResponseCode.ALERT_BY_ID_DELETED, HttpStatus.OK, messageSourceResolver.resolver("alert.deleted"));
+                ChildrenResponseCode.ALERT_BY_ID_DELETED, HttpStatus.OK, 
+                messageSourceResolver.resolver("alert.deleted"));
         
     }
     
@@ -1148,7 +1154,7 @@ public class ChildrenController extends BaseController
     response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<TerminalDTO>>> getAllTerminals(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-        	@Valid @KidShouldExists(message = "{son.id.notvalid}")
+        	@Valid @KidShouldExists(message = "{kid.should.be.exists}")
          		@PathVariable String kid) 
     		throws Throwable {
         
@@ -1179,7 +1185,7 @@ public class ChildrenController extends BaseController
     	notes = "Get Terminal Detail", response = TerminalDetailDTO.class)
     public ResponseEntity<APIResponse<TerminalDetailDTO>> getTerminalDetail(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-        		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+        		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
          			@PathVariable String kid,
          	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
      				@PathVariable String terminal	) 
@@ -1211,7 +1217,7 @@ public class ChildrenController extends BaseController
             response = TerminalDTO.class)
     public ResponseEntity<APIResponse<TerminalDTO>> saveTerminal(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-        	@Valid @KidShouldExists(message = "{son.id.notvalid}")
+        	@Valid @KidShouldExists(message = "{kid.should.be.exists}")
          		@PathVariable String kid,
             @ApiParam(name="terminal", value = "Terminal to save", required = true) 
 				@Validated(ICommonSequence.class) 
@@ -1248,7 +1254,7 @@ public class ChildrenController extends BaseController
             response = String.class)
     public ResponseEntity<APIResponse<String>> deleteTerminalById(
             @ApiParam(name = "kid", value = "Kid Identifier", required = true)
-            	@Valid @KidShouldExists(message = "{son.not.exists}")
+            	@Valid @KidShouldExists(message = "{kid.should.be.exists}")
              		@PathVariable String kid,
              @ApiParam(name = "terminal", value = "Terminal Identity", required = true)
             	@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
@@ -1278,7 +1284,54 @@ public class ChildrenController extends BaseController
         
         // Create And Send Response
         return ApiHelper.<String>createAndSendResponse(
-                ChildrenResponseCode.TERMINAL_BY_ID_DELETED, HttpStatus.OK, messageSourceResolver.resolver("terminal.deleted"));
+                ChildrenResponseCode.TERMINAL_BY_ID_DELETED, HttpStatus.OK, 
+                messageSourceResolver.resolver("terminal.deleted"));
+        
+    }
+    
+    
+    /**
+     * Detach Terminal By Id
+     * @param kid
+     * @param terminal
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{kid}/terminal/{terminal}/detach", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(value = "DETACH_TERMINAL_BY_ID", nickname = "DETACH_TERMINAL_BY_ID", 
+    	notes = "Detach terminal by id",
+            response = String.class)
+    public ResponseEntity<APIResponse<String>> detachTerminalById(
+            @ApiParam(name = "kid", value = "Kid Identifier", required = true)
+            	@Valid @KidShouldExists(message = "{kid.should.be.exists}")
+             		@PathVariable String kid,
+             @ApiParam(name = "terminal", value = "Terminal Identity", required = true)
+            	@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
+             		@PathVariable String terminal) throws Throwable {
+        
+        logger.debug("Detach Terminal by id: " + terminal);
+        
+        // Get Terminal
+        final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+    			new ObjectId(terminal), new ObjectId(kid)))
+    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+      
+        
+        // Detach terminal by id
+        terminalService.detach(new ObjectId(terminalDTO.getKid()), new ObjectId(terminalDTO.getIdentity()));
+       
+        
+        // Save Alert
+    	alertService.save(AlertLevelEnum.WARNING, messageSourceResolver.resolver("terminal.detach.title"),
+    			messageSourceResolver.resolver("terminal.detach.description", 
+    					new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ), 
+    			new ObjectId(kid), AlertCategoryEnum.TERMINALS);
+        
+        // Create And Send Response
+        return ApiHelper.<String>createAndSendResponse(
+                ChildrenResponseCode.TERMINAL_WAS_DETACHED_SUCCESSFULLY, HttpStatus.OK, 
+                messageSourceResolver.resolver("terminal.detached.successfully"));
         
     }
     
@@ -1296,7 +1349,7 @@ public class ChildrenController extends BaseController
             response = String.class)
     public ResponseEntity<APIResponse<String>> deleteAllTerminalForKid(
             @ApiParam(name = "kid", value = "Kid Identifier", required = true)
-            	@Valid @KidShouldExists(message = "{kid.not.exists}")
+            	@Valid @KidShouldExists(message = "{kid.should.be.exist}")
              		@PathVariable String kid) throws Throwable {
         
         logger.debug("Delete all terminal for kid: " + kid);
@@ -1337,10 +1390,10 @@ public class ChildrenController extends BaseController
     	notes = "Enable Bed Time in the terminal", response = String.class)
     public ResponseEntity<APIResponse<String>> enableBedTimeInTheTerminal(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-        		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+        		@Valid @KidShouldExists(message = "{kid.should.be.exist}")
          			@PathVariable String kid,
          	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
-    			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
+    			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
      				@PathVariable String terminal) 
     		throws Throwable {
     	
@@ -1375,10 +1428,10 @@ public class ChildrenController extends BaseController
     	notes = "Disable Bed Time in the terminal", response = String.class)
     public ResponseEntity<APIResponse<String>> disableBedTimeInTheTerminal(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-        		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+        		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
          			@PathVariable String kid,
          	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
-    			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
+    			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
      				@PathVariable String terminal) 
     		throws Throwable {
     	
@@ -1413,10 +1466,10 @@ public class ChildrenController extends BaseController
     	notes = "Enable Settings in the terminal", response = String.class)
     public ResponseEntity<APIResponse<String>> enableSettingsInTheTerminal(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-        		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+        		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
          			@PathVariable String kid,
          	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
-    			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
+    			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
      				@PathVariable String terminal) 
     		throws Throwable {
     	
@@ -1450,10 +1503,10 @@ public class ChildrenController extends BaseController
     	notes = "Disable Settings in the terminal", response = String.class)
     public ResponseEntity<APIResponse<String>> disableSettingsInTheTerminal(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-        		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+        		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
          			@PathVariable String kid,
          	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
-    			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
+    			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
      				@PathVariable String terminal) 
     		throws Throwable {
     	
@@ -1488,10 +1541,10 @@ public class ChildrenController extends BaseController
     	notes = "Lock Screen in the terminal", response = String.class)
     public ResponseEntity<APIResponse<String>> lockScreenInTheTerminal(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-        		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+        		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
          			@PathVariable String kid,
          	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
-    			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
+    			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
      				@PathVariable String terminal) 
     		throws Throwable {
     	
@@ -1525,7 +1578,7 @@ public class ChildrenController extends BaseController
     	notes = "Lock Screen for all kid terminal", response = String.class)
     public ResponseEntity<APIResponse<String>> lockScreenForAllKidTerminal(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-        		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+        		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
          			@PathVariable String kid) 
     		throws Throwable {
 
@@ -1557,10 +1610,10 @@ public class ChildrenController extends BaseController
     		notes = "Unlock Screen in the terminal", response = String.class)
     public ResponseEntity<APIResponse<String>> unLockScreenInTheTerminal(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-        		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+        		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
          			@PathVariable String kid,
          	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
-    			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
+    			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
      				@PathVariable String terminal) 
     		throws Throwable {
     	
@@ -1596,7 +1649,7 @@ public class ChildrenController extends BaseController
     		notes = "Unlock Screen for all kid terminal", response = String.class)
     public ResponseEntity<APIResponse<String>> unLockScreenForAllKidTerminal(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-        		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+        		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
          			@PathVariable String kid) 
     		throws Throwable {
     	
@@ -1625,10 +1678,10 @@ public class ChildrenController extends BaseController
     	notes = "Lock Camera in the terminal", response = String.class)
     public ResponseEntity<APIResponse<String>> lockCameraInTheTerminal(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-        		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+        		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
          			@PathVariable String kid,
          	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
-    			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
+    			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
      				@PathVariable String terminal) 
     		throws Throwable {
     	
@@ -1664,10 +1717,10 @@ public class ChildrenController extends BaseController
     		notes = "Unlock Camera in the terminal", response = String.class)
     public ResponseEntity<APIResponse<String>> unLockCameraInTheTerminal(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-        		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+        		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
          			@PathVariable String kid,
          	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
-    			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
+    			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
      				@PathVariable String terminal) 
     		throws Throwable {
     	
@@ -1706,10 +1759,10 @@ public class ChildrenController extends BaseController
     	notes = "Get Sms From Terminal", response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<SmsDTO>>> getSmsFromTerminal(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-        		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+        		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
          			@PathVariable String kid,
          	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
-    			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
+    			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
      				@PathVariable String terminal) 
     		throws Throwable {
         
@@ -1746,13 +1799,13 @@ public class ChildrenController extends BaseController
     	notes = "Get Sms From Terminal", response = SmsDTO.class)
     public ResponseEntity<APIResponse<SmsDTO>> getSmsDetail(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-        		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+        		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
          			@PathVariable String kid,
          	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
-    			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
+    			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
      				@PathVariable String terminal,
      		@ApiParam(name = "sms", value = "Sms Identifier", required = true)
-				@Valid @SmsShouldExists(message = "{sms.id.notvalid}")
+				@Valid @SmsShouldExists(message = "{sms.not.exists}")
  					@PathVariable String sms) 
     		throws Throwable {
         
@@ -1790,10 +1843,10 @@ public class ChildrenController extends BaseController
     	notes = "Delete Sms From Terminal", response = String.class)
     public ResponseEntity<APIResponse<String>> deleteSmsFromTerminal(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-        		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+        		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
          			@PathVariable String kid,
          	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
-    			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
+    			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
      				@PathVariable String terminal) 
     		throws Throwable {
         
@@ -1826,10 +1879,10 @@ public class ChildrenController extends BaseController
     	notes = "Delete Sms From Terminal", response = String.class)
     public ResponseEntity<APIResponse<String>> deleteSmsFromTerminal(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-        		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+        		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
          			@PathVariable String kid,
          	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
-    			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
+    			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
      				@PathVariable String terminal,
      		@ApiParam(name="ids", value = "SMS ids", required = true) 
 				@Validated(ICommonSequence.class) 
@@ -1863,13 +1916,13 @@ public class ChildrenController extends BaseController
     	notes = "Delete Single SMS", response = String.class)
     public ResponseEntity<APIResponse<String>> deleteSingleSms(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-        		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+        		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
          			@PathVariable String kid,
          	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
-    			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
+    			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
      				@PathVariable String terminal,
      		@ApiParam(name = "sms", value = "Sms Identifier", required = true)
-				@Valid @SmsShouldExists(message = "{sms.id.notvalid}")
+				@Valid @SmsShouldExists(message = "{sms.not.exists}")
  					@PathVariable String sms) 
     		throws Throwable {
         
@@ -1904,7 +1957,7 @@ public class ChildrenController extends BaseController
     				response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<SmsDTO>>> saveSmsFromTerminal(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-        	@Valid @KidShouldExists(message = "{son.not.exists}")
+        	@Valid @KidShouldExists(message = "{kid.should.be.exists}")
          		@PathVariable String kid,
          	@ApiParam(name = "terminal", value = "Terminal Identity", required = true)
             	@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
@@ -1943,7 +1996,7 @@ public class ChildrenController extends BaseController
     				response = Iterable.class)
     public ResponseEntity<APIResponse<SmsDTO>> addSmsFromTerminal(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-        	@Valid @KidShouldExists(message = "{son.not.exists}")
+        	@Valid @KidShouldExists(message = "{kid.should.be.exists}")
          		@PathVariable String kid,
          	@ApiParam(name = "terminal", value = "Terminal Identity", required = true)
             	@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
@@ -1979,10 +2032,10 @@ public class ChildrenController extends BaseController
     	notes = "Get Calls From Terminal", response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<CallDetailDTO>>> getCallsFromTerminal(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-        		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+        		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
          			@PathVariable String kid,
          	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
-    			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
+    			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
      				@PathVariable String terminal) 
     		throws Throwable {
     	
@@ -2022,13 +2075,13 @@ public class ChildrenController extends BaseController
    	notes = "Get Call Detail", response = CallDetailDTO.class)
    public ResponseEntity<APIResponse<CallDetailDTO>> getCallDetail(
    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-       		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+       		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
         			@PathVariable String kid,
         	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
-   			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
+   			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
     				@PathVariable String terminal,
     		@ApiParam(name = "call", value = "Call Identifier", required = true)
-				@Valid @CallDetailShouldExists(message = "{call.id.notvalid}")
+				@Valid @CallDetailShouldExists(message = "{call.not.exists}")
 					@PathVariable String call) 
    		throws Throwable {
 	   
@@ -2066,10 +2119,10 @@ public class ChildrenController extends BaseController
    	notes = "Delete Call Details From Terminal", response = String.class)
    public ResponseEntity<APIResponse<String>> deleteCallDetailsFromTerminal(
    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-       		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+       		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
         			@PathVariable String kid,
         	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
-   			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
+   			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
     				@PathVariable String terminal) 
    		throws Throwable {
        
@@ -2103,10 +2156,10 @@ public class ChildrenController extends BaseController
    	notes = "Delete Call Details From Terminal", response = String.class)
    public ResponseEntity<APIResponse<String>> deleteCallDetailsFromTerminal(
    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-       		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+       		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
         		@PathVariable String kid,
         @ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
-   			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
+   			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
     			@PathVariable String terminal,
     	@ApiParam(name="ids", value = "Call ids", required = true) 
    			@Validated(ICommonSequence.class) 
@@ -2148,13 +2201,13 @@ public class ChildrenController extends BaseController
   	notes = "Delete Single Call Detail", response = String.class)
   public ResponseEntity<APIResponse<String>> deleteSingleCallDetail(
   		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-      		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+      		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
        			@PathVariable String kid,
        	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
-  			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
+  			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
    				@PathVariable String terminal,
    		@ApiParam(name = "call", value = "Call Identifier", required = true)
-				@Valid @CallDetailShouldExists(message = "{call.id.notvalid}")
+				@Valid @CallDetailShouldExists(message = "{call.not.exists}")
 					@PathVariable String call) 
   		throws Throwable {
 	  
@@ -2191,7 +2244,7 @@ public class ChildrenController extends BaseController
    				response = Iterable.class)
    public ResponseEntity<APIResponse<Iterable<CallDetailDTO>>> saveCallDetailsFromTerminal(
    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-       	@Valid @KidShouldExists(message = "{son.not.exists}")
+       	@Valid @KidShouldExists(message = "{kid.should.be.exists}")
         		@PathVariable String kid,
         	@ApiParam(name = "terminal", value = "Terminal Identity", required = true)
            	@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
@@ -2229,7 +2282,7 @@ public class ChildrenController extends BaseController
    				response = Iterable.class)
    public ResponseEntity<APIResponse<CallDetailDTO>> addCallDetailsFromTerminal(
    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-       	@Valid @KidShouldExists(message = "{son.not.exists}")
+       	@Valid @KidShouldExists(message = "{kid.should.be.exists}")
         		@PathVariable String kid,
         	@ApiParam(name = "terminal", value = "Terminal Identity", required = true)
            	@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
@@ -2248,6 +2301,74 @@ public class ChildrenController extends BaseController
 	       		HttpStatus.OK, callDetailDTO);
    }
    
+   /**
+    * Enable Phone Calls In Terminal
+    * @return
+    * @throws Throwable
+    */
+   @RequestMapping(value = "/{kid}/terminal/{terminal}/calls/enable", method = RequestMethod.POST)
+   @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole()"
+   		+ " && @authorizationService.isYourGuardian(#kid) )")
+   @ApiOperation(value = "ENABLE_PHONE_CALLS_IN_TERMINAL", 
+   	nickname = "ENABLE_PHONE_CALLS_IN_TERMINAL", 
+   			notes = "Enable phone calls in terminal",
+   				response = Iterable.class)
+   public ResponseEntity<APIResponse<String>> enablePhoneCallsInTerminal(
+   		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+       	@Valid @KidShouldExists(message = "{kid.should.be.exists}")
+        		@PathVariable String kid,
+        	@ApiParam(name = "terminal", value = "Terminal Identity", required = true)
+           	@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
+            		@PathVariable String terminal) throws Throwable {
+	   
+	   logger.debug("Enable phone calls in terminal");
+	   
+	   terminalService.enablePhoneCalls(new ObjectId(kid), new ObjectId(terminal));
+	  
+		// Publish Event
+	   	this.applicationEventPublisher
+	   		.publishEvent(new TerminalPhoneCallsStatusChangedEvent(
+	   				this, kid, terminal, true));
+   	
+	    // Create and send response
+	    return ApiHelper.<String>createAndSendResponse(CallDetailResponseCode.PHONE_CALLS_ENABLED_SUCCESSFULLY, 
+	       		HttpStatus.OK, messageSourceResolver.resolver("enable.phone.calls.in.terminal.successfully"));
+   }
+   
+   /**
+    * Disable Phone Calls in terminal
+    * @return
+    * @throws Throwable
+    */
+   @RequestMapping(value = "/{kid}/terminal/{terminal}/calls/disable", method = RequestMethod.POST)
+   @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole()"
+   		+ " && @authorizationService.isYourGuardian(#kid) )")
+   @ApiOperation(value = "DISABLE_PHONE_CALLS_IN_TERMINAL", 
+   	nickname = "DISABLE_PHONE_CALLS_IN_TERMINAL", 
+   			notes = "Disable Phone Calls In Terminal",
+   				response = Iterable.class)
+   public ResponseEntity<APIResponse<String>> disablePhoneCallsInTerminal(
+   		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+       	@Valid @KidShouldExists(message = "{kid.should.be.exists}")
+        		@PathVariable String kid,
+        	@ApiParam(name = "terminal", value = "Terminal Identity", required = true)
+           	@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
+            		@PathVariable String terminal) throws Throwable {
+	   
+	   logger.debug("Disable Phone Calls in Terminal");
+	   
+	   terminalService.disablePhoneCalls(new ObjectId(kid), new ObjectId(terminal));
+	  
+	   // Publish Event
+	   this.applicationEventPublisher
+	   		.publishEvent(new TerminalPhoneCallsStatusChangedEvent(
+	   				this, kid, terminal, false));
+	   	
+	    // Create and send response
+	    return ApiHelper.<String>createAndSendResponse(CallDetailResponseCode.PHONE_CALLS_DISABLED_SUCCESSFULLY, 
+	       		HttpStatus.OK, messageSourceResolver.resolver("disable.phone.calls.in.terminal.successfully"));
+   }
+   
    
    /**
     * Get Calls
@@ -2260,10 +2381,10 @@ public class ChildrenController extends BaseController
    	notes = "Get Calls From Terminal", response = Iterable.class)
    public ResponseEntity<APIResponse<Iterable<ContactDTO>>> getAllContactsFromTerminal(
    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-       		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+       		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
         		@PathVariable final String kid,
         @ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
-   			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
+   			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
     			@PathVariable final String terminal,
     	@ApiParam(name="text", value = "text", required = false) 
    			@RequestParam(value = "text", required = false) 
@@ -2306,13 +2427,13 @@ public class ChildrenController extends BaseController
   	notes = "Get Contact Detail", response = ContactDTO.class)
   public ResponseEntity<APIResponse<ContactDTO>> getContactDetail(
   		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-      		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+      		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
        			@PathVariable String kid,
        	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
-  			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
+  			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
    				@PathVariable String terminal,
    		@ApiParam(name = "contact", value = "Contact Identifier", required = true)
-				@Valid @ContactShouldExists(message = "{contact.id.notvalid}")
+				@Valid @ContactShouldExistsAndEnabled(message = "{contact.not.exists}")
 					@PathVariable String contact) 
   		throws Throwable {
 	   
@@ -2351,10 +2472,10 @@ public class ChildrenController extends BaseController
   	notes = "Delete All Contacts From Terminal", response = String.class)
   public ResponseEntity<APIResponse<String>> deleteAllContactsFromTerminal(
   		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-      		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+      		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
        			@PathVariable String kid,
        	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
-  			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
+  			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
    				@PathVariable String terminal) 
   		throws Throwable {
       
@@ -2390,10 +2511,10 @@ public class ChildrenController extends BaseController
   	notes = "Delete Contacts From Terminal", response = String.class)
   public ResponseEntity<APIResponse<String>> deleteContactsFromTerminal(
   		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-      		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+      		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
        			@PathVariable String kid,
        	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
-  			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
+  			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
    				@PathVariable String terminal,
    		@ApiParam(name="ids", value = "Contacts ids", required = true) 
 			@Validated(ICommonSequence.class) 
@@ -2435,13 +2556,13 @@ public class ChildrenController extends BaseController
  	notes = "Delete Single Contact", response = String.class)
  public ResponseEntity<APIResponse<String>> deleteSingleContact(
  		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-     		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+     		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
       			@PathVariable String kid,
       	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
- 			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
+ 			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
   				@PathVariable String terminal,
   		@ApiParam(name = "contact", value = "Contact Identifier", required = true)
-				@Valid @ContactShouldExists(message = "{contact.id.notvalid}")
+				@Valid @ContactShouldExists(message = "{contact.not.exists}")
 					@PathVariable String contact) 
  		throws Throwable {
 	  
@@ -2462,7 +2583,105 @@ public class ChildrenController extends BaseController
      return ApiHelper.<String>createAndSendResponse(ContactResponseCode.SINGLE_CONTACT_DELETED, 
         		HttpStatus.OK, messageSourceResolver.resolver("single.contact.deleted"));
  }
-  
+ 
+ 
+ /**
+  * Disable Contact From Terminal
+  * @return
+  * @throws Throwable
+  */
+ @RequestMapping(value = "/{kid}/terminal/{terminal}/contacts/{contact}/disable", method = RequestMethod.POST)
+ @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+ 		+ "&& @authorizationService.isYourGuardian(#kid) )")
+ @ApiOperation(value = "DISABLE_CONTACT_FROM_TERMINAL", 
+ 	nickname = "DISABLE_CONTACT_FROM_TERMINAL",
+ 	notes = "Disable Contact From Terminal", response = String.class)
+ public ResponseEntity<APIResponse<String>> disableContactFromTerminal(
+ 		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+     		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
+      			@PathVariable String kid,
+      	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
+ 			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
+  				@PathVariable String terminal,
+  		@ApiParam(name = "contact", value = "Contact Identifier", required = true)
+ 			@Valid @ContactShouldExistsAndEnabled(message = "{contact.not.exists}")
+				@PathVariable String contact) 
+ 		throws Throwable {
+    
+	   // Get Terminal
+     final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+ 			new ObjectId(terminal), new ObjectId(kid)))
+ 			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+     
+     
+  // Get Contact Detail
+     final ContactDTO contactDTO = Optional.ofNullable(terminalService.getContactByIdAndTerminalIdAndKidId(
+   		new ObjectId(contact),
+   		new ObjectId(terminalDTO.getIdentity()), 
+ 			new ObjectId(terminalDTO.getKid())))
+ 			 .orElseThrow(() -> { throw new ContactNotFoundException(); });
+     
+     // Disable Contact
+     terminalService.disableContact(
+  		   new ObjectId(terminalDTO.getKid()), 
+  		   new ObjectId(terminalDTO.getIdentity()),
+  		   new ObjectId(contactDTO.getIdentity()));
+     
+     
+     // Publish Event
+	this.applicationEventPublisher
+	   		.publishEvent(new ContactDisabledEvent(
+	   				this, kid, terminal, contactDTO.getIdentity(),
+	   				contactDTO.getLocalId()));
+ 	
+	   // Create and send response
+     return ApiHelper.<String>createAndSendResponse(ContactResponseCode.CONTACTS_DISABLED, 
+        		HttpStatus.OK, messageSourceResolver.resolver("contact.disabled.successfully"));
+	   
+ }
+ 
+ 
+ /**
+  * Get list of disabled contacts in the terminal
+  * @param kid
+  * @param terminal
+  * @return
+  * @throws Throwable
+  */
+ @RequestMapping(value = "/{kid}/terminal/{terminal}/contacts/disable", method = RequestMethod.GET)
+ @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+ 		+ "&& @authorizationService.isYourGuardian(#kid) )")
+ @ApiOperation(value = "GET_LIST_OF_DISABLED_CONTACTS_IN_THE_TERMINAL", 
+ 	nickname = "GET_LIST_OF_DISABLED_CONTACTS_IN_THE_TERMINAL",
+ 	notes = "Get List Of Disabled Contacts In the terminal", response = Iterable.class)
+ public ResponseEntity<APIResponse<Iterable<ContactDTO>>> getListOfDisabledContactsInTheTerminal(
+ 		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+     		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
+      			@PathVariable String kid,
+      	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
+ 			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
+  				@PathVariable String terminal) 
+ 		throws Throwable {
+    
+	   // Get Terminal
+     final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+ 			new ObjectId(terminal), new ObjectId(kid)))
+ 			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+     
+     final Iterable<ContactDTO> contactDTOs = terminalService
+    		 .getListOfDisabledContactsInTheTerminal(
+    				 new ObjectId(terminalDTO.getKid()),
+    				 new ObjectId(terminalDTO.getIdentity()));
+     
+     // Check results
+     if(Iterables.size(contactDTOs) == 0)
+     		throw new NoContactsFoundException();
+ 	
+	   // Create and send response
+     return ApiHelper.<Iterable<ContactDTO>>createAndSendResponse(ContactResponseCode.LIST_OF_DISABLED_CONTACTS, 
+        		HttpStatus.OK, contactDTOs);
+	   
+ }
   
   /**
    * Save Contacts from terminal 
@@ -2478,7 +2697,7 @@ public class ChildrenController extends BaseController
   				response = Iterable.class)
   public ResponseEntity<APIResponse<Iterable<ContactDTO>>> saveContactsFromTerminal(
   		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-      		@Valid @KidShouldExists(message = "{son.not.exists}")
+      		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
        			@PathVariable String kid,
        	@ApiParam(name = "terminal", value = "Terminal Identity", required = true)
           	@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
@@ -2516,7 +2735,7 @@ public class ChildrenController extends BaseController
   				response = ContactDTO.class)
   public ResponseEntity<APIResponse<ContactDTO>> addContactFromTerminal(
   		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-      	@Valid @KidShouldExists(message = "{son.not.exists}")
+      	@Valid @KidShouldExists(message = "{kid.should.be.exists}")
        		@PathVariable String kid,
        	@ApiParam(name = "terminal", value = "Terminal Identity", required = true)
           	@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
@@ -2554,7 +2773,7 @@ public class ChildrenController extends BaseController
   response = List.class)
   public ResponseEntity<APIResponse<Iterable<AppInstalledInTerminalDTO>>> getAllAppsInstalledForKid(
   		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-      		@Valid @KidShouldExists(message = "{son.not.exists}")
+      		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
        			@PathVariable final String kid,
        	@ApiParam(name="text", value = "text", required = false) 
  				@RequestParam(value = "text", required = false) 
@@ -2592,7 +2811,7 @@ public class ChildrenController extends BaseController
     response = List.class)
     public ResponseEntity<APIResponse<Iterable<AppInstalledDTO>>> getAllAppsInstalledInTheTerminal(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-        		@Valid @KidShouldExists(message = "{son.not.exists}")
+        		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
          			@PathVariable final String kid,
          	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
         		@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
@@ -2637,13 +2856,13 @@ public class ChildrenController extends BaseController
    	notes = "Get Call Detail", response = AppInstalledDetailDTO.class)
    public ResponseEntity<APIResponse<AppInstalledDetailDTO>> getAppDetail(
    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-       		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+       		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
         			@PathVariable String kid,
         	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
-   			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
+   			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
     				@PathVariable String terminal,
     		@ApiParam(name = "app", value = "App Identifier", required = true)
-				@Valid @AppInstalledShouldExists(message = "{app.id.notvalid}")
+				@Valid @AppInstalledShouldExists(message = "{app.not.exists}")
 					@PathVariable String app) 
    		throws Throwable {
 	   
@@ -2682,7 +2901,7 @@ public class ChildrenController extends BaseController
             response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<AppInstalledDTO>>> saveAppsInstalledInTheTerminal(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-        	@Valid @KidShouldExists(message = "{son.not.exists}")
+        	@Valid @KidShouldExists(message = "{kid.should.be.exists}")
          		@PathVariable String kid,
          	@ApiParam(name = "terminal", value = "Terminal Identity", required = true)
             	@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
@@ -2728,13 +2947,13 @@ public class ChildrenController extends BaseController
             response = String.class)
     public ResponseEntity<APIResponse<String>> saveAppRules(
     	@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-    		@Valid @KidShouldExists(message = "{son.not.exists}")
+    		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
  				@PathVariable String kid,
  		@ApiParam(name = "terminal", value = "Terminal Identity", required = true)
     		@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
      			@PathVariable String terminal,
      	@ApiParam(name = "app", value = "App Identifier", required = true)
-			@Valid @AppInstalledShouldExists(message = "{app.id.notvalid}")
+			@Valid @AppInstalledShouldExists(message = "{app.not.exists}")
 				@PathVariable String app,
      	@ApiParam(name="rules", value = "rules", required = true) 
 			@Validated(ICommonSequence.class) 
@@ -2781,7 +3000,7 @@ public class ChildrenController extends BaseController
             response = String.class)
     public ResponseEntity<APIResponse<String>> saveAppRules(
     	@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-    		@Valid @KidShouldExists(message = "{son.not.exists}")
+    		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
  				@PathVariable String kid,
  		@ApiParam(name = "terminal", value = "Terminal Identity", required = true)
     		@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
@@ -2833,13 +3052,13 @@ public class ChildrenController extends BaseController
     		notes = "Get App Rules", response = AppRuleDTO.class)
     public ResponseEntity<APIResponse<AppRuleDTO>> getAppRules(
     	@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-    		@Valid @KidShouldExists(message = "{son.not.exists}")
+    		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
  				@PathVariable final String kid,
  		@ApiParam(name = "terminal", value = "Terminal Identity", required = true)
     		@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
      			@PathVariable final String terminal,
      	@ApiParam(name = "app", value = "App Identifier", required = true)
-			@Valid @AppInstalledShouldExists(message = "{app.id.notvalid}")
+			@Valid @AppInstalledShouldExists(message = "{app.not.exists}")
 				@PathVariable final String app) throws Throwable {
     	
     	// Get Terminal
@@ -2874,7 +3093,7 @@ public class ChildrenController extends BaseController
     		notes = "Get App Rules", response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<AppRuleDTO>>> getAppRules(
     	@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-    		@Valid @KidShouldExists(message = "{son.not.exists}")
+    		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
  				@PathVariable String kid,
  		@ApiParam(name = "terminal", value = "Terminal Identity", required = true)
     		@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
@@ -2910,13 +3129,13 @@ public class ChildrenController extends BaseController
             response = String.class)
     public ResponseEntity<APIResponse<String>> disableAppInTheTerminal(
     	@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-    		@Valid @KidShouldExists(message = "{son.not.exists}")
+    		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
  				@PathVariable String kid,
  		@ApiParam(name = "terminal", value = "Terminal Identity", required = true)
     		@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
      			@PathVariable String terminal,
      	@ApiParam(name = "app", value = "App Identifier", required = true)
-    		@Valid @AppInstalledShouldExists(message = "{app.id.notvalid}")
+    		@Valid @AppInstalledShouldExists(message = "{app.not.exists}")
     			@PathVariable final String app) throws Throwable {
     	
     	logger.debug("Disable App In The Terminal");
@@ -2958,13 +3177,13 @@ public class ChildrenController extends BaseController
             response = String.class)
     public ResponseEntity<APIResponse<String>> enableAppInTheTerminal(
     	@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-    		@Valid @KidShouldExists(message = "{son.not.exists}")
+    		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
  				@PathVariable String kid,
  		@ApiParam(name = "terminal", value = "Terminal Identity", required = true)
     		@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
      			@PathVariable String terminal,
      	@ApiParam(name = "app", value = "App Identifier", required = true)
-    		@Valid @AppInstalledShouldExists(message = "{app.id.notvalid}")
+    		@Valid @AppInstalledShouldExists(message = "{app.not.exists}")
     			@PathVariable final String app) throws Throwable {
     	
     	logger.debug("Enable App In The Terminal");
@@ -3004,7 +3223,7 @@ public class ChildrenController extends BaseController
     	notes = "Delete all apps installed", response = String.class)
     public ResponseEntity<APIResponse<String>> deleteAllAppsIstalled(
             @ApiParam(name = "kid", value = "Kid Identifier", required = true)
-            	@Valid @KidShouldExists(message = "{son.id.notvalid}")
+            	@Valid @KidShouldExists(message = "{kid.should.be.exists}")
              		@PathVariable String kid,
             @ApiParam(name = "terminal", value = "Terminal id", required = true)
         		@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
@@ -3048,7 +3267,7 @@ public class ChildrenController extends BaseController
     	notes = "Delete apps installed", response = String.class)
     public ResponseEntity<APIResponse<String>> deleteAppsIstalled(
             @ApiParam(name = "kid", value = "Kid Identifier", required = true)
-            	@Valid @KidShouldExists(message = "{son.id.notvalid}")
+            	@Valid @KidShouldExists(message = "{kid.should.be.exists}")
              		@PathVariable String kid,
             @ApiParam(name = "terminal", value = "Terminal id", required = true)
         		@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
@@ -3096,7 +3315,7 @@ public class ChildrenController extends BaseController
     	notes = "Delete App installed by id", response = String.class)
     public ResponseEntity<APIResponse<String>> deleteAppInstalledById(
             @ApiParam(name = "kid", value = "Kid Identifier", required = true)
-            	@Valid @KidShouldExists(message = "{son.id.notvalid}")
+            	@Valid @KidShouldExists(message = "{kid.should.be.exists}")
              		@PathVariable String kid,
             @ApiParam(name = "terminal", value = "Terminal id", required = true)
         		@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
@@ -3155,7 +3374,7 @@ public class ChildrenController extends BaseController
     	notes = "Add app installed", response = AppInstalledDTO.class)
     public ResponseEntity<APIResponse<AppInstalledDTO>> addNewAppInstalled(
             @ApiParam(name = "kid", value = "Kid Identifier", required = true)
-            	@Valid @KidShouldExists(message = "{kid.id.notvalid}")
+            	@Valid @KidShouldExists(message = "{kid.should.be.exists}")
              		@PathVariable String kid,
             @ApiParam(name = "terminal", value = "Terminal id", required = true)
         		@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
@@ -3208,7 +3427,7 @@ public class ChildrenController extends BaseController
     			response = AppStatsDTO.class)
     public ResponseEntity<APIResponse<Iterable<AppStatsDTO>>> getStatsForAllAppsInstalledInTheTerminal(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-        		@Valid @KidShouldExists(message = "{son.not.exists}")
+        		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
          			@PathVariable final String kid,
          	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
         		@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
@@ -3251,10 +3470,10 @@ public class ChildrenController extends BaseController
     	notes = "Delete Stats for apps installed in the terminal", response = String.class)
     public ResponseEntity<APIResponse<String>> deleteStatsForAppsInstalledInTheTerminal(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-        		@Valid @KidShouldExists(message = "{son.id.notvalid}")
+        		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
          			@PathVariable String kid,
          	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
-    			@Valid @TerminalShouldExists(message = "{terminal.id.notvalid}")
+    			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
      				@PathVariable String terminal,
      		@ApiParam(name="ids", value = "ids", required = true) 
 				@Validated(ICommonSequence.class) 
@@ -3297,7 +3516,7 @@ public class ChildrenController extends BaseController
     	response = AppStatsDTO.class)
     public ResponseEntity<APIResponse<AppStatsDTO>> getStatsForASpecificAppInstalledInTheTerminal(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-    			@Valid @KidShouldExists(message = "{son.not.exists}")
+    			@Valid @KidShouldExists(message = "{kid.should.be.exists}")
      				@PathVariable final String kid,
      		@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
     			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
@@ -3342,7 +3561,7 @@ public class ChildrenController extends BaseController
     		notes = "Save Stats For All Apps Installed in the terminal", response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<AppStatsDTO>>> saveStatsForAllAppsInstalledInTheTerminal(
             @ApiParam(name = "kid", value = "Kid Identifier", required = true)
-            	@Valid @KidShouldExists(message = "{son.id.notvalid}")
+            	@Valid @KidShouldExists(message = "{kid.should.be.exists}")
              		@PathVariable String kid,
             @ApiParam(name = "terminal", value = "Terminal id", required = true)
         		@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
@@ -3381,10 +3600,10 @@ public class ChildrenController extends BaseController
     	notes = "Get Phone Number Blocked", response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<PhoneNumberBlockedDTO>>> getPhoneNumberBlocked(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-         		@Valid @KidShouldExists(message = "{son.should.be.exists}")
+         		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
           			@PathVariable String kid,
           	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
-     			@Valid @TerminalShouldExists(message = "{terminal.should.be.exists}")
+     			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
       				@PathVariable String terminal) throws Throwable {
     	
     	logger.debug("Get Phone Number Blocked");
@@ -3421,10 +3640,10 @@ public class ChildrenController extends BaseController
     	notes = "Add Phone Number Blocked", response = PhoneNumberBlockedDTO.class)
     public ResponseEntity<APIResponse<PhoneNumberBlockedDTO>> addPhoneNumberBlocked(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-         		@Valid @KidShouldExists(message = "{son.should.be.exists}")
+         		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
           			@PathVariable String kid,
           	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
-     			@Valid @TerminalShouldExists(message = "{terminal.should.be.exists}")
+     			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
       				@PathVariable String terminal,
       		@ApiParam(name="phonenumber", value = "phonenumber", required = true) 
 				@Validated(ICommonSequence.class) 
@@ -3471,10 +3690,10 @@ public class ChildrenController extends BaseController
     	notes = "Delete Phone Number Blocked", response = String.class)
     public ResponseEntity<APIResponse<String>> deleteAllPhoneNumberBlocked(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-     			@Valid @KidShouldExists(message = "{son.should.be.exists}")
+     			@Valid @KidShouldExists(message = "{kid.should.be.exists}")
       				@PathVariable String kid,
       		@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
- 				@Valid @TerminalShouldExists(message = "{terminal.should.be.exists}")
+ 				@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
   					@PathVariable String terminal) throws Throwable {
     	
     	logger.debug("Delete Phone Number Blocked");
@@ -3513,10 +3732,10 @@ public class ChildrenController extends BaseController
     		notes = "Delete Phone Number Blocked By Id or number", response = String.class)
     public ResponseEntity<APIResponse<String>> deletePhoneNumberBlockedById(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-     			@Valid @KidShouldExists(message = "{son.should.be.exists}")
+     			@Valid @KidShouldExists(message = "{kid.should.be.exists}")
       				@PathVariable String kid,
 	      	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
-	 			@Valid @TerminalShouldExists(message = "{terminal.should.be.exists}")
+	 			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
 	  				@PathVariable String terminal,
 	  		@ApiParam(name = "idOrPhoneNumber", value = "Phone Number Blocked", required = true)
  				@Valid @PhoneNumberBlockedShouldExists(message = "{phonenumber.blocked.should.be.exists}")
@@ -3556,14 +3775,14 @@ public class ChildrenController extends BaseController
     notes = "Terminal Heartbeat", response = String.class)
     public ResponseEntity<APIResponse<String>> terminalHeartbeat(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-     			@Valid @KidShouldExists(message = "{son.should.be.exists}")
+     			@Valid @KidShouldExists(message = "{kid.should.be.exists}")
       				@PathVariable String kid,
 	      	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
-	 			@Valid @TerminalShouldExists(message = "{terminal.should.be.exists}")
+	 			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
 	  				@PathVariable String terminal,
 	  		@ApiParam(name="heartbeat", value = "heartbeat", required = true) 
 				@Validated(ICommonSequence.class) 
-					@RequestBody TerminalHeartbeatDTO terminalHeartbeat) throws Throwable {
+					@RequestBody SaveTerminalHeartbeatDTO terminalHeartbeat) throws Throwable {
     	
     	logger.debug("Terminal Heartbeat");
     	
@@ -3575,6 +3794,36 @@ public class ChildrenController extends BaseController
     	return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.TERMINAL_HEARTBEAT_NOTIFIED_SUCCESSFULLY, HttpStatus.OK, 
         		messageSourceResolver.resolver("terminal.heartbeat.notified.successfully"));
     
+    }
+
+    @RequestMapping(value = "/{kid}/terminal/{terminal}/heartbeat/configuration", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(value = "SAVE_TERMINAL_HEARTBEAT_CONFIGURATION", nickname = "SAVE_TERMINAL_HEARTBEAT_CONFIGURATION",
+    notes = "Terminal Heartbeat", response = TerminalHeartbeatDTO.class)
+    public ResponseEntity<APIResponse<TerminalHeartbeatDTO>> saveTerminalHeartbeatConfiguration(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+     			@Valid @KidShouldExists(message = "{kid.should.be.exists}")
+      				@PathVariable String kid,
+	      	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
+	 			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
+	  				@PathVariable String terminal,
+	  		@ApiParam(name="configuration", value = "configuration", required = true) 
+				@Validated(ICommonSequence.class) 
+					@RequestBody SaveTerminalHeartBeatConfigurationDTO configuration) throws Throwable {
+    	
+    	logger.debug("Save Terminal Heartbeat Configuration");
+    
+    	terminalService.saveHeartbeatConfiguration(configuration);
+    	
+    	final TerminalHeartbeatDTO terminalHeartbeatConfiguration = 
+    			terminalService.getHeartbeatConfiguration(new ObjectId(terminal), 
+    					new ObjectId(kid));
+    
+    	// Create and send response
+    	return ApiHelper.<TerminalHeartbeatDTO>createAndSendResponse(ChildrenResponseCode.TERMINAL_HEARTBEAT_CONFIGURATION_SAVED_SUCCESSFULLY, HttpStatus.OK,
+        		terminalHeartbeatConfiguration);
+
     }
     
     /**
@@ -3590,10 +3839,10 @@ public class ChildrenController extends BaseController
     notes = "Terminal Status", response = String.class)
     public ResponseEntity<APIResponse<String>> terminalStatus(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-     			@Valid @KidShouldExists(message = "{son.should.be.exists}")
+     			@Valid @KidShouldExists(message = "{kid.should.be.exists}")
       				@PathVariable String kid,
 	      	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
-	 			@Valid @TerminalShouldExists(message = "{terminal.should.be.exists}")
+	 			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
 	  				@PathVariable String terminal,
 	  		@ApiParam(name="status", value = "status", required = true) 
 				@Validated(ICommonSequence.class) 
@@ -3622,10 +3871,10 @@ public class ChildrenController extends BaseController
     	notes = "Get FunTime Scheduled", response = FunTimeScheduledDTO.class)
     public ResponseEntity<APIResponse<FunTimeScheduledDTO>> getFunTimeScheduled(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-        		@Valid @KidShouldExists(message = "{son.not.exists}")
+        		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
          			@PathVariable final String kid,
 		    @ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
-				@Valid @TerminalShouldExists(message = "{terminal.should.be.exists}")
+				@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
 					@PathVariable String terminal
 			) throws Throwable {
         
@@ -3654,10 +3903,10 @@ public class ChildrenController extends BaseController
    	notes = "Get FunTime Day Scheduled Scheduled", response = DayScheduledDTO.class)
    public ResponseEntity<APIResponse<DayScheduledDTO>> getFunTimeDayScheduled(
    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-       		@Valid @KidShouldExists(message = "{son.not.exists}")
+       		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
         			@PathVariable final String kid,
 		    @ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
-				@Valid @TerminalShouldExists(message = "{terminal.should.be.exists}")
+				@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
 					@PathVariable String terminal,
 			@ApiParam(name = "day", value = "Day", required = true)
 				@Valid @DayNameValidator(message = "{day.name.not.valid}")
@@ -3692,10 +3941,10 @@ public class ChildrenController extends BaseController
   	notes = "Save FunTime Day Scheduled Scheduled", response = DayScheduledDTO.class)
   public ResponseEntity<APIResponse<DayScheduledDTO>> saveFunTimeDayScheduled(
   		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-      		@Valid @KidShouldExists(message = "{son.not.exists}")
+      		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
        			@PathVariable final String kid,
 		    @ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
-				@Valid @TerminalShouldExists(message = "{terminal.should.be.exists}")
+				@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
 					@PathVariable String terminal,
 			@ApiParam(name = "day", value = "Day", required = true)
 				@Valid @DayNameValidator(message = "{day.not.valid}")
@@ -3730,10 +3979,10 @@ public class ChildrenController extends BaseController
     	notes = "Save FunTime Scheduled", response = FunTimeScheduledDTO.class)
     public ResponseEntity<APIResponse<FunTimeScheduledDTO>> saveFunTimeScheduled(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-        		@Valid @KidShouldExists(message = "{son.not.exists}")
+        		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
          			@PathVariable final String kid,
          	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
-    			@Valid @TerminalShouldExists(message = "{terminal.should.be.exists}")
+    			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
     				@PathVariable String terminal,
          	@ApiParam(name="funtime", value = "funtime", required = true) 
 				@Validated(ICommonSequence.class) 
@@ -3772,7 +4021,7 @@ public class ChildrenController extends BaseController
     	notes = "Get all scheduled blocks", response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<ScheduledBlockDTO>>> getAllScheduledBlocksConfigured(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-        	@Valid @KidShouldExists(message = "{son.not.exists}")
+        	@Valid @KidShouldExists(message = "{kid.should.be.exists}")
          		@PathVariable String kid) 
     		throws Throwable {
         
@@ -3802,7 +4051,7 @@ public class ChildrenController extends BaseController
     	notes = "Get Scheduled Block By Id", response = ScheduledBlockDTO.class)
     public ResponseEntity<APIResponse<ScheduledBlockDTO>> getScheduledBlockById(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-        	@Valid @KidShouldExists(message = "{son.not.exists}")
+        	@Valid @KidShouldExists(message = "{kid.should.be.exists}")
          		@PathVariable String kid,
          	@ApiParam(name = "block", value = "Block id", required = true)
         	@Valid @ScheduledBlockShouldExists(message = "{scheduled.block.not.exists}")
@@ -3834,7 +4083,7 @@ public class ChildrenController extends BaseController
             response = ScheduledBlockDTO.class)
     public ResponseEntity<APIResponse<ScheduledBlockDTO>> saveScheduledBlock(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-        	@Valid @KidShouldExists(message = "{son.not.exists}")
+        	@Valid @KidShouldExists(message = "{kid.should.be.exists}")
          		@PathVariable String kid,
             @ApiParam(name="scheduled_block", value = "Scheduled Block", required = true) 
 				@Validated(ICommonSequence.class) 
@@ -3870,7 +4119,7 @@ public class ChildrenController extends BaseController
             response = String.class)
     public ResponseEntity<APIResponse<String>> saveScheduledBlocksStatus(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-        	@Valid @KidShouldExists(message = "{son.not.exists}")
+        	@Valid @KidShouldExists(message = "{kid.should.be.exists}")
          		@PathVariable String kid,
          	@ApiParam(name="scheduled_blocks", value = "Scheduled Blocks list", required = true) 
 				@Validated(ICommonSequence.class) 
@@ -3904,7 +4153,7 @@ public class ChildrenController extends BaseController
     	notes = "Delete all scheduled block", response = String.class)
     public ResponseEntity<APIResponse<String>> deleteAllScheduledBlock(
             @ApiParam(name = "kid", value = "Kid Identifier", required = true)
-            	@Valid @KidShouldExists(message = "{son.id.notvalid}")
+            	@Valid @KidShouldExists(message = "{kid.should.be.exists}")
              		@PathVariable String kid) throws Throwable {
         
         logger.debug("Delete all scheduled block for kid " + kid);
@@ -3936,10 +4185,10 @@ public class ChildrenController extends BaseController
     	notes = "Delete App installed by id", response = String.class)
     public ResponseEntity<APIResponse<String>> deleteScheduledBlockById(
             @ApiParam(name = "kid", value = "Kid Identifier", required = true)
-            	@Valid @KidShouldExists(message = "{son.id.notvalid}")
+            	@Valid @KidShouldExists(message = "{kid.should.be.exists}")
              		@PathVariable String kid,
          	@ApiParam(name = "block", value = "Block Id", required = true)
-    			@Valid @ScheduledBlockShouldExists(message = "{block.not.exists}")
+    			@Valid @ScheduledBlockShouldExists(message = "{scheduled.block.not.exists}")
      				@PathVariable String block) throws Throwable {
         
         logger.debug("Delete Scheduled Block by id ");
@@ -3975,7 +4224,7 @@ public class ChildrenController extends BaseController
     })
     public ResponseEntity<APIResponse<ImageDTO>> uploadScheduledBlockImage(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-         	@Valid @KidShouldExists(message = "{son.should.be.exists}")
+         	@Valid @KidShouldExists(message = "{kid.should.be.exists}")
           		@PathVariable String kid,
           	@ApiParam(name = "block", value = "Scheduled Block Identifier", required = true)
              	@Valid @ScheduledBlockShouldExists(message = "{scheduled.block.not.exists}")
@@ -4014,7 +4263,7 @@ public class ChildrenController extends BaseController
     	notes = "Download Scheduled Block Image")
     public ResponseEntity<byte[]> downloadScheduledBlockImage(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-         		@Valid @KidShouldExists(message = "{son.should.be.exists}")
+         		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
           			@PathVariable String kid,
           	@ApiParam(name = "block", value = "Scheduled Block Identifier", required = true)
              	@Valid @ScheduledBlockShouldExists(message = "{scheduled.block.not.exists}")
@@ -4047,7 +4296,7 @@ public class ChildrenController extends BaseController
     notes = "Get Current Location", response = LocationDTO.class)
     public ResponseEntity<APIResponse<LocationDTO>> getCurrentLocation(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-         		@Valid @KidShouldExists(message = "{son.should.be.exists}")
+         		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
           			@PathVariable String kid) throws Throwable {
     	
     	logger.debug("Get Current Location for kid -> " + kid);
@@ -4073,7 +4322,7 @@ public class ChildrenController extends BaseController
     	notes = "Save Current Location", response = LocationDTO.class)
     public ResponseEntity<APIResponse<LocationDTO>> saveCurrentLocation(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-         		@Valid @KidShouldExists(message = "{son.should.be.exists}")
+         		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
           			@PathVariable final String kid,
           	@ApiParam(name="save_location", value = "Save Location", required = true) 
 				@Validated(ICommonSequence.class) 
@@ -4109,7 +4358,7 @@ public class ChildrenController extends BaseController
     		notes = "Add Request For Kid", response = KidRequestDTO.class)
     public ResponseEntity<APIResponse<KidRequestDTO>> addRequestForKid(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-         		@Valid @KidShouldExists(message = "{son.should.be.exists}")
+         		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
           			@PathVariable String kid,
           	@ApiParam(name="request", value = "request", required = true) 
     			@Validated(ICommonSequence.class) 
@@ -4146,7 +4395,7 @@ public class ChildrenController extends BaseController
     		notes = "Get All Request For Kid", response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<KidRequestDTO>>> getAllRequestForKid(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-         		@Valid @KidShouldExists(message = "{son.should.be.exists}")
+         		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
           			@PathVariable String kid) throws Throwable {
     	
     	logger.debug("Get all request for kid -> " + kid);
@@ -4181,7 +4430,7 @@ public class ChildrenController extends BaseController
     		notes = "Get Kid Request Detail", response = KidRequestDTO.class)
     public ResponseEntity<APIResponse<KidRequestDTO>> getKidRequestDetail(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-         		@Valid @KidShouldExists(message = "{son.should.be.exists}")
+         		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
           			@PathVariable String kid,
           	@ApiParam(name = "id", value = "Kid Request Identifier", required = true)
      			@Valid @KidRequestShouldExists(message = "{kid.request.should.be.exists}")
@@ -4209,7 +4458,7 @@ public class ChildrenController extends BaseController
     		notes = "Delete Request For Kid", response = String.class)
     public ResponseEntity<APIResponse<String>> deleteRequestForKid(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-         		@Valid @KidShouldExists(message = "{son.should.be.exists}")
+         		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
           			@PathVariable String kid,
           	@ApiParam(name="ids", value = "ids", required = true) 
         		@Validated(ICommonSequence.class) 
@@ -4237,7 +4486,7 @@ public class ChildrenController extends BaseController
     		notes = "Delete All Request For Kid", response = String.class)
     public ResponseEntity<APIResponse<String>> deleteAllRequestForKid(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-         		@Valid @KidShouldExists(message = "{son.should.be.exists}")
+         		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
           			@PathVariable String kid) throws Throwable {
     	
     	logger.debug("Delete all request for kid -> " + kid);
@@ -4261,7 +4510,7 @@ public class ChildrenController extends BaseController
     		notes = "Delete Kid Request By Id", response = String.class)
     public ResponseEntity<APIResponse<String>> deleteKidRequestById(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-         		@Valid @KidShouldExists(message = "{son.should.be.exists}")
+         		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
           			@PathVariable String kid,
           	@ApiParam(name = "id", value = "Kid Request Identifier", required = true)
  				@Valid @KidRequestShouldExists(message = "{kid.request.should.be.exists}")
@@ -4294,7 +4543,7 @@ public class ChildrenController extends BaseController
     		notes = "Save Geofence For Kid", response = GeofenceDTO.class)
     public ResponseEntity<APIResponse<GeofenceDTO>> saveGeofenceForKid(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-         		@Valid @KidShouldExists(message = "{son.should.be.exists}")
+         		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
           			@PathVariable String kid,
           	@ApiParam(name="geofence", value = "geofence", required = true) 
     			@Validated(ICommonSequence.class) 
@@ -4335,7 +4584,7 @@ public class ChildrenController extends BaseController
     		notes = "Get All Geofences for kid", response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<GeofenceDTO>>> getAllGeofencesForKid(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-         		@Valid @KidShouldExists(message = "{son.should.be.exists}")
+         		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
           			@PathVariable String kid) throws Throwable {
     	
     	logger.debug("Get all geofences for kid -> " + kid);
@@ -4365,7 +4614,7 @@ public class ChildrenController extends BaseController
     		notes = "Get Geofence By Id", response = Iterable.class)
     public ResponseEntity<APIResponse<GeofenceDTO>> getGeofenceById(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-         		@Valid @KidShouldExists(message = "{son.should.be.exists}")
+         		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
           			@PathVariable String kid,
           	@ApiParam(name = "id", value = "Geofence Id", required = true)
      			@Valid @GeofenceShouldExists(message = "{geofence.should.be.exists}")
@@ -4394,7 +4643,7 @@ public class ChildrenController extends BaseController
     		notes = "Get Geofence Alerts", response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<GeofenceAlertDTO>>> getGeofenceAlerts(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-         		@Valid @KidShouldExists(message = "{son.should.be.exists}")
+         		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
           			@PathVariable String kid,
           	@ApiParam(name = "id", value = "Geofence Id", required = true)
      			@Valid @GeofenceShouldExists(message = "{geofence.should.be.exists}")
@@ -4426,7 +4675,7 @@ public class ChildrenController extends BaseController
     		notes = "Delete Geofence Alerts", response = String.class)
     public ResponseEntity<APIResponse<String>> deleteGeofenceAlerts(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-         		@Valid @KidShouldExists(message = "{son.should.be.exists}")
+         		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
           			@PathVariable String kid,
           	@ApiParam(name = "id", value = "Geofence Id", required = true)
      			@Valid @GeofenceShouldExists(message = "{geofence.should.be.exists}")
@@ -4455,7 +4704,7 @@ public class ChildrenController extends BaseController
     		notes = "Save Geofence Alerts", response = GeofenceAlertDTO.class)
     public ResponseEntity<APIResponse<GeofenceAlertDTO>> saveGeofenceAlerts(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-         		@Valid @KidShouldExists(message = "{son.should.be.exists}")
+         		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
           			@PathVariable String kid,
           	@ApiParam(name = "id", value = "Geofence Id", required = true)
      			@Valid @GeofenceShouldExists(message = "{geofence.should.be.exists}")
@@ -4499,7 +4748,7 @@ public class ChildrenController extends BaseController
     		notes = "Delete Geofences For Kid", response = String.class)
     public ResponseEntity<APIResponse<String>> deleteGeofencesForKid(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-         		@Valid @KidShouldExists(message = "{son.should.be.exists}")
+         		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
           			@PathVariable String kid,
           	@ApiParam(name="ids", value = "ids", required = true) 
         		@Validated(ICommonSequence.class) 
@@ -4531,7 +4780,7 @@ public class ChildrenController extends BaseController
     		notes = "Delete Geofence By Id", response = String.class)
     public ResponseEntity<APIResponse<String>> deleteGeofenceById(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-         		@Valid @KidShouldExists(message = "{son.should.be.exists}")
+         		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
           			@PathVariable String kid,
           	@ApiParam(name = "id", value = "Geofence Id", required = true)
  				@Valid @GeofenceShouldExists(message = "{geofence.should.be.exists}")
@@ -4562,7 +4811,7 @@ public class ChildrenController extends BaseController
     		notes = "Delete All Geofences For Kid", response = String.class)
     public ResponseEntity<APIResponse<String>> deleteAllGeofencesForKid(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-         		@Valid @KidShouldExists(message = "{son.should.be.exists}")
+         		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
           			@PathVariable String kid) throws Throwable {
     	
     	logger.debug("Delete all geofences for kid -> " + kid);

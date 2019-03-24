@@ -216,7 +216,7 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
     })
     public ResponseEntity<APIResponse<Iterable<GuardianDTO>>> searchGuardians(
     		@ApiParam(value = "text", required = true) 
-			@Valid @NotBlank(message = "{guardians.text.notblank}") 
+			@Valid @NotBlank(message = "{search.guardians.text.not.blank}") 
 				@RequestParam(value = "text", required = false) final String text,
 			@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfGuardian) throws Throwable {
         
@@ -364,7 +364,7 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
     })
     public ResponseEntity<APIResponse<GuardianDTO>> getGuardianById(
     		@ApiParam(name = "id", value = "Guardian Identifier", required = true) 
-    			@Valid @ValidObjectId(message = "{parent.id.notvalid}")
+    			@Valid @ValidObjectId(message = "{id.not.valid}")
     				@PathVariable String id) throws Throwable {
         logger.debug("Get Guardian with id: " + id);
         return Optional.ofNullable(guardiansService.getGuardianById(id))
@@ -386,8 +386,8 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
             notes = "Lock Guardian Account")
     public ResponseEntity<APIResponse<String>> lockAccount(
     		@ApiParam(name = "id", value = "Guardian Identifier", required = true) 
-    			@Valid @ValidObjectId(message = "{parent.id.notvalid}")
-    				@GuardianShouldExists(message = "{parent.not.exists}")
+    			@Valid @ValidObjectId(message = "{id.not.valid}")
+    				@GuardianShouldExists(message = "{guardian.not.exists}")
     				@PathVariable String id) throws Throwable {
     	
         logger.debug("Lock Guardian Account with id: " + id);
@@ -410,8 +410,8 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
             notes = "Unlock Guardian Account")
     public ResponseEntity<APIResponse<String>> unlockAccount(
     		@ApiParam(name = "id", value = "Guardian Identifier", required = true) 
-    			@Valid @ValidObjectId(message = "{parent.id.notvalid}")
-    				@GuardianShouldExists(message = "{parent.not.exists}")
+    			@Valid @ValidObjectId(message = "{id.not.valid}")
+    				@GuardianShouldExists(message = "{guardian.not.exists}")
     				@PathVariable String id) throws Throwable {
     	
         logger.debug("Unlock Guardian Account with id: " + id);
@@ -441,8 +441,8 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
     public ResponseEntity<APIResponse<GuardianDTO>> updateGuardian(
     		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfGuardian,
     		@ApiParam(name = "id", value = "Guardian Identifier", required = true) 
-    			@Valid @ValidObjectId(message = "{parent.id.notvalid}") 
-    				@GuardianShouldExists(message = "{parent.not.exists}")
+    			@Valid @ValidObjectId(message = "{id.not.valid}") 
+    				@GuardianShouldExists(message = "{guardian.not.exists}")
     					@PathVariable String id,
     		@ApiParam(value = "parent", required = true) 
 				@Valid @RequestBody UpdateGuardianDTO updateGuardian) throws Throwable {
@@ -586,7 +586,7 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
     @RequestMapping(value = "/resend-activation-email",  method = RequestMethod.POST)
     @ApiOperation(value = "RESEND_ACTIVATION_EMAIL", nickname = "RESEND_ACTIVATION_EMAIL", notes="Resend Activation Email")
     public ResponseEntity<APIResponse<String>> resendActivationEmail(
-    		@ApiParam(value = "parent", required = true) 
+    		@ApiParam(value = "guardian", required = true) 
     			@Validated(IResendActivationEmailSequence.class) 
     			@RequestBody ResendActivationEmailDTO resendActivation) throws Throwable {
     	
@@ -1148,8 +1148,8 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
             notes = "Get Children of Guardian", response = ResponseEntity.class)
     public ResponseEntity<APIResponse<ChildrenOfGuardianDTO>> getChildrenOfGuardian(
     		@ApiParam(name = "id", value = "Guardian Identfier", required = true)
-    			@Valid @ValidObjectId(message = "{parent.id.notvalid}") 
-    				@GuardianShouldExists(message = "{parent.not.exists}")
+    			@Valid @ValidObjectId(message = "{id.not.valid}") 
+    				@GuardianShouldExists(message = "{guardian.not.exists}")
     					@PathVariable String id) throws Throwable {
         logger.debug("Get Children of Guardian with id: " + id);
         // Get Kids Of Guardian
@@ -1214,8 +1214,8 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
     })
     public ResponseEntity<APIResponse<KidDTO>> addKidToGuardian(
     		@ApiParam(name = "guardian", value = "Guardian Identifier", required = true) 
-    			@Valid @ValidObjectId(message = "{parent.id.notvalid}") 
-    				@GuardianShouldExists(message = "{parent.not.exists}")
+    			@Valid @ValidObjectId(message = "{id.not.valid}") 
+    				@GuardianShouldExists(message = "{guardian.not.exists}")
     					@PathVariable String id,
     		@ApiParam(value = "kid", required = true) 
     			@Valid 
@@ -1420,7 +1420,7 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
     		notes = "Get Supervised Children No Confirmed Detail", response = KidGuardianDTO.class)
     public ResponseEntity<APIResponse<KidGuardianDTO>> getSupervisedChildrenNoConfirmedDetail(
     		@ApiParam(name= "id", value = "Supervised Children Identifier", required = true)
-    			@Valid @SupervisedChildrenShouldExists(message = "{son.id.notvalid}")
+    			@Valid @SupervisedChildrenShouldExists(message = "{supervised.children.should.exists}")
     		 		@PathVariable final String id) throws Throwable {
         
     	logger.debug("Get Supervised Children No Confirmed");
@@ -1445,7 +1445,7 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
     		notes = "Delete Supervised Children No Confirmed", response = String.class)
     public ResponseEntity<APIResponse<String>> deleteSupervisedChildrenNoConfirmed(
     		@ApiParam(name= "id", value = "Supervised Children Identifier", required = true)
-    			@Valid @SupervisedChildrenShouldExists(message = "{son.id.notvalid}")
+    			@Valid @SupervisedChildrenShouldExists(message = "{supervised.children.should.exists}")
     		 		@PathVariable final String id) throws Throwable {
         
     	logger.debug("Delete Supervised Children No Confirmed");
@@ -1471,7 +1471,7 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
     		notes = "Accept Supervised Children No Confirmed", response = String.class)
     public ResponseEntity<APIResponse<String>> acceptSupervisedChildrenNoConfirmed(
     		@ApiParam(name= "id", value = "Supervised Children Identifier", required = true)
-    			@Valid @SupervisedChildrenShouldExists(message = "{son.id.notvalid}")
+    			@Valid @SupervisedChildrenShouldExists(message = "{supervised.children.should.exists}")
     		 		@PathVariable final String id) throws Throwable {
         
     	logger.debug("Accept Supervised Children No Confirmed");
@@ -1498,7 +1498,7 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
     		notes = "Get Supervised Children Confirmed Detail", response = KidGuardianDTO.class)
     public ResponseEntity<APIResponse<KidGuardianDTO>> getSupervisedChildrenConfirmedDetail(
     		@ApiParam(name= "id", value = "Supervised Children Identifier", required = true)
-    			@Valid @SupervisedChildrenShouldExists(message = "{son.id.notvalid}")
+    			@Valid @SupervisedChildrenShouldExists(message = "{supervised.children.should.exists}")
     		 		@PathVariable final String id) throws Throwable {
         
     	logger.debug("Get Supervised Children Confirmed");
@@ -1524,7 +1524,7 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
     		notes = "Delete Supervised Children Confirmed", response = String.class)
     public ResponseEntity<APIResponse<String>> deleteSupervisedChildrenConfirmed(
     		@ApiParam(name= "id", value = "Supervised Children Identifier", required = true)
-    			@Valid @SupervisedChildrenShouldExists(message = "{son.id.notvalid}")
+    			@Valid @SupervisedChildrenShouldExists(message = "{supervised.children.should.exists}")
     		 		@PathVariable final String id) throws Throwable {
         
     	logger.debug("Delete Supervised Children Confirmed");
@@ -1584,7 +1584,7 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
     		notes = "Get Conversation Detail", response = ConversationDTO.class)
     public ResponseEntity<APIResponse<ConversationDTO>> getConversationDetail(
 			@ApiParam(name= "id", value = "Conversation Identifier", required = true)
-				@Valid @ConversationShouldExists(message = "{conversation.id.notvalid}")
+				@Valid @ConversationShouldExists(message = "{conversation.not.exists}")
 		 			@PathVariable final String id) throws Throwable {
         
     	logger.debug("Get Conversation Detail");
@@ -1611,7 +1611,7 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
     		notes = "Delete Conversation", response = String.class)
     public ResponseEntity<APIResponse<String>> deleteConversation(
 			@ApiParam(name= "id", value = "Conversation Identifier", required = true)
-				@Valid @ConversationShouldExists(message = "{conversation.id.notvalid}")
+				@Valid @ConversationShouldExists(message = "{conversation.not.exists}")
 		 			@PathVariable final String id) throws Throwable {
         
     	logger.debug("Delete Conversation");

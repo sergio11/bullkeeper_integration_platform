@@ -71,7 +71,7 @@ public class EventController extends BaseController {
     public SseEmitter subscribeToEvents(
     		@ApiParam(name= "id", value = "Subscriber identifier", 
     				required = true)
-				@Valid @ValidObjectId(message = "{id.notvalid}")
+				@Valid @ValidObjectId(message = "{id.not.valid}")
 		 		@PathVariable String id) {
 		
 		logger.debug("Subscriber with id -> " + id);

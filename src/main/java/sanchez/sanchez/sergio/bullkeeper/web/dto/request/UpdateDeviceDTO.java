@@ -13,7 +13,7 @@ public class UpdateDeviceDTO {
 	@JsonProperty("device_id")
 	private String deviceId;
 	
-	@NotBlank(message = "{device.registration.token.notblank}")
+	@NotBlank(message = "{device.registration.token.not.blank}")
 	@JsonProperty("registration_token")
 	private String registrationToken;
 	

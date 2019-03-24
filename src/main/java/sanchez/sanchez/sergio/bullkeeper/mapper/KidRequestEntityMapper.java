@@ -71,7 +71,7 @@ public abstract class KidRequestEntityMapper {
         @Mapping(expression="java(kidRequestEntity.getType().name())", target = "type" ),
         @Mapping(expression="java(kidEntityMapper.kidEntityToKidDTO(kidRequestEntity.getKid()))", target = "kid" ),
         @Mapping(expression="java(terminalEntityMapper.terminalEntityToTerminalDTO(kidRequestEntity.getTerminal()))", target = "terminal" ),
-        @Mapping(expression="java(locationEntityMapper.locationEntityToLocationDTO(kidRequestEntity.getLocation()))", target = "location" ),
+        @Mapping(expression="java(kidRequestEntity.getLocation() != null ? locationEntityMapper.locationEntityToLocationDTO(kidRequestEntity.getLocation()) : null )", target = "location" ),
         @Mapping(source = "kidRequestEntity.requestAt", target = "requestAt", dateFormat = "yyyy/MM/dd HH:mm:ss"),
         @Mapping(source = "kidRequestEntity.expiredAt", target = "expiredAt", dateFormat = "yyyy/MM/dd HH:mm:ss"),
         @Mapping(expression="java(prettyTime.format(kidRequestEntity.getRequestAt()))", target = "since")
@@ -108,8 +108,8 @@ public abstract class KidRequestEntityMapper {
 		@Mapping(expression="java(sanchez.sanchez.sergio.bullkeeper.persistence.entity"
 				+ ".RequestTypeEnum.valueOf(addKidRequestDTO.getType()))", 
 				target = "type"),
-		@Mapping(expression="java(locationEntityMapper"
-				+ ".saveLocationToLocationEntity(addKidRequestDTO.getLocation()))", target="location"),
+		@Mapping(expression="java(addKidRequestDTO.getLocation() != null ? locationEntityMapper"
+				+ ".saveLocationToLocationEntity(addKidRequestDTO.getLocation()): null)", target="location"),
 		@Mapping(expression="java(kidRepository.findOne(new org.bson.types.ObjectId(addKidRequestDTO.getKid())))", 
 				target = "kid"),
 		@Mapping(expression="java(terminalRepository.findOne(new org.bson.types.ObjectId(addKidRequestDTO.getTerminal())))", 

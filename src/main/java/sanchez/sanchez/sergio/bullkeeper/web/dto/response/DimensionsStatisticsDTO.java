@@ -1,8 +1,6 @@
 package sanchez.sanchez.sergio.bullkeeper.web.dto.response;
 
-
 import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**

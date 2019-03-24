@@ -27,6 +27,12 @@ public final class SaveLocationDTO implements Serializable {
 	 */
 	@JsonProperty("longitude")
 	private double log;
+	
+	/**
+	 * Address
+	 */
+	@JsonProperty("address")
+	private String address;
 
 	/**
 	 * 
@@ -37,11 +43,13 @@ public final class SaveLocationDTO implements Serializable {
 	 * 
 	 * @param lat
 	 * @param log
+	 * @param address
 	 */
-	public SaveLocationDTO(double lat, double log) {
+	public SaveLocationDTO(double lat, double log, String address) {
 		super();
 		this.lat = lat;
 		this.log = log;
+		this.address = address;
 	}
 
 	public double getLat() {
@@ -60,8 +68,18 @@ public final class SaveLocationDTO implements Serializable {
 		this.log = log;
 	}
 
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
 	@Override
 	public String toString() {
-		return "SaveLocationDTO [lat=" + lat + ", log=" + log + "]";
+		return "SaveLocationDTO [lat=" + lat + ", log=" + log + ", address=" + address + "]";
 	}
+
+	
 }

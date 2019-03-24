@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.AbstractSseData;
 
 /**
- * Terminal Bed Time Status Changed
+ * Terminal Settings Status Changed
  * @author sergiosanchezsanchez
  *
  */

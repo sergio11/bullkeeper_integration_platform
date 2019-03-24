@@ -31,7 +31,7 @@ public  class RegisterGuardianDTO {
 	/**
 	 * First Name
 	 */
-	@NotBlank(message = "{user.firstname.notnull}")
+	@NotBlank(message = "{user.firstname.not.null}")
     @Size(min = 3, max = 15, message = "{user.firstname.size}", groups = Extended.class)
 	@JsonProperty("first_name")
 	@JsonDeserialize(using = ClearStringDeserializer.class)
@@ -41,7 +41,7 @@ public  class RegisterGuardianDTO {
 	/**
 	 * Last Name
 	 */
-	@NotBlank(message = "{user.lastname.notnull}")
+	@NotBlank(message = "{user.lastname.not.null}")
     @Size(min = 3, max = 30, message = "{user.lastname.size}")
 	@JsonProperty("last_name")
 	@JsonDeserialize(using = ClearStringDeserializer.class)
@@ -58,7 +58,7 @@ public  class RegisterGuardianDTO {
 	/**
 	 * Email
 	 */
-    @NotBlank(message="{user.email.notnull}")
+    @NotBlank(message="{user.email.not.null}")
     @Email(message="{user.email.invalid}")
     @ParentEmailShouldNotExist(message="{user.email.unique}", groups = Extended.class)
     @JsonProperty("email")
@@ -67,7 +67,7 @@ public  class RegisterGuardianDTO {
     /**
      * Password Clear
      */
-    @NotBlank(message="{user.pass.notnull}")
+    @NotBlank(message="{user.pass.not.null}")
     @Size(min=8, max=25, message="{user.pass.size}")
 	@JsonProperty("password_clear")
     protected String passwordClear;
@@ -76,7 +76,7 @@ public  class RegisterGuardianDTO {
     /**
      * Confirm Password
      */
-    @NotBlank(message="{user.confirm.pass.notnull}")
+    @NotBlank(message="{user.confirm.pass.not.null}")
     @JsonProperty("confirm_password")
     protected String confirmPassword;
 

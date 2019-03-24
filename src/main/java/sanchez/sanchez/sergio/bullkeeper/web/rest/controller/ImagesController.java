@@ -69,8 +69,8 @@ public class ImagesController extends BaseController {
     	notes = "Upload Guardians Profile Image")
     public ResponseEntity<APIResponse<ImageDTO>> uploadGuardianProfileImage(
             @ApiParam(name = "id", value = "Guardian Identifier", required = true) 
-    			@Valid @ValidObjectId(message = "{parent.id.notvalid}")
-    				@GuardianShouldExists(message = "{parent.not.exists}")
+    			@Valid @ValidObjectId(message = "{id.not.valid}")
+    				@GuardianShouldExists(message = "{guardian.not.exists}")
     				@PathVariable String id,
             @RequestPart("profile_image") MultipartFile profileImage) throws Throwable {
         
@@ -96,7 +96,7 @@ public class ImagesController extends BaseController {
             notes = "Upload Children Profile Image")
     public ResponseEntity<APIResponse<ImageDTO>> uploadKidProfileImage(
            @ApiParam(name= "id", value = "Kid Identifier", required = true)
-    			@Valid @ValidObjectId(message = "{son.id.notvalid}")
+    			@Valid @ValidObjectId(message = "{id.not.valid}")
     		 		@PathVariable String id,
             @RequestPart("profile_image") MultipartFile profileImage) throws Throwable {
         

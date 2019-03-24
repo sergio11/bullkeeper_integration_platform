@@ -59,6 +59,12 @@ public class TerminalEntity implements Serializable {
 	private String sdkVersion;
 	
 	/**
+	 * Detached
+	 */
+	@Field("detached")
+	private Boolean detached = Boolean.FALSE;
+	
+	/**
 	 * Manufacturer
 	 */
 	@Field("manufacturer")
@@ -95,10 +101,22 @@ public class TerminalEntity implements Serializable {
 	private String deviceId;
 	
 	/**
-	 * Last Time Used
+	 * Carrier Name
 	 */
-	@Field("last_time_used")
-	private Date lastTimeUsed = new Date();
+	@Field("carrier_name")
+	private String carrierName;
+	
+	/**
+	 * Phone Number
+	 */
+	@Field("phone_number")
+	private String phoneNumber;
+	
+	/**
+	 * Heart Beat
+	 */
+	@Field("heartbeat")
+	private TerminalHeartbeatEntity heartbeat = new TerminalHeartbeatEntity();
 
 	/**
 	 * Create At
@@ -141,6 +159,12 @@ public class TerminalEntity implements Serializable {
      */
 	@Field("settings_enabled")
 	private Boolean settingsEnabled = false;
+	
+	/**
+	 * Phone Calls Enabled
+	 */
+	@Field("phone_calls_enabled")
+	private Boolean phoneCallsEnabled = true;
 	
 	/**
      * Location Permission Enabled
@@ -230,6 +254,7 @@ public class TerminalEntity implements Serializable {
 	 * @param appVersionName
 	 * @param appVersionCode
 	 * @param osVersion
+	 * @param detached
 	 * @param sdkVersion
 	 * @param manufacturer
 	 * @param marketName
@@ -237,13 +262,13 @@ public class TerminalEntity implements Serializable {
 	 * @param codeName
 	 * @param deviceName
 	 * @param deviceId
-	 * @param lastTimeUsed
 	 * @param createAt
 	 * @param screenStatus
 	 * @param bedTimeEnabled
 	 * @param screenEnabled
 	 * @param cameraEnabled
 	 * @param settingsEnabled
+	 * @param phoneCallsEnabled
 	 * @param locationPermissionEnabled
 	 * @param callsHistoryPermissionEnabled
 	 * @param contactsListPermissionEnabled
@@ -255,11 +280,11 @@ public class TerminalEntity implements Serializable {
 	 */
 	@PersistenceConstructor
 	public TerminalEntity(ObjectId id, String appVersionName, String appVersionCode, String osVersion,
-			String sdkVersion, String manufacturer, String marketName, String model, String codeName,
-			String deviceName, String deviceId, Date lastTimeUsed, Date createAt, 
+			Boolean detached, String sdkVersion, String manufacturer, String marketName, String model, String codeName,
+			String deviceName, String deviceId, final String carrierName, final String phoneNumber, final TerminalHeartbeatEntity heartbeat, Date createAt, 
 			ScreenStatusEnum screenStatus, Boolean bedTimeEnabled,
-			Boolean screenEnabled, Boolean cameraEnabled, Boolean settingsEnabled, 
-			final Boolean locationPermissionEnabled, final Boolean callsHistoryPermissionEnabled,
+			Boolean screenEnabled, Boolean cameraEnabled, Boolean settingsEnabled,
+			final Boolean phoneCallsEnabled, final Boolean locationPermissionEnabled, final Boolean callsHistoryPermissionEnabled,
 			final Boolean contactsListPermissionEnabled, 
 			final Boolean textMessagePermissionEnabled, final Boolean storagePermissionEnabled,
 			final Boolean usageStatsAllowed, final Boolean adminAccessAllowed, 
@@ -271,6 +296,7 @@ public class TerminalEntity implements Serializable {
 		this.appVersionName = appVersionName;
 		this.appVersionCode = appVersionCode;
 		this.osVersion = osVersion;
+		this.detached = detached;
 		this.sdkVersion = sdkVersion;
 		this.manufacturer = manufacturer;
 		this.marketName = marketName;
@@ -278,13 +304,16 @@ public class TerminalEntity implements Serializable {
 		this.codeName = codeName;
 		this.deviceName = deviceName;
 		this.deviceId = deviceId;
-		this.lastTimeUsed = lastTimeUsed;
+		this.carrierName = carrierName;
+		this.phoneNumber = phoneNumber;
+		this.heartbeat = heartbeat;
 		this.createAt = createAt;
 		this.screenStatus = screenStatus;
 		this.bedTimeEnabled = bedTimeEnabled;
 		this.screenEnabled = screenEnabled;
 		this.cameraEnabled = cameraEnabled;
 		this.settingsEnabled = settingsEnabled;
+		this.phoneCallsEnabled = phoneCallsEnabled;
 		this.locationPermissionEnabled = locationPermissionEnabled;
 		this.callsHistoryPermissionEnabled = callsHistoryPermissionEnabled;
 		this.contactsListPermissionEnabled = contactsListPermissionEnabled;
@@ -305,220 +334,243 @@ public class TerminalEntity implements Serializable {
 		return id;
 	}
 
-	public String getAppVersionName() {
-		return appVersionName;
-	}
-
-	public String getAppVersionCode() {
-		return appVersionCode;
-	}
-
-	public String getOsVersion() {
-		return osVersion;
-	}
-
-	public String getSdkVersion() {
-		return sdkVersion;
-	}
-
-	public String getManufacturer() {
-		return manufacturer;
-	}
-
-	public String getMarketName() {
-		return marketName;
-	}
-
-	public String getModel() {
-		return model;
-	}
-
-	public String getCodeName() {
-		return codeName;
-	}
-
-	public String getDeviceName() {
-		return deviceName;
-	}
-
-	public String getDeviceId() {
-		return deviceId;
-	}
-
-	public Date getLastTimeUsed() {
-		return lastTimeUsed;
-	}
-
-	public Date getCreateAt() {
-		return createAt;
-	}
-
-	public ScreenStatusEnum getScreenStatus() {
-		return screenStatus;
-	}
-
-	public Boolean getBedTimeEnabled() {
-		return bedTimeEnabled;
-	}
-
-	public Boolean getScreenEnabled() {
-		return screenEnabled;
-	}
-
-	public Boolean getCameraEnabled() {
-		return cameraEnabled;
-	}
-
-	public Boolean getSettingsEnabled() {
-		return settingsEnabled;
-	}
-
-	public KidEntity getKid() {
-		return kid;
-	}
-
 	public void setId(ObjectId id) {
 		this.id = id;
+	}
+
+	public String getAppVersionName() {
+		return appVersionName;
 	}
 
 	public void setAppVersionName(String appVersionName) {
 		this.appVersionName = appVersionName;
 	}
 
+	public String getAppVersionCode() {
+		return appVersionCode;
+	}
+
 	public void setAppVersionCode(String appVersionCode) {
 		this.appVersionCode = appVersionCode;
+	}
+
+	public String getOsVersion() {
+		return osVersion;
 	}
 
 	public void setOsVersion(String osVersion) {
 		this.osVersion = osVersion;
 	}
 
+	public String getSdkVersion() {
+		return sdkVersion;
+	}
+
 	public void setSdkVersion(String sdkVersion) {
 		this.sdkVersion = sdkVersion;
+	}
+
+	
+	
+	public String getCarrierName() {
+		return carrierName;
+	}
+
+	public void setCarrierName(String carrierName) {
+		this.carrierName = carrierName;
+	}
+
+	public String getPhoneNumber() {
+		return phoneNumber;
+	}
+
+	public void setPhoneNumber(String phoneNumber) {
+		this.phoneNumber = phoneNumber;
+	}
+
+	public String getManufacturer() {
+		return manufacturer;
 	}
 
 	public void setManufacturer(String manufacturer) {
 		this.manufacturer = manufacturer;
 	}
 
+	public String getMarketName() {
+		return marketName;
+	}
+
 	public void setMarketName(String marketName) {
 		this.marketName = marketName;
+	}
+
+	public String getModel() {
+		return model;
 	}
 
 	public void setModel(String model) {
 		this.model = model;
 	}
 
+	public String getCodeName() {
+		return codeName;
+	}
+
 	public void setCodeName(String codeName) {
 		this.codeName = codeName;
+	}
+
+	public String getDeviceName() {
+		return deviceName;
 	}
 
 	public void setDeviceName(String deviceName) {
 		this.deviceName = deviceName;
 	}
 
+	public String getDeviceId() {
+		return deviceId;
+	}
+
 	public void setDeviceId(String deviceId) {
 		this.deviceId = deviceId;
 	}
 
-	public void setLastTimeUsed(Date lastTimeUsed) {
-		this.lastTimeUsed = lastTimeUsed;
+	public TerminalHeartbeatEntity getHeartbeat() {
+		return heartbeat;
+	}
+
+	public void setHeartbeat(TerminalHeartbeatEntity heartbeat) {
+		this.heartbeat = heartbeat;
+	}
+
+	public Date getCreateAt() {
+		return createAt;
 	}
 
 	public void setCreateAt(Date createAt) {
 		this.createAt = createAt;
 	}
 
+	public ScreenStatusEnum getScreenStatus() {
+		return screenStatus;
+	}
+
 	public void setScreenStatus(ScreenStatusEnum screenStatus) {
 		this.screenStatus = screenStatus;
+	}
+
+	public TerminalStatusEnum getStatus() {
+		return status;
+	}
+
+	public void setStatus(TerminalStatusEnum status) {
+		this.status = status;
+	}
+
+	public Boolean getBedTimeEnabled() {
+		return bedTimeEnabled;
 	}
 
 	public void setBedTimeEnabled(Boolean bedTimeEnabled) {
 		this.bedTimeEnabled = bedTimeEnabled;
 	}
 
+	public Boolean getScreenEnabled() {
+		return screenEnabled;
+	}
+
 	public void setScreenEnabled(Boolean screenEnabled) {
 		this.screenEnabled = screenEnabled;
+	}
+
+	public Boolean getCameraEnabled() {
+		return cameraEnabled;
 	}
 
 	public void setCameraEnabled(Boolean cameraEnabled) {
 		this.cameraEnabled = cameraEnabled;
 	}
 
+	public Boolean getSettingsEnabled() {
+		return settingsEnabled;
+	}
+
 	public void setSettingsEnabled(Boolean settingsEnabled) {
 		this.settingsEnabled = settingsEnabled;
 	}
-	
-	
+
+	public Boolean getDetached() {
+		return detached;
+	}
+
+	public void setDetached(Boolean detached) {
+		this.detached = detached;
+	}
+
+	public Boolean getPhoneCallsEnabled() {
+		return phoneCallsEnabled;
+	}
+
+	public void setPhoneCallsEnabled(Boolean phoneCallsEnabled) {
+		this.phoneCallsEnabled = phoneCallsEnabled;
+	}
 
 	public Boolean getLocationPermissionEnabled() {
 		return locationPermissionEnabled;
-	}
-
-	public Boolean getCallsHistoryPermissionEnabled() {
-		return callsHistoryPermissionEnabled;
-	}
-
-	public Boolean getContactsListPermissionEnabled() {
-		return contactsListPermissionEnabled;
-	}
-
-	public Boolean getTextMessagePermissionEnabled() {
-		return textMessagePermissionEnabled;
-	}
-
-	public Boolean getStoragePermissionEnabled() {
-		return storagePermissionEnabled;
-	}
-
-	public Boolean getUsageStatsAllowed() {
-		return usageStatsAllowed;
-	}
-
-	public Boolean getAdminAccessAllowed() {
-		return adminAccessAllowed;
 	}
 
 	public void setLocationPermissionEnabled(Boolean locationPermissionEnabled) {
 		this.locationPermissionEnabled = locationPermissionEnabled;
 	}
 
+	public Boolean getCallsHistoryPermissionEnabled() {
+		return callsHistoryPermissionEnabled;
+	}
+
 	public void setCallsHistoryPermissionEnabled(Boolean callsHistoryPermissionEnabled) {
 		this.callsHistoryPermissionEnabled = callsHistoryPermissionEnabled;
+	}
+
+	public Boolean getContactsListPermissionEnabled() {
+		return contactsListPermissionEnabled;
 	}
 
 	public void setContactsListPermissionEnabled(Boolean contactsListPermissionEnabled) {
 		this.contactsListPermissionEnabled = contactsListPermissionEnabled;
 	}
 
+	public Boolean getTextMessagePermissionEnabled() {
+		return textMessagePermissionEnabled;
+	}
+
 	public void setTextMessagePermissionEnabled(Boolean textMessagePermissionEnabled) {
 		this.textMessagePermissionEnabled = textMessagePermissionEnabled;
+	}
+
+	public Boolean getStoragePermissionEnabled() {
+		return storagePermissionEnabled;
 	}
 
 	public void setStoragePermissionEnabled(Boolean storagePermissionEnabled) {
 		this.storagePermissionEnabled = storagePermissionEnabled;
 	}
 
+	public Boolean getUsageStatsAllowed() {
+		return usageStatsAllowed;
+	}
+
 	public void setUsageStatsAllowed(Boolean usageStatsAllowed) {
 		this.usageStatsAllowed = usageStatsAllowed;
+	}
+
+	public Boolean getAdminAccessAllowed() {
+		return adminAccessAllowed;
 	}
 
 	public void setAdminAccessAllowed(Boolean adminAccessAllowed) {
 		this.adminAccessAllowed = adminAccessAllowed;
 	}
-
-	public void setKid(KidEntity kid) {
-		this.kid = kid;
-	}
-	
-	public FunTimeScheduledEntity getFunTimeScheduled() {
-		return funTimeScheduled;
-	}
-
-	public void setFunTimeScheduled(FunTimeScheduledEntity funTimeScheduled) {
-		this.funTimeScheduled = funTimeScheduled;
-	}
-	
 
 	public Integer getBatteryLevel() {
 		return batteryLevel;
@@ -535,16 +587,6 @@ public class TerminalEntity implements Serializable {
 	public void setIsBatteryCharging(Boolean isBatteryCharging) {
 		this.isBatteryCharging = isBatteryCharging;
 	}
-	
-	public TerminalStatusEnum getStatus() {
-		return status;
-	}
-
-	public void setStatus(TerminalStatusEnum status) {
-		this.status = status;
-	}
-	
-	
 
 	public Boolean getHighAccuraccyLocationEnabled() {
 		return highAccuraccyLocationEnabled;
@@ -562,12 +604,29 @@ public class TerminalEntity implements Serializable {
 		this.appsOverlayEnabled = appsOverlayEnabled;
 	}
 
+	public KidEntity getKid() {
+		return kid;
+	}
+
+	public void setKid(KidEntity kid) {
+		this.kid = kid;
+	}
+
+	public FunTimeScheduledEntity getFunTimeScheduled() {
+		return funTimeScheduled;
+	}
+
+	public void setFunTimeScheduled(FunTimeScheduledEntity funTimeScheduled) {
+		this.funTimeScheduled = funTimeScheduled;
+	}
+
 	@Override
 	public String toString() {
 		return "TerminalEntity [id=" + id + ", appVersionName=" + appVersionName + ", appVersionCode=" + appVersionCode
-				+ ", osVersion=" + osVersion + ", sdkVersion=" + sdkVersion + ", manufacturer=" + manufacturer
-				+ ", marketName=" + marketName + ", model=" + model + ", codeName=" + codeName + ", deviceName="
-				+ deviceName + ", deviceId=" + deviceId + ", lastTimeUsed=" + lastTimeUsed + ", createAt=" + createAt
+				+ ", osVersion=" + osVersion + ", sdkVersion=" + sdkVersion + ", detached=" + detached
+				+ ", manufacturer=" + manufacturer + ", marketName=" + marketName + ", model=" + model + ", codeName="
+				+ codeName + ", deviceName=" + deviceName + ", deviceId=" + deviceId + ", carrierName=" + carrierName
+				+ ", phoneNumber=" + phoneNumber + ", heartbeat=" + heartbeat + ", createAt=" + createAt
 				+ ", screenStatus=" + screenStatus + ", status=" + status + ", bedTimeEnabled=" + bedTimeEnabled
 				+ ", screenEnabled=" + screenEnabled + ", cameraEnabled=" + cameraEnabled + ", settingsEnabled="
 				+ settingsEnabled + ", locationPermissionEnabled=" + locationPermissionEnabled
@@ -579,9 +638,6 @@ public class TerminalEntity implements Serializable {
 				+ ", highAccuraccyLocationEnabled=" + highAccuraccyLocationEnabled + ", appsOverlayEnabled="
 				+ appsOverlayEnabled + ", kid=" + kid + ", funTimeScheduled=" + funTimeScheduled + "]";
 	}
-
-
-	
 
 	
 }

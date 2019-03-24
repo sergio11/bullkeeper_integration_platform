@@ -34,6 +34,12 @@ public abstract class TerminalEntityDataMapper {
 	protected KidRepository kidRepository;
 	
 	/**
+	 * Terminal Heartbeat Entity Data Mapper
+	 */
+	@Autowired
+	protected TerminalHeartbeatEntityDataMapper terminalHeartbeatEntityDataMapper;
+	
+	/**
 	 * Bean Manager
 	 */
 	@Autowired
@@ -99,7 +105,8 @@ public abstract class TerminalEntityDataMapper {
     @Mappings({
         @Mapping(expression="java(terminalEntity.getId().toString())", target = "identity" ),
         @Mapping(expression="java(terminalEntity.getKid().getId().toString())", target = "kid" ),
-        @Mapping(expression="java(terminalEntity.getStatus().name())", target="status")
+        @Mapping(expression="java(terminalEntity.getStatus().name())", target="status"),
+        @Mapping(expression="java(terminalHeartbeatEntityDataMapper.terminalHeartbeatEntityToTerminalHeartbeatDTO(terminalEntity.getHeartbeat()))", target="heartbeat")
     })
     @Named("terminalEntityToTerminalDTO")
     public abstract TerminalDTO terminalEntityToTerminalDTO(final TerminalEntity terminalEntity); 
@@ -161,10 +168,10 @@ public abstract class TerminalEntityDataMapper {
  				target = "totalCalls"),
            @Mapping(expression="java(getCountContactsInTheTerminal(terminalEntity.getKid().getId(), terminalEntity.getId()))", 
  				target = "totalContacts"),
-           @Mapping(expression="java(prettyTime.format(terminalEntity.getLastTimeUsed()))", 
-           		target="lastTimeUsed"),
            @Mapping(expression="java(terminalEntity.getScreenStatus().name())", 
-      			target="screenStatus")
+      			target="screenStatus"),
+           @Mapping(expression="java(terminalHeartbeatEntityDataMapper.terminalHeartbeatEntityToTerminalHeartbeatDTO(terminalEntity.getHeartbeat()))",
+           		target="heartbeat")
        })
        @Named("terminalEntityToTerminalDetailDTO")
        public abstract TerminalDetailDTO terminalEntityToTerminalDetailDTO(final TerminalEntity terminalEntity); 

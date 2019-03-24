@@ -16,7 +16,9 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveDayScheduledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveFunTimeScheduledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveSmsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveTerminalDTO;
-import sanchez.sanchez.sergio.bullkeeper.web.dto.request.TerminalHeartbeatDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveTerminalHeartBeatConfigurationDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveTerminalHeartbeatDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.TerminalHeartbeatDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.TerminalStatusDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledDetailDTO;
@@ -68,6 +70,13 @@ public interface ITerminalService {
      * @param terminal
      */
     void delete(final ObjectId kid, final ObjectId terminal);
+    
+    /**
+     * Detach
+     * @param kid
+     * @param terminal
+     */
+    void detach(final ObjectId kid, final ObjectId terminal);
     
     /**
      * Delete By kid
@@ -413,7 +422,22 @@ public interface ITerminalService {
      * Save Heartbeat
      * @param terminalHeartbeat
      */
-    void saveHeartbeat(final TerminalHeartbeatDTO terminalHeartbeat);
+    void saveHeartbeat(final SaveTerminalHeartbeatDTO terminalHeartbeat);
+    
+    /**
+     * Save Terminal Heartbeat Configuration
+     * @param terminalHeartbeatConfiguration
+     */
+    void saveHeartbeatConfiguration(final SaveTerminalHeartBeatConfigurationDTO terminalHeartbeatConfiguration);
+    
+    /**
+     * Get Heartbeat configuration
+     * @param terminal
+     * @param kid
+     * @return
+     */
+    TerminalHeartbeatDTO getHeartbeatConfiguration(final ObjectId terminal, final ObjectId kid);
+    
     
     /**
      * Save Status
@@ -642,5 +666,43 @@ public interface ITerminalService {
      * Save Fun Time Day Scheduled
      */
     DayScheduledDTO saveFunTimeDayScheduled(final ObjectId kid, final ObjectId terminal, final FunTimeDaysEnum day, final SaveDayScheduledDTO saveDayScheduled);
+    
+    
+    /**
+     * Get Terminals with the heartbeat threshold exceeded
+     * @return
+     */
+    Iterable<TerminalDTO> getTerminalsWithTheHeartbeatThresholdExceeded();
+    
+    
+    /**
+     * Enable Phone Calls
+     * @param kid
+     * @param terminal
+     */
+    void enablePhoneCalls(final ObjectId kid, final ObjectId terminal);
+    
+    /**
+     * Disable Phone Calls
+     * @param kid
+     * @param terminal
+     */
+    void disablePhoneCalls(final ObjectId kid, final ObjectId terminal);
+    
+    /**
+     * Disable Contact
+     * @param kid
+     * @param terminal
+     * @param contact
+     */
+    void disableContact(final ObjectId kid, final ObjectId terminal, final ObjectId contact);
+    
+    /**
+     * Get Disabled Contacts
+     * @param kid
+     * @param terminal
+     * @return
+     */
+    Iterable<ContactDTO> getListOfDisabledContactsInTheTerminal(final ObjectId kid, final ObjectId terminal);
     
 }

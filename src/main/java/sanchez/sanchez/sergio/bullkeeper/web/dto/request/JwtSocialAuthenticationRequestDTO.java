@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public final class JwtSocialAuthenticationRequestDTO {
 
-	@NotBlank(message = "{user.social.access.token.notnull}")
+	@NotBlank(message = "{user.social.access.token.not.null}")
 	@JsonProperty("token")
     private String token;
     

@@ -24,7 +24,7 @@ import org.hibernate.validator.constraints.NotBlank;
  */
 public class ResendActivationEmailDTO {
     
-    @NotBlank(message = "{user.email.notnull}")
+    @NotBlank(message = "{user.email.not.null}")
     @Email(message = "{user.email.invalid}", groups = IValidEmail.class)
     @GuardianEmailShouldExist(message = "{user.email.not.exists}", groups = IEmailShouldExist.class)
     @GuardianAccountShouldNotActive(message = "{user.email.should.not.activate}", groups = IAccountShouldNotActive.class)

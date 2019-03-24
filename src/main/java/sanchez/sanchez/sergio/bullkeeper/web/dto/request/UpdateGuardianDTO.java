@@ -27,7 +27,7 @@ public final class UpdateGuardianDTO {
 	/**
 	 * First Name
 	 */
-	@NotBlank(message = "{user.firstname.notnull}")
+	@NotBlank(message = "{user.firstname.not.null}")
     @Size(min = 3, max = 15, message = "{user.firstname.size}", groups = Extended.class)
 	@JsonProperty("first_name")
 	@JsonDeserialize(using = ClearStringDeserializer.class)
@@ -36,8 +36,8 @@ public final class UpdateGuardianDTO {
 	/**
 	 * Last Name
 	 */
-	@NotBlank(message = "{user.firstname.notnull}")
-    @Size(min = 3, max = 15, message = "{user.firstname.size}", groups = Extended.class)
+	@NotBlank(message = "{user.lastname.not.null}")
+    @Size(min = 3, max = 15, message = "{user.lastname.size}", groups = Extended.class)
 	@JsonProperty("last_name")
 	@JsonDeserialize(using = ClearStringDeserializer.class)
     private String lastName;
@@ -53,7 +53,7 @@ public final class UpdateGuardianDTO {
 	/**
 	 * Email
 	 */
-    @NotBlank(message="{user.email.notnull}")
+    @NotBlank(message="{user.email.not.null}")
     @Email(message="{user.email.invalid}")
     @NewParentEmailShouldNotExist(message="{user.email.unique}", groups = Extended.class)
     private String email;

@@ -100,7 +100,7 @@ public class GuardianErrorController extends BaseController{
     	
         return ApiHelper.<String>createAndSendErrorResponseWithHeader(
         		GuardianResponseCode.GUARDIAN_NOT_FOUND, HttpStatus.NOT_FOUND,
-        		messageSourceResolver.resolver("parent.not.found"));
+        		messageSourceResolver.resolver("guardian.not.found"));
     }
     
     /**
@@ -116,7 +116,7 @@ public class GuardianErrorController extends BaseController{
     		HttpServletRequest request) {
     	return ApiHelper.<String>createAndSendErrorResponseWithHeader(
     			GuardianResponseCode.NO_CHILDREN_FOUND_FOR_SELF_GUARDIAN, HttpStatus.NOT_FOUND,
-    			messageSourceResolver.resolver("self.parent.not.children.found"));
+    			messageSourceResolver.resolver("self.guardian.not.children.found"));
     }
     
     /**
@@ -130,7 +130,7 @@ public class GuardianErrorController extends BaseController{
     protected ResponseEntity<APIResponse<String>> handleNoChildrenFoundForParentException(NoChildrenFoundForGuardianException noChildrenFoundForParentException, HttpServletRequest request) {
     	return ApiHelper.<String>createAndSendErrorResponseWithHeader(
     			GuardianResponseCode.NO_CHILDREN_FOUND_FOR_GUARDIAN, HttpStatus.NOT_FOUND,
-    			messageSourceResolver.resolver("parent.not.children.found"));
+    			messageSourceResolver.resolver("guardian.not.children.found"));
     }
     
     /**
@@ -146,7 +146,7 @@ public class GuardianErrorController extends BaseController{
     		final HttpServletRequest request) {
     	return ApiHelper.<String>createAndSendErrorResponseWithHeader(
     			GuardianResponseCode.GUARDIANS_NOT_FOUND, HttpStatus.NOT_FOUND,
-    			messageSourceResolver.resolver("parents.not.found"));
+    			messageSourceResolver.resolver("guardians.not.found"));
     }
     
     /**
@@ -162,7 +162,7 @@ public class GuardianErrorController extends BaseController{
     		final HttpServletRequest request) {
     	return ApiHelper.<String>createAndSendErrorResponseWithHeader(
     			GuardianResponseCode.GUARDIANS_NOT_FOUND, HttpStatus.NOT_FOUND,
-    			messageSourceResolver.resolver("parent.get.information.from.facebook.failed"));
+    			messageSourceResolver.resolver("guardian.get.information.from.facebook.failed"));
     }
     
     /**
@@ -178,7 +178,7 @@ public class GuardianErrorController extends BaseController{
     		HttpServletRequest request) {
     	return ApiHelper.<String>createAndSendErrorResponseWithHeader(
     			GuardianResponseCode.GUARDIANS_NOT_FOUND, HttpStatus.NOT_FOUND,
-    			messageSourceResolver.resolver("parent.get.information.from.google.failed"));
+    			messageSourceResolver.resolver("guardian.get.information.from.google.failed"));
     }
     
     /**
@@ -193,7 +193,7 @@ public class GuardianErrorController extends BaseController{
     		InvalidFacebookIdException invalidFacebookIdException, HttpServletRequest request) {
     	return ApiHelper.<String>createAndSendErrorResponseWithHeader(
     			GuardianResponseCode.INVALID_FACEBOOK_ID, HttpStatus.BAD_REQUEST,
-    			messageSourceResolver.resolver("parent.invalid.facebook.id"));
+    			messageSourceResolver.resolver("guardian.invalid.facebook.id"));
     }
     
     /**
@@ -206,7 +206,7 @@ public class GuardianErrorController extends BaseController{
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleEmailAlreadyExistsException(EmailAlreadyExistsException emailAlreadyExistsException, HttpServletRequest request) {
     	return ApiHelper.<String>createAndSendErrorResponseWithHeader(GuardianResponseCode.EMAIL_ALREADY_EXISTS, HttpStatus.NOT_FOUND,
-    			messageSourceResolver.resolver("parent.email.already.exists"));
+    			messageSourceResolver.resolver("guardian.email.already.exists"));
     }
     
     /**
@@ -219,7 +219,7 @@ public class GuardianErrorController extends BaseController{
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleNoSupervisedChildrenConfirmedFoundException(NoSupervisedChildrenConfirmedFoundException noSupervisedChildrenConfirmedFoundException, HttpServletRequest request) {
     	return ApiHelper.<String>createAndSendErrorResponseWithHeader(GuardianResponseCode.NO_SUPERVISED_CHILDREN_CONFIRMED_FOUND, 
-    			HttpStatus.NOT_FOUND, messageSourceResolver.resolver("parent.email.already.exists"));
+    			HttpStatus.NOT_FOUND, messageSourceResolver.resolver("no.supervised.children.confirmed.found"));
     }
     
     /**
@@ -232,7 +232,7 @@ public class GuardianErrorController extends BaseController{
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleNoSupervisedChildrenNoConfirmedFoundException(NoSupervisedChildrenNoConfirmedFoundException noSupervisedChildrenNoConfirmedFoundException, HttpServletRequest request) {
     	return ApiHelper.<String>createAndSendErrorResponseWithHeader(GuardianResponseCode.NO_SUPERVISED_CHILDREN_NO_CONFIRMED_FOUND, 
-    			HttpStatus.NOT_FOUND, messageSourceResolver.resolver("parent.email.already.exists"));
+    			HttpStatus.NOT_FOUND, messageSourceResolver.resolver("no.supervised.children.no.confirmed.found"));
     }
     
     /**
@@ -245,7 +245,7 @@ public class GuardianErrorController extends BaseController{
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleSupervisedChildrenConfirmedNotFoundException(SupervisedChildrenConfirmedNotFoundException supervisedChildrenConfirmedNotFoundException, HttpServletRequest request) {
     	return ApiHelper.<String>createAndSendErrorResponseWithHeader(GuardianResponseCode.SUPERVISED_CHILDREN_CONFIRMED_NOT_FOUND_EXCEPTION, 
-    			HttpStatus.NOT_FOUND, messageSourceResolver.resolver("parent.email.already.exists"));
+    			HttpStatus.NOT_FOUND, messageSourceResolver.resolver("supervised.children.confirmed.not.found.exception"));
     }
     
     
@@ -259,7 +259,7 @@ public class GuardianErrorController extends BaseController{
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handleSupervisedChildrenNoConfirmedNotFoundException(SupervisedChildrenNoConfirmedNotFoundException supervisedChildrenNoConfirmedNotFoundException, HttpServletRequest request) {
     	return ApiHelper.<String>createAndSendErrorResponseWithHeader(GuardianResponseCode.SUPERVISED_CHILDREN_NOT_CONFIRMED_NOT_FOUND_EXCEPTION, 
-    			HttpStatus.NOT_FOUND, messageSourceResolver.resolver("parent.email.already.exists"));
+    			HttpStatus.NOT_FOUND, messageSourceResolver.resolver("supervised.children.no.confirmed.not.found"));
     }
     
     

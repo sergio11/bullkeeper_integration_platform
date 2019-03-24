@@ -15,7 +15,9 @@ public enum ContactResponseCode implements IResponseCodeTypes{
     CONTACTS_DELETED(1505L),
     ALL_CONTACTS(1506L),
     CONTACT_NOT_FOUND(1507L),
-    NO_CONTACTS_FOUND(1508L);
+    NO_CONTACTS_FOUND(1508L),
+    CONTACTS_DISABLED(1509L),
+    LIST_OF_DISABLED_CONTACTS(1510L);
 	
 	private Long code;
 	

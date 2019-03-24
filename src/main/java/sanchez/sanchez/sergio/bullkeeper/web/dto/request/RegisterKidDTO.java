@@ -25,7 +25,7 @@ public final class RegisterKidDTO {
 	/**
 	 * First Name
 	 */
-    @NotBlank(message = "{user.firstname.notnull}")
+    @NotBlank(message = "{user.firstname.not.null}")
     @Size(min = 3, max = 15, message = "{user.firstname.size}", groups = Extended.class)
     @JsonProperty("first_name")
     @JsonDeserialize(using = ClearStringDeserializer.class)
@@ -34,7 +34,7 @@ public final class RegisterKidDTO {
     /**
      * Last Name
      */
-    @NotBlank(message = "{user.lastname.notnull}")
+    @NotBlank(message = "{user.lastname.not.null}")
     @Size(min = 3, max = 15, message = "{user.lastname.size}", groups = Extended.class)
     @JsonProperty("last_name")
     @JsonDeserialize(using = ClearStringDeserializer.class)
@@ -46,14 +46,14 @@ public final class RegisterKidDTO {
      */
     @JsonProperty("birthdate")
     @JsonDeserialize(using = BirthdayDeserializer.class)
-    @NotNull(message="{user.age.notnull}")
+    @NotNull(message="{user.age.not.null}")
     @InAgeRange(min="5", max="18", message="{user.age.invalid}", groups = Extended.class)
     private Date birthdate;
 
     /**
      * School
      */
-    @NotBlank(message = "{user.school.notnull}")
+    @NotBlank(message = "{user.school.not.null}")
     @ValidObjectId(message = "{user.school.not.valid}", groups = Extended.class)
     @SchoolMustExists(message="{school.should.exists}" , groups = Extended.class)
     @JsonProperty("school")

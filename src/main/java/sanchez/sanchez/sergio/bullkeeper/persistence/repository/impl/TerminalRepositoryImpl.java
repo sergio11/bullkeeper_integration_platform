@@ -1,6 +1,7 @@
 package sanchez.sanchez.sergio.bullkeeper.persistence.repository.impl;
 
 import java.util.Date;
+import java.util.List;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,7 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.FunTimeDaysEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.FunTimeScheduledEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ScreenStatusEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.TerminalEntity;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.TerminalHeartbeatEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.TerminalStatusEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.TerminalRepositoryCustom;
 
@@ -51,7 +53,7 @@ public class TerminalRepositoryImpl implements TerminalRepositoryCustom {
 	                		.andOperator(Criteria.where("kid").in(kid))),
 	                new Update()
 	                	.set("screen_status", screenStatus.name())
-	                	.set("last_time_used", new Date())
+	                	.set("heartbeat.last_time_notified", new Date())
 	                	.set("location_permission_enabled", accessFineLocationEnabled)
 	                	.set("call_history_permission_enabled", readCallLogEnabled)
 	                	.set("contacts_list_permission_enabled", readContactsEnabled)
@@ -62,6 +64,7 @@ public class TerminalRepositoryImpl implements TerminalRepositoryCustom {
 	                	.set("is_battery_charging", isBatteryCharging)
 	                	.set("high_accuraccy_location_enabled", highAccuraccyLocationEnabled)
 	                	.set("apps_overlay_enabled", appsOverlayEnabled)
+	                	.set("detached", false)
 	                	.set("status", TerminalStatusEnum.STATE_ON.name()), TerminalEntity.class);
 		
 	}
@@ -383,6 +386,119 @@ public class TerminalRepositoryImpl implements TerminalRepositoryCustom {
                 new Update()
                 	.set("screen_enabled", true), TerminalEntity.class);
 		
+	}
+
+	/**
+	 * Save Terminal Heartbeat Configuration
+	 * @param terminal
+	 * @param kid
+	 * @param alertThresholdInMinutes
+	 * @param alertModeEnabled
+	 */
+	@Override
+	public void saveTerminalHeartbeatConfiguration(final ObjectId terminal, final ObjectId kid, 
+			final int alertThresholdInMinutes, final boolean alertModeEnabled) {
+		Assert.notNull(terminal, "Terminal can not be null");
+		Assert.notNull(kid, "Kid can not be null");
+		
+		 mongoTemplate.updateFirst(
+	                new Query(Criteria.where("_id").in(terminal)
+	                		.andOperator(Criteria.where("kid").in(kid))),
+	                new Update()
+	                	.set("heartbeat.alert_mode_enabled", alertModeEnabled)
+	                	.set("heartbeat.alert_threshold_in_minutes", alertThresholdInMinutes), TerminalEntity.class);
+		
+	}
+
+	/**
+	 * Get Terminal Heartbeat Configration
+	 * @param terminal
+	 * @param kid
+	 */
+	@Override
+	public TerminalHeartbeatEntity getTerminalHeartbeatConfiguration(final ObjectId terminal, final ObjectId kid) {
+		Assert.notNull(terminal, "Terminal can not be null");
+		Assert.notNull(kid, "Kid can not be null");
+		
+		final Query query =  new Query(Criteria.where("_id").in(terminal)
+        		.andOperator(Criteria.where("kid").in(kid)));
+        query.fields().include("heartbeat");
+        
+        // Get Terminal
+        TerminalEntity terminalEntity = mongoTemplate.findOne(query, TerminalEntity.class);
+		
+		// Get Heartbeat
+		return terminalEntity != null ? terminalEntity.getHeartbeat(): null;
+	}
+
+	/**
+	 * Get Terminals With Heartbeat threshold exceeded
+	 */
+	@Override
+	public List<TerminalEntity> getTerminalsWithHeartbeatAlertThresholdEnabledAndStateOn() {
+		
+		final Criteria criteria = Criteria
+				.where("heartbeat.alert_mode_enabled").is(true)
+				.and("status").is(TerminalStatusEnum.STATE_ON.name())
+				.and("detached").is(false);
+				
+        return  mongoTemplate.find(new Query(criteria), TerminalEntity.class);
+	}
+
+	/**
+	 * Detach
+	 * @param kid
+	 * @param terminal
+	 */
+	@Override
+	public void detach(final ObjectId kid, final ObjectId terminal) {
+		Assert.notNull(terminal, "Terminal can not be null");
+		Assert.notNull(kid, "Kid can not be null");
+		
+	
+		mongoTemplate.updateFirst(
+				new Query(Criteria.where("_id").in(terminal)
+                		.andOperator(Criteria.where("kid").in(kid))),
+				new Update()
+				    .set("detached", true)
+				    .set("status", TerminalStatusEnum.STATE_OFF.name()),
+				    				TerminalEntity.class);
+	}
+
+	/**
+	 * Enable Phone Calls
+	 * @param kid
+	 * @param terminal
+	 */
+	@Override
+	public void enablePhoneCalls(final ObjectId kid, final ObjectId terminal) {
+		Assert.notNull(terminal, "Terminal can not be null");
+		Assert.notNull(kid, "Kid can not be null");
+		
+		mongoTemplate.updateFirst(
+				new Query(Criteria.where("_id").in(terminal)
+                		.andOperator(Criteria.where("kid").in(kid))),
+				new Update()
+				    .set("phone_calls_enabled", true),
+				    				TerminalEntity.class);
+	}
+
+	/**
+	 * Disable Phone Calls
+	 * @param kid
+	 * @parma terminal
+	 */
+	@Override
+	public void disablePhoneCalls(final ObjectId kid, final ObjectId terminal) {
+		Assert.notNull(terminal, "Terminal can not be null");
+		Assert.notNull(kid, "Kid can not be null");
+		
+		mongoTemplate.updateFirst(
+				new Query(Criteria.where("_id").in(terminal)
+                		.andOperator(Criteria.where("kid").in(kid))),
+				new Update()
+					.set("phone_calls_enabled", false),
+				    				TerminalEntity.class);
 	}
 
 }

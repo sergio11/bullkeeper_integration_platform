@@ -13,7 +13,7 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.TerminalShouldE
  * @author sergiosanchezsanchez
  *
  */
-public final class TerminalHeartbeatDTO implements Serializable {
+public final class SaveTerminalHeartbeatDTO implements Serializable {
 
 	/**
 	 * 
@@ -39,7 +39,7 @@ public final class TerminalHeartbeatDTO implements Serializable {
 	 * Kid
 	 */
 	@JsonProperty("kid")
-	@KidShouldExists(message="{kid.not.exists}")
+	@KidShouldExists(message="{kid.should.be.exists}")
 	private String kid;
 	
 	 /**
@@ -106,7 +106,7 @@ public final class TerminalHeartbeatDTO implements Serializable {
     
 	
 	
-	public TerminalHeartbeatDTO() {}
+	public SaveTerminalHeartbeatDTO() {}
 
 	/**
 	 * 
@@ -124,7 +124,7 @@ public final class TerminalHeartbeatDTO implements Serializable {
 	 * @param highAccuraccyLocationEnabled
 	 * @param appsOverlayEnabled
 	 */
-	public TerminalHeartbeatDTO(String screenStatus, String terminal, String kid, boolean accessFineLocationEnabled,
+	public SaveTerminalHeartbeatDTO(String screenStatus, String terminal, String kid, boolean accessFineLocationEnabled,
 			boolean readContactsEnabled, boolean readCallLogEnabled, boolean writeExternalStorageEnabled,
 			boolean usageStatsAllowed, boolean adminAccessEnabled, final int batteryLevel,
 			final boolean isBatteryCharging, final boolean highAccuraccyLocationEnabled,

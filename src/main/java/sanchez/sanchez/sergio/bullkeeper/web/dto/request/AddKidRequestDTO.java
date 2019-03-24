@@ -35,7 +35,7 @@ public final class AddKidRequestDTO implements Serializable {
      * Kid
      */
 	@JsonProperty("kid")
-	@KidShouldExists(message = "{kid.not.exists}")
+	@KidShouldExists(message = "{kid.should.be.exists}")
     private String kid;
     
     /**
@@ -54,11 +54,12 @@ public final class AddKidRequestDTO implements Serializable {
 	 * 
 	 * @param type
 	 * @param location
+	 * @param address
 	 * @param kid
 	 * @param terminal
 	 */
 	public AddKidRequestDTO(String type, SaveLocationDTO location,
-			String kid, String terminal) {
+			 String kid, String terminal) {
 		super();
 		this.type = type;
 		this.location = location;
@@ -106,13 +107,9 @@ public final class AddKidRequestDTO implements Serializable {
 		this.terminal = terminal;
 	}
 
-
 	@Override
 	public String toString() {
 		return "AddKidRequestDTO [type=" + type + ", location=" + location + ", kid=" + kid + ", terminal=" + terminal
 				+ "]";
 	}
-
-	
-	
 }

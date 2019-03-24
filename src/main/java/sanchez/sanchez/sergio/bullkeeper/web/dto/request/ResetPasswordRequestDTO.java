@@ -20,7 +20,7 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.group.IGroups.I
 
 public final class ResetPasswordRequestDTO {
 
-    @NotBlank(message = "{user.email.notnull}")
+    @NotBlank(message = "{user.email.not.null}")
     @Email(message = "{user.email.invalid}", groups = IValidEmail.class)
     @GuardianEmailShouldExist(message = "{user.email.not.exists}", groups = IEmailShouldExist.class)
     @ShouldNotBeAFacebookUser(message = "{user.should.not.be.a.facebook.user}", groups = IShouldNotBeAFacebookUser.class)

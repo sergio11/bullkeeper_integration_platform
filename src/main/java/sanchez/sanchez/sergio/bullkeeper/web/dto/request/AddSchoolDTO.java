@@ -25,7 +25,7 @@ public class AddSchoolDTO {
 	/**
 	 * Name
 	 */
-	@NotBlank(message = "{school.name.notblank}")
+	@NotBlank(message = "{school.name.not.blank}")
     @Size(min = 5, max = 30, message = "{school.name.size}", groups = Extended.class)
 	@SchoolNameShouldNotExists(message="{school.name.should.not.exists}", groups = Extended.class)
 	@JsonProperty("name")
@@ -35,7 +35,7 @@ public class AddSchoolDTO {
 	/**
 	 * Residence
 	 */
-	@NotBlank(message = "{school.residence.notblank}")
+	@NotBlank(message = "{school.residence.not.blank}")
     @Size(min = 5, max = 100, message = "{school.residence.size}")
 	@JsonProperty("residence")
 	private String residence;

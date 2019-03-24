@@ -23,7 +23,7 @@ public class AddAlertDTO {
 	/**
 	 * Payload
 	 */
-	@NotBlank(message = "{alert.payload.notblank}")
+	@NotBlank(message = "{alert.payload.not.blank}")
     @Size(min = 5, message = "{alert.payload.size}")
 	@JsonProperty("payload")
 	private String payload;
@@ -31,7 +31,7 @@ public class AddAlertDTO {
 	/**
 	 * Target
 	 */
-	@ValidObjectId(message = "{son.id.notvalid}")
+	@ValidObjectId(message = "{id.not.valid}")
 	@KidShouldExists(message = "{alert.target.not.exists}", groups = Extended.class)
 	@JsonProperty("target")
 	private String target;

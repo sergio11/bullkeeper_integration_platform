@@ -29,15 +29,15 @@ public final class UpdateKidDTO {
 	/**
 	 * Identity
 	 */
-    @ValidObjectId(message = "{son.id.notvalid}")
-    @KidShouldExists(message = "{social.son.not.exists}", groups = Extended.class)
+    @ValidObjectId(message = "{id.not.valid}")
+    @KidShouldExists(message = "{kid.should.be.exists}", groups = Extended.class)
     @JsonProperty("identity")
     private String identity;
 
     /**
      * First Name
      */
-    @NotBlank(message = "{user.firstname.notnull}")
+    @NotBlank(message = "{user.firstname.not.null}")
     @Size(min = 3, max = 15, message = "{user.firstname.size}", groups = Extended.class)
     @JsonProperty("first_name")
     @JsonDeserialize(using = ClearStringDeserializer.class)
@@ -46,7 +46,7 @@ public final class UpdateKidDTO {
     /**
      * Last Name
      */
-    @NotBlank(message = "{user.lastname.notnull}")
+    @NotBlank(message = "{user.lastname.not.null}")
     @Size(min = 3, max = 15, message = "{user.lastname.size}", groups = Extended.class)
     @JsonProperty("last_name")
     @JsonDeserialize(using = ClearStringDeserializer.class)
@@ -57,14 +57,14 @@ public final class UpdateKidDTO {
      */
     @JsonProperty("birthdate")
     @JsonDeserialize(using = BirthdayDeserializer.class)
-    @NotNull(message="{user.age.notnull}")
+    @NotNull(message="{user.age.not.null}")
     @InAgeRange(min="5", max="18", message="{user.age.invalid}")
     private Date birthdate;
 
     /**
      * School
      */
-    @NotBlank(message = "{user.school.notnull}")
+    @NotBlank(message = "{user.school.not.null}")
     @ValidObjectId(message = "{user.school.not.valid}")
     @SchoolMustExists(message="{school.should.exists}" , groups = Extended.class)
     @JsonProperty("school")

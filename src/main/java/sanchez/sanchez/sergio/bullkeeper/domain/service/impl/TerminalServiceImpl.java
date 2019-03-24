@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +31,7 @@ import sanchez.sanchez.sergio.bullkeeper.mapper.KidRequestEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.PhoneNumberEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.SmsEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.TerminalEntityDataMapper;
+import sanchez.sanchez.sergio.bullkeeper.mapper.TerminalHeartbeatEntityDataMapper;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AppInstalledEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AppModelEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AppRuleEnum;
@@ -42,6 +46,7 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.PhoneNumberBlockedEn
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ScreenStatusEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SmsEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.TerminalEntity;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.TerminalHeartbeatEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.TerminalStatusEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.AppInstalledRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.AppModelRepository;
@@ -63,7 +68,8 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveDayScheduledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveFunTimeScheduledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveSmsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveTerminalDTO;
-import sanchez.sanchez.sergio.bullkeeper.web.dto.request.TerminalHeartbeatDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveTerminalHeartBeatConfigurationDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveTerminalHeartbeatDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.TerminalStatusDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledDetailDTO;
@@ -79,6 +85,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.response.PhoneNumberBlockedDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.SmsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.TerminalDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.TerminalDetailDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.TerminalHeartbeatDTO;
 
 /**
  * Terminal Service
@@ -180,6 +187,11 @@ public final class TerminalServiceImpl implements ITerminalService {
      * App Model Repository
      */
     private final AppModelRepository appModelRepository;
+    
+    /**
+     * Terminal Heartbeat Entity Data Mapper
+     */
+    private final TerminalHeartbeatEntityDataMapper terminalHeartbeatEntityDataMapper;
 	
 
 	/**
@@ -200,6 +212,7 @@ public final class TerminalServiceImpl implements ITerminalService {
 	 * @param kidRequestMapper
 	 * @param funTimeScheduledEntityMapper
 	 * @param appModelRepository
+	 * @param terminalHeartbeatEntityDataMapper
 	 */
 	@Autowired
 	public TerminalServiceImpl(final TerminalEntityDataMapper terminalEntityDataMapper, 
@@ -219,7 +232,8 @@ public final class TerminalServiceImpl implements ITerminalService {
 			final KidRequestRepository kidRequestRepository,
 			final KidRequestEntityMapper kidRequestMapper,
 			final FunTimeScheduledEntityMapper funTimeScheduledEntityMapper,
-			final AppModelRepository appModelRepository) {
+			final AppModelRepository appModelRepository,
+			final TerminalHeartbeatEntityDataMapper terminalHeartbeatEntityDataMapper) {
 		super();
 		this.terminalEntityDataMapper = terminalEntityDataMapper;
 		this.terminalRepository = terminalRepository;
@@ -239,6 +253,7 @@ public final class TerminalServiceImpl implements ITerminalService {
 		this.kidRequestMapper = kidRequestMapper;
 		this.funTimeScheduledEntityMapper = funTimeScheduledEntityMapper;
 		this.appModelRepository = appModelRepository;
+		this.terminalHeartbeatEntityDataMapper = terminalHeartbeatEntityDataMapper;
 	}
 
 	/**
@@ -398,6 +413,7 @@ public final class TerminalServiceImpl implements ITerminalService {
 		Assert.notNull(kid, "Kid id can not be null");
 		Assert.notNull(terminalId, "Terminal id can not be null");
 		
+		appStatsRepository.deleteByKidIdAndTerminalId(kid, terminalId);
 		appsInstalledRepository.deleteByKidIdAndTerminalId(kid, terminalId);
 	}
 
@@ -412,7 +428,7 @@ public final class TerminalServiceImpl implements ITerminalService {
 		final AppInstalledEntity appInstalled = Optional.ofNullable(appsInstalledRepository.findById(appId))
 			.orElseThrow(() -> { throw new AppInstalledNotFoundException(); });
 		
-		// Deleted
+		appStatsRepository.deleteByAppId(appInstalled.getId());
 		appsInstalledRepository.delete(appInstalled);
 		
 	}
@@ -812,7 +828,7 @@ public final class TerminalServiceImpl implements ITerminalService {
 		Assert.notNull(kid, "Kid can not be null");
 		
 		// Find One
-		final ContactEntity contactEntity = contactRepository.findOneByIdAndKidIdAndTerminalId(id, kid, terminal);
+		final ContactEntity contactEntity = contactRepository.findOneByIdAndKidIdAndTerminalIdAndDisabledFalse(id, kid, terminal);
 		// Map Result
 		return contactEntityMapper.contactEntityToContactDTO(contactEntity);
 	}
@@ -828,8 +844,8 @@ public final class TerminalServiceImpl implements ITerminalService {
 		// Find All Contacts
 		final Iterable<ContactEntity> contacts = 
 				text != null && !text.isEmpty() ? 
-						contactRepository.findAllByKidIdAndTerminalIdAndNameIgnoreCaseContaining(kid, terminal, text) :
-						contactRepository.findAllByKidIdAndTerminalId(kid, terminal);
+						contactRepository.findAllByKidIdAndTerminalIdAndNameIgnoreCaseContainingAndDisabledFalse(kid, terminal, text) :
+						contactRepository.findAllByKidIdAndTerminalIdAndDisabledFalse(kid, terminal);
 		// Map Results
 		return contactEntityMapper.contactEntityToContactDTOs(contacts);
 	}
@@ -913,7 +929,7 @@ public final class TerminalServiceImpl implements ITerminalService {
 	 * Save Heartbeat
 	 */
 	@Override
-	public void saveHeartbeat(final TerminalHeartbeatDTO terminalHeartbeat) {
+	public void saveHeartbeat(final SaveTerminalHeartbeatDTO terminalHeartbeat) {
 		Assert.notNull(terminalHeartbeat, "Terminal Heart Beat can not be null");
 		
 		terminalRepository.saveTerminalStatus(new ObjectId(terminalHeartbeat.getTerminal()), 
@@ -979,6 +995,7 @@ public final class TerminalServiceImpl implements ITerminalService {
 		Assert.notNull(terminal, "Terminal can not be null");
 		Assert.notNull(apps, "Apps can not be null");
 		
+		appStatsRepository.deleteByKidIdAndTerminalIdAndAppIdIn(kid, terminal, apps);
 		appsInstalledRepository.deleteByKidIdAndTerminalIdAndIdIn(kid, terminal, apps);
 		
 		
@@ -1090,7 +1107,7 @@ public final class TerminalServiceImpl implements ITerminalService {
 		final PageRequest pageRequest = new PageRequest(0, total);
 		
 		// Find By Terminal Id And Kid 
-		final Page<AppStatsEntity> appStatsPage = appStatsRepository.findByTerminalIdAndKidIdAndTotalTimeInForegroundGreaterThan(
+		final Page<AppStatsEntity> appStatsPage = appStatsRepository.findByTerminalIdAndKidIdAndTotalTimeInForegroundGreaterThanAndAppNotNull(
 				terminal, kid, 0l, pageRequest);
 		
 		// Map to App Stats
@@ -1528,5 +1545,123 @@ public final class TerminalServiceImpl implements ITerminalService {
 		
 		terminalRepository.unlockScreen(kid);
 		
+	}
+
+	/**
+	 * Save Heartbeat Configuration
+	 * @param terminalHeartbeatConfiguration
+	 */
+	@Override
+	public void saveHeartbeatConfiguration(final SaveTerminalHeartBeatConfigurationDTO terminalHeartbeatConfiguration) {
+		Assert.notNull(terminalHeartbeatConfiguration, "Terminal Heartbeat Configuration");
+		
+		terminalRepository.saveTerminalHeartbeatConfiguration(new ObjectId(terminalHeartbeatConfiguration.getTerminal()),
+				new ObjectId(terminalHeartbeatConfiguration.getKid()), terminalHeartbeatConfiguration.getAlertThresholdInMinutes(),
+				terminalHeartbeatConfiguration.isAlertModeEnabled());
+		
+	}
+
+	/**
+	 * Get Heartbeat Configuration
+	 * @param terminal
+	 * @param kid
+	 */
+	@Override
+	public TerminalHeartbeatDTO getHeartbeatConfiguration(final ObjectId terminal, final ObjectId kid) {
+		Assert.notNull(terminal, "Terminal can not be null");
+		Assert.notNull(kid, "Kid can not be null");
+		
+		return terminalHeartbeatEntityDataMapper
+				.terminalHeartbeatEntityToTerminalHeartbeatDTO(terminalRepository.getTerminalHeartbeatConfiguration(terminal, kid));
+		
+	}
+
+	/**
+	 * Get Terminals With The heartbeat threshold exceeded
+	 */
+	@Override
+	public Iterable<TerminalDTO> getTerminalsWithTheHeartbeatThresholdExceeded() {
+		
+		final List<TerminalEntity> terminalEntities = terminalRepository
+				.getTerminalsWithHeartbeatAlertThresholdEnabledAndStateOn()
+				.parallelStream()
+				.filter((terminal) -> {
+					long duration  = new Date().getTime() - terminal.getHeartbeat().getLastTimeNotified().getTime();
+					long diffInMinutes = TimeUnit.MILLISECONDS.toMinutes(duration);
+					return diffInMinutes > terminal.getHeartbeat().getAlertThresholdInMinutes();
+				}).collect(Collectors.toList());
+		
+		return terminalEntityDataMapper.terminalEntityToTerminalDTO(terminalEntities);
+	}
+
+	/**
+	 * Detach
+	 * @param kid
+	 * @param terminal
+	 */
+	@Override
+	public void detach(final ObjectId kid, final ObjectId terminal) {
+		Assert.notNull(terminal, "Terminal can not be null");
+		Assert.notNull(kid, "Kid can not be null");
+		
+	
+		terminalRepository.detach(kid, terminal);
+		
+	}
+
+	/**
+	 * Enable Phone Calls
+	 * @param kid
+	 * @param terminal
+	 */
+	@Override
+	public void enablePhoneCalls(final ObjectId kid, final ObjectId terminal) {
+		Assert.notNull(terminal, "Terminal can not be null");
+		Assert.notNull(kid, "Kid can not be null");
+		
+		terminalRepository.enablePhoneCalls(kid, terminal);
+	}
+
+	/**
+	 * Disable Phone Calls
+	 * @param kid
+	 * @param terminal
+	 */
+	@Override
+	public void disablePhoneCalls(final ObjectId kid, final ObjectId terminal) {
+		Assert.notNull(terminal, "Terminal can not be null");
+		Assert.notNull(kid, "Kid can not be null");
+		
+		terminalRepository.disablePhoneCalls(kid, terminal);
+	}
+
+	
+	/**
+	 * Disable Contact
+	 * @param kid
+	 * @param terminal
+	 * @param contact
+	 */
+	@Override
+	public void disableContact(final ObjectId kid, final ObjectId terminal, final ObjectId contact) {
+		Assert.notNull(terminal, "Terminal can not be null");
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(contact, "Contact can not be null");
+		
+		contactRepository.disableContact(kid, terminal, contact);
+		
+	}
+
+	/**
+	 * Get Disabled Contacts
+	 */
+	@Override
+	public Iterable<ContactDTO> getListOfDisabledContactsInTheTerminal(final ObjectId kid, final ObjectId terminal) {
+		Assert.notNull(terminal, "Terminal can not be null");
+		Assert.notNull(kid, "Kid can not be null");
+		
+		final Iterable<ContactEntity> contactList = contactRepository.findAllByKidIdAndTerminalIdAndDisabledTrue(kid, terminal);
+		
+		return contactEntityMapper.contactEntityToContactDTOs(contactList);
 	}
 }

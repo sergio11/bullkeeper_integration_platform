@@ -105,7 +105,7 @@ public class CommentsController extends BaseController implements ICommentHAL {
             response = CommentDTO.class)
     public ResponseEntity<APIResponse<CommentDTO>> getCommentById(
     		@ApiParam(name= "id", value = "Identificador del comentario", required = true)
-    			@Valid @ValidObjectId(message = "{comment.id.notvalid}")
+    			@Valid @ValidObjectId(message = "{id.not.valid}")
     		 		@PathVariable String id) throws Throwable {
         logger.debug("Get Comment with id: " + id);
         return Optional.ofNullable(commentsService.getCommentById(id))

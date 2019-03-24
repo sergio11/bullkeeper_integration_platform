@@ -74,7 +74,7 @@ public class SaveAppStatsDTO implements Serializable {
      * Kid
      */
     @JsonProperty("kid")
-    @KidShouldExists(message = "{kid.not.exists}")
+    @KidShouldExists(message = "{kid.should.be.exists}")
     private String kid;
     
 

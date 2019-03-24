@@ -1,11 +1,15 @@
 package sanchez.sanchez.sergio.bullkeeper.persistence.repository;
 
+import java.util.List;
+
 import org.bson.types.ObjectId;
 
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.DayScheduledEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.FunTimeDaysEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.FunTimeScheduledEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ScreenStatusEnum;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.TerminalEntity;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.TerminalHeartbeatEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.TerminalStatusEnum;
 
 /**
@@ -46,6 +50,26 @@ public interface TerminalRepositoryCustom {
     		final boolean adminAccessEnabled, final int batteryLevel, 
     		final boolean isBatteryCharging, final boolean highAccuraccyLocationEnabled,
     		final boolean appsOverlayEnabled);
+    
+    
+    /**
+     * Save Terminal Heartbeat Configuration
+     * @param terminal
+     * @param kid
+     * @param alertThresholdInMinutes
+     * @param alertModeEnabled
+     */
+    void saveTerminalHeartbeatConfiguration(final ObjectId terminal, final ObjectId kid, 
+			final int alertThresholdInMinutes, final boolean alertModeEnabled);
+    
+    
+    /**
+     * Get Terminal Heartbeat Configuration
+     * @param terminal
+     * @param kid
+     * @return
+     */
+    TerminalHeartbeatEntity getTerminalHeartbeatConfiguration(final ObjectId terminal, final ObjectId kid);
     
     /**
      * Enable Bed Time
@@ -152,5 +176,32 @@ public interface TerminalRepositoryCustom {
     void saveDayScheduled(final ObjectId kid, final ObjectId terminal, 
     		final FunTimeDaysEnum day, final DayScheduledEntity dayScheduled);
     
- 
+    
+    /**
+     * Get Terminals With Heartbeat Alert Threshold Enabled And StateOn
+     * @return
+     */
+    List<TerminalEntity> getTerminalsWithHeartbeatAlertThresholdEnabledAndStateOn();
+    
+    /**
+     * 
+     * @param kid
+     * @param terminal
+     */
+    void detach(final ObjectId kid, final ObjectId terminal);
+    
+    /**
+     * Enable Phone Calls
+     * @param kid
+     * @param terminal
+     */
+    void enablePhoneCalls(final ObjectId kid, final ObjectId terminal);
+    
+    
+    /**
+     * Disable Phone Calls
+     * @param kid
+     * @param terminal
+     */
+    void disablePhoneCalls(final ObjectId kid, final ObjectId terminal);
 }
