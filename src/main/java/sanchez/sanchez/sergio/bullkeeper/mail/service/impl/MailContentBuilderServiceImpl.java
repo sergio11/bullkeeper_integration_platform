@@ -100,6 +100,9 @@ public class MailContentBuilderServiceImpl implements IMailContentBuilderService
         return templateEngine.process(mailContentProperties.getCompleteAccountDeletionProcessTemplate(), context);
 	}
 	
+	/**
+	 * 
+	 */
 	@Override
 	public String buildConfirmRegistrationViaGoogleTemplate(String firstname, String lastname, Locale locale) {
 		Assert.notNull(mailContentProperties.getConfirmRegistrationViaGoogleTemplate(), "Confirm Registration via Google Template can not be null");
@@ -110,10 +113,24 @@ public class MailContentBuilderServiceImpl implements IMailContentBuilderService
         return templateEngine.process(mailContentProperties.getConfirmRegistrationViaGoogleTemplate(), context);
 	}
 	
+	/**
+	 * 
+	 */
+	@Override
+	public String buildConfirmEmailChanged(final String firstname, final String lastname, final Locale locale) {
+		Assert.notNull(firstname, "First Name can not be null");
+        Assert.hasLength(firstname, "First Name can not be empty");
+        Assert.notNull(lastname, "Last Name can not be null");
+        Assert.hasLength(lastname, "Last Name can not be empty");
+        Context context = new Context(locale);
+        return templateEngine.process(mailContentProperties.getAccountEmailChangedTemplate(), context);
+	}
+	
 	@PostConstruct
 	protected void init(){
 		Assert.notNull(mailContentProperties, "Mail Content Properties can not be null");
 		Assert.notNull(templateEngine, "Template Engine can not be null");
 	}
-	
+
+
 }

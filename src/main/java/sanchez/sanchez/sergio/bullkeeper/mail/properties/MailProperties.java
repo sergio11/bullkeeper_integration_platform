@@ -37,6 +37,9 @@ public class MailProperties implements Serializable {
     @Value("${mail.complete.account.deletion.process.template.name}")
     private String completeAccountDeletionProcessTemplate;
     
+    @Value("${mail.account.email.changed.template.name}")
+    private String accountEmailChangedTemplate;
+    
     public String getMailFrom() {
         return mailFrom;
     }
@@ -69,6 +72,15 @@ public class MailProperties implements Serializable {
 	public String getCompleteAccountDeletionProcessTemplate() {
 		return completeAccountDeletionProcessTemplate;
 	}
+
+	public String getAccountEmailChangedTemplate() {
+		return accountEmailChangedTemplate;
+	}
+
+	public void setAccountEmailChangedTemplate(String accountEmailChangedTemplate) {
+		this.accountEmailChangedTemplate = accountEmailChangedTemplate;
+	}
+
 	
 	
 }

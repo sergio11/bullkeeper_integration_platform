@@ -298,4 +298,17 @@ public class GuardianRepositoryImpl implements GuardianRepositoryCustom {
 	    return parentEntity.getGoogleId();
 	}
 
+	/**
+	 * Change Email
+	 */
+	@Override
+	public void changeEmail(final String currentEmail, final String newEmail) {
+		Assert.notNull(currentEmail, "Current Email can not be null");
+		Assert.notNull(newEmail, "new Email can not be null");
+		mongoTemplate.updateFirst(
+        		new Query(Criteria.where("email").is(currentEmail)),
+        		new Update()
+        			.set("email", newEmail), GuardianEntity.class);
+	}
+
 }

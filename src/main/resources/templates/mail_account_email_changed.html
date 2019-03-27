@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:th="http://www.thymeleaf.org"
+    xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+	<head>
+		<title>Email Account Changed</title>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta content="Admin Dashboard" name="description" />
+		<meta content="Spring MVC Spring Integration Thymeleaf" name="keywords" />
+		<meta content="sergio" name="author" />
+	</head>
+<body>
+	<div class="wrapper">
+		<div class="alert alert-info">
+			<p th:text="#{accounts.email.changed.title(${firstname}, ${lastname})}">Email Account Changed!</p>
+		</div>
+	</div>
+</body>
+</html>

@@ -2,12 +2,8 @@ package sanchez.sanchez.sergio.bullkeeper.domain.service.impl;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
 import javax.annotation.PostConstruct;
 import org.bson.types.ObjectId;
-import org.mapstruct.Mapping;
-import org.mapstruct.Mappings;
-import org.mapstruct.Named;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -338,7 +334,6 @@ public class GuardianServiceImpl implements IGuardianService {
         // update parent
         guardianToUpdate.setFirstName(updateGuardianDTO.getFirstName());
         guardianToUpdate.setLastName(updateGuardianDTO.getLastName());
-        guardianToUpdate.setEmail(updateGuardianDTO.getEmail());
         guardianToUpdate.setBirthdate(updateGuardianDTO.getBirthdate());
         guardianToUpdate.setTelephone(PhoneNumberUtil.getInstance()
         		.format(updateGuardianDTO.getTelephone(), PhoneNumberFormat.E164));
@@ -585,6 +580,20 @@ public class GuardianServiceImpl implements IGuardianService {
 	}
 
     /**
+     * Change Email
+     * @param currentEmail
+     * @param newEmail
+     */
+    @Override
+	public void changeEmail(final String currentEmail, final String newEmail) {
+    	Assert.notNull(currentEmail, "Current Email can not be null");
+    	Assert.notNull(newEmail, "New Email can not be null");
+		
+    	guardianRepository.changeEmail(currentEmail, newEmail);
+    	
+	}
+    
+    /**
      * 
      */
     @PostConstruct
@@ -598,6 +607,8 @@ public class GuardianServiceImpl implements IGuardianService {
         Assert.notNull(preferencesEntityMapper, "Preferences Entity Mapper can not be null");
         Assert.notNull(deviceGroupsService, "DeviceGroupsService can not be null");
     }
+
+	
 
 
 }

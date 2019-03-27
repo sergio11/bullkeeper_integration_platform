@@ -70,7 +70,7 @@ public class UserSystemEntity extends PersonEntity {
     @Field("last_password_reset_date")
     protected Date lastPasswordResetDate;
 
-    /* Random string sent to the user email address in order to verify it */
+ 
     @Field("confirmation_token")
     protected String confirmationToken;
 

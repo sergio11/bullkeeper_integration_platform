@@ -140,4 +140,11 @@ public interface GuardianRepositoryCustom {
      * @return
      */
     List<GuardianEntity> search(final String text, final List<ObjectId> exclude);
+    
+    /**
+     * Change Email
+     * @param currentEmail
+     * @param newEmail
+     */
+    void changeEmail(final String currentEmail, final String newEmail);
 }

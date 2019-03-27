@@ -30,8 +30,7 @@ public class NewParentEmailShouldNotExistValidator implements ConstraintValidato
 
     @Override
     public boolean isValid(String email, ConstraintValidatorContext context) {
-    	return authorizationService.getUserDetails().getEmail().equals(email) ||
-	    	!authorizationService.getUserDetails().getEmail().equals(email) && 
+    	return !authorizationService.getUserDetails().getEmail().equals(email) && 
 	    			parentRepository.countByEmail(email) == 0 ? Boolean.TRUE : Boolean.FALSE;
     }
 }

@@ -218,6 +218,27 @@ public class MailClientServiceImpl implements IMailClientService {
         String content = mailContentBuilderService.buildCompleteAccountDeletionProcessTemplate(firstname, lastname, confirmationToken, locale);
         sendEmail(email, EmailTypeEnum.COMPLETE_ACCOUNT_DELETION, subject, content);
     }
+    
+    /**
+     * Send Mail For Email Changed
+     */
+	@Override
+	public void sendMailForEmailChanged(final String id, final String email, final String firstname, 
+			final String lastname, final String token, final Locale locale) {
+		Assert.notNull(id, "Id can not be null");
+        Assert.hasLength(id, "Id can not be empty");
+        Assert.notNull(email, "Email can not be null");
+        Assert.hasLength(email, "Email can not be empty");
+        Assert.notNull(firstname, "Firstname can not be null");
+        Assert.hasLength(firstname, "Firstname can not be empty");
+        Assert.notNull(lastname, "Last Name can not be null");
+        Assert.hasLength(lastname, "Last Name can not be empty");
+        
+        String subject = messageSourceResolver.resolver("mail.changed.subject.title", new Object[]{firstname, lastname});
+        String content = mailContentBuilderService.buildConfirmEmailChanged(firstname, lastname, locale);
+        sendEmail(email, EmailTypeEnum.EMAIL_CHANGED_SUCCESSFULLY, subject, content);
+		
+	}
 
     @PostConstruct
     protected void init() {
@@ -226,5 +247,7 @@ public class MailClientServiceImpl implements IMailClientService {
         Assert.notNull(messageSourceResolver, "Message Source Resolver can not be null");
         Assert.notNull(mailProperties, "Mail Properties can not be null");
     }
+
+   
 
 }

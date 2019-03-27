@@ -3,14 +3,11 @@ package sanchez.sanchez.sergio.bullkeeper.web.dto.request;
 import java.util.Date;
 
 import javax.validation.constraints.Size;
-
-import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.InAgeRange;
-import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.NewParentEmailShouldNotExist;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ValidPhoneNumber;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.group.Extended;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.deserializers.BirthdayDeserializer;
@@ -49,14 +46,6 @@ public final class UpdateGuardianDTO {
 	@JsonProperty("birthdate")
 	@JsonDeserialize(using = BirthdayDeserializer.class)
     private Date birthdate;
-	
-	/**
-	 * Email
-	 */
-    @NotBlank(message="{user.email.not.null}")
-    @Email(message="{user.email.invalid}")
-    @NewParentEmailShouldNotExist(message="{user.email.unique}", groups = Extended.class)
-    private String email;
     
     /**
      * Telephone
@@ -79,17 +68,15 @@ public final class UpdateGuardianDTO {
      * @param firstName
      * @param lastName
      * @param birthdate
-     * @param email
      * @param telephone
      * @param visible
      */
 	public UpdateGuardianDTO(String firstName, String lastName, Date birthdate, 
-			String email, PhoneNumber telephone, boolean visible) {
+			PhoneNumber telephone, boolean visible) {
 		super();
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.birthdate = birthdate;
-		this.email = email;
 		this.telephone = telephone;
 		this.visible = visible;
 	}
@@ -116,14 +103,6 @@ public final class UpdateGuardianDTO {
 
 	public void setBirthdate(Date birthdate) {
 		this.birthdate = birthdate;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
 	}
 
 	public PhoneNumber getTelephone() {

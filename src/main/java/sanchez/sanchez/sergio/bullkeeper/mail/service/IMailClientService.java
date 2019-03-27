@@ -17,4 +17,5 @@ public interface IMailClientService {
     void sendMailForConfirmRegistrationViaFacebook(String email, String firstname, String lastname, Locale locale);
     void sendMailForConfirmRegistrationViaGoogle(String email, String firstname, String lastname, Locale locale);
     void sendMailForCompleteAccountDeletionProcess(String email, String firstname, String lastname, String confirmationToken, Locale locale);
+    void sendMailForEmailChanged(String id, String email, String firstname, String lastname, String token, Locale locale);
 }

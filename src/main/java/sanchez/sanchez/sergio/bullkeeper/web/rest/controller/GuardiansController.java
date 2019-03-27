@@ -40,6 +40,7 @@ import sanchez.sanchez.sergio.bullkeeper.domain.service.IKidService;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IPasswordResetTokenService;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.ITokenGeneratorService;
 import sanchez.sanchez.sergio.bullkeeper.events.accounts.AccountDeletionRequestEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.accounts.EmailChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.accounts.ParentRegistrationByFacebookSuccessEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.accounts.ParentRegistrationByGoogleSuccessEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.accounts.ParentRegistrationSuccessEvent;
@@ -65,6 +66,7 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AlertLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.EmailTypeEnum;
 import sanchez.sanchez.sergio.bullkeeper.rrss.service.IFacebookService;
 import sanchez.sanchez.sergio.bullkeeper.rrss.service.IGoogleService;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.ChangeUserEmailDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.JwtAuthenticationRequestDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.JwtSocialAuthenticationRequestDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.RegisterGuardianByFacebookDTO;
@@ -601,6 +603,37 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
                 messageSourceResolver.resolver("account.activation.email.sent"));
     }
     
+    
+    /**
+     * 
+     * @param resendActivation
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/self/change-email",  method = RequestMethod.POST)
+    @OnlyAccessForGuardian
+    @ApiOperation(value = "SELF_CHANGE_EMAIL", nickname = "SELF_CHANGE_EMAIL", 
+    	notes="Self Change Email")
+    public ResponseEntity<APIResponse<String>> selfChangeEmail(
+    		@ApiParam(value = "email", required = true) 
+    			@Valid @RequestBody 
+    				final ChangeUserEmailDTO changeUserEmailDTO) throws Throwable {
+    	
+    	logger.debug("Self Change Email");
+    	
+    	// Change Email
+    	guardiansService.changeEmail(changeUserEmailDTO.getCurrentEmail(),
+    			changeUserEmailDTO.getNewEmail());
+    	
+        applicationEventPublisher.publishEvent(
+        		new EmailChangedEvent(this, changeUserEmailDTO.getCurrentEmail(),
+        				changeUserEmailDTO.getNewEmail()));
+        
+        // Create and Send Response
+        return ApiHelper.<String>createAndSendResponse(
+                GuardianResponseCode.EMAIL_CHANGE_REQUEST_COMPLETED, HttpStatus.OK, 
+                messageSourceResolver.resolver("email.change.request.completed"));
+    }
    
     
     /**

@@ -292,7 +292,11 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
 			commonCriteria.and("author.external_id").is(author);
 
 		final List<Criteria> dimensionCriterias = new ArrayList<>(); 
-			
+		
+		violence = ViolenceLevelEnum.UNKNOWN;
+		drugs = DrugsLevelEnum.UNKNOWN;
+		bullying = BullyingLevelEnum.UNKNOWN;
+		
 		// Violence Filter
 		if(violence != null && !violence.equals(ViolenceLevelEnum.UNKNOWN))
 			dimensionCriterias.add(Criteria
@@ -317,7 +321,7 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
 	
 
 		if(!dimensionCriterias.isEmpty())
-			commonCriteria.orOperator(dimensionCriterias.toArray(new Criteria[dimensionCriterias.size()]));
+			commonCriteria.andOperator(dimensionCriterias.toArray(new Criteria[dimensionCriterias.size()]));
 		
 		final Query query = new Query(commonCriteria);
 		
@@ -363,20 +367,20 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
 		
 		
 		// Violence Filter
-		if(violence != null && !violence.equals(ViolenceLevelEnum.UNKNOWN))
+		/*if(violence != null && !violence.equals(ViolenceLevelEnum.UNKNOWN))
 			dimensionCriterias.add((Criteria
 					.where("analysis_results.violence.status").is(AnalysisStatusEnum.FINISHED.name())
-					.and("analysis_results.violence.result").is(violence.ordinal())));
+					.and("analysis_results.violence.result").is(violence.ordinal())));*/
 		// Drugs Filter
-		if(drugs != null && !drugs.equals(DrugsLevelEnum.UNKNOWN))
+		/*if(drugs != null && !drugs.equals(DrugsLevelEnum.UNKNOWN))
 			dimensionCriterias.add(Criteria
 					.where("analysis_results.drugs.status").is(AnalysisStatusEnum.FINISHED.name())
-					.and("analysis_results.drugs.result").is(drugs.ordinal()));
+					.and("analysis_results.drugs.result").is(drugs.ordinal()));*/
 		// Bullying filter
-		if(bullying != null && !bullying.equals(BullyingLevelEnum.UNKNOWN))
+		/*if(bullying != null && !bullying.equals(BullyingLevelEnum.UNKNOWN))
 			dimensionCriterias.add(Criteria
 					.where("analysis_results.bullying.status").is(AnalysisStatusEnum.FINISHED.name())
-					.and("analysis_results.bullying.result").is(bullying.ordinal()));
+					.and("analysis_results.bullying.result").is(bullying.ordinal()));*/
 		// Adult Content filter
 		if(adult != null && !adult.equals(AdultLevelEnum.UNKNOWN))
 			dimensionCriterias.add(Criteria
@@ -385,7 +389,7 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
 		
 	
 		if(!dimensionCriterias.isEmpty())
-			commonCriteria.orOperator(dimensionCriterias.toArray(new Criteria[dimensionCriterias.size()]));
+			commonCriteria.andOperator(dimensionCriterias.toArray(new Criteria[dimensionCriterias.size()]));
 
 		final Query query = new Query(commonCriteria);
 

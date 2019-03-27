@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IGuardianService;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.ITokenGeneratorService;
 import sanchez.sanchez.sergio.bullkeeper.events.accounts.AccountDeletionRequestEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.accounts.EmailChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.accounts.ParentAccountActivatedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.accounts.ParentRegistrationByFacebookSuccessEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.accounts.ParentRegistrationByGoogleSuccessEvent;
@@ -28,15 +29,15 @@ public class AccountsEventHandlers {
 	private static Logger logger = LoggerFactory.getLogger(AccountsEventHandlers.class);
 	    
 	private final IMailClientService mailClient;
-	private final IGuardianService parentService;
+	private final IGuardianService guardianService;
 	private final ITokenGeneratorService tokenGeneratorService;
 	
 	
-	public AccountsEventHandlers(IMailClientService mailClient, IGuardianService parentService,
+	public AccountsEventHandlers(IMailClientService mailClient, IGuardianService guardianService,
 			ITokenGeneratorService tokenGeneratorService) {
 		super();
 		this.mailClient = mailClient;
-		this.parentService = parentService;
+		this.guardianService = guardianService;
 		this.tokenGeneratorService = tokenGeneratorService;
 	}
 
@@ -46,11 +47,11 @@ public class AccountsEventHandlers {
 	 */
 	@EventListener
     void handle(final AccountDeletionRequestEvent accountDeletionRequestEvent) {
-		Optional.ofNullable(parentService.getGuardianById(accountDeletionRequestEvent.getIdentity()))
-	        .ifPresent(parent -> {
+		Optional.ofNullable(guardianService.getGuardianById(accountDeletionRequestEvent.getIdentity()))
+	        .ifPresent(guardian -> {
 	            logger.debug("Send Email To Complete Account Deletion Process");
-	            mailClient.sendMailForCompleteAccountDeletionProcess(parent.getEmail(), parent.getFirstName(), 
-	            		parent.getLastName(), accountDeletionRequestEvent.getConfirmationToken(), new Locale(parent.getLocale()));
+	            mailClient.sendMailForCompleteAccountDeletionProcess(guardian.getEmail(), guardian.getFirstName(), 
+	            		guardian.getLastName(), accountDeletionRequestEvent.getConfirmationToken(), new Locale(guardian.getLocale()));
 	        });
     }
 	
@@ -61,11 +62,11 @@ public class AccountsEventHandlers {
 	 */
 	@EventListener
 	void handle(final ParentRegistrationByFacebookSuccessEvent parentRegistrationByFacebookSuccessEvent) {
-		Optional.ofNullable(parentService.getGuardianById(parentRegistrationByFacebookSuccessEvent.getIdentity()))
-	        .ifPresent(parent -> {
+		Optional.ofNullable(guardianService.getGuardianById(parentRegistrationByFacebookSuccessEvent.getIdentity()))
+	        .ifPresent(guardian -> {
 	            logger.debug("Send Email To Confirm Registration via Facebook");
-	            mailClient.sendMailForConfirmRegistrationViaFacebook(parent.getEmail(), parent.getFirstName(), 
-	            		parent.getLastName(), new Locale(parent.getLocale()));
+	            mailClient.sendMailForConfirmRegistrationViaFacebook(guardian.getEmail(), guardian.getFirstName(), 
+	            		guardian.getLastName(), new Locale(guardian.getLocale()));
 	        });
 	}
 	
@@ -75,11 +76,11 @@ public class AccountsEventHandlers {
 	 */
 	@EventListener
 	void handle(final ParentRegistrationByGoogleSuccessEvent parentRegistrationByGoogleSuccessEvent) {
-		Optional.ofNullable(parentService.getGuardianById(parentRegistrationByGoogleSuccessEvent.getIdentity()))
-	        .ifPresent(parent -> {
+		Optional.ofNullable(guardianService.getGuardianById(parentRegistrationByGoogleSuccessEvent.getIdentity()))
+	        .ifPresent(guardian -> {
 	            logger.debug("Send Email To Confirm Registration via Google");
-	            mailClient.sendMailForConfirmRegistrationViaGoogle(parent.getEmail(), parent.getFirstName(), 
-	            		parent.getLastName(), new Locale(parent.getLocale()));
+	            mailClient.sendMailForConfirmRegistrationViaGoogle(guardian.getEmail(), guardian.getFirstName(), 
+	            		guardian.getLastName(), new Locale(guardian.getLocale()));
 	        });
 	}
 	
@@ -91,16 +92,16 @@ public class AccountsEventHandlers {
 	void handle(final ParentRegistrationSuccessEvent parentRegistrationSuccessEvent) {
 		logger.debug("Handle Event: ParentRegistrationSuccessEvent ");
     	
-            Optional.ofNullable(parentService.getGuardianById(parentRegistrationSuccessEvent.getIdentity()))
-                .ifPresent(parent -> {
+            Optional.ofNullable(guardianService.getGuardianById(parentRegistrationSuccessEvent.getIdentity()))
+                .ifPresent(guardian -> {
                     logger.debug("Save Confirmation token for user");
-                    String confirmationToken = tokenGeneratorService.generateToken(parent.getFirstName());
+                    String confirmationToken = tokenGeneratorService.generateToken(guardian.getFirstName());
                     // Set Account as inactive and save activation token
-                    parentService.setAsNotActiveAndConfirmationToken(parent.getIdentity(), confirmationToken);
+                    guardianService.setAsNotActiveAndConfirmationToken(guardian.getIdentity(), confirmationToken);
                     // Send Mail for Activate Account
-                    logger.debug("Send email to: " + parent.getEmail());
-                    mailClient.sendMailForActivateAccount(parent.getEmail(), parent.getFirstName(), 
-                    		parent.getLastName(), confirmationToken, new Locale(parent.getLocale()));
+                    logger.debug("Send email to: " + guardian.getEmail());
+                    mailClient.sendMailForActivateAccount(guardian.getEmail(), guardian.getFirstName(), 
+                    		guardian.getLastName(), confirmationToken, new Locale(guardian.getLocale()));
                 });
 	}
 	
@@ -111,11 +112,11 @@ public class AccountsEventHandlers {
 	 */
 	@EventListener
 	void handle(final ParentAccountActivatedEvent parentAccountActivatedEvent) {
-		Optional.ofNullable(parentService.getGuardianById(parentAccountActivatedEvent.getIdentity()))
-        .ifPresent(parent -> {
+		Optional.ofNullable(guardianService.getGuardianById(parentAccountActivatedEvent.getIdentity()))
+        .ifPresent(guardian -> {
             logger.debug("Send Email To Confirm Account Activation");
-            mailClient.sendMailForConfirmAccountActivation(parent.getEmail(), parent.getFirstName(), 
-            		parent.getLastName(), new Locale(parent.getLocale()));
+            mailClient.sendMailForConfirmAccountActivation(guardian.getEmail(), guardian.getFirstName(), 
+            		guardian.getLastName(), new Locale(guardian.getLocale()));
         });
 	}
 	
@@ -125,11 +126,11 @@ public class AccountsEventHandlers {
 	 */
 	@EventListener
 	void handle(final PasswordChangedEvent passwordChangedEvent) {
-		Optional.ofNullable(parentService.getGuardianById(passwordChangedEvent.getParentId()))
-	        .ifPresent(parent -> {
+		Optional.ofNullable(guardianService.getGuardianById(passwordChangedEvent.getParentId()))
+	        .ifPresent(guardian -> {
 	            logger.debug("Send Email To Confirm Password Change");
-	            mailClient.sendMailForConfirmPasswordChange(parent.getEmail(), parent.getFirstName(), 
-	            		parent.getLastName(), new Locale(parent.getLocale()));
+	            mailClient.sendMailForConfirmPasswordChange(guardian.getEmail(), guardian.getFirstName(), 
+	            		guardian.getLastName(), new Locale(guardian.getLocale()));
 	        });
 	}
 	
@@ -139,14 +140,30 @@ public class AccountsEventHandlers {
 	 */
 	@EventListener
 	void handle(final PasswordResetEvent passwordResetEvent) {
-		Optional.ofNullable(parentService.getGuardianById(passwordResetEvent.getPasswordResetToken().getUser()))
-        .ifPresent(parent -> {
+		Optional.ofNullable(guardianService.getGuardianById(passwordResetEvent.getPasswordResetToken().getUser()))
+        .ifPresent(guardian -> {
+            logger.debug("Send mail for reset password token");
+            // Send Mail for Activate Account
+            logger.debug("Send email to: " + guardian.getEmail());
+            mailClient.sendMailForResetPassword(guardian.getIdentity(), guardian.getEmail(), guardian.getFirstName(), 
+            		guardian.getLastName(), passwordResetEvent.getPasswordResetToken().getToken(), guardian.getLocale() != null ? new Locale(guardian.getLocale()): Locale.getDefault());
+        });
+	}
+	
+	/**
+	 * Email Changed Event
+	 * @param emailChangedEvent
+	 */
+	@EventListener
+	void handle(final EmailChangedEvent emailChangedEvent) {
+		Optional.ofNullable(guardianService.getGuardianByEmail(emailChangedEvent.getNewEmail()))
+        .ifPresent(guardian -> {
             logger.debug("Send mail for reset password token");
             logger.debug("Send mail for reset password token");
             // Send Mail for Activate Account
-            logger.debug("Send email to: " + parent.getEmail());
-            mailClient.sendMailForResetPassword(parent.getIdentity(), parent.getEmail(), parent.getFirstName(), 
-            		parent.getLastName(), passwordResetEvent.getPasswordResetToken().getToken(), parent.getLocale() != null ? new Locale(parent.getLocale()): Locale.getDefault());
+            logger.debug("Send email to: " + guardian.getEmail());
+            mailClient.sendMailForEmailChanged(guardian.getIdentity(), guardian.getEmail(), guardian.getFirstName(), 
+            		guardian.getLastName(), emailChangedEvent.getNewEmail(), guardian.getLocale() != null ? new Locale(guardian.getLocale()): Locale.getDefault());
         });
 	}
 }
