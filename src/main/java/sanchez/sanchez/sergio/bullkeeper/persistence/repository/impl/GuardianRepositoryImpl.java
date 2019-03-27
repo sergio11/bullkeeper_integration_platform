@@ -14,6 +14,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.Assert;
 
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.GuardianEntity;
@@ -28,6 +29,15 @@ public class GuardianRepositoryImpl implements GuardianRepositoryCustom {
     
     private static Logger logger = LoggerFactory.getLogger(GuardianRepositoryImpl.class);
     
+    /**
+	 * Password Encoder
+	 */
+	@Autowired
+    protected PasswordEncoder passwordEncoder;
+    
+	/**
+	 * Mongo Template
+	 */
     @Autowired
     private MongoTemplate mongoTemplate;
     
@@ -309,6 +319,20 @@ public class GuardianRepositoryImpl implements GuardianRepositoryCustom {
         		new Query(Criteria.where("email").is(currentEmail)),
         		new Update()
         			.set("email", newEmail), GuardianEntity.class);
+	}
+
+	/**
+	 * Change Password
+	 */
+	@Override
+	public void changePassword(final ObjectId id, final String newPassword) {
+		Assert.notNull(id, "Id can not be null");
+		Assert.notNull(newPassword, "new Password can not be null");
+		
+		mongoTemplate.updateFirst(
+                new Query(Criteria.where("_id").in(id)),
+                new Update().set("password", passwordEncoder.encode(newPassword)), GuardianEntity.class);
+		
 	}
 
 }

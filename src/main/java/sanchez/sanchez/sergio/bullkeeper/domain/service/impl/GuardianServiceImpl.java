@@ -594,6 +594,19 @@ public class GuardianServiceImpl implements IGuardianService {
 	}
     
     /**
+     * Change Password
+     * @param guardian
+     * @param newPassword
+     */
+    @Override
+	public void changePassword(final ObjectId guardian, final String newPassword) {
+    	Assert.notNull(guardian, "Guardian can not be null");
+    	Assert.notNull(newPassword, "New Email can not be null");
+		
+    	guardianRepository.changePassword(guardian, newPassword);
+	}
+    
+    /**
      * 
      */
     @PostConstruct
@@ -607,8 +620,4 @@ public class GuardianServiceImpl implements IGuardianService {
         Assert.notNull(preferencesEntityMapper, "Preferences Entity Mapper can not be null");
         Assert.notNull(deviceGroupsService, "DeviceGroupsService can not be null");
     }
-
-	
-
-
 }

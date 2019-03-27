@@ -249,5 +249,12 @@ public interface IGuardianService {
      * @param newEmail
      */
     void changeEmail(final String currentEmail, final String newEmail);
+    
+    /**
+     * Change Password
+     * @param guardian
+     * @param newPassword
+     */
+    void changePassword(final ObjectId guardian, final String newPassword);
 
 }

@@ -44,6 +44,7 @@ import sanchez.sanchez.sergio.bullkeeper.events.accounts.EmailChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.accounts.ParentRegistrationByFacebookSuccessEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.accounts.ParentRegistrationByGoogleSuccessEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.accounts.ParentRegistrationSuccessEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.accounts.PasswordChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.accounts.PasswordResetEvent;
 import sanchez.sanchez.sergio.bullkeeper.exception.ConversationNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.GuardianNotFoundException;
@@ -66,6 +67,7 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AlertLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.EmailTypeEnum;
 import sanchez.sanchez.sergio.bullkeeper.rrss.service.IFacebookService;
 import sanchez.sanchez.sergio.bullkeeper.rrss.service.IGoogleService;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.ChangePasswordDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.ChangeUserEmailDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.JwtAuthenticationRequestDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.JwtSocialAuthenticationRequestDTO;
@@ -1078,6 +1080,32 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
     	
     	return ApiHelper.<String>createAndSendResponse(GuardianResponseCode.GUARDIAN_RESET_PASSWORD_REQUEST, 
         		HttpStatus.OK, messageSourceResolver.resolver("parent.password.reseted"));	
+    }
+    
+    /**
+     * Self Change Password
+     * @param selfGuardian
+     * @return
+     */
+    @RequestMapping(value = "/self/change-password",  method = RequestMethod.POST)
+    @OnlyAccessForGuardian
+    @ApiOperation(value = "SELF_CHANGE_PASSWORD", nickname = "SELF_CHANGE_PASSWORD", 
+    	notes="Self Change Password")
+    public ResponseEntity<APIResponse<String>> selfChangePassword(
+    		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfGuardian,
+    		@Valid @RequestBody 
+    			final ChangePasswordDTO changePassword){
+    	
+    	logger.debug("Reset Password");
+    	
+    	final String userId = selfGuardian.getUserId().toString();
+    	
+    	guardiansService.changePassword(new ObjectId(userId), changePassword.getPasswordClear());
+   
+    	applicationEventPublisher.publishEvent(new PasswordChangedEvent(this, userId));
+    	
+    	return ApiHelper.<String>createAndSendResponse(GuardianResponseCode.USER_PASSWORD_CHANGED_SUCCESSFULLY, 
+        		HttpStatus.OK, messageSourceResolver.resolver("user.password.changed.successfully"));	
     }
     
     

@@ -147,4 +147,11 @@ public interface GuardianRepositoryCustom {
      * @param newEmail
      */
     void changeEmail(final String currentEmail, final String newEmail);
+    
+    /**
+     * Change Email
+     * @param id
+     * @param newPassword
+     */
+    void changePassword(final ObjectId id, final String newPassword);
 }
