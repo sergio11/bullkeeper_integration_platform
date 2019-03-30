@@ -16,14 +16,28 @@ public class DimensionsStatisticsDTO {
 	
 	@JsonProperty("dimensions")
 	private List<DimensionDTO> data;
+	
+	/**
+     * Total Comments
+     */
+    @JsonProperty("total_comments")
+    private long totalComments;
     
 	public DimensionsStatisticsDTO(){}
 	
-    public DimensionsStatisticsDTO(String title, String subtitle, List<DimensionDTO> data) {
+	/**
+	 * 
+	 * @param title
+	 * @param subtitle
+	 * @param data
+	 * @param totalComments
+	 */
+    public DimensionsStatisticsDTO(String title, String subtitle, List<DimensionDTO> data, long totalComments) {
 		super();
 		this.title = title;
 		this.subtitle = subtitle;
 		this.data = data;
+		this.totalComments = totalComments;
 	}
 
 
@@ -50,6 +64,15 @@ public class DimensionsStatisticsDTO {
 
 	public void setData(List<DimensionDTO> data) {
 		this.data = data;
+	}
+
+	
+	public long getTotalComments() {
+		return totalComments;
+	}
+
+	public void setTotalComments(long totalComments) {
+		this.totalComments = totalComments;
 	}
 
 
@@ -95,14 +118,19 @@ public class DimensionsStatisticsDTO {
 			this.label = label;
 		}
 
+		@Override
+		public String toString() {
+			return "DimensionDTO [type=" + type + ", value=" + value + ", label=" + label + "]";
+		}
+		
+	
     }
-
 
 	@Override
 	public String toString() {
-		return "DimensionsStatisticsDTO [title=" + title + ", subtitle=" + subtitle + ", data=" + data + "]";
+		return "DimensionsStatisticsDTO [title=" + title + ", subtitle=" + subtitle + ", data=" + data
+				+ ", totalComments=" + totalComments + "]";
 	}
-	
 
 	
 }

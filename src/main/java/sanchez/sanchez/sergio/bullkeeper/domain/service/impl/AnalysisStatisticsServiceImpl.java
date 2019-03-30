@@ -386,7 +386,7 @@ public class AnalysisStatisticsServiceImpl implements IAnalysisStatisticsService
 		return new DimensionsStatisticsDTO(
 				messageSourceResolverService.resolver("statistics.comments.dimensions.title", new Object[] { pt.format(from) }),
 				messageSourceResolverService.resolver("statistics.comments.dimensions.subtitle", new Object[] { totalAnalyzesPerformed  }),
-				dimensionsData);
+				dimensionsData, totalAnalyzesPerformed);
 	}
 
 	/**

@@ -80,7 +80,7 @@ public class SaveAppInstalledDTO implements Serializable {
 	private String iconEncodedString;
 	
 	/**
-	 * Son ID
+	 * Kid ID
 	 */
 	@ValidObjectId(message = "{id.not.valid}")
     @KidShouldExists(message = "{kid.should.be.exists}", groups = Extended.class)

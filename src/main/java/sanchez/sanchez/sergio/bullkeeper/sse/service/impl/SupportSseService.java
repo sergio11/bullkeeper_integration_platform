@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -29,6 +31,7 @@ import sanchez.sanchez.sergio.bullkeeper.sse.service.ISseService;
  *
  * @param <T>
  */
+@EnableAsync(proxyTargetClass = true)
 @Service
 public class SupportSseService
 	implements ISseService  {
@@ -191,6 +194,7 @@ public class SupportSseService
 	 * 
 	 * @param newAppInstalledEvent
 	 */
+	@Async
 	@EventListener
 	public void handle(final SubscriberSseEmitterCreated subscriberSseEmitterCreated) {
 		Assert.notNull(subscriberSseEmitterCreated, "Subscriber SSE Emitter Created can not be null");
@@ -199,7 +203,7 @@ public class SupportSseService
 		final Iterable<SseEventEntity> sseEvents = sseEventRepository
 				.findByTarget(subscriberSseEmitterCreated.getSubscriberId());
 		
-		if(Iterables.size(sseEvents) == 0) {
+		if(Iterables.size(sseEvents) > 0) {
 			for(final SseEventEntity sseEvent: sseEvents) 
 				send(sseEvent.getTarget(), sseEvent.getMessage());
 			// Delete All By Target

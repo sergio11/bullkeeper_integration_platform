@@ -52,7 +52,6 @@ public class UserImagesGridFSUploadStrategy implements IUploadStrategy<String, R
         InputStream imageStream = new ByteArrayInputStream(fileinfo.getBytes());
         // Store file in GridFS
         GridFSFile gridFile = gridOperations.store(imageStream, fileinfo.getOriginalName(), fileinfo.getContentType(), metaData);
-
         logger.debug("Grid FS File id -> " + gridFile.getId().toString());
         return gridFile.getId().toString();
 

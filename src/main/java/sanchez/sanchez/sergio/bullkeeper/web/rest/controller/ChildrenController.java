@@ -95,7 +95,9 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.CallDetailShoul
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ContactShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ContactShouldExistsAndEnabled;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.DayNameValidator;
+import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.DevicePhotoShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.GeofenceShouldExists;
+import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.GuardianShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.KidRequestShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.KidShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.PhoneNumberBlockedShouldExists;
@@ -114,6 +116,7 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.FunTimeDaysEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SocialMediaTypeEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ViolenceLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.util.ValidList;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.AddDevicePhotoDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.AddKidRequestDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.AddPhoneNumberBlockedDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppInstalledDTO;
@@ -145,6 +148,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CallDetailDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CommentDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ContactDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.DayScheduledDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.DevicePhotoDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.FunTimeScheduledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.GeofenceAlertDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.GeofenceDTO;
@@ -171,6 +175,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.rest.response.ChildrenResponseCode;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.response.CommentResponseCode;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.response.ContactResponseCode;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.response.GeofenceResponseCode;
+import sanchez.sanchez.sergio.bullkeeper.web.rest.response.ImageResponseCode;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.response.SmsResponseCode;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.response.SocialMediaResponseCode;
 import sanchez.sanchez.sergio.bullkeeper.web.security.userdetails.CommonUserDetailsAware;
@@ -4828,6 +4833,284 @@ public class ChildrenController extends BaseController
         		HttpStatus.OK, messageSourceResolver.resolver("all.geofences.deleted"));
     	
     }
+    
+    
+    
+    /**
+     * Save Device Photo
+     * @param kid
+     * @param terminal
+     * @param devicePhoto
+     * @param photoFile
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{kid}/terminal/{terminal}/photos", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(value = "SAVE_DEVICE_PHOTO", nickname = "SAVE_DEVICE_PHOTO", 
+    	notes = "Save Device Photo",
+            response = DevicePhotoDTO.class)
+    public ResponseEntity<APIResponse<DevicePhotoDTO>> saveDevicePhoto(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+        	@Valid @KidShouldExists(message = "{kid.should.be.exists}")
+         		@PathVariable String kid,
+         	@ApiParam(name = "terminal", value = "Terminal Identity", required = true)
+            	@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
+             		@PathVariable String terminal,
+            @ApiParam(name="device_photo", value = "device_photo", required = true) 
+    			@Validated(ICommonSequence.class) 
+        			@RequestBody AddDevicePhotoDTO devicePhoto,
+            @RequestPart("profile_image") MultipartFile photoFile) throws Throwable {
+    	
+    	logger.debug("Save Device Photo");
+    	
+    	// Get Terminal
+    	final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+    			new ObjectId(terminal), new ObjectId(kid)))
+    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+    	
+    	return null;
+    }
+    
+    /**
+     * 
+     * @param kid
+     * @param terminal
+     * @param text
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{kid}/terminal/{terminal}/photos", method = RequestMethod.GET)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    @ApiOperation(value = "GET_DEVICE_PHOTOS", nickname = "GET_DEVICE_PHOTOS",
+    	notes = "Get Device Photos", response = Iterable.class)
+    public ResponseEntity<APIResponse<Iterable<DevicePhotoDTO>>> getDevicePhotos(
+    	@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+        		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
+         		@PathVariable final String kid,
+         @ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
+    			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
+     			@PathVariable final String terminal) 
+    		throws Throwable {
+    	
+    		logger.debug("Get Device Photo");
+    	
+    		// Get Terminal
+        final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+    			new ObjectId(terminal), new ObjectId(kid)))
+    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+        
+        return null;
+    }
+    
+    
+    /**
+     * 
+     * @param kid
+     * @param terminal
+     * @param contact
+     * @return
+     * @throws Throwable
+     */
+   @RequestMapping(value = "/{kid}/terminal/{terminal}/photos/{photo}", method = RequestMethod.GET)
+   @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+   		+ "&& @authorizationService.isYourGuardian(#kid) )")
+   @ApiOperation(value = "GET_DEVICE_PHOTO", nickname = "GET_DEVICE_PHOTO",
+   	notes = "Get Device Photo", response = DevicePhotoDTO.class)
+   public ResponseEntity<APIResponse<ContactDTO>> getDevicePhoto(
+   		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+       		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
+        			@PathVariable String kid,
+        	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
+   			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
+    				@PathVariable String terminal,
+    		@ApiParam(name = "photo", value = "Photo Identifier", required = true)
+ 				@Valid 
+ 				@DevicePhotoShouldExists(message = "{device.photo.not.exists}")
+ 				@PathVariable String photo) 
+   		throws Throwable {
+ 	   
+ 	   logger.debug("Get Device Photo");
+ 	   
+ 	   // Get Terminal
+       final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+   			new ObjectId(terminal), new ObjectId(kid)))
+   			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+       
+   	
+      return null;
+   }
+   
+   
+   /**
+    * Delete all photos from Terminal
+    * @return
+    * @throws Throwable
+    */
+   @RequestMapping(value = "/{kid}/terminal/{terminal}/photos", method = RequestMethod.DELETE)
+   @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+   		+ "&& @authorizationService.isYourGuardian(#kid) )")
+   @ApiOperation(value = "DELETE_ALL_DEVICE_PHOTOS", 
+   	nickname = "DELETE_ALL_DEVICE_PHOTOS",
+   	notes = "Delete All Device Photos", response = String.class)
+   public ResponseEntity<APIResponse<String>> deleteAllDevicePhotos(
+   		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+       		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
+        			@PathVariable String kid,
+        	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
+   			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
+    				@PathVariable String terminal) 
+   		throws Throwable {
+       
+ 	   logger.debug("Delete all device photos");
+ 	   
+ 	   // Get Terminal
+       final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+   			new ObjectId(terminal), new ObjectId(kid)))
+   			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+       
+       return null;
+ 	   
+   }
+   
+   
+   /**
+    * Delete Device Photos
+    * @return
+    * @throws Throwable
+    */
+   @RequestMapping(value = "/{kid}/terminal/{terminal}/photos/delete", method = RequestMethod.POST)
+   @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+   		+ "&& @authorizationService.isYourGuardian(#kid) )")
+   @ApiOperation(value = "DELETE_DEVICE_PHOTOS", 
+   	nickname = "DELETE_DEVICE_PHOTOS",
+   	notes = "Delete Device Photos", response = String.class)
+   public ResponseEntity<APIResponse<String>> deleteDevicePhotos(
+   		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+       		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
+        			@PathVariable String kid,
+        	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
+   			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
+    				@PathVariable String terminal,
+    		@ApiParam(name="ids", value = "Device Photos ids", required = true) 
+ 			@Validated(ICommonSequence.class) 
+ 				@RequestBody ValidList<ObjectId> devicePhotosList) 
+   		throws Throwable {
+       
+ 	   logger.debug("Delete all device photos");
+ 	   
+ 	   // Get Terminal
+       final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+   			new ObjectId(terminal), new ObjectId(kid)))
+   			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+       
+       return null;
+   }
+   
+   /**
+    * 
+    * @param kid
+    * @param terminal
+    * @param photo
+    * @return
+    * @throws Throwable
+    */
+  @RequestMapping(value = "/{kid}/terminal/{terminal}/photos/{photo}", method = RequestMethod.GET)
+  @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+  		+ "&& @authorizationService.isYourGuardian(#kid) )")
+  @ApiOperation(value = "GET_DEVICE_PHOTO_DETAIL", nickname = "GET_DEVICE_PHOTO_DETAIL",
+  	notes = "Get Contact Detail", response = ContactDTO.class)
+  public ResponseEntity<APIResponse<DevicePhotoDTO>> getDevicePhotoDetail(
+  		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+      		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
+       			@PathVariable String kid,
+       	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
+  			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
+   				@PathVariable String terminal,
+   		@ApiParam(name = "photo", value = "Device Photo Identifier", required = true)
+				@Valid 
+				@DevicePhotoShouldExists(message = "{device.photo.not.exists}")
+				@PathVariable String photo) 
+  		throws Throwable {
+	   
+	   logger.debug("Get Device Photo Detail");
+	   
+	   // Get Terminal
+      final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+  			new ObjectId(terminal), new ObjectId(kid)))
+  			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+      
+  	
+      return null;
+  }
+   
+  
+  /**
+   * Disable Contact From Terminal
+   * @return
+   * @throws Throwable
+   */
+  @RequestMapping(value = "/{kid}/terminal/{terminal}/photos/{photo}/disable", method = RequestMethod.POST)
+  @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+  		+ "&& @authorizationService.isYourGuardian(#kid) )")
+  @ApiOperation(value = "DISABLE_DEVICE_PHOTO", 
+  	nickname = "DISABLE_DEVICE_PHOTO",
+  	notes = "Disable Contact From Terminal", response = String.class)
+  public ResponseEntity<APIResponse<String>> disableDevicePhoto(
+  		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+      		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
+       			@PathVariable String kid,
+       	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
+  			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
+   				@PathVariable String terminal,
+   		@ApiParam(name = "photo", value = "Photo Identifier", required = true)
+  			@Valid 
+  				@DevicePhotoShouldExists(message = "{device.photo.not.exists}")
+  				@PathVariable String photo) 
+  		throws Throwable {
+     
+ 	   // Get Terminal
+      final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+  			new ObjectId(terminal), new ObjectId(kid)))
+  			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+      
+      return null;
+ 	   
+  }
+  
+  
+ /**
+  * 
+  * @param kid
+  * @param terminal
+  * @return
+  * @throws Throwable
+  */
+  @RequestMapping(value = "/{kid}/terminal/{terminal}/photos/disable", method = RequestMethod.GET)
+  @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+  		+ "&& @authorizationService.isYourGuardian(#kid) )")
+  @ApiOperation(value = "GET_LIST_OF_DISABLED_DEVICE_PHOTOS", 
+  	nickname = "GET_LIST_OF_DISABLED_DEVICE_PHOTOS",
+  	notes = "Get List Of Disabled Device Photos", response = Iterable.class)
+  public ResponseEntity<APIResponse<Iterable<ContactDTO>>> getListOfDisabledDevicePhotos(
+  		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+      		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
+       			@PathVariable String kid,
+       	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
+  			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
+   				@PathVariable String terminal) 
+  		throws Throwable {
+     
+ 	   // Get Terminal
+      final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+  			new ObjectId(terminal), new ObjectId(kid)))
+  			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+      
+      return null;
+ 	   
+  }
+   
     
     /**
      * 

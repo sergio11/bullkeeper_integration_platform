@@ -12,7 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 /**
- *
+ * Entity for File System strategy
  * @author sergio
  */
 @Document(collection = ImageEntity.COLLECTION_NAME)
