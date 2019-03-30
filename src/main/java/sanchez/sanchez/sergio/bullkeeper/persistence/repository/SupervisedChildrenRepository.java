@@ -131,6 +131,14 @@ public interface SupervisedChildrenRepository extends
 	 */
 	long countByGuardianIdAndKidIdAndIsConfirmedTrue(final ObjectId guardian, final ObjectId kid);
 	
+	/**
+	 * 
+	 * @param guardian
+	 * @param kid
+	 * @param role
+	 * @return
+	 */
+	long countByGuardianIdAndKidIdAndRoleAndIsConfirmedTrue(final ObjectId guardian, final ObjectId kid, final GuardianRolesEnum role);
 
 	
 	/**

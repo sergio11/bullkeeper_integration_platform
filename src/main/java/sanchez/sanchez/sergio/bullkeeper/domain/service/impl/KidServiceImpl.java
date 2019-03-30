@@ -587,6 +587,22 @@ public class KidServiceImpl implements IKidService {
 							.supervisedChildrenEntityToKidGuardiansDTO(supervisedChildrenEntities);
 	}
 	
+	/**
+	 * @param guardian
+	 * @param kid
+	 */
+	@Override
+	public KidGuardianDTO findSupervisedChildConfirmedById(final ObjectId guardian, final ObjectId kid) {
+		Assert.notNull(guardian, "Guardian can not be null");
+		Assert.notNull(kid, "Kid can not be null");
+		
+		final SupervisedChildrenEntity supervisedChildrenEntity = 
+				supervisedChildrenRepository.findByGuardianIdAndKidId(guardian, kid);
+		
+		return supervisedChildrenEntityMapper
+				.supervisedChildrenEntityToKidGuardiansDTO(supervisedChildrenEntity);
+	}
+	
 	
     @PostConstruct
     protected void init() {
@@ -598,8 +614,5 @@ public class KidServiceImpl implements IKidService {
         Assert.notNull(taskRepository, "Task Repository can not be null");
         Assert.notNull(uploadFilesService, "Upload File Service can not be null");
     }
-
-	
-
 	
 }

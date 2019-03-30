@@ -55,9 +55,11 @@ import sanchez.sanchez.sergio.bullkeeper.exception.NoConversationFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoGuardiansFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoSupervisedChildrenConfirmedFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoSupervisedChildrenNoConfirmedFoundException;
+import sanchez.sanchez.sergio.bullkeeper.exception.SupervisedChildrenConfirmedNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.SupervisedChildrenNoConfirmedNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ConversationShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.GuardianShouldExists;
+import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.KidShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.SupervisedChildrenShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ValidObjectId;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.group.ICommonSequence;
@@ -1567,9 +1569,36 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
     	return Optional.ofNullable(kidService.findSupervisedChildrenConfirmedById(new ObjectId(id)))
 				.map(kidGuardianDTO -> ApiHelper.<KidGuardianDTO>createAndSendResponse(GuardianResponseCode.GET_SUPERVISED_CHILDREN_CONFIRMED_DETAIL, 
     		HttpStatus.OK, kidGuardianDTO))
-				.orElseThrow(() -> { throw new SupervisedChildrenNoConfirmedNotFoundException(); });
+				.orElseThrow(() -> { throw new SupervisedChildrenConfirmedNotFoundException(); });
     	
    
+    }
+    
+    /**
+     * Get supervised child confirmed by id
+     * @param id
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/self/children/{kid}/confirmed", method = RequestMethod.GET)
+    @OnlyAccessForGuardian
+    @ApiOperation(value = "GET_SUPERVISED_CHILD_CONFIRMED_BY_ID", 
+    	nickname = "GET_SUPERVISED_CHILD_CONFIRMED_BY_ID", notes = "Get Supervised Child Confirmed By Id", 
+    		response = Iterable.class)
+    public ResponseEntity<APIResponse<KidGuardianDTO>> getSupervisedChildConfirmedById(
+    		@ApiParam(hidden = true) 
+				@CurrentUser CommonUserDetailsAware<ObjectId> selfGuardian,
+			@ApiParam(name= "kid", value = "Kid identified", required = true)
+				@Valid @KidShouldExists(message = "{kid.not.found}")
+		 			@PathVariable String kid) throws Throwable {
+        
+    	logger.debug("Get Supervised Child Confirmed By Id");
+    	
+    	return Optional.ofNullable(kidService.findSupervisedChildConfirmedById(selfGuardian.getUserId(), new ObjectId(kid)))
+				.map(kidGuardianDTO -> ApiHelper.<KidGuardianDTO>createAndSendResponse(GuardianResponseCode.GET_SUPERVISED_CHILDREN_CONFIRMED_DETAIL, 
+    		HttpStatus.OK, kidGuardianDTO))
+				.orElseThrow(() -> { throw new SupervisedChildrenConfirmedNotFoundException(); });
+    
     }
     
     /**
@@ -1597,6 +1626,9 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
     	return ApiHelper.<String>createAndSendResponse(GuardianResponseCode.DELETE_SUPERVISED_CHILDREN_CONFIRMED_BY_ID, 
 				HttpStatus.OK, messageSourceResolver.resolver("parents.delete.pending"));
     }
+    
+    
+    
     
     
     /**

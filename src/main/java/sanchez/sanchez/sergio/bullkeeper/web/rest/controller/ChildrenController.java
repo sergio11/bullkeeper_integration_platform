@@ -202,7 +202,7 @@ import org.springframework.util.Assert;
  * @author sergiosanchezsanchez
  *
  */
-@RestController("RestUserController")
+@RestController("RestChildrenController")
 @Validated
 @RequestMapping("/api/v1/children/")
 @Api(tags = "children", value = "/children/",
@@ -446,7 +446,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{id}/comments", method = RequestMethod.GET)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#id) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#id) )")
     @ApiOperation(value = "GET_COMMENTS_BY_KID", nickname = "GET_COMMENTS_BY_KID", 
     	notes = "Get Comments By Kid Id", response = List.class)
     public ResponseEntity<APIResponse<Iterable<CommentDTO>>> getCommentsByKidId(
@@ -531,7 +532,8 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{id}/image", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() "
-    		+ "|| ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#id) )")
+    		+ "|| ( @authorizationService.hasGuardianRole() && "
+    		+ "@authorizationService.isYourGuardian(#id) )")
     @ApiOperation(value = "DOWNLOAD_KID_PROFILE_IMAGE", nickname = "DOWNLOAD_KID_PROFILE_IMAGE",
     	notes = "Download Kid Profile Image")
     public ResponseEntity<byte[]> downloadKidProfileImage(
@@ -554,7 +556,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = { "/{id}/social", "/{id}/social/all"  }, method = RequestMethod.GET)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#id) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole()"
+    		+ " && @authorizationService.isYourGuardianAndCanEditParentalControlRules(#id) )")
     @ApiOperation(value = "GET_SOCIAL_MEDIA_BY_KID", nickname = "GET_SOCIAL_MEDIA_BY_KID", 
     	notes = "Get Social Madia By Kid", response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<SocialMediaDTO>>> getSocialMediaByKidId(
@@ -733,7 +736,8 @@ public class ChildrenController extends BaseController
     * @throws Throwable
     */
     @RequestMapping(value = "/{id}/social/invalid", method = RequestMethod.GET)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#id) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#id) )")
     @ApiOperation(value = "GET_INVALID_SOCIAL_MEDIA_BY_KID", nickname = "GET_INVALID_SOCIAL_MEDIA_BY_KID",
     	notes = "Get Social Madia By Kid with invalid token", response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<SocialMediaDTO>>> getInvalidSocialMediaByKidId(
@@ -756,7 +760,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{id}/social/valid", method = RequestMethod.GET)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#id) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#id) )")
     @ApiOperation(value = "GET_VALID_SOCIAL_MEDIA_BY_KID", nickname = "GET_VALID_SOCIAL_MEDIA_BY_KID", 
     	notes = "Get Social Madia By Kid with valid token",
             response = Iterable.class)
@@ -784,7 +789,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{id}/alerts", method = RequestMethod.GET)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#id) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole()"
+    		+ " && @authorizationService.isYourGuardian(#id) )")
     @ApiOperation(value = "GET_ALERTS_BY_KID", nickname = "GET_ALERTS_BY_KID", 
     	notes = "Get Alerts By KId Id",
             response = Iterable.class)
@@ -825,7 +831,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{id}/alerts/warning", method = RequestMethod.GET)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#id) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#id) )")
     @ApiOperation(value = "GET_WARNING_ALERTS_BY_KID", nickname = "GET_WARNING_ALERTS_BY_KID", 
     	notes = "Get Warning Alerts By Kid Id", response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<AlertDTO>>> getWarningAlertsByKidId(
@@ -860,7 +867,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{id}/alerts/info", method = RequestMethod.GET)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#id) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#id) )")
     @ApiOperation(value = "GET_INFO_ALERTS_BY_KID", nickname = "GET_INFO_ALERTS_BY_KID",
     notes = "Get Information Alerts By Kid Id",
             response = Iterable.class)
@@ -896,7 +904,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{id}/alerts/danger", method = RequestMethod.GET)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#id) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole()"
+    		+ " && @authorizationService.isYourGuardian(#id) )")
     @ApiOperation(value = "GET_DANGER_ALERTS_BY_KID", nickname = "GET_DANGER_ALERTS_BY_KID",
     notes = "Get Danger Alerts By Kid Id",
             response = Iterable.class)
@@ -933,7 +942,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{id}/alerts/success", method = RequestMethod.GET)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#id) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole()"
+    		+ " && @authorizationService.isYourGuardian(#id) )")
     @ApiOperation(value = "GET_SUCCESS_ALERTS_BY_KID", nickname = "GET_SUCCESS_ALERTS_BY_KID",
     notes = "Get Success Alerts By Kid Id",
             response = Iterable.class)
@@ -967,7 +977,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{id}/alerts/warning", method = RequestMethod.DELETE)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#id) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole()"
+    		+ " && @authorizationService.isYourGuardian(#id) )")
     @ApiOperation(value = "CLEAR_CHILD_WARNING_ALERTS",
     	nickname = "CLEAR_CHILD_WARNING_ALERTS", notes = "Clear Child Warning Alerts",
             response = String.class)
@@ -994,7 +1005,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{id}/alerts/info", method = RequestMethod.DELETE)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#id) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole()"
+    		+ " && @authorizationService.isYourGuardian(#id) )")
     @ApiOperation(value = "CLEAR_CHILD_INFO_ALERTS", nickname = "CLEAR_CHILD_INFO_ALERTS",
     notes = "Clear Info Child Alerts",
             response = String.class)
@@ -1019,7 +1031,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{id}/alerts/danger", method = RequestMethod.DELETE)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#id) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole()"
+    		+ " && @authorizationService.isYourGuardian(#id) )")
     @ApiOperation(value = "CLEAR_CHILD_DANGER_ALERTS", nickname = "CLEAR_CHILD_DANGER_ALERTS",
     notes = "Clear Info Child Alerts",
             response = String.class)
@@ -1044,7 +1057,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{id}/alerts/success", method = RequestMethod.DELETE)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#id) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#id) )")
     @ApiOperation(value = "CLEAR_CHILD_SUCCESS_ALERTS", nickname = "CLEAR_CHILD_SUCCESS_ALERTS",
     notes = "Clear Success Child Alerts",
             response = String.class)
@@ -1121,7 +1135,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{kid}/alerts/{alert}", method = RequestMethod.DELETE)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole()"
+    		+ " && @authorizationService.isYourGuardian(#kid) )")
     @ApiOperation(value = "DELETE_ALERT_BY_ID", nickname = "DELETE_ALERT_BY_ID", notes = "Delete alert by id",
             response = String.class)
     public ResponseEntity<APIResponse<String>> deleteAlertById(
@@ -1154,7 +1169,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{kid}/terminal", method = RequestMethod.GET)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "GET_ALL_TERMINAL", nickname = "GET_ALL_TERMINAL", notes = "Get all Terminals", 
     response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<TerminalDTO>>> getAllTerminals(
@@ -1185,7 +1201,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "GET_TERMINAL_DETAIL", nickname = "GET_TERMINAL_DETAIL",
     	notes = "Get Terminal Detail", response = TerminalDetailDTO.class)
     public ResponseEntity<APIResponse<TerminalDetailDTO>> getTerminalDetail(
@@ -1216,7 +1232,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{kid}/terminal", method = RequestMethod.POST)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole()"
+    		+ " && @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "SAVE_TERMINAL", nickname = "SAVE_TERMINAL", 
     	notes = "Save Terminal",
             response = TerminalDTO.class)
@@ -1254,7 +1271,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}", method = RequestMethod.DELETE)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole()"
+    		+ " && @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "DELETE_TERMINAL_BY_ID", nickname = "DELETE_TERMINAL_BY_ID", notes = "Delete terminal by id",
             response = String.class)
     public ResponseEntity<APIResponse<String>> deleteTerminalById(
@@ -1303,7 +1321,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/detach", method = RequestMethod.POST)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "DETACH_TERMINAL_BY_ID", nickname = "DETACH_TERMINAL_BY_ID", 
     	notes = "Detach terminal by id",
             response = String.class)
@@ -1349,7 +1368,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{kid}/terminal", method = RequestMethod.DELETE)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "DELETE_ALL_TERMINAL_FOR_KID", nickname = "DELETE_ALL_TERMINAL_FOR_KID", notes = "Delete All Terminal for kid",
             response = String.class)
     public ResponseEntity<APIResponse<String>> deleteAllTerminalForKid(
@@ -1390,7 +1410,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/bedtime/enable", method = RequestMethod.POST)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "ENABLE_BED_TIME_IN_THE_TERMINAL", nickname = "ENABLE_BED_TIME_IN_THE_TERMINAL",
     	notes = "Enable Bed Time in the terminal", response = String.class)
     public ResponseEntity<APIResponse<String>> enableBedTimeInTheTerminal(
@@ -1428,7 +1448,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/bedtime/disable", method = RequestMethod.POST)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "DISABLE_BED_TIME_IN_THE_TERMINAL", nickname = "DISABLE_BED_TIME_IN_THE_TERMINAL",
     	notes = "Disable Bed Time in the terminal", response = String.class)
     public ResponseEntity<APIResponse<String>> disableBedTimeInTheTerminal(
@@ -1465,7 +1485,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/settings/enable", method = RequestMethod.POST)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "ENABLE_SETTINGS_IN_THE_TERMINAL", 
     nickname = "ENABLE_SETTINGS_IN_THE_TERMINAL",
     	notes = "Enable Settings in the terminal", response = String.class)
@@ -1503,7 +1523,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/settings/disable", method = RequestMethod.POST)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "DISABLE_SETTINGS_IN_THE_TERMINAL", nickname = "DISABLE_SETTINGS_IN_THE_TERMINAL",
     	notes = "Disable Settings in the terminal", response = String.class)
     public ResponseEntity<APIResponse<String>> disableSettingsInTheTerminal(
@@ -1541,7 +1561,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/screen/lock", method = RequestMethod.POST)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "LOCK_SCREEN_IN_THE_TERMINAL", nickname = "LOCK_SCREEN_IN_THE_TERMINAL",
     	notes = "Lock Screen in the terminal", response = String.class)
     public ResponseEntity<APIResponse<String>> lockScreenInTheTerminal(
@@ -1578,7 +1598,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/terminal/screen/lock", method = RequestMethod.POST)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "LOCK_SCREEN_FOR_ALL_KID_TERMINAL", nickname = "LOCK_SCREEN_FOR_ALL_KID_TERMINAL",
     	notes = "Lock Screen for all kid terminal", response = String.class)
     public ResponseEntity<APIResponse<String>> lockScreenForAllKidTerminal(
@@ -1608,7 +1628,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/screen/unlock", method = RequestMethod.POST)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(
     		value = "UNLOCK_SCREEN_IN_THE_TERMINAL", 
     		nickname = "UNLOCK_SCREEN_IN_THE_TERMINAL",
@@ -1647,7 +1667,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/terminal/screen/unlock", method = RequestMethod.POST)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(
     		value = "UNLOCK_SCREEN_FOR_ALL_KID_TERMINAL", 
     		nickname = "UNLOCK_SCREEN_FOR_ALL_KID_TERMINAL",
@@ -1678,7 +1698,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/camera/lock", method = RequestMethod.POST)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "LOCK_CAMERA_IN_THE_TERMINAL", nickname = "LOCK_CAMERA_IN_THE_TERMINAL",
     	notes = "Lock Camera in the terminal", response = String.class)
     public ResponseEntity<APIResponse<String>> lockCameraInTheTerminal(
@@ -1715,7 +1735,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/camera/unlock", method = RequestMethod.POST)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(
     		value = "UNLOCK_CAMERA_IN_THE_TERMINAL", 
     		nickname = "UNLOCK_CAMERA_IN_THE_TERMINAL",
@@ -1759,7 +1779,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/sms", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "GET_SMS_FROM_TERMINAL", nickname = "GET_SMS_FROM_TERMINAL",
     	notes = "Get Sms From Terminal", response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<SmsDTO>>> getSmsFromTerminal(
@@ -1799,7 +1819,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/sms/{sms}", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "GET_SMS_DETAIL", nickname = "GET_SMS_DETAIL",
     	notes = "Get Sms From Terminal", response = SmsDTO.class)
     public ResponseEntity<APIResponse<SmsDTO>> getSmsDetail(
@@ -1843,7 +1863,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/sms", method = RequestMethod.DELETE)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "DELETE_SMS_FROM_TERMINAL", nickname = "DELETE_SMS_FROM_TERMINAL",
     	notes = "Delete Sms From Terminal", response = String.class)
     public ResponseEntity<APIResponse<String>> deleteSmsFromTerminal(
@@ -1879,7 +1899,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/sms/delete", method = RequestMethod.POST)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "DELETE_SMS_FROM_TERMINAL", nickname = "DELETE_SMS_FROM_TERMINAL",
     	notes = "Delete Sms From Terminal", response = String.class)
     public ResponseEntity<APIResponse<String>> deleteSmsFromTerminal(
@@ -1916,7 +1936,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/sms/{sms}", method = RequestMethod.DELETE)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "DELETE_SINGLE_SMS", nickname = "DELETE_SINGLE_SMS",
     	notes = "Delete Single SMS", response = String.class)
     public ResponseEntity<APIResponse<String>> deleteSingleSms(
@@ -1955,7 +1975,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/sms", method = RequestMethod.POST)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole()"
-    		+ " && @authorizationService.isYourGuardian(#kid) )")
+    		+ " && @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "SAVE_SMS_FROM_TERMINAL", 
     	nickname = "SAVE_SMS_FROM_TERMINAL", 
     			notes = "Save Sms from terminal",
@@ -1994,7 +2014,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/sms/add", method = RequestMethod.POST)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole()"
-    		+ " && @authorizationService.isYourGuardian(#kid) )")
+    		+ " && @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "ADD_SMS_FROM_TERMINAL", 
     	nickname = "ADD_SMS_FROM_TERMINAL", 
     			notes = "Add Sms from terminal",
@@ -2032,7 +2052,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/calls", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "GET_CALLS_FROM_TERMINAL", nickname = "GET_CALLS_FROM_TERMINAL",
     	notes = "Get Calls From Terminal", response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<CallDetailDTO>>> getCallsFromTerminal(
@@ -2075,7 +2095,7 @@ public class ChildrenController extends BaseController
      */
    @RequestMapping(value = "/{kid}/terminal/{terminal}/calls/{call}", method = RequestMethod.GET)
    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-   		+ "&& @authorizationService.isYourGuardian(#kid) )")
+   		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
    @ApiOperation(value = "GET_CALL_DETAIL", nickname = "GET_CALL_DETAIL",
    	notes = "Get Call Detail", response = CallDetailDTO.class)
    public ResponseEntity<APIResponse<CallDetailDTO>> getCallDetail(
@@ -2119,7 +2139,7 @@ public class ChildrenController extends BaseController
     */
    @RequestMapping(value = "/{kid}/terminal/{terminal}/calls", method = RequestMethod.DELETE)
    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-   		+ "&& @authorizationService.isYourGuardian(#kid) )")
+   		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
    @ApiOperation(value = "DELETE_CALL_DETAILS_FROM_TERMINAL", nickname = "DELETE_CALL_DETAILS_FROM_TERMINAL",
    	notes = "Delete Call Details From Terminal", response = String.class)
    public ResponseEntity<APIResponse<String>> deleteCallDetailsFromTerminal(
@@ -2156,7 +2176,7 @@ public class ChildrenController extends BaseController
     */
    @RequestMapping(value = "/{kid}/terminal/{terminal}/calls/delete", method = RequestMethod.POST)
    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-   		+ "&& @authorizationService.isYourGuardian(#kid) )")
+   		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
    @ApiOperation(value = "DELETE_CALL_DETAILS_FROM_TERMINAL", nickname = "DELETE_CALL_DETAILS_FROM_TERMINAL",
    	notes = "Delete Call Details From Terminal", response = String.class)
    public ResponseEntity<APIResponse<String>> deleteCallDetailsFromTerminal(
@@ -2201,7 +2221,7 @@ public class ChildrenController extends BaseController
     */
   @RequestMapping(value = "/{kid}/terminal/{terminal}/calls/{call}", method = RequestMethod.DELETE)
   @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-  		+ "&& @authorizationService.isYourGuardian(#kid) )")
+  		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
   @ApiOperation(value = "DELETE_SINGLE_CALL_DETAIL", nickname = "DELETE_SINGLE_CALL_DETAIL",
   	notes = "Delete Single Call Detail", response = String.class)
   public ResponseEntity<APIResponse<String>> deleteSingleCallDetail(
@@ -2242,7 +2262,7 @@ public class ChildrenController extends BaseController
     */
    @RequestMapping(value = "/{kid}/terminal/{terminal}/calls", method = RequestMethod.POST)
    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole()"
-   		+ " && @authorizationService.isYourGuardian(#kid) )")
+   		+ " && @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
    @ApiOperation(value = "SAVE_CALL_DETAILS_FROM_TERMINAL", 
    	nickname = "SAVE_CALL_DETAILS_FROM_TERMINAL", 
    			notes = "Save call details from terminal",
@@ -2280,7 +2300,7 @@ public class ChildrenController extends BaseController
     */
    @RequestMapping(value = "/{kid}/terminal/{terminal}/calls/add", method = RequestMethod.POST)
    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole()"
-   		+ " && @authorizationService.isYourGuardian(#kid) )")
+   		+ " && @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
    @ApiOperation(value = "ADD_CALL_DETAILS_FROM_TERMINAL", 
    	nickname = "ADD_CALL_DETAILS_FROM_TERMINAL", 
    			notes = "Add Call Detail from terminal",
@@ -2313,7 +2333,7 @@ public class ChildrenController extends BaseController
     */
    @RequestMapping(value = "/{kid}/terminal/{terminal}/calls/enable", method = RequestMethod.POST)
    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole()"
-   		+ " && @authorizationService.isYourGuardian(#kid) )")
+   		+ " && @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
    @ApiOperation(value = "ENABLE_PHONE_CALLS_IN_TERMINAL", 
    	nickname = "ENABLE_PHONE_CALLS_IN_TERMINAL", 
    			notes = "Enable phone calls in terminal",
@@ -2347,7 +2367,7 @@ public class ChildrenController extends BaseController
     */
    @RequestMapping(value = "/{kid}/terminal/{terminal}/calls/disable", method = RequestMethod.POST)
    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole()"
-   		+ " && @authorizationService.isYourGuardian(#kid) )")
+   		+ " && @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
    @ApiOperation(value = "DISABLE_PHONE_CALLS_IN_TERMINAL", 
    	nickname = "DISABLE_PHONE_CALLS_IN_TERMINAL", 
    			notes = "Disable Phone Calls In Terminal",
@@ -2381,7 +2401,7 @@ public class ChildrenController extends BaseController
     */
    @RequestMapping(value = "/{kid}/terminal/{terminal}/contacts", method = RequestMethod.GET)
    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-   		+ "&& @authorizationService.isYourGuardian(#kid) )")
+   		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
    @ApiOperation(value = "GET_ALL_CONTACTS_FROM_TERMINAL", nickname = "GET_ALL_CONTACTS_FROM_TERMINAL",
    	notes = "Get Calls From Terminal", response = Iterable.class)
    public ResponseEntity<APIResponse<Iterable<ContactDTO>>> getAllContactsFromTerminal(
@@ -2427,7 +2447,7 @@ public class ChildrenController extends BaseController
     */
   @RequestMapping(value = "/{kid}/terminal/{terminal}/contacts/{contact}", method = RequestMethod.GET)
   @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-  		+ "&& @authorizationService.isYourGuardian(#kid) )")
+  		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
   @ApiOperation(value = "GET_CONTACT_DETAIL", nickname = "GET_CONTACT_DETAIL",
   	notes = "Get Contact Detail", response = ContactDTO.class)
   public ResponseEntity<APIResponse<ContactDTO>> getContactDetail(
@@ -2471,7 +2491,7 @@ public class ChildrenController extends BaseController
    */
   @RequestMapping(value = "/{kid}/terminal/{terminal}/contacts", method = RequestMethod.DELETE)
   @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-  		+ "&& @authorizationService.isYourGuardian(#kid) )")
+  		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
   @ApiOperation(value = "DELETE_ALL_CONTACTS_FROM_TERMINAL", 
   	nickname = "DELETE_ALL_CONTACTS_FROM_TERMINAL",
   	notes = "Delete All Contacts From Terminal", response = String.class)
@@ -2510,7 +2530,7 @@ public class ChildrenController extends BaseController
    */
   @RequestMapping(value = "/{kid}/terminal/{terminal}/contacts/delete", method = RequestMethod.POST)
   @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-  		+ "&& @authorizationService.isYourGuardian(#kid) )")
+  		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
   @ApiOperation(value = "DELETE_CONTACTS_FROM_TERMINAL", 
   	nickname = "DELETE_CONTACTS_FROM_TERMINAL",
   	notes = "Delete Contacts From Terminal", response = String.class)
@@ -2556,7 +2576,7 @@ public class ChildrenController extends BaseController
    */
  @RequestMapping(value = "/{kid}/terminal/{terminal}/contacts/{contact}", method = RequestMethod.DELETE)
  @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
- 		+ "&& @authorizationService.isYourGuardian(#kid) )")
+ 		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
  @ApiOperation(value = "DELETE_SINGLE_CONTACT", nickname = "DELETE_SINGLE_CONTACT",
  	notes = "Delete Single Contact", response = String.class)
  public ResponseEntity<APIResponse<String>> deleteSingleContact(
@@ -2597,7 +2617,7 @@ public class ChildrenController extends BaseController
   */
  @RequestMapping(value = "/{kid}/terminal/{terminal}/contacts/{contact}/disable", method = RequestMethod.POST)
  @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
- 		+ "&& @authorizationService.isYourGuardian(#kid) )")
+ 		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
  @ApiOperation(value = "DISABLE_CONTACT_FROM_TERMINAL", 
  	nickname = "DISABLE_CONTACT_FROM_TERMINAL",
  	notes = "Disable Contact From Terminal", response = String.class)
@@ -2655,7 +2675,7 @@ public class ChildrenController extends BaseController
   */
  @RequestMapping(value = "/{kid}/terminal/{terminal}/contacts/disable", method = RequestMethod.GET)
  @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
- 		+ "&& @authorizationService.isYourGuardian(#kid) )")
+ 		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
  @ApiOperation(value = "GET_LIST_OF_DISABLED_CONTACTS_IN_THE_TERMINAL", 
  	nickname = "GET_LIST_OF_DISABLED_CONTACTS_IN_THE_TERMINAL",
  	notes = "Get List Of Disabled Contacts In the terminal", response = Iterable.class)
@@ -2695,7 +2715,7 @@ public class ChildrenController extends BaseController
    */
   @RequestMapping(value = "/{kid}/terminal/{terminal}/contacts", method = RequestMethod.POST)
   @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole()"
-  		+ " && @authorizationService.isYourGuardian(#kid) )")
+  		+ " && @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
   @ApiOperation(value = "SAVE_CONTACTS_FROM_TERMINAL", 
   	nickname = "SAVE_CONTACTS_FROM_TERMINAL", 
   			notes = "Save Contacts from terminal",
@@ -2733,7 +2753,7 @@ public class ChildrenController extends BaseController
    */
   @RequestMapping(value = "/{kid}/terminal/{terminal}/contacts/add", method = RequestMethod.POST)
   @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole()"
-  		+ " && @authorizationService.isYourGuardian(#kid) )")
+  		+ " && @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
   @ApiOperation(value = "ADD_CONTACT_FROM_TERMINAL", 
   	nickname = "ADD_CONTACT_FROM_TERMINAL", 
   			notes = "Add Contact from terminal",
@@ -2772,7 +2792,8 @@ public class ChildrenController extends BaseController
    * @throws Throwable
    */
   @RequestMapping(value = "/{kid}/terminal/apps", method = RequestMethod.GET)
-  @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
+  @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+  		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
   @ApiOperation(value = "GET_ALL_APPS_INSTALLED_FOR_KID", nickname = "GET_ALL_APPS_INSTALLED_FOR_KID",
   notes = "Get all apps installed for kid", 
   response = List.class)
@@ -2810,7 +2831,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/apps", method = RequestMethod.GET)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole()"
+    		+ " && @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "GET_ALL_APPS_INSTALLED_IN_THE_TERMINAL", nickname = "GET_ALL_APPS_INSTALLED_IN_THE_TERMINAL",
     notes = "Get all apps installed in the terminal", 
     response = List.class)
@@ -2856,7 +2878,7 @@ public class ChildrenController extends BaseController
      */
    @RequestMapping(value = "/{kid}/terminal/{terminal}/apps/{app}", method = RequestMethod.GET)
    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-   		+ "&& @authorizationService.isYourGuardian(#kid) )")
+   		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
    @ApiOperation(value = "GET_APP_DETAIL", nickname = "GET_APP_DETAIL",
    	notes = "Get Call Detail", response = AppInstalledDetailDTO.class)
    public ResponseEntity<APIResponse<AppInstalledDetailDTO>> getAppDetail(
@@ -2900,7 +2922,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/apps", method = RequestMethod.POST)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole()"
+    		+ " && @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "SAVE_APPS_INSTALLED_IN_THE_TERMINAL", nickname = "SAVE_APPS_INSTALLED_IN_THE_TERMINAL", 
     	notes = "Save Apps installed in the terminal",
             response = Iterable.class)
@@ -2944,7 +2967,8 @@ public class ChildrenController extends BaseController
      * @return
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/apps/{app}/rules", method = RequestMethod.POST)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole()"
+    		+ " && @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(
     		value = "SAVE_APP_RULES_FOR_APP_IN_THE_TERMINAL", 
     		nickname = "SAVE_APP_RULES_FOR_APP_IN_THE_TERMINAL", 
@@ -2999,7 +3023,8 @@ public class ChildrenController extends BaseController
      * @return
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/apps/rules", method = RequestMethod.POST)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "SAVE_APP_RULES_FOR_APPS_IN_THE_TERMINAL", nickname = "SAVE_APP_RULES_FOR_APPS_IN_THE_TERMINAL", 
     	notes = "Save App Rules",
             response = String.class)
@@ -3051,7 +3076,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/apps/{app}/rules", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(
     		value = "GET_APP_RULES_FOR_APPS_IN_THE_TERMINAL", nickname = "GET_APP_RULES_FOR_APPS_IN_THE_TERMINAL", 
     		notes = "Get App Rules", response = AppRuleDTO.class)
@@ -3092,7 +3117,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/apps/rules", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(
     		value = "GET_APP_RULES_FOR_APPS_IN_THE_TERMINAL", nickname = "GET_APP_RULES_FOR_APPS_IN_THE_TERMINAL", 
     		notes = "Get App Rules", response = Iterable.class)
@@ -3128,7 +3153,8 @@ public class ChildrenController extends BaseController
      * @return
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/apps/{app}/disabled", method = RequestMethod.POST)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole()"
+    		+ " && @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "DISABLE_APP_IN_THE_TERMINAL", nickname = "DISABLE_APP_IN_THE_TERMINAL", 
     	notes = "Disable App In The Terminal",
             response = String.class)
@@ -3176,7 +3202,8 @@ public class ChildrenController extends BaseController
      * @return
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/apps/{app}/enable", method = RequestMethod.POST)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole()"
+    		+ " && @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "ENABLE_APP_IN_THE_TERMINAL", nickname = "ENABLE_APP_IN_THE_TERMINAL", 
     	notes = "Enable App In The Terminal",
             response = String.class)
@@ -3223,7 +3250,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/apps", method = RequestMethod.DELETE)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "DELETE_ALL_APPS_INSTALLED", nickname = "DELETE_ALL_APPS_INSTALLED", 
     	notes = "Delete all apps installed", response = String.class)
     public ResponseEntity<APIResponse<String>> deleteAllAppsIstalled(
@@ -3267,7 +3295,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/apps/delete", method = RequestMethod.POST)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "DELETE_APPS_INSTALLED", nickname = "DELETE_APPS_INSTALLED", 
     	notes = "Delete apps installed", response = String.class)
     public ResponseEntity<APIResponse<String>> deleteAppsIstalled(
@@ -3315,7 +3344,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/apps/{app}", method = RequestMethod.DELETE)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "DELETE_APP_INSTALLED_BY_ID", nickname = "DELETE_APP_INSTALLED_BY_ID", 
     	notes = "Delete App installed by id", response = String.class)
     public ResponseEntity<APIResponse<String>> deleteAppInstalledById(
@@ -3374,7 +3404,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/apps/add", method = RequestMethod.POST)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "ADD_APP_INSTALLED", nickname = "ADD_APP_INSTALLED", 
     	notes = "Add app installed", response = AppInstalledDTO.class)
     public ResponseEntity<APIResponse<AppInstalledDTO>> addNewAppInstalled(
@@ -3425,7 +3455,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/apps/stats", method = RequestMethod.GET)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "GET_STATS_FOR_ALL_APPS_INSTALLED_IN_THE_TERMINAL", 
     	nickname = "GET_STATS_FOR_ALL_APPS_INSTALLED_IN_THE_TERMINAL",
     		notes = "Get Stats For all apps installed in the terminal", 
@@ -3468,7 +3499,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/apps/stats/delete", method = RequestMethod.POST)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(
     		value = "DELETE_STATS_FOR_APPS_INSTALLED_IN_THE_TERMINAL", 
     		nickname = "DELETE_STATS_FOR_APPS_INSTALLED_IN_THE_TERMINAL",
@@ -3514,7 +3545,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/apps/{app}/stats", method = RequestMethod.GET)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "GET_STATS_FOR_A_SPECIFIC_APP_INSTALLED_IN_THE_TERMINAL", 
     	nickname = "GET_STATS_FOR_A_SPECIFIC_APP_INSTALLED_IN_THE_TERMINAL", 
     	notes = "Get stats for a specific app installed in the terminal", 
@@ -3559,7 +3591,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/apps/stats", method = RequestMethod.POST)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(
     		value = "SAVE_STATS_FOR_ALL_APPS_INSTALLED_IN_THE_TERMINAL", 
     		nickname = "SAVE_STATS_FOR_ALL_APPS_INSTALLED_IN_THE_TERMINAL", 
@@ -3600,7 +3632,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/phonenumbers-blocked", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "GET_PHONE_NUMBER_BLOCKED", nickname = "GET_PHONE_NUMBER_BLOCKED",
     	notes = "Get Phone Number Blocked", response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<PhoneNumberBlockedDTO>>> getPhoneNumberBlocked(
@@ -3640,7 +3672,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/phonenumbers-blocked", method = RequestMethod.POST)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "ADD_PHONE_NUMBER_BLOCKED", nickname = "ADD_PHONE_NUMBER_BLOCKED",
     	notes = "Add Phone Number Blocked", response = PhoneNumberBlockedDTO.class)
     public ResponseEntity<APIResponse<PhoneNumberBlockedDTO>> addPhoneNumberBlocked(
@@ -3690,7 +3722,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/phonenumbers-blocked", method = RequestMethod.DELETE)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "DELETE_PHONE_NUMBER_BLOCKED", nickname = "DELETE_PHONE_NUMBER_BLOCKED",
     	notes = "Delete Phone Number Blocked", response = String.class)
     public ResponseEntity<APIResponse<String>> deleteAllPhoneNumberBlocked(
@@ -3730,7 +3762,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/phonenumbers-blocked/{idOrPhoneNumber}", method = RequestMethod.DELETE)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(
     		value = "DELETE_PHONE_NUMBER_BLOCKED_BY_ID_OR_NUMBER", 
     		nickname = "DELETE_PHONE_NUMBER_BLOCKED_BY_ID_OR_NUMBER",
@@ -3775,7 +3807,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/heartbeat", method = RequestMethod.POST)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "TERMINAL_HEARTBEAT", nickname = "TERMINAL_HEARTBEAT",
     notes = "Terminal Heartbeat", response = String.class)
     public ResponseEntity<APIResponse<String>> terminalHeartbeat(
@@ -3803,7 +3835,7 @@ public class ChildrenController extends BaseController
 
     @RequestMapping(value = "/{kid}/terminal/{terminal}/heartbeat/configuration", method = RequestMethod.POST)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "SAVE_TERMINAL_HEARTBEAT_CONFIGURATION", nickname = "SAVE_TERMINAL_HEARTBEAT_CONFIGURATION",
     notes = "Terminal Heartbeat", response = TerminalHeartbeatDTO.class)
     public ResponseEntity<APIResponse<TerminalHeartbeatDTO>> saveTerminalHeartbeatConfiguration(
@@ -3839,7 +3871,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/status", method = RequestMethod.POST)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "TERMINAL_STATUS", nickname = "TERMINAL_STATUS",
     notes = "Terminal Status", response = String.class)
     public ResponseEntity<APIResponse<String>> terminalStatus(
@@ -3871,7 +3903,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/funtime-scheduled", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "GET_FUNTIME_SCHEDULED", nickname = "GET_FUNTIME_SCHEDULED",
     	notes = "Get FunTime Scheduled", response = FunTimeScheduledDTO.class)
     public ResponseEntity<APIResponse<FunTimeScheduledDTO>> getFunTimeScheduled(
@@ -3903,7 +3935,7 @@ public class ChildrenController extends BaseController
      */
    @RequestMapping(value = "/{kid}/terminal/{terminal}/funtime-scheduled/{day}", method = RequestMethod.GET)
    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-   		+ "&& @authorizationService.isYourGuardian(#kid) )")
+   		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
    @ApiOperation(value = "GET_FUNTIME_DAY_SCHEDULED", nickname = "GET_FUNTIME_DAY_SCHEDULED",
    	notes = "Get FunTime Day Scheduled Scheduled", response = DayScheduledDTO.class)
    public ResponseEntity<APIResponse<DayScheduledDTO>> getFunTimeDayScheduled(
@@ -3941,7 +3973,7 @@ public class ChildrenController extends BaseController
     */
   @RequestMapping(value = "/{kid}/terminal/{terminal}/funtime-scheduled/{day}", method = RequestMethod.POST)
   @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-  		+ "&& @authorizationService.isYourGuardian(#kid) )")
+  		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
   @ApiOperation(value = "SAVE_FUNTIME_DAY_SCHEDULED", nickname = "SAVE_FUNTIME_DAY_SCHEDULED",
   	notes = "Save FunTime Day Scheduled Scheduled", response = DayScheduledDTO.class)
   public ResponseEntity<APIResponse<DayScheduledDTO>> saveFunTimeDayScheduled(
@@ -3979,7 +4011,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/funtime-scheduled", method = RequestMethod.POST)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "SAVE_FUNTIME_SCHEDULED", nickname = "SAVE_FUNTIME_SCHEDULED",
     	notes = "Save FunTime Scheduled", response = FunTimeScheduledDTO.class)
     public ResponseEntity<APIResponse<FunTimeScheduledDTO>> saveFunTimeScheduled(
@@ -4021,7 +4053,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{kid}/scheduled-blocks", method = RequestMethod.GET)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "GET_ALL_SCHEDULED_BLOCKS", nickname = "GET_ALL_SCHEDULED_BLOCKS",
     	notes = "Get all scheduled blocks", response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<ScheduledBlockDTO>>> getAllScheduledBlocksConfigured(
@@ -4051,7 +4084,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{kid}/scheduled-blocks/{block}", method = RequestMethod.GET)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole()"
+    		+ " && @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "GET_SCHEDULED_BLOCK_BY_ID", nickname = "GET_SCHEDULED_BLOCK_BY_ID",
     	notes = "Get Scheduled Block By Id", response = ScheduledBlockDTO.class)
     public ResponseEntity<APIResponse<ScheduledBlockDTO>> getScheduledBlockById(
@@ -4082,7 +4116,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{kid}/scheduled-blocks", method = RequestMethod.POST)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "SAVE_SCHEDULED_BLOCK", nickname = "SAVE_SCHEDULED_BLOCK", 
     	notes = "Save Scheduled Block",
             response = ScheduledBlockDTO.class)
@@ -4118,7 +4153,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{kid}/scheduled-blocks/status", method = RequestMethod.POST)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole()"
+    		+ " && @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "SAVE_SCHEDULED_BLOCKS_STATUS", 
     	nickname = "SAVE_SCHEDULED_BLOCKS_STATUS", notes = "Save Scheduled Block Status",
             response = String.class)
@@ -4153,7 +4189,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{kid}/scheduled-blocks", method = RequestMethod.DELETE)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "DELETE_ALL_SCHEDULED_BLOCK", nickname = "DELETE_ALL_SCHEDULED_BLOCK", 
     	notes = "Delete all scheduled block", response = String.class)
     public ResponseEntity<APIResponse<String>> deleteAllScheduledBlock(
@@ -4185,7 +4222,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{kid}/scheduled-blocks/{block}", method = RequestMethod.DELETE)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "DELETE_SCHEDULED_BLOCK_BY_ID", nickname = "DELETE_SCHEDULED_BLOCK_BY_ID", 
     	notes = "Delete App installed by id", response = String.class)
     public ResponseEntity<APIResponse<String>> deleteScheduledBlockById(
@@ -4220,7 +4258,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{kid}/scheduled-blocks/{block}/image", method = RequestMethod.POST)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "UPLOAD_SCHEDULED_BLOCK_IMAGE", nickname = "UPLOAD_SCHEDULED_BLOCK_IMAGE",
     	notes = "Upload Scheduled Block Image", response = ImageDTO.class)
     @ApiResponses(value = {
@@ -4263,7 +4302,7 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{kid}/scheduled-blocks/{block}/image/{image}", method = RequestMethod.GET)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "DOWNLOAD_SCHEDULED_BLOCK_IMAGE", nickname = "DOWNLOAD_SCHEDULED_BLOCK_IMAGE",
     	notes = "Download Scheduled Block Image")
     public ResponseEntity<byte[]> downloadScheduledBlockImage(
@@ -4296,7 +4335,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/location", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "GET_CURRENT_LOCATION", nickname = "GET_CURRENT_LOCATION",
     notes = "Get Current Location", response = LocationDTO.class)
     public ResponseEntity<APIResponse<LocationDTO>> getCurrentLocation(
@@ -4322,7 +4361,7 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{kid}/location", method = RequestMethod.POST)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "SAVE_CURRENT_LOCATION", nickname = "SAVE_CURRENT_LOCATION",
     	notes = "Save Current Location", response = LocationDTO.class)
     public ResponseEntity<APIResponse<LocationDTO>> saveCurrentLocation(
@@ -4357,7 +4396,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/request", method = RequestMethod.POST)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(
     		value = "ADD_REQUEST_FOR_KID", nickname = "ADD_REQUEST_FOR_KID",
     		notes = "Add Request For Kid", response = KidRequestDTO.class)
@@ -4394,7 +4433,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/request", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(
     		value = "GET_ALL_REQUEST_FOR_KID", nickname = "GET_ALL_REQUEST_FOR_KID",
     		notes = "Get All Request For Kid", response = Iterable.class)
@@ -4457,7 +4496,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/request/delete", method = RequestMethod.POST)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(
     		value = "DELETE_REQUEST_FOR_KID", nickname = "DELETE_REQUEST_FOR_KID",
     		notes = "Delete Request For Kid", response = String.class)
@@ -4485,7 +4524,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/request", method = RequestMethod.DELETE)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(
     		value = "DELETE_ALL_REQUEST_FOR_KID", nickname = "DELETE_ALL_REQUEST_FOR_KID",
     		notes = "Delete All Request For Kid", response = String.class)
@@ -4509,7 +4548,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/request/{id}", method = RequestMethod.DELETE)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(
     		value = "DELETE_KID_REQUEST_BY_ID", nickname = "DELETE_KID_REQUEST_BY_ID",
     		notes = "Delete Kid Request By Id", response = String.class)
@@ -4542,7 +4581,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/geofences", method = RequestMethod.POST)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(
     		value = "SAVE_GEOFENCE_FOR_KID", nickname = "SAVE_GEOFENCE_FOR_KID",
     		notes = "Save Geofence For Kid", response = GeofenceDTO.class)
@@ -4583,7 +4622,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/geofences", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(
     		value = "GET_ALL_GEOFENCES_FOR_KID", nickname = "GET_ALL_GEOFENCES_FOR_KID",
     		notes = "Get All Geofences for kid", response = Iterable.class)
@@ -4613,7 +4652,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/geofences/{id}", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(
     		value = "GET_GEOFENCE_BY_ID", nickname = "GET_GEOFENCE_BY_ID",
     		notes = "Get Geofence By Id", response = Iterable.class)
@@ -4642,7 +4681,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/geofences/{id}/alerts", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(
     		value = "GET_GEOFENCE_ALERTS", nickname = "GET_GEOFENCE_ALERTS",
     		notes = "Get Geofence Alerts", response = Iterable.class)
@@ -4674,7 +4713,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/geofences/{id}/alerts", method = RequestMethod.DELETE)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(
     		value = "DELETE_GEOFENCE_ALERTS", nickname = "DELETE_GEOFENCE_ALERTS",
     		notes = "Delete Geofence Alerts", response = String.class)
@@ -4703,7 +4742,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/geofences/{id}/alerts", method = RequestMethod.POST)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(
     		value = "SAVE_GEOFENCE_ALERTS", nickname = "SAVE_GEOFENCE_ALERTS",
     		notes = "Save Geofence Alerts", response = GeofenceAlertDTO.class)
@@ -4747,7 +4786,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/geofences/delete", method = RequestMethod.POST)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(
     		value = "DELETE_GEOFENCES_FOR_KID", nickname = "DELETE_GEOFENCES_FOR_KID",
     		notes = "Delete Geofences For Kid", response = String.class)
@@ -4779,7 +4818,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/geofences/{id}", method = RequestMethod.DELETE)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(
     		value = "DELETE_GEOFENCE_BY_ID", nickname = "DELETE_GEOFENCE_BY_ID",
     		notes = "Delete Geofence By Id", response = String.class)
@@ -4810,7 +4849,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/geofences", method = RequestMethod.DELETE)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(
     		value = "DELETE_ALL_GEOFENCES_FOR_KID", nickname = "DELETE_ALL_GEOFENCES_FOR_KID",
     		notes = "Delete All Geofences For Kid", response = String.class)
@@ -4846,7 +4885,7 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/photos", method = RequestMethod.POST)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "SAVE_DEVICE_PHOTO", nickname = "SAVE_DEVICE_PHOTO", 
     	notes = "Save Device Photo",
             response = DevicePhotoDTO.class)
@@ -4882,7 +4921,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/photos", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#kid) )")
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "GET_DEVICE_PHOTOS", nickname = "GET_DEVICE_PHOTOS",
     	notes = "Get Device Photos", response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<DevicePhotoDTO>>> getDevicePhotos(
@@ -4904,43 +4943,7 @@ public class ChildrenController extends BaseController
         return null;
     }
     
-    
-    /**
-     * 
-     * @param kid
-     * @param terminal
-     * @param contact
-     * @return
-     * @throws Throwable
-     */
-   @RequestMapping(value = "/{kid}/terminal/{terminal}/photos/{photo}", method = RequestMethod.GET)
-   @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-   		+ "&& @authorizationService.isYourGuardian(#kid) )")
-   @ApiOperation(value = "GET_DEVICE_PHOTO", nickname = "GET_DEVICE_PHOTO",
-   	notes = "Get Device Photo", response = DevicePhotoDTO.class)
-   public ResponseEntity<APIResponse<ContactDTO>> getDevicePhoto(
-   		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
-       		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
-        			@PathVariable String kid,
-        	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
-   			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
-    				@PathVariable String terminal,
-    		@ApiParam(name = "photo", value = "Photo Identifier", required = true)
- 				@Valid 
- 				@DevicePhotoShouldExists(message = "{device.photo.not.exists}")
- 				@PathVariable String photo) 
-   		throws Throwable {
- 	   
- 	   logger.debug("Get Device Photo");
- 	   
- 	   // Get Terminal
-       final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
-   			new ObjectId(terminal), new ObjectId(kid)))
-   			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
-       
-   	
-      return null;
-   }
+   
    
    
    /**
@@ -4950,7 +4953,7 @@ public class ChildrenController extends BaseController
     */
    @RequestMapping(value = "/{kid}/terminal/{terminal}/photos", method = RequestMethod.DELETE)
    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-   		+ "&& @authorizationService.isYourGuardian(#kid) )")
+   		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
    @ApiOperation(value = "DELETE_ALL_DEVICE_PHOTOS", 
    	nickname = "DELETE_ALL_DEVICE_PHOTOS",
    	notes = "Delete All Device Photos", response = String.class)
@@ -4982,7 +4985,7 @@ public class ChildrenController extends BaseController
     */
    @RequestMapping(value = "/{kid}/terminal/{terminal}/photos/delete", method = RequestMethod.POST)
    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-   		+ "&& @authorizationService.isYourGuardian(#kid) )")
+   		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
    @ApiOperation(value = "DELETE_DEVICE_PHOTOS", 
    	nickname = "DELETE_DEVICE_PHOTOS",
    	notes = "Delete Device Photos", response = String.class)
@@ -5018,7 +5021,7 @@ public class ChildrenController extends BaseController
     */
   @RequestMapping(value = "/{kid}/terminal/{terminal}/photos/{photo}", method = RequestMethod.GET)
   @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-  		+ "&& @authorizationService.isYourGuardian(#kid) )")
+  		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
   @ApiOperation(value = "GET_DEVICE_PHOTO_DETAIL", nickname = "GET_DEVICE_PHOTO_DETAIL",
   	notes = "Get Contact Detail", response = ContactDTO.class)
   public ResponseEntity<APIResponse<DevicePhotoDTO>> getDevicePhotoDetail(
@@ -5053,7 +5056,7 @@ public class ChildrenController extends BaseController
    */
   @RequestMapping(value = "/{kid}/terminal/{terminal}/photos/{photo}/disable", method = RequestMethod.POST)
   @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-  		+ "&& @authorizationService.isYourGuardian(#kid) )")
+  		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
   @ApiOperation(value = "DISABLE_DEVICE_PHOTO", 
   	nickname = "DISABLE_DEVICE_PHOTO",
   	notes = "Disable Contact From Terminal", response = String.class)
@@ -5089,7 +5092,7 @@ public class ChildrenController extends BaseController
   */
   @RequestMapping(value = "/{kid}/terminal/{terminal}/photos/disable", method = RequestMethod.GET)
   @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-  		+ "&& @authorizationService.isYourGuardian(#kid) )")
+  		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
   @ApiOperation(value = "GET_LIST_OF_DISABLED_DEVICE_PHOTOS", 
   	nickname = "GET_LIST_OF_DISABLED_DEVICE_PHOTOS",
   	notes = "Get List Of Disabled Device Photos", response = Iterable.class)

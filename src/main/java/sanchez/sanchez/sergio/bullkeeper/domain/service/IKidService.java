@@ -126,6 +126,15 @@ public interface IKidService {
     KidGuardianDTO findSupervisedChildrenNoConfirmedById(final ObjectId id);
     
     /**
+     * Find Supervised Child Confirmed By Id
+     * @param guardian
+     * @param kid
+     * @return
+     */
+    KidGuardianDTO findSupervisedChildConfirmedById(final ObjectId guardian, final ObjectId kid);
+    
+    
+    /**
      * Delete Supervised Children No Confirmed
      * @param guardian
      */

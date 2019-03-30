@@ -367,6 +367,28 @@ public class AuthorizationServiceImpl implements IAuthorizationService {
         }
 		return canTalk;
 	}
+	
+	/**
+	 * Is Your Guardian And Has Admin Permission
+	 */
+	@Override
+	public Boolean isYourGuardianAndHasAdminPermission(final String id) {
+		boolean isYourGuardian = Boolean.FALSE;
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (!(auth instanceof AnonymousAuthenticationToken) && 
+        		id != null && !id.isEmpty() && ObjectId.isValid(id)) {
+            
+        	final CommonUserDetailsAware<ObjectId> userDetails = 
+            		(CommonUserDetailsAware<ObjectId>) auth.getPrincipal();
+            
+        	// Check is your guardian
+            isYourGuardian = supervisedChildrenRepository
+            	.countByGuardianIdAndKidIdAndRoleAndIsConfirmedTrue(userDetails.getUserId(), 
+            			new ObjectId(id), GuardianRolesEnum.ADMIN) > 0;
+            
+        }
+        return isYourGuardian;
+	}
 
     /**
      * Init
@@ -377,4 +399,6 @@ public class AuthorizationServiceImpl implements IAuthorizationService {
         Assert.notNull(guardianRepository, "Guardian Repository can not be null");
 
     }
+
+	
 }
