@@ -97,7 +97,6 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ContactShouldEx
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.DayNameValidator;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.DevicePhotoShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.GeofenceShouldExists;
-import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.GuardianShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.KidRequestShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.KidShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.PhoneNumberBlockedShouldExists;
@@ -175,7 +174,6 @@ import sanchez.sanchez.sergio.bullkeeper.web.rest.response.ChildrenResponseCode;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.response.CommentResponseCode;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.response.ContactResponseCode;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.response.GeofenceResponseCode;
-import sanchez.sanchez.sergio.bullkeeper.web.rest.response.ImageResponseCode;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.response.SmsResponseCode;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.response.SocialMediaResponseCode;
 import sanchez.sanchez.sergio.bullkeeper.web.security.userdetails.CommonUserDetailsAware;
@@ -4413,6 +4411,13 @@ public class ChildrenController extends BaseController
     	
     	// Add Kid Request
     	final KidRequestDTO kidRequestDTO = terminalService.addKidRequest(kidRequest);
+    	
+    	// Save Alert
+		alertService.save(AlertLevelEnum.DANGER, messageSourceResolver.resolver("add.request.for.kid."+ kidRequestDTO.getType().toLowerCase() +".title",
+    			new Object[] { kidRequestDTO.getKid().getFirstName() }),
+    			messageSourceResolver.resolver("add.request.for.kid."+ kidRequestDTO.getType().toLowerCase() +".description", 
+    					new Object[] { kidRequestDTO.getKid().getFirstName(), kidRequestDTO.getTerminal().getDeviceName() } ), 
+    			new ObjectId(kid), AlertCategoryEnum.KID_REQUEST);
     	
     	// Push Event
     	this.applicationEventPublisher
