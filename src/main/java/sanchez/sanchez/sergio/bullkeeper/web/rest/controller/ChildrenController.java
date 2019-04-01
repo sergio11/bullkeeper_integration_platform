@@ -2508,12 +2508,21 @@ public class ChildrenController extends BaseController
       final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
   			new ObjectId(terminal), new ObjectId(kid)))
   			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+     
+      
       
       // Delete all contacts
       terminalService.deleteAllContacts(
    		   new ObjectId(terminalDTO.getKid()), 
    		   new ObjectId(terminalDTO.getIdentity()));
   	
+      // Save Alert
+      alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver("all.contacts.deleted.from.terminal.title",
+  			new Object[] { terminalDTO.getDeviceName() }),
+  			messageSourceResolver.resolver("all.contacts.deleted.from.terminal.description", 
+  					new Object[] { terminalDTO.getDeviceName() } ), 
+  			new ObjectId(kid), AlertCategoryEnum.CONTACTS);
+      
 	   // Create and send response
       return ApiHelper.<String>createAndSendResponse(ContactResponseCode.ALL_CONTACTS_DELETED, 
          		HttpStatus.OK, messageSourceResolver.resolver("all.contacts.deleted"));
@@ -2551,11 +2560,20 @@ public class ChildrenController extends BaseController
   			new ObjectId(terminal), new ObjectId(kid)))
   			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
       
+    
+      
       // Delete all contacts
       terminalService.deleteContacts(
    		   new ObjectId(terminalDTO.getKid()), 
    		   new ObjectId(terminalDTO.getIdentity()),
    		   contactsList);
+      
+      // Save Alert
+      alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver("contacts.deleted.from.terminal.title",
+  			new Object[] { terminalDTO.getDeviceName() }),
+  			messageSourceResolver.resolver("contacts.deleted.from.terminal.description", 
+  					new Object[] { terminalDTO.getDeviceName() } ), 
+  			new ObjectId(kid), AlertCategoryEnum.CONTACTS);
   	
 	   // Create and send response
       return ApiHelper.<String>createAndSendResponse(ContactResponseCode.CONTACTS_DELETED, 
@@ -2596,11 +2614,19 @@ public class ChildrenController extends BaseController
  			new ObjectId(terminal), new ObjectId(kid)))
  			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
      
+
      // Delete Contact
      terminalService.deleteContact(
   		   new ObjectId(terminalDTO.getKid()), 
   		   new ObjectId(terminalDTO.getIdentity()),
   		   new ObjectId(contact));
+     
+  // Save Alert
+     alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver("contact.deleted.from.terminal.title",
+ 			new Object[] { terminalDTO.getDeviceName() }),
+ 			messageSourceResolver.resolver("contact.deleted.from.terminal.description", 
+ 					new Object[] { terminalDTO.getDeviceName() } ), 
+ 			new ObjectId(kid), AlertCategoryEnum.CONTACTS);
  	
 	   // Create and send response
      return ApiHelper.<String>createAndSendResponse(ContactResponseCode.SINGLE_CONTACT_DELETED, 
@@ -2739,6 +2765,13 @@ public class ChildrenController extends BaseController
    // Save Contacts
    final Iterable<ContactDTO> contactsSaved = terminalService.saveContacts(contacts);
    
+// Save Alert
+   alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver("contacts.saved.from.terminal.title",
+			new Object[] { contacts.size(), terminalDTO.getDeviceName() }),
+			messageSourceResolver.resolver("contacts.saved.from.terminal.description", 
+					new Object[] { contacts.size(), terminalDTO.getDeviceName() } ), 
+			new ObjectId(kid), AlertCategoryEnum.CONTACTS);
+   
    // Create and send response
    return ApiHelper.<Iterable<ContactDTO>>createAndSendResponse(ContactResponseCode.CONTACTS_SAVED, 
       		HttpStatus.OK, contactsSaved);
@@ -2774,8 +2807,16 @@ public class ChildrenController extends BaseController
 				new ObjectId(terminal), new ObjectId(kid)))
 				 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
 	   
+
 	   // Save Contact
 	   final ContactDTO contactDTO = terminalService.saveContact(contact);
+	   
+	// Save Alert
+	   alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver("contact.saved.from.terminal.title",
+				new Object[] { contact.getName(), terminalDTO.getDeviceName() }),
+				messageSourceResolver.resolver("contact.saved.from.terminal.description", 
+						new Object[] { contact.getName(), terminalDTO.getDeviceName() } ), 
+				new ObjectId(kid), AlertCategoryEnum.CONTACTS);
 	  
 	    // Create and send response
 	    return ApiHelper.<ContactDTO>createAndSendResponse(ContactResponseCode.CONTACT_SAVED, 
@@ -3695,6 +3736,15 @@ public class ChildrenController extends BaseController
     	final PhoneNumberBlockedDTO phoneNumberBlocked = 
     			terminalService.addPhoneNumberBlocked(addPhoneNumberBlocked);
 
+   
+    	// Save Alert
+    	alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver("add.phone.number.blocked.title", 
+    			new Object[] { phoneNumberBlocked.getPhoneNumber(), terminalDTO.getModel(), terminalDTO.getDeviceName() } ),
+    			messageSourceResolver.resolver("add.phone.number.blocked.description", 
+    					new Object[] { phoneNumberBlocked.getPhoneNumber(), terminalDTO.getModel(), terminalDTO.getDeviceName() }), 
+    			new ObjectId(kid), AlertCategoryEnum.PHONE_NUMBERS);
+    	
+    	
     	// Publish Event
     	this.applicationEventPublisher
 			.publishEvent(new AddPhoneNumberBlockedEvent(this, 
@@ -3739,6 +3789,13 @@ public class ChildrenController extends BaseController
     	
     	// Unblock All Phone Numbers
     	terminalService.unBlockAllPhoneNumbers();
+    	
+    	// Save Alert
+    	alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver("all.phone.numbers.unblocked.title", 
+    			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ),
+    			messageSourceResolver.resolver("all.phone.numbers.unblocked.description", 
+    					new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() }), 
+    			new ObjectId(kid), AlertCategoryEnum.PHONE_NUMBERS);
     	
     	// Publish Event
     	this.applicationEventPublisher
@@ -3786,6 +3843,15 @@ public class ChildrenController extends BaseController
     	terminalService.unBlockPhoneNumber(new ObjectId(terminalDTO.getKid()), 
     			new ObjectId(terminalDTO.getIdentity()), phoneNumberBlocked);
     	
+    	
+    	// Save Alert
+    	alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver("phone.number.unblocked.title", 
+    			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ),
+    			messageSourceResolver.resolver("phone.number.unblocked.description", 
+    					new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() }), 
+    			new ObjectId(kid), AlertCategoryEnum.PHONE_NUMBERS);
+    	
+    	
     	// Publish Event
     	this.applicationEventPublisher
 			.publishEvent(new DeletePhoneNumberBlockedEvent(this, kid, terminal,
@@ -3821,9 +3887,71 @@ public class ChildrenController extends BaseController
     	
     	logger.debug("Terminal Heartbeat");
     	
+    	// Get Terminal
+    	final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+    			new ObjectId(terminal), new ObjectId(kid)))
+    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+    	
     	// Save HeartBeat
     	terminalService.saveHeartbeat(terminalHeartbeat);
     	
+ 
+    	if(!terminalHeartbeat.isAccessFineLocationEnabled())
+        	alertService.save(AlertLevelEnum.DANGER, messageSourceResolver.resolver("terminal.access.fine.location.disabled.title", 
+        			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ) , 
+        			messageSourceResolver.resolver("terminal.access.fine.location.disabled.description", 
+        	    			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ),
+        			new ObjectId(kid), AlertCategoryEnum.TERMINALS);
+    	
+    	if(!terminalHeartbeat.isAdminAccessEnabled())
+        	alertService.save(AlertLevelEnum.DANGER, messageSourceResolver.resolver("terminal.admin.access.disabled.title", 
+        			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ) , 
+        			messageSourceResolver.resolver("terminal.admin.access.disabled.description", 
+        	    			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ),
+        			new ObjectId(kid), AlertCategoryEnum.TERMINALS);
+    	
+    	if(!terminalHeartbeat.isAppsOverlayEnabled())
+        	alertService.save(AlertLevelEnum.DANGER, messageSourceResolver.resolver("terminal.apps.overlay.disabled.title", 
+        			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ) , 
+        			messageSourceResolver.resolver("terminal.apps.overlay.disabled.description", 
+        	    			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ),
+        			new ObjectId(kid), AlertCategoryEnum.TERMINALS);
+    	
+    	
+    	if(!terminalHeartbeat.isHighAccuraccyLocationEnabled())
+        	alertService.save(AlertLevelEnum.DANGER, messageSourceResolver.resolver("terminal.high.accuraccy.location.disabled.title", 
+        			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ) , 
+        			messageSourceResolver.resolver("terminal.high.accuraccy.location.disabled.description", 
+        	    			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ),
+        			new ObjectId(kid), AlertCategoryEnum.TERMINALS);
+    	
+    	if(!terminalHeartbeat.isReadCallLogEnabled())
+        	alertService.save(AlertLevelEnum.DANGER, messageSourceResolver.resolver("terminal.read.call.log.disabled.title", 
+        			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ) , 
+        			messageSourceResolver.resolver("terminal.read.call.log.disabled.description", 
+        	    			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ),
+        			new ObjectId(kid), AlertCategoryEnum.TERMINALS);
+    	
+    	if(!terminalHeartbeat.isReadContactsEnabled())
+        	alertService.save(AlertLevelEnum.DANGER, messageSourceResolver.resolver("terminal.read.contacts.disabled.title", 
+        			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ) , 
+        			messageSourceResolver.resolver("terminal.read.contacts.disabled.description", 
+        	    			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ),
+        			new ObjectId(kid), AlertCategoryEnum.TERMINALS);
+    	
+    	if(!terminalHeartbeat.isUsageStatsAllowed())
+        	alertService.save(AlertLevelEnum.DANGER, messageSourceResolver.resolver("terminal.usage.stats.not.allowed.title", 
+        			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ) , 
+        			messageSourceResolver.resolver("terminal.usage.stats.not.allowed.description", 
+        	    			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ),
+        			new ObjectId(kid), AlertCategoryEnum.TERMINALS);
+    	
+    	if(!terminalHeartbeat.isWriteExternalStorageEnabled())
+        	alertService.save(AlertLevelEnum.DANGER, messageSourceResolver.resolver("terminal.write.external.storage.disabled.title", 
+        			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ) , 
+        			messageSourceResolver.resolver("terminal.write.external.storage.disabled.description", 
+        	    			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ),
+        			new ObjectId(kid), AlertCategoryEnum.TERMINALS);
     	
     	// Create and send response
     	return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.TERMINAL_HEARTBEAT_NOTIFIED_SUCCESSFULLY, HttpStatus.OK, 
@@ -3849,7 +3977,20 @@ public class ChildrenController extends BaseController
     	
     	logger.debug("Save Terminal Heartbeat Configuration");
     
+    	// Get Terminal
+    	final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+    			new ObjectId(terminal), new ObjectId(kid)))
+    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+    	
     	terminalService.saveHeartbeatConfiguration(configuration);
+    
+    	
+    	// Save Alert
+    	alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver("terminal.heartbeat.configuration.title", 
+    			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ),
+    			messageSourceResolver.resolver("terminal.heartbeat.configuration.description", 
+    					new Object[] { configuration.getAlertThresholdInMinutes(), terminalDTO.getModel(), terminalDTO.getDeviceName() }), 
+    			new ObjectId(kid), AlertCategoryEnum.TERMINALS);
     	
     	final TerminalHeartbeatDTO terminalHeartbeatConfiguration = 
     			terminalService.getHeartbeatConfiguration(new ObjectId(terminal), 
@@ -3989,10 +4130,22 @@ public class ChildrenController extends BaseController
 					@RequestBody SaveDayScheduledDTO saveDayScheduled
 			) throws Throwable {
       
-  	logger.debug("Get Fun Time Scheduled");
+  	logger.debug("Save Fun Time Day Scheduled");
+
+ // Get Terminal
+	final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+			new ObjectId(terminal), new ObjectId(kid)))
+			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
   	
-  	final DayScheduledDTO dayScheduledDTO = terminalService.saveFunTimeDayScheduled(new ObjectId(kid), 
-				new ObjectId(terminal), FunTimeDaysEnum.valueOf(day), saveDayScheduled);
+  	final DayScheduledDTO dayScheduledDTO = terminalService.saveFunTimeDayScheduled(new ObjectId(terminalDTO.getKid()), 
+				new ObjectId(terminalDTO.getIdentity()), FunTimeDaysEnum.valueOf(day), saveDayScheduled);
+  	
+  	// Save Alert
+	alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver("terminal.save.fun.time.day.scheduled.title", 
+			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ),
+			messageSourceResolver.resolver("terminal.save.fun.time.day.scheduled.description", 
+					new Object[] { saveDayScheduled.getDay(), terminalDTO.getModel(), terminalDTO.getDeviceName() }), 
+			new ObjectId(kid), AlertCategoryEnum.FUN_TIME);
   
   	// Publish Event
 	this.applicationEventPublisher
@@ -4026,10 +4179,24 @@ public class ChildrenController extends BaseController
         
     	logger.debug("Save Fun Time Scheduled");
     	
+    	 // Get Terminal
+    	final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+    			new ObjectId(terminal), new ObjectId(kid)))
+    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+    	
     	// Save Fun Time Scheduled
     	final FunTimeScheduledDTO funTimeScheduledDTO = 
     			terminalService.saveFunTimeScheduledByKid(
-    					new ObjectId(kid), new ObjectId(terminal), saveFunTimeScheduledDTO);
+    					new ObjectId(terminalDTO.getKid()), new ObjectId(terminalDTO.getIdentity()), 
+    					saveFunTimeScheduledDTO);
+    
+    	// Save Alert
+    	alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver("terminal.save.fun.time.scheduled.title", 
+    			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ),
+    			messageSourceResolver.resolver("terminal.save.fun.time.scheduled.description", 
+    					new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() }), 
+    			new ObjectId(kid), AlertCategoryEnum.FUN_TIME);
+      
     	
     	// Publish Event
     	this.applicationEventPublisher
@@ -4132,6 +4299,14 @@ public class ChildrenController extends BaseController
     	// Save Scheduled Block
     	final ScheduledBlockDTO scheduledBlock = scheduledBlockService.save(saveScheduledBlockDTO);
     	    
+    	
+    	// Save Alert
+    	alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver("save.scheduled.block.title", 
+    			new Object[] { scheduledBlock.getName() } ),
+    			messageSourceResolver.resolver("save.scheduled.block.description", 
+    					new Object[] { scheduledBlock.getName() }), 
+    			new ObjectId(kid), AlertCategoryEnum.SCHEDULED_BLOCK);
+    	
     	// PUblish Event
     	this.applicationEventPublisher
     		.publishEvent(new ScheduledBlockSavedEvent(this, scheduledBlock, 
@@ -4169,6 +4344,14 @@ public class ChildrenController extends BaseController
     	// Save Status
     	scheduledBlockService.saveStatus(saveScheduledBlockStatus);
     	
+    	// Save Alert
+    	alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver("save.scheduled.block.status.title", 
+    			new Object[] { saveScheduledBlockStatus.size() } ),
+    			messageSourceResolver.resolver("save.scheduled.block.status.description", 
+    					new Object[] { saveScheduledBlockStatus.size() }), 
+    			new ObjectId(kid), AlertCategoryEnum.SCHEDULED_BLOCK);
+    	
+    	
     	// Publish Event
     	this.applicationEventPublisher
 			.publishEvent(new ScheduledBlockStatusChangedEvent(this,
@@ -4200,6 +4383,11 @@ public class ChildrenController extends BaseController
         
         // Delete all scheduled block by child id
         scheduledBlockService.deleteByKidId(new ObjectId(kid));
+        
+        // Save Alert
+    	alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver("delete.all.scheduled.block.title"),
+    			messageSourceResolver.resolver("delete.all.scheduled.block.description"), 
+    			new ObjectId(kid), AlertCategoryEnum.SCHEDULED_BLOCK);
         
         // Publish Event
     	this.applicationEventPublisher
@@ -4236,6 +4424,13 @@ public class ChildrenController extends BaseController
         
         // Delete By Child ID
         scheduledBlockService.delete(new ObjectId(block));
+      
+        
+     // Save Alert
+    	alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver("delete.scheduled.block.title"),
+    			messageSourceResolver.resolver("delete.scheduled.block.description"), 
+    			new ObjectId(kid), AlertCategoryEnum.SCHEDULED_BLOCK);
+        
         
         // Publish Event
     	this.applicationEventPublisher
@@ -4517,6 +4712,11 @@ public class ChildrenController extends BaseController
     	
     	// Delete Kid Request
     	terminalService.deleteKidRequest(new ObjectId(kid), ids);
+    
+    	 // Save Alert
+    	alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver("delete.kid.request.title"),
+    			messageSourceResolver.resolver("delete.kid.request.description"), 
+    			new ObjectId(kid), AlertCategoryEnum.KID_REQUEST);
     	
     	// Create and send response
     	return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.KID_REQUEST_DELETED, 
@@ -4541,6 +4741,11 @@ public class ChildrenController extends BaseController
     	logger.debug("Delete all request for kid -> " + kid);
     	
     	terminalService.deleteAllKidRequestByKid(new ObjectId(kid));
+    	
+    	 // Save Alert
+    	alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver("delete.all.kid.request.title"),
+    			messageSourceResolver.resolver("delete.all.kid.request.description"), 
+    			new ObjectId(kid), AlertCategoryEnum.KID_REQUEST);
     	
     	// Create and send response
     	return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.ALL_KID_REQUEST_DELETED, 
@@ -4569,6 +4774,12 @@ public class ChildrenController extends BaseController
     	
     	// Delete Kid Request
     	terminalService.deleteKidRequest(new ObjectId(kid), new ObjectId(id));
+    	
+    	
+    	 // Save Alert
+    	alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver("single.kid.request.title"),
+    			messageSourceResolver.resolver("single.kid.request.description"), 
+    			new ObjectId(kid), AlertCategoryEnum.KID_REQUEST);
     	
     	// Create and send response
     	return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.SINGLE_KID_REQUEST_DELETED, 
@@ -4604,6 +4815,12 @@ public class ChildrenController extends BaseController
     	// Save Geofence
     	final GeofenceDTO geofenceDTO = geofenceService.save(saveGeofenceDTO);
     	
+    	 // Save Alert
+    	alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver("save.geofence.for.kid.title", 
+    			new Object[] { saveGeofenceDTO.getName() }),
+    			messageSourceResolver.resolver("save.geofence.for.kid.description",
+    					 new Object[] { saveGeofenceDTO.getName() }), 
+    			new ObjectId(kid), AlertCategoryEnum.GEOFENCES);
    
     	// Push Event
     	this.applicationEventPublisher
@@ -4808,6 +5025,13 @@ public class ChildrenController extends BaseController
     	// Delete By Kid and ids
     	geofenceService.deleteByKidAndIds(new ObjectId(kid), ids);
     	
+    	 // Save Alert
+    	alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver("delete.geofence.for.kid.title", 
+    			new Object[] { ids.size() }),
+    			messageSourceResolver.resolver("delete.geofence.for.kid.description",
+    					 new Object[] { ids.size() }), 
+    			new ObjectId(kid), AlertCategoryEnum.GEOFENCES);
+    	
     	// Push Event
     	this.applicationEventPublisher
     		.publishEvent(new GeofencesDeletedEvent(this, ids, kid));
@@ -4840,6 +5064,11 @@ public class ChildrenController extends BaseController
     	// Delete Geofence By Id
     	geofenceService.deleteById(new ObjectId(kid), new ObjectId(id));
     	
+    	// Save Alert
+    	alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver("delete.single.geofence.for.kid.title"),
+    			messageSourceResolver.resolver("delete.single.geofence.for.kid.description"), 
+    			new ObjectId(kid), AlertCategoryEnum.GEOFENCES);
+    	
     	// Push Event
     	this.applicationEventPublisher
     		.publishEvent(new GeofenceDeletedEvent(this, id, kid));
@@ -4867,6 +5096,11 @@ public class ChildrenController extends BaseController
     
     	// Delete All By Kid
     	geofenceService.deleteAllByKid(new ObjectId(kid));
+    	
+    	// Save Alert
+    	alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver("delete.all.geofences.for.kid.title"),
+    			messageSourceResolver.resolver("delete.all.geofences.for.kid.description"), 
+    			new ObjectId(kid), AlertCategoryEnum.GEOFENCES);
     	
     	// Push Event
     	this.applicationEventPublisher
