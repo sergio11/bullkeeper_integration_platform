@@ -35,7 +35,7 @@ public interface IKidHAL {
             try {
     
                 ResponseEntity<APIResponse<Iterable<CommentDTO>>> methodLinkBuilder = methodOn(ChildrenController.class)
-                        .getCommentsByKidId(kidResource.getIdentity(), null, null, null, null, null, null , null);
+                        .getCommentsByKidId(kidResource.getIdentity(), null, null, null, null, null, null , null, null);
                 Link commentsLink = linkTo(methodLinkBuilder).withRel("comments");
                 kidResource.add(commentsLink);
                 

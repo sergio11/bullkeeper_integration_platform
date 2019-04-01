@@ -27,6 +27,7 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AnalysisTypeEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.BullyingLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.CommentEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.DrugsLevelEnum;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SentimentLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SocialMediaTypeEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ViolenceLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.CommentRepositoryCustom;
@@ -268,7 +269,8 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
 	@Override
 	public List<CommentEntity> getComments(final ObjectId kid, final String author, 
 			final Date from, final SocialMediaTypeEnum[] socialMedias,
-			ViolenceLevelEnum violence, DrugsLevelEnum drugs, BullyingLevelEnum bullying, AdultLevelEnum adult) {
+			ViolenceLevelEnum violence, DrugsLevelEnum drugs, BullyingLevelEnum bullying, AdultLevelEnum adult,
+			final SentimentLevelEnum sentiment) {
 		Assert.notNull(kid, "Id son can not be null");
 		Assert.notNull(from, "From can not be null");
 		Assert.isTrue(from.before(new Date()), "From must be a date before the current one");
@@ -293,10 +295,6 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
 
 		final List<Criteria> dimensionCriterias = new ArrayList<>(); 
 		
-		violence = ViolenceLevelEnum.UNKNOWN;
-		drugs = DrugsLevelEnum.UNKNOWN;
-		bullying = BullyingLevelEnum.UNKNOWN;
-		
 		// Violence Filter
 		if(violence != null && !violence.equals(ViolenceLevelEnum.UNKNOWN))
 			dimensionCriterias.add(Criteria
@@ -312,13 +310,18 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
 			dimensionCriterias.add(Criteria
 					.where("analysis_results.bullying.status").is(AnalysisStatusEnum.FINISHED.name())
 					.and("analysis_results.bullying.result").is(bullying.ordinal()));
-		// Adult Content filter
 		
+		// Adult Content filter
 		if(adult != null && !adult.equals(AdultLevelEnum.UNKNOWN))
 			dimensionCriterias.add(Criteria
 					.where("analysis_results.adult.status").is(AnalysisStatusEnum.FINISHED.name())
 					.and("analysis_results.adult.result").is(adult.ordinal()));
 	
+		if(sentiment != null && !sentiment.equals(SentimentLevelEnum.UNKNOWN))
+			dimensionCriterias.add(Criteria
+					.where("analysis_results.sentiment.status").is(AnalysisStatusEnum.FINISHED.name())
+					.and("analysis_results.sentiment.result").is(sentiment.ordinal()));
+		
 
 		if(!dimensionCriterias.isEmpty())
 			commonCriteria.andOperator(dimensionCriterias.toArray(new Criteria[dimensionCriterias.size()]));
@@ -336,7 +339,8 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
 	@Override
 	public List<CommentEntity> getComments(final List<ObjectId> identities, final String author,
 			final Date from, final SocialMediaTypeEnum[] socialMedias, final ViolenceLevelEnum violence,
-			final DrugsLevelEnum drugs, final BullyingLevelEnum bullying, final AdultLevelEnum adult) {
+			final DrugsLevelEnum drugs, final BullyingLevelEnum bullying, final AdultLevelEnum adult,
+			final SentimentLevelEnum sentiment) {
 		
 		Assert.notNull(from, "From can not be null");
 		Assert.isTrue(from.before(new Date()), "From must be a date before the current one");
@@ -367,26 +371,31 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
 		
 		
 		// Violence Filter
-		/*if(violence != null && !violence.equals(ViolenceLevelEnum.UNKNOWN))
+		if(violence != null && !violence.equals(ViolenceLevelEnum.UNKNOWN))
 			dimensionCriterias.add((Criteria
 					.where("analysis_results.violence.status").is(AnalysisStatusEnum.FINISHED.name())
-					.and("analysis_results.violence.result").is(violence.ordinal())));*/
+					.and("analysis_results.violence.result").is(violence.ordinal())));
 		// Drugs Filter
-		/*if(drugs != null && !drugs.equals(DrugsLevelEnum.UNKNOWN))
+		if(drugs != null && !drugs.equals(DrugsLevelEnum.UNKNOWN))
 			dimensionCriterias.add(Criteria
 					.where("analysis_results.drugs.status").is(AnalysisStatusEnum.FINISHED.name())
-					.and("analysis_results.drugs.result").is(drugs.ordinal()));*/
+					.and("analysis_results.drugs.result").is(drugs.ordinal()));
 		// Bullying filter
-		/*if(bullying != null && !bullying.equals(BullyingLevelEnum.UNKNOWN))
+		if(bullying != null && !bullying.equals(BullyingLevelEnum.UNKNOWN))
 			dimensionCriterias.add(Criteria
 					.where("analysis_results.bullying.status").is(AnalysisStatusEnum.FINISHED.name())
-					.and("analysis_results.bullying.result").is(bullying.ordinal()));*/
+					.and("analysis_results.bullying.result").is(bullying.ordinal()));
 		// Adult Content filter
 		if(adult != null && !adult.equals(AdultLevelEnum.UNKNOWN))
 			dimensionCriterias.add(Criteria
 					.where("analysis_results.adult.status").is(AnalysisStatusEnum.FINISHED.name())
 					.and("analysis_results.adult.result").is(adult.ordinal()));
 		
+		// Sentiment Filter
+		if(sentiment != null && !sentiment.equals(SentimentLevelEnum.UNKNOWN))
+			dimensionCriterias.add(Criteria
+					.where("analysis_results.sentiment.status").is(AnalysisStatusEnum.FINISHED.name())
+					.and("analysis_results.sentiment.result").is(sentiment.ordinal()));
 	
 		if(!dimensionCriterias.isEmpty())
 			commonCriteria.andOperator(dimensionCriterias.toArray(new Criteria[dimensionCriterias.size()]));

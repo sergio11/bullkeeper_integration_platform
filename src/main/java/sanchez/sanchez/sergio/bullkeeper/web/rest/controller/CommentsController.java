@@ -25,6 +25,7 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ValidObjectId;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AdultLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.BullyingLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.DrugsLevelEnum;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SentimentLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SocialMediaTypeEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ViolenceLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.util.ValidList;
@@ -151,7 +152,9 @@ public class CommentsController extends BaseController implements ICommentHAL {
 			@ApiParam(name = "bullying", value = "Result for bullying", required = false)
 				@RequestParam(name = "bullying", required = false) BullyingLevelEnum bullying,
 			@ApiParam(name = "adult", value = "Result for adult content", required = false)
-				@RequestParam(name = "adult", required = false) AdultLevelEnum adult) throws Throwable {
+				@RequestParam(name = "adult", required = false) AdultLevelEnum adult,
+			@ApiParam(name = "sentiment", value = "Sentiment Level", required = false)
+    			@RequestParam(name = "sentiment", required = false) SentimentLevelEnum sentiment) throws Throwable {
     	
     	if(identities != null && !identities.isEmpty()) {
     		logger.debug("Children's Identifiers -> " + identities.toString());
@@ -168,7 +171,8 @@ public class CommentsController extends BaseController implements ICommentHAL {
     	logger.debug("Adult -> " + adult);
     	
     	
-    	final Iterable<CommentDTO> comments = commentsService.getComments(identities, author, from, socialMedias, violence, drugs, bullying, adult);
+    	final Iterable<CommentDTO> comments = commentsService.getComments(identities, author, from, 
+    			socialMedias, violence, drugs, bullying, adult, sentiment);
     	
     	if(Iterables.size(comments) == 0)
     		throw new NoCommentsFoundException();

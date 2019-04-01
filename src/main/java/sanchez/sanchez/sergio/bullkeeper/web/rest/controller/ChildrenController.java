@@ -112,6 +112,7 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AlertLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.BullyingLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.DrugsLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.FunTimeDaysEnum;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SentimentLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SocialMediaTypeEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ViolenceLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.util.ValidList;
@@ -467,7 +468,9 @@ public class ChildrenController extends BaseController
 			@ApiParam(name = "bullying", value = "Result for bullying", required = false)
 				@RequestParam(name = "bullying", required = false) BullyingLevelEnum bullying,
 			@ApiParam(name = "adult", value = "Result for adult content", required = false)
-				@RequestParam(name = "adult", required = false) AdultLevelEnum adult) throws Throwable {
+				@RequestParam(name = "adult", required = false) AdultLevelEnum adult,
+			@ApiParam(name = "sentiment", value = "Sentiment Level", required = false)
+				@RequestParam(name = "sentiment", required = false) SentimentLevelEnum sentiment) throws Throwable {
         
     	logger.debug("Get Comments by kid with id: " + id);
     	logger.debug("Author's identifier -> " + author);
@@ -480,7 +483,8 @@ public class ChildrenController extends BaseController
     	logger.debug("Bullying -> " + bullying);
     	logger.debug("Adult -> " + adult);
         
-        Iterable<CommentDTO> comments = commentService.getComments(id, author, from, socialMedias, violence, drugs, bullying, adult);
+        Iterable<CommentDTO> comments = commentService.getComments(id, author, from, socialMedias,
+        		violence, drugs, bullying, adult, sentiment);
         
         if(Iterables.size(comments) == 0)
         	throw new CommentsByKidNotFoundException();

@@ -12,6 +12,7 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AnalysisTypeEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.BullyingLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.CommentEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.DrugsLevelEnum;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SentimentLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SocialMediaTypeEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ViolenceLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CommentsByKidDTO;
@@ -121,11 +122,13 @@ public interface CommentRepositoryCustom {
      * @param drugs
      * @param bullying
      * @param adult
+     * @param sentiment
      * @return
      */
     List<CommentEntity> getComments(final ObjectId kid, final String author, final Date from, 
     		final SocialMediaTypeEnum[] socialMedias, final ViolenceLevelEnum violence,
-    		final DrugsLevelEnum drugs, final BullyingLevelEnum bullying, final AdultLevelEnum adult);
+    		final DrugsLevelEnum drugs, final BullyingLevelEnum bullying, final AdultLevelEnum adult,
+    		final SentimentLevelEnum sentiment);
     
     /**
      * 
@@ -137,8 +140,10 @@ public interface CommentRepositoryCustom {
      * @param drugs
      * @param bullying
      * @param adult
+     * @param sentiment
      * @return
      */
-    List<CommentEntity> getComments(List<ObjectId> identities, String author, Date from, SocialMediaTypeEnum[] socialMedias,
-			ViolenceLevelEnum violence, DrugsLevelEnum drugs, BullyingLevelEnum bullying, AdultLevelEnum adult);
+    List<CommentEntity> getComments(final List<ObjectId> identities, final String author, final Date from, 
+    		final SocialMediaTypeEnum[] socialMedias, final ViolenceLevelEnum violence, final DrugsLevelEnum drugs, 
+    		final BullyingLevelEnum bullying, final AdultLevelEnum adult, final SentimentLevelEnum sentiment);
 }

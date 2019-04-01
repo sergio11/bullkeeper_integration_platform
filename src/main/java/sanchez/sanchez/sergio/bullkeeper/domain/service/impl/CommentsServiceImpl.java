@@ -20,6 +20,7 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AdultLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.BullyingLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.CommentEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.DrugsLevelEnum;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SentimentLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SocialMediaTypeEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ViolenceLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.CommentRepository;
@@ -119,13 +120,15 @@ public class CommentsServiceImpl implements ICommentsService {
      */
     @Override
 	public Iterable<CommentDTO> getComments(String idSon, String author, Date from, SocialMediaTypeEnum[] socialMedias,
-			ViolenceLevelEnum violence, DrugsLevelEnum drugs, BullyingLevelEnum bullying, AdultLevelEnum adult) {
+			ViolenceLevelEnum violence, DrugsLevelEnum drugs, BullyingLevelEnum bullying, AdultLevelEnum adult,
+			final SentimentLevelEnum sentiment) {
     	
     	Assert.notNull(idSon, "Id son can not be null");
 		Assert.isTrue(ObjectId.isValid(idSon), "Id Son should have a valid format");
 		Assert.isTrue(from.before(new Date()), "From must be a date before the current one");
     	
-    	final List<CommentEntity> commentEntities = commentRepository.getComments(new ObjectId(idSon), author, from, socialMedias, violence, drugs, bullying, adult);
+    	final List<CommentEntity> commentEntities = commentRepository.getComments(new ObjectId(idSon), author, from, 
+    			socialMedias, violence, drugs, bullying, adult, sentiment);
     	return commentEntityMapper.commentEntitiesToCommentDTOs(commentEntities);
 	}
     
@@ -134,14 +137,15 @@ public class CommentsServiceImpl implements ICommentsService {
      */
     @Override
 	public Iterable<CommentDTO> getComments(List<String> identities, String author, Date from,
-			SocialMediaTypeEnum[] socialMedias, ViolenceLevelEnum violence, DrugsLevelEnum drugs,
-			BullyingLevelEnum bullying, AdultLevelEnum adult) {
+			final SocialMediaTypeEnum[] socialMedias, final ViolenceLevelEnum violence, final DrugsLevelEnum drugs,
+			final BullyingLevelEnum bullying, final AdultLevelEnum adult, final SentimentLevelEnum sentiment) {
     	
     	Assert.notNull(identities, "identities can not be null");
     	Assert.isTrue(from.before(new Date()), "From must be a date before the current one");
     	
     	final List<CommentEntity> commentEntities = commentRepository.getComments(identities.stream().
-    			filter((indentity) -> ObjectId.isValid(indentity)).map((indentity) -> new ObjectId(indentity)).collect(Collectors.toList()), author, from, socialMedias, violence, drugs, bullying, adult);
+    			filter((indentity) -> ObjectId.isValid(indentity)).map((indentity) -> new ObjectId(indentity)).collect(Collectors.toList()), author, from, 
+    			socialMedias, violence, drugs, bullying, adult, sentiment);
     	return commentEntityMapper.commentEntitiesToCommentDTOs(commentEntities);
 	}
     

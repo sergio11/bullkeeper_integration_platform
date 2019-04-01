@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AdultLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.BullyingLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.DrugsLevelEnum;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SentimentLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SocialMediaTypeEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ViolenceLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CommentDTO;
@@ -72,11 +73,13 @@ public interface ICommentsService {
      * @param drugs
      * @param bullying
      * @param adult
+     * @param sentiment
      * @return
      */
     Iterable<CommentDTO> getComments(final List<String> identities, final String author, 
     		final Date from, final SocialMediaTypeEnum[] socialMedias, final ViolenceLevelEnum violence, 
-    		final DrugsLevelEnum drugs, final BullyingLevelEnum bullying, final AdultLevelEnum adult);
+    		final DrugsLevelEnum drugs, final BullyingLevelEnum bullying, final AdultLevelEnum adult,
+    		final SentimentLevelEnum sentiment);
     
     /**
      * Get Comments
@@ -88,9 +91,10 @@ public interface ICommentsService {
      * @param drugs
      * @param bullying
      * @param adult
+     * @param sentiment
      * @return
      */
     Iterable<CommentDTO> getComments(final String id, final String author, final Date from,
     		final SocialMediaTypeEnum[] socialMedias, final ViolenceLevelEnum violence, final DrugsLevelEnum drugs, BullyingLevelEnum bullying,
-    		final AdultLevelEnum adult);
+    		final AdultLevelEnum adult, final SentimentLevelEnum sentiment);
 }
