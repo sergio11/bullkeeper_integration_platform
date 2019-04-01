@@ -4637,7 +4637,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/request", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
     @ApiOperation(
     		value = "GET_ALL_REQUEST_FOR_KID", nickname = "GET_ALL_REQUEST_FOR_KID",
     		notes = "Get All Request For Kid", response = Iterable.class)
@@ -4700,7 +4700,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/request/delete", method = RequestMethod.POST)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
     @ApiOperation(
     		value = "DELETE_REQUEST_FOR_KID", nickname = "DELETE_REQUEST_FOR_KID",
     		notes = "Delete Request For Kid", response = String.class)
@@ -4733,7 +4733,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/request", method = RequestMethod.DELETE)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
     @ApiOperation(
     		value = "DELETE_ALL_REQUEST_FOR_KID", nickname = "DELETE_ALL_REQUEST_FOR_KID",
     		notes = "Delete All Request For Kid", response = String.class)
@@ -4762,7 +4762,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/request/{id}", method = RequestMethod.DELETE)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
+    		+ "&& @authorizationService.isYourGuardian(#kid) )")
     @ApiOperation(
     		value = "DELETE_KID_REQUEST_BY_ID", nickname = "DELETE_KID_REQUEST_BY_ID",
     		notes = "Delete Kid Request By Id", response = String.class)

@@ -58,10 +58,8 @@ public class KidRequestEventHandlers {
 		Assert.notNull(kidRequestCreatedEvent, "Kid Request Created Event can not be null");
 	
 	
-		final List<SupervisedChildrenEntity> supervisedChildren = supervisedChildrenRepository.findByKidIdAndRoleInAndIsConfirmedTrue(
-				new ObjectId(kidRequestCreatedEvent.getKid().getIdentity()), 
-				Arrays.asList(GuardianRolesEnum.PARENTAL_CONTROL_RULE_EDITOR,
-						GuardianRolesEnum.ADMIN));
+		final List<SupervisedChildrenEntity> supervisedChildren = supervisedChildrenRepository.findByKidIdAndIsConfirmedTrue(
+				new ObjectId(kidRequestCreatedEvent.getKid().getIdentity()));
 		
 		for(final SupervisedChildrenEntity supervisedChildrenEntity: supervisedChildren) {
 			final GuardianEntity guardian = supervisedChildrenEntity.getGuardian();
