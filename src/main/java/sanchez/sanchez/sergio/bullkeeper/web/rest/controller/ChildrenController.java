@@ -48,6 +48,7 @@ import sanchez.sanchez.sergio.bullkeeper.events.location.CurrentLocationUpdateEv
 import sanchez.sanchez.sergio.bullkeeper.events.phonenumbers.AddPhoneNumberBlockedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.phonenumbers.DeleteAllPhoneNumberBlockedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.phonenumbers.DeletePhoneNumberBlockedEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.photos.DevicePhotoDisabledEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.request.KidRequestCreatedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.scheduledblock.DeleteAllScheduledBlockEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.scheduledblock.DeleteScheduledBlockEvent;
@@ -70,6 +71,7 @@ import sanchez.sanchez.sergio.bullkeeper.exception.CallDetailsNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.CommentsByKidNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.ContactNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.CurrentLocationException;
+import sanchez.sanchez.sergio.bullkeeper.exception.DevicePhotoDetailNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.FunTimeDayScheduledNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.FunTimeScheduledNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.KidNotFoundException;
@@ -79,6 +81,7 @@ import sanchez.sanchez.sergio.bullkeeper.exception.NoAppStatsFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoAppsInstalledFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoChildrenFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoContactsFoundException;
+import sanchez.sanchez.sergio.bullkeeper.exception.NoDevicePhotosFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoGeofenceAlertsFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoGeofenceFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoKidGuardianFoundException;
@@ -96,6 +99,7 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ContactShouldEx
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ContactShouldExistsAndEnabled;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.DayNameValidator;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.DevicePhotoShouldExists;
+import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.DevicePhotoShouldExistsAndEnabled;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.GeofenceShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.KidRequestShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.KidShouldExists;
@@ -174,6 +178,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.rest.response.CallDetailResponseCod
 import sanchez.sanchez.sergio.bullkeeper.web.rest.response.ChildrenResponseCode;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.response.CommentResponseCode;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.response.ContactResponseCode;
+import sanchez.sanchez.sergio.bullkeeper.web.rest.response.DevicePhotosResponseCode;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.response.GeofenceResponseCode;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.response.SmsResponseCode;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.response.SocialMediaResponseCode;
@@ -520,7 +525,7 @@ public class ChildrenController extends BaseController
     	
     	RequestUploadFile uploadProfileImage = new RequestUploadFile(profileImage.getBytes(), 
                 profileImage.getContentType() != null ? profileImage.getContentType() : MediaType.IMAGE_PNG_VALUE, profileImage.getOriginalFilename());
-    	ImageDTO imageDTO = uploadFilesService.uploadKidProfileImage(new ObjectId(id), uploadProfileImage);
+    	ImageDTO imageDTO = kidService.uploadKidProfileImage(new ObjectId(id), uploadProfileImage);
         return ApiHelper.<ImageDTO>createAndSendResponse(ChildrenResponseCode.PROFILE_IMAGE_UPLOAD_SUCCESSFULLY, 
         		HttpStatus.OK, imageDTO);
 
@@ -4478,7 +4483,7 @@ public class ChildrenController extends BaseController
     			scheduledBlockImage.getContentType() != null ? scheduledBlockImage.getContentType() :
     				MediaType.IMAGE_PNG_VALUE, scheduledBlockImage.getOriginalFilename());
     	// Save Image
-    	ImageDTO imageDTO = uploadFilesService.uploadScheduledBlockImage(new ObjectId(kid),
+    	ImageDTO imageDTO = scheduledBlockService.uploadScheduledBlockImage(new ObjectId(kid),
     			new ObjectId(block), uploadScheduledBlockImage);
     	
     	// Publish Event
@@ -4513,7 +4518,7 @@ public class ChildrenController extends BaseController
                   		@PathVariable String image
               		) throws Throwable {
         
-        final UploadFileInfo uploadFileInfo = uploadFilesService.getImage(image);
+        final UploadFileInfo uploadFileInfo = uploadFilesService.getFileInfo(image);
         
         return ResponseEntity.ok()
         		.contentLength(uploadFileInfo.getSize())
@@ -5128,7 +5133,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{kid}/terminal/{terminal}/photos", method = RequestMethod.POST)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "SAVE_DEVICE_PHOTO", nickname = "SAVE_DEVICE_PHOTO", 
     	notes = "Save Device Photo",
             response = DevicePhotoDTO.class)
@@ -5138,11 +5144,9 @@ public class ChildrenController extends BaseController
          		@PathVariable String kid,
          	@ApiParam(name = "terminal", value = "Terminal Identity", required = true)
             	@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
-             		@PathVariable String terminal,
-            @ApiParam(name="device_photo", value = "device_photo", required = true) 
-    			@Validated(ICommonSequence.class) 
-        			@RequestBody AddDevicePhotoDTO devicePhoto,
-            @RequestPart("profile_image") MultipartFile photoFile) throws Throwable {
+             		@PathVariable String terminal,	
+            @RequestPart("devicePhoto") @Valid AddDevicePhotoDTO devicePhoto,	
+            @RequestPart("devicePhotoImage") MultipartFile photoFile) throws Throwable {
     	
     	logger.debug("Save Device Photo");
     	
@@ -5150,8 +5154,18 @@ public class ChildrenController extends BaseController
     	final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
     			new ObjectId(terminal), new ObjectId(kid)))
     			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+
+    	final RequestUploadFile uploadPhotoImage = new RequestUploadFile(photoFile.getBytes(), 
+    			photoFile.getContentType() != null ? photoFile.getContentType() : MediaType.IMAGE_PNG_VALUE, photoFile.getOriginalFilename());
+    	 
     	
-    	return null;
+    	final DevicePhotoDTO devicePhotoDTO = this.terminalService.saveDevicePhoto(
+    			new ObjectId(terminalDTO.getKid()), new ObjectId(terminalDTO.getIdentity()), devicePhoto, uploadPhotoImage);
+    	
+    	
+    	// Create and send response
+    	return ApiHelper.<DevicePhotoDTO>createAndSendResponse(DevicePhotosResponseCode.DEVICE_PHOTO_SAVED_SUCCESSFULLY, 
+        		HttpStatus.OK, devicePhotoDTO);
     }
     
     /**
@@ -5178,12 +5192,20 @@ public class ChildrenController extends BaseController
     	
     		logger.debug("Get Device Photo");
     	
-    		// Get Terminal
+    	// Get Terminal
         final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
     			new ObjectId(terminal), new ObjectId(kid)))
     			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
         
-        return null;
+        final Iterable<DevicePhotoDTO> devicePhotosList = terminalService.getDevicePhotos(
+        		new ObjectId(terminalDTO.getKid()), new ObjectId(terminalDTO.getIdentity()));
+        
+        if(Iterables.isEmpty(devicePhotosList))
+        	throw new NoDevicePhotosFoundException();
+
+        // Create and send response
+    	return ApiHelper.<Iterable<DevicePhotoDTO>>createAndSendResponse(DevicePhotosResponseCode.ALL_DEVICE_PHOTOS, 
+        		HttpStatus.OK, devicePhotosList);
     }
     
    
@@ -5216,7 +5238,12 @@ public class ChildrenController extends BaseController
    			new ObjectId(terminal), new ObjectId(kid)))
    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
        
-       return null;
+       terminalService.deleteAllDevicePhotos(
+       		new ObjectId(terminalDTO.getKid()), new ObjectId(terminalDTO.getIdentity()));
+       
+       // Create and send response
+   		return ApiHelper.<String>createAndSendResponse(DevicePhotosResponseCode.ALL_DEVICE_PHOTOS_DELETED, 
+       		HttpStatus.OK, messageSourceResolver.resolver("all.device.photos.deleted"));
  	   
    }
    
@@ -5244,14 +5271,19 @@ public class ChildrenController extends BaseController
  				@RequestBody ValidList<ObjectId> devicePhotosList) 
    		throws Throwable {
        
- 	   logger.debug("Delete all device photos");
+ 	   logger.debug("Delete device photos");
  	   
  	   // Get Terminal
        final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
    			new ObjectId(terminal), new ObjectId(kid)))
    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
        
-       return null;
+       terminalService.deleteDevicePhotos(
+          		new ObjectId(terminalDTO.getKid()), new ObjectId(terminalDTO.getIdentity()), devicePhotosList);
+          
+       // Create and send response
+      return ApiHelper.<String>createAndSendResponse(DevicePhotosResponseCode.DEVICE_PHOTOS_DELETED, 
+          		HttpStatus.OK, messageSourceResolver.resolver("device.photos.deleted"));
    }
    
    /**
@@ -5266,7 +5298,7 @@ public class ChildrenController extends BaseController
   @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
   		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
   @ApiOperation(value = "GET_DEVICE_PHOTO_DETAIL", nickname = "GET_DEVICE_PHOTO_DETAIL",
-  	notes = "Get Contact Detail", response = ContactDTO.class)
+  	notes = "Get Contact Detail", response = DevicePhotoDTO.class)
   public ResponseEntity<APIResponse<DevicePhotoDTO>> getDevicePhotoDetail(
   		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
       		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
@@ -5276,7 +5308,7 @@ public class ChildrenController extends BaseController
    				@PathVariable String terminal,
    		@ApiParam(name = "photo", value = "Device Photo Identifier", required = true)
 				@Valid 
-				@DevicePhotoShouldExists(message = "{device.photo.not.exists}")
+				@DevicePhotoShouldExistsAndEnabled(message = "{device.photo.not.exists}")
 				@PathVariable String photo) 
   		throws Throwable {
 	   
@@ -5286,9 +5318,17 @@ public class ChildrenController extends BaseController
       final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
   			new ObjectId(terminal), new ObjectId(kid)))
   			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+   
+      final DevicePhotoDTO devicePhotoDTO = Optional.ofNullable(terminalService.getDevicePhotoDetail(
+  			new ObjectId(terminalDTO.getKid()), 
+  			new ObjectId(terminalDTO.getIdentity()), 
+  			new ObjectId(photo)))
+  			 .orElseThrow(() -> { throw new DevicePhotoDetailNotFoundException(); });
+	   
       
-  	
-      return null;
+      // Create and send response
+      return ApiHelper.<DevicePhotoDTO>createAndSendResponse(DevicePhotosResponseCode.SINGLE_DEVICE_PHOTO_DETAIL, 
+          		HttpStatus.OK, devicePhotoDTO);
   }
    
   
@@ -5312,8 +5352,8 @@ public class ChildrenController extends BaseController
    				@PathVariable String terminal,
    		@ApiParam(name = "photo", value = "Photo Identifier", required = true)
   			@Valid 
-  				@DevicePhotoShouldExists(message = "{device.photo.not.exists}")
-  				@PathVariable String photo) 
+  				@DevicePhotoShouldExistsAndEnabled(message = "{device.photo.not.exists}")
+  					@PathVariable String photo) 
   		throws Throwable {
      
  	   // Get Terminal
@@ -5321,7 +5361,27 @@ public class ChildrenController extends BaseController
   			new ObjectId(terminal), new ObjectId(kid)))
   			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
       
-      return null;
+  
+      final DevicePhotoDTO devicePhotoDTO = Optional.ofNullable(terminalService.getDevicePhotoDetail(
+    		new ObjectId(terminalDTO.getKid()),
+    		new ObjectId(terminalDTO.getIdentity()), 
+  			new ObjectId(photo)))
+  			 .orElseThrow(() -> { throw new DevicePhotoDetailNotFoundException(); });
+      
+      terminalService.disableDevicePhoto(new ObjectId(terminalDTO.getKid()), 
+    		  new ObjectId(terminalDTO.getIdentity()), new ObjectId(devicePhotoDTO.getIdentity()));
+      
+      
+      // Publish Event
+	 	this.applicationEventPublisher
+	 	   		.publishEvent(new DevicePhotoDisabledEvent(
+	 	   				this, kid, terminal, devicePhotoDTO.getIdentity(),
+	 	   			devicePhotoDTO.getLocalId()));
+      
+     
+      // Create and send response
+      return ApiHelper.<String>createAndSendResponse(DevicePhotosResponseCode.SINGLE_DEVICE_PHOTO_DISABLED, 
+          		HttpStatus.OK, messageSourceResolver.resolver("single.disable.device.photo"));
  	   
   }
   
@@ -5339,7 +5399,7 @@ public class ChildrenController extends BaseController
   @ApiOperation(value = "GET_LIST_OF_DISABLED_DEVICE_PHOTOS", 
   	nickname = "GET_LIST_OF_DISABLED_DEVICE_PHOTOS",
   	notes = "Get List Of Disabled Device Photos", response = Iterable.class)
-  public ResponseEntity<APIResponse<Iterable<ContactDTO>>> getListOfDisabledDevicePhotos(
+  public ResponseEntity<APIResponse<Iterable<DevicePhotoDTO>>> getListOfDisabledDevicePhotos(
   		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
       		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
        			@PathVariable String kid,
@@ -5353,7 +5413,16 @@ public class ChildrenController extends BaseController
   			new ObjectId(terminal), new ObjectId(kid)))
   			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
       
-      return null;
+      
+      final Iterable<DevicePhotoDTO> devicePhotosDisableList = terminalService.getDevicePhotosDisabled(
+      		new ObjectId(terminalDTO.getKid()), new ObjectId(terminalDTO.getIdentity()));
+      
+      if(Iterables.isEmpty(devicePhotosDisableList))
+      		throw new NoDevicePhotosFoundException();
+
+      // Create and send response
+  	  return ApiHelper.<Iterable<DevicePhotoDTO>>createAndSendResponse(DevicePhotosResponseCode.ALL_DEVICE_PHOTOS_DISABLED, 
+      		HttpStatus.OK, devicePhotosDisableList);
  	   
   }
    

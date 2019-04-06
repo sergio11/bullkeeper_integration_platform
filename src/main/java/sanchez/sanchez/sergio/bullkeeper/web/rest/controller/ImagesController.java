@@ -16,6 +16,8 @@ import io.jsonwebtoken.lang.Assert;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import sanchez.sanchez.sergio.bullkeeper.domain.service.IGuardianService;
+import sanchez.sanchez.sergio.bullkeeper.domain.service.IKidService;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.GuardianShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ValidObjectId;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ImageDTO;
@@ -45,14 +47,21 @@ import org.springframework.web.bind.annotation.PathVariable;
 public class ImagesController extends BaseController {
 
     private static Logger logger = LoggerFactory.getLogger(ImagesController.class);
-    
+
+    private final IGuardianService guardianService;
+    private final IKidService kidService;
     private final IUploadFilesService uploadFilesService;
     
     /**
      * 
+     * @param guardianService
+     * @param kidService
      * @param uploadFilesService
      */
-    public ImagesController(IUploadFilesService uploadFilesService) {
+    public ImagesController(final IGuardianService guardianService, final IKidService kidService,
+    		final IUploadFilesService uploadFilesService) {
+        this.guardianService = guardianService;
+        this.kidService = kidService;
         this.uploadFilesService = uploadFilesService;
     }
 
@@ -77,7 +86,7 @@ public class ImagesController extends BaseController {
         
     	RequestUploadFile uploadProfileImage = new RequestUploadFile(profileImage.getBytes(), 
                 profileImage.getContentType() != null ? profileImage.getContentType() : MediaType.IMAGE_PNG_VALUE, profileImage.getOriginalFilename());
-    	ImageDTO imageDTO = uploadFilesService.uploadGuardianProfileImage(new ObjectId(id), uploadProfileImage);
+    	ImageDTO imageDTO = guardianService.uploadGuardianProfileImage(new ObjectId(id), uploadProfileImage);
        return ApiHelper.<ImageDTO>createAndSendResponse(ImageResponseCode.IMAGE_UPLOAD_SUCCESSFULLY, 
         		HttpStatus.OK, imageDTO);
 
@@ -103,7 +112,7 @@ public class ImagesController extends BaseController {
     	RequestUploadFile uploadProfileImage = new RequestUploadFile(profileImage.getBytes(), 
                 profileImage.getContentType() != null ? profileImage.getContentType() : 
                 	MediaType.IMAGE_PNG_VALUE, profileImage.getOriginalFilename());
-    	ImageDTO imageDTO = uploadFilesService.uploadKidProfileImage(new ObjectId(id), uploadProfileImage);
+    	ImageDTO imageDTO = kidService.uploadKidProfileImage(new ObjectId(id), uploadProfileImage);
        return ApiHelper.<ImageDTO>createAndSendResponse(ImageResponseCode.IMAGE_UPLOAD_SUCCESSFULLY, 
         		HttpStatus.OK, imageDTO);
 
@@ -173,7 +182,7 @@ public class ImagesController extends BaseController {
     public ResponseEntity<APIResponse<String>> deleteGuardianProfileImage(
             @ApiParam(name = "id", value = "Image Identifier", required = true) 
                 @Valid @PathVariable String id) {
-        uploadFilesService.deleteImage(id);
+        uploadFilesService.delete(id);
         return ApiHelper.<String>createAndSendResponse(ImageResponseCode.IMAGE_DELETED_SUCCESSFULLY, 
         		HttpStatus.OK, messageSourceResolver.resolver("image.deleted.successfully"));
     }
@@ -190,7 +199,7 @@ public class ImagesController extends BaseController {
     public ResponseEntity<APIResponse<String>> deleteKidProfileImage(
             @ApiParam(name = "id", value = "Image Identifier", required = true) 
                 @Valid @PathVariable String id) {
-        uploadFilesService.deleteImage(id);
+        uploadFilesService.delete(id);
         return ApiHelper.<String>createAndSendResponse(ImageResponseCode.IMAGE_DELETED_SUCCESSFULLY, 
         		HttpStatus.OK, messageSourceResolver.resolver("image.deleted.successfully"));
     }

@@ -1,21 +1,15 @@
 
 package sanchez.sanchez.sergio.bullkeeper.web.rest;
 
-import io.jsonwebtoken.lang.Assert;
-import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ImageDTO;
-import sanchez.sanchez.sergio.bullkeeper.web.uploads.models.RequestUploadFile;
+
 import sanchez.sanchez.sergio.bullkeeper.web.uploads.models.UploadFileInfo;
 import sanchez.sanchez.sergio.bullkeeper.web.uploads.service.IUploadFilesService;
-
 import java.io.IOException;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.bson.types.ObjectId;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
 
 /**
  *
@@ -43,7 +37,7 @@ public class ControllerHelper {
     	try {
             
             if(profileImageId != null && !profileImageId.isEmpty()) {
-                imageInfo = uploadFilesService.getImage(profileImageId);
+                imageInfo = uploadFilesService.getFileInfo(profileImageId);
                 if (imageInfo == null) {
                    imageInfo = getUserDefaultImage();
                 }

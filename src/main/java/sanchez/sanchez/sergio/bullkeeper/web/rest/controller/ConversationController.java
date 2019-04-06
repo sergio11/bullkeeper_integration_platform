@@ -78,8 +78,7 @@ public class ConversationController extends BaseController {
 	 * @return
 	 */
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
-	@PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-			+ "&& @authorizationService.isMemberOfTheConversation(#id) )")
+	@PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() )")
     @ApiOperation(value = "GET_CONVERSATION_BY_ID", 
     	nickname = "GET_CONVERSATION_BY_ID", notes = "Get Conversation by Id",
     	response = ConversationDTO.class)
@@ -104,8 +103,7 @@ public class ConversationController extends BaseController {
 	 * @return
 	 */
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-	@PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-			+ "&& @authorizationService.isMemberOfTheConversation(#id) )")
+	@PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() )")
     @ApiOperation(value = "DELETE_CONVERSATION_BY_ID", 
     	nickname = "DELETE_CONVERSATION_BY_ID", notes = "Delete Conversation by Id",
     	response = String.class)
@@ -137,8 +135,7 @@ public class ConversationController extends BaseController {
 	 * @return
 	 */
 	@RequestMapping(value = "/{id}/messages", method = RequestMethod.GET)
-	@PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-			+ "&& @authorizationService.isMemberOfTheConversation(#id) )")
+	@PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() )")
     @ApiOperation(value = "GET_CONVERSATION_MESSAGES", 
     	nickname = "GET_CONVERSATION_MESSAGES", notes = "Get Conversation Messages",
     	response = Iterable.class)
@@ -169,8 +166,7 @@ public class ConversationController extends BaseController {
 	 * @return
 	 */
 	@RequestMapping(value = "/{id}/messages", method = RequestMethod.DELETE)
-	@PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-			+ "&& @authorizationService.isMemberOfTheConversation(#id) )")
+	@PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole())")
     @ApiOperation(value = "DELETE_CONVERSATION_MESSAGES", 
     	nickname = "DELETE_CONVERSATION_MESSAGES", notes = "Delete Conversation Messages",
     	response = String.class)
@@ -218,8 +214,7 @@ public class ConversationController extends BaseController {
 	 * @return
 	 */
 	@RequestMapping(value = "/{id}/messages", method = RequestMethod.POST)
-	@PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-			+ "&& @authorizationService.isMemberOfTheConversation(#id) )")
+	@PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() )")
     @ApiOperation(value = "ADD_MESSAGE", 
     	nickname = "ADD_MESSAGE", notes = "Add Message",
     	response = MessageDTO.class)
@@ -254,8 +249,7 @@ public class ConversationController extends BaseController {
 	 * @return
 	 */
 	@RequestMapping(value = "/{id}/messages/viewed", method = RequestMethod.POST)
-	@PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-			+ "&& @authorizationService.isMemberOfTheConversation(#id) )")
+	@PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() )")
     @ApiOperation(value = "SET_MESSAGES_AS_VIEWED", 
     	nickname = "SET_MESSAGES_AS_VIEWED", notes = "Set Messages As Viewed",
     	response = String.class)

@@ -1,8 +1,13 @@
 package sanchez.sanchez.sergio.bullkeeper.domain.service.impl;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
+
+import org.apache.commons.io.IOUtils;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +16,7 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
@@ -44,8 +50,10 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.request.UpdateGuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.UpdateKidDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ChildrenOfGuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.GuardianDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ImageDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.UserSystemPreferencesDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.uploads.models.RequestUploadFile;
 import sanchez.sanchez.sergio.bullkeeper.web.uploads.service.IUploadFilesService;
 
 /**
@@ -466,7 +474,7 @@ public class GuardianServiceImpl implements IGuardianService {
 		
 		if(imageId != null && !imageId.isEmpty())
 			// Delete Image
-	    	uploadFilesService.deleteImage(imageId);
+	    	uploadFilesService.delete(imageId);
     	
     	// Delete Guardian
 		guardianRepository.delete(guardian);
@@ -534,6 +542,20 @@ public class GuardianServiceImpl implements IGuardianService {
     public String getProfileImage(final ObjectId id) {
         return guardianRepository.getGuardianImageIdByUserId(id);
     }
+    
+    /**
+     * Delete Profile Image
+     */
+    @Override
+	public void deleteProfileImage(final ObjectId id) {
+    	Assert.notNull(id, "Id can not be null");
+		
+    	// Get Profile Image
+    	final String profileImage = getProfileImage(id);
+    	// Delete Image
+    	this.uploadFilesService.delete(profileImage);
+    	
+	}
     
     /**
      * Save Preferences
@@ -606,6 +628,52 @@ public class GuardianServiceImpl implements IGuardianService {
     	guardianRepository.changePassword(guardian, newPassword);
 	}
     
+    
+    /**
+     * Upload Guardian Profile Image
+     * @param userId
+     * @param requestUploadFile
+     */
+    @Override
+    public ImageDTO uploadGuardianProfileImage(final ObjectId userId, 
+    		final RequestUploadFile requestUploadFile) {
+        Assert.notNull(userId, "User Id can not be null");
+        Assert.notNull(requestUploadFile, "Request Upload File can not be null");
+        final GuardianEntity parentEntity = guardianRepository.findOne(userId);
+        final String profileImageId = uploadFilesService.save(requestUploadFile);
+        if(parentEntity.getProfileImage() != null)
+        	uploadFilesService.delete(parentEntity.getProfileImage());
+        parentEntity.setProfileImage(profileImageId);
+        guardianRepository.save(parentEntity);
+        return uploadFilesService.getImage(profileImageId);
+    }
+    
+    
+    /**
+     * Upload Parent Profile Image From URL
+     * @param userId
+     * @param imageUrl
+     */
+    @Override
+    public ImageDTO uploadGuardianProfileImageFromUrl(final ObjectId userId, final String imageUrl) {
+        Assert.notNull(userId, "User Id can not be null");
+        Assert.notNull(imageUrl, "Image URL can not be null");
+        Assert.hasLength(imageUrl, "Image URL can not be empty");
+        try {
+            URL url = new URL(imageUrl);
+            byte[] content = IOUtils.toByteArray(url.openStream());
+            RequestUploadFile requestUpload  = new RequestUploadFile(content, 
+                    MediaType.IMAGE_PNG_VALUE, "facebook_profile_image_for_" + userId.toString());
+            return uploadGuardianProfileImage(userId, requestUpload);
+        } catch (MalformedURLException ex) {
+            logger.debug(imageUrl);
+            logger.error("MalformedURLException for user " + userId.toString());
+        } catch (IOException ex) {
+            logger.error("IOException");
+        }
+        return null;
+    }
+    
     /**
      * 
      */
@@ -620,4 +688,6 @@ public class GuardianServiceImpl implements IGuardianService {
         Assert.notNull(preferencesEntityMapper, "Preferences Entity Mapper can not be null");
         Assert.notNull(deviceGroupsService, "DeviceGroupsService can not be null");
     }
+
+	
 }

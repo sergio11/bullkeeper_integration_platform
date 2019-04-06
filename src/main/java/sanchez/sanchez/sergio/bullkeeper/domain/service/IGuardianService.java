@@ -16,9 +16,11 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.request.UpdateGuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.UpdateKidDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ChildrenOfGuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.GuardianDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ImageDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.SupervisedChildrenDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.UserSystemPreferencesDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.uploads.models.RequestUploadFile;
 
 /**
  * Guardian Service Interface
@@ -220,6 +222,13 @@ public interface IGuardianService {
     String getProfileImage(final ObjectId id);
     
     /**
+     * Delete Profile Image
+     * @param id
+     * @return
+     */
+    void deleteProfileImage(final ObjectId id);
+    
+    /**
      * Save Preferences
      * @param preferences
      * @param guardian
@@ -256,5 +265,24 @@ public interface IGuardianService {
      * @param newPassword
      */
     void changePassword(final ObjectId guardian, final String newPassword);
+    
+    
+    /**
+	 * Upload Guardian Profile Image
+	 * @param guardian
+	 * @param requestUploadFile
+	 * @return
+	 */
+    ImageDTO uploadGuardianProfileImage(final ObjectId guardian,
+    		final RequestUploadFile requestUploadFile);
+    
+    /**
+     * 
+     * Upload Guardian Profile Image From URL
+     * @param guardian
+     * @param imageUrl
+     * @return
+     */
+    ImageDTO uploadGuardianProfileImageFromUrl(final ObjectId guardian, final String imageUrl);
 
 }

@@ -6,9 +6,11 @@ import org.springframework.data.domain.Pageable;
 
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveGuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveLocationDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ImageDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidGuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.LocationDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.uploads.models.RequestUploadFile;
 
 import java.util.List;
 
@@ -204,5 +206,12 @@ public interface IKidService {
     LocationDTO getCurrentLocation(final String kid);
     
     
-   
+    /**
+     * Upload Kid Profile Image
+     * @param kid
+     * @param requestUploadFile
+     * @return
+     */
+    ImageDTO uploadKidProfileImage(final ObjectId kid, 
+    		final RequestUploadFile requestUploadFile);
 }

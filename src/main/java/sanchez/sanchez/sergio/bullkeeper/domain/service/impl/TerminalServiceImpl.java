@@ -26,6 +26,7 @@ import sanchez.sanchez.sergio.bullkeeper.mapper.AppInstalledEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.AppStatsEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.CallDetailEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.ContactEntityMapper;
+import sanchez.sanchez.sergio.bullkeeper.mapper.DevicePhotoEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.FunTimeScheduledEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.KidRequestEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.PhoneNumberEntityMapper;
@@ -39,6 +40,7 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AppStatsEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.CallDetailEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ContactEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.DayScheduledEntity;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.DevicePhotoEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.FunTimeDaysEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.FunTimeScheduledEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.KidRequestEntity;
@@ -53,10 +55,12 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.repository.AppModelReposito
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.AppStatsRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.CallDetailRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.ContactEntityRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.DevicePhotoRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.KidRequestRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.PhoneNumberBlockedRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.SmsRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.TerminalRepository;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.AddDevicePhotoDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.AddKidRequestDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.AddPhoneNumberBlockedDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppInstalledDTO;
@@ -79,6 +83,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppStatsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CallDetailDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ContactDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.DayScheduledDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.DevicePhotoDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.FunTimeScheduledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidRequestDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.PhoneNumberBlockedDTO;
@@ -86,6 +91,8 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.response.SmsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.TerminalDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.TerminalDetailDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.TerminalHeartbeatDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.uploads.models.RequestUploadFile;
+import sanchez.sanchez.sergio.bullkeeper.web.uploads.service.IUploadFilesService;
 
 /**
  * Terminal Service
@@ -192,6 +199,21 @@ public final class TerminalServiceImpl implements ITerminalService {
      * Terminal Heartbeat Entity Data Mapper
      */
     private final TerminalHeartbeatEntityDataMapper terminalHeartbeatEntityDataMapper;
+    
+    /**
+     * Upload Files Service
+     */
+    private final IUploadFilesService uploadFilesService;
+    
+    /**
+     * Device Photo Repository
+     */
+    private final DevicePhotoRepository devicePhotoRepository;
+    
+    /**
+     * Device Photo Entity Mapper
+     */
+    private final DevicePhotoEntityMapper devicePhotoEntityMapper;
 	
 
 	/**
@@ -213,6 +235,9 @@ public final class TerminalServiceImpl implements ITerminalService {
 	 * @param funTimeScheduledEntityMapper
 	 * @param appModelRepository
 	 * @param terminalHeartbeatEntityDataMapper
+	 * @param uploadFilesService
+	 * @param devicePhotoRepository
+	 * @param devicePhotoEntityMapper
 	 */
 	@Autowired
 	public TerminalServiceImpl(final TerminalEntityDataMapper terminalEntityDataMapper, 
@@ -233,7 +258,10 @@ public final class TerminalServiceImpl implements ITerminalService {
 			final KidRequestEntityMapper kidRequestMapper,
 			final FunTimeScheduledEntityMapper funTimeScheduledEntityMapper,
 			final AppModelRepository appModelRepository,
-			final TerminalHeartbeatEntityDataMapper terminalHeartbeatEntityDataMapper) {
+			final TerminalHeartbeatEntityDataMapper terminalHeartbeatEntityDataMapper,
+			final IUploadFilesService uploadFilesService,
+			final DevicePhotoRepository devicePhotoRepository,
+			final DevicePhotoEntityMapper devicePhotoEntityMapper) {
 		super();
 		this.terminalEntityDataMapper = terminalEntityDataMapper;
 		this.terminalRepository = terminalRepository;
@@ -254,6 +282,9 @@ public final class TerminalServiceImpl implements ITerminalService {
 		this.funTimeScheduledEntityMapper = funTimeScheduledEntityMapper;
 		this.appModelRepository = appModelRepository;
 		this.terminalHeartbeatEntityDataMapper = terminalHeartbeatEntityDataMapper;
+		this.uploadFilesService = uploadFilesService;
+		this.devicePhotoRepository = devicePhotoRepository;
+		this.devicePhotoEntityMapper = devicePhotoEntityMapper;
 	}
 
 	/**
@@ -1663,5 +1694,142 @@ public final class TerminalServiceImpl implements ITerminalService {
 		final Iterable<ContactEntity> contactList = contactRepository.findAllByKidIdAndTerminalIdAndDisabledTrue(kid, terminal);
 		
 		return contactEntityMapper.contactEntityToContactDTOs(contactList);
+	}
+
+	
+	/**
+	 * Save Device Photo
+	 * @param kid
+	 * @param terminal
+	 * @param devicePhoto
+	 * @param uploadPhotoImage
+	 */
+	@Override
+	public DevicePhotoDTO saveDevicePhoto(
+			final ObjectId kid, final ObjectId terminal, 
+			final AddDevicePhotoDTO devicePhoto,
+			final RequestUploadFile uploadPhotoImage) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		Assert.notNull(devicePhoto, "Device Photo can not be null");
+		Assert.notNull(uploadPhotoImage, "Upload Photo Image can not be null");
+		
+		final DevicePhotoEntity devicePhotoEntityToSave = 
+				devicePhotoEntityMapper.addDevicePhotoDtoToDevicePhotoEntity(devicePhoto);
+		
+		final DevicePhotoEntity currentDevicePhotoEntitySaved = 
+				devicePhotoRepository.findByKidIdAndTerminalIdAndLocalId(kid, terminal, 
+						devicePhoto.getLocalId());
+		
+		if(currentDevicePhotoEntitySaved != null) {
+			uploadFilesService.delete(currentDevicePhotoEntitySaved.getImageId());
+			devicePhotoEntityToSave.setId(currentDevicePhotoEntitySaved.getId());
+		}
+	
+		final String imageId = uploadFilesService.save(uploadPhotoImage);
+		devicePhotoEntityToSave.setImageId(imageId);	
+		
+		return devicePhotoEntityMapper.devicePhotoEntityToDevicePhotoDTO(
+				devicePhotoRepository.save(devicePhotoEntityToSave));
+		
+	}
+
+	/**
+	 * Get Device Photo Detail
+	 * @param kid
+	 * @param terminal
+	 * @param devicePhoto
+	 */
+	@Override
+	public DevicePhotoDTO getDevicePhotoDetail(
+			final ObjectId kid, 
+			final ObjectId terminal, 
+			final ObjectId devicePhoto) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		Assert.notNull(devicePhoto, "Device Photo can not be null");
+		
+		final DevicePhotoEntity devicePhotoEntity = 
+				devicePhotoRepository.findByKidIdAndTerminalIdAndIdAndDisabledFalse(kid, terminal, devicePhoto);
+		
+		return devicePhotoEntityMapper.devicePhotoEntityToDevicePhotoDTO(devicePhotoEntity);
+		
+	}
+
+	/**
+	 * Get Device Photos
+	 * @param kid
+	 * @param terminal
+	 */
+	@Override
+	public Iterable<DevicePhotoDTO> getDevicePhotos(final ObjectId kid, final ObjectId terminal) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		
+		final Iterable<DevicePhotoEntity> devicePhotos = 
+				devicePhotoRepository.findByKidIdAndTerminalIdAndDisabledFalse(kid, terminal);
+		
+		return devicePhotoEntityMapper.devicePhotoEntityToDevicePhotoDTO(devicePhotos);
+	}
+
+	/**
+	 * Delete All Device Photos
+	 * @param kid
+	 * @param terminal
+	 */
+	@Override
+	public void deleteAllDevicePhotos(final ObjectId kid, final ObjectId terminal) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		
+		devicePhotoRepository.deleteByKidIdAndTerminalId(kid, terminal);
+	}
+
+	/**
+	 * Delete Device Photos
+	 * @param kid
+	 * @param terminal
+	 * @param ids
+	 */
+	@Override
+	public void deleteDevicePhotos(final ObjectId kid, final ObjectId terminal, final List<ObjectId> ids) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		Assert.notNull(ids, "Ids can not be null");
+		
+		devicePhotoRepository.deleteByKidIdAndTerminalIdAndIdIn(kid, terminal, ids);
+		
+	}
+
+	/**
+	 * Get Device Photos Disabled
+	 * @param kid
+	 * @param terminal
+	 */
+	@Override
+	public Iterable<DevicePhotoDTO> getDevicePhotosDisabled(final ObjectId kid, final ObjectId terminal) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		
+		final Iterable<DevicePhotoEntity> devicePhotos = 
+				devicePhotoRepository.findByKidIdAndTerminalIdAndDisabledTrue(kid, terminal);
+		
+		return devicePhotoEntityMapper.devicePhotoEntityToDevicePhotoDTO(devicePhotos);
+	}
+
+	/**
+	 * Disable Device Photo
+	 * @param kid
+	 * @param terminal
+	 */
+	@Override
+	public void disableDevicePhoto(final ObjectId kid, final ObjectId terminal, final ObjectId devicePhoto) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(terminal, "Terminal can not be null");
+		Assert.notNull(devicePhoto, "Device Photo can not be null");
+		
+		
+		devicePhotoRepository.disableDevicePhoto(kid, terminal, devicePhoto);
+		
 	}
 }

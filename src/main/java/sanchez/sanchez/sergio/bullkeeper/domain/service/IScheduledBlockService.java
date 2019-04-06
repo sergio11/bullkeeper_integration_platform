@@ -4,7 +4,10 @@ import org.bson.types.ObjectId;
 
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveScheduledBlockDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveScheduledBlockStatusDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ImageDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ScheduledBlockDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.uploads.models.RequestUploadFile;
+import sanchez.sanchez.sergio.bullkeeper.web.uploads.models.UploadFileInfo;
 
 /**
  * Scheduled Block Service
@@ -54,6 +57,24 @@ public interface IScheduledBlockService {
 	void saveStatus(final Iterable<SaveScheduledBlockStatusDTO> scheduledStatus);
 	
 	
-	
+	/**
+	* Upload Scheduled Block Image
+	* @param kid
+	* @param blockId
+	* @param requestUploadFile
+	* @return
+	*/
+	ImageDTO uploadScheduledBlockImage(final ObjectId kid, final ObjectId blockId, 
+	    		final RequestUploadFile requestUploadFile);
+	    
+	    
+	/**
+	 * Get Scheduled Block Image
+	 * @param childId
+	 * @param blockId
+	 * @return
+	 */
+	UploadFileInfo getScheduledBlockImage(final ObjectId childId, final ObjectId blockId);
+
 	
 }

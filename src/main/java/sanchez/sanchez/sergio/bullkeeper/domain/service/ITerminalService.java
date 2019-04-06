@@ -5,6 +5,7 @@ import java.util.List;
 import org.bson.types.ObjectId;
 
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.FunTimeDaysEnum;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.request.AddDevicePhotoDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.AddKidRequestDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.AddPhoneNumberBlockedDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveAppInstalledDTO;
@@ -19,6 +20,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveTerminalDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveTerminalHeartBeatConfigurationDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveTerminalHeartbeatDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.TerminalHeartbeatDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.uploads.models.RequestUploadFile;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.TerminalStatusDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppInstalledDetailDTO;
@@ -28,6 +30,7 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AppStatsDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CallDetailDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ContactDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.DayScheduledDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.DevicePhotoDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.FunTimeScheduledDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidRequestDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.PhoneNumberBlockedDTO;
@@ -705,4 +708,63 @@ public interface ITerminalService {
      */
     Iterable<ContactDTO> getListOfDisabledContactsInTheTerminal(final ObjectId kid, final ObjectId terminal);
     
+    /**
+     * Save
+     * @param kid
+     * @param terminal
+     * @param devicePhoto
+     * @param uploadPhotoImage
+     * @return
+     */
+    DevicePhotoDTO saveDevicePhoto(final ObjectId kid, final ObjectId terminal, final AddDevicePhotoDTO devicePhoto,
+    		final RequestUploadFile uploadPhotoImage);
+    
+    
+    /**
+     * Get Device Photo Detail
+     * @param kid
+     * @param terminal
+     * @param devicePhoto
+     * @return
+     */
+    DevicePhotoDTO getDevicePhotoDetail(final ObjectId kid, final ObjectId terminal, final ObjectId devicePhoto);
+    
+    /**
+     * Get Device Photos
+     * @param kid
+     * @param terminal
+     * @return
+     */
+    Iterable<DevicePhotoDTO> getDevicePhotos(final ObjectId kid, final ObjectId terminal);
+    
+    /**
+     * Get Device Photos Disabled
+     * @param kid
+     * @param terminal
+     * @return
+     */
+    Iterable<DevicePhotoDTO> getDevicePhotosDisabled(final ObjectId kid, final ObjectId terminal);
+    
+    /**
+     * Disable Device Photo
+     * @param kid
+     * @param terminal
+     * @param devicePhoto
+     */
+    void disableDevicePhoto(final ObjectId kid, final ObjectId terminal, final ObjectId devicePhoto);
+    
+    /**
+     * Delete All Device Photos
+     * @param kid
+     * @param terminal
+     */
+    void deleteAllDevicePhotos(final ObjectId kid, final ObjectId terminal);
+    
+    /**
+     * Delete Device Photos
+     * @param kid
+     * @param terminal
+     * @param ids
+     */
+    void deleteDevicePhotos(final ObjectId kid, final ObjectId terminal, final List<ObjectId> ids);
 }

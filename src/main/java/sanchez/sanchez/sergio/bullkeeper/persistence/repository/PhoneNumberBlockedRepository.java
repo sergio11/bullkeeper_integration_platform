@@ -1,5 +1,7 @@
 package sanchez.sanchez.sergio.bullkeeper.persistence.repository;
 
+import java.util.List;
+
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
@@ -70,6 +72,17 @@ public interface PhoneNumberBlockedRepository
 	 */
 	long countByNumberOrPhoneNumberAndKidIdAndTerminalId(
 			final String number, final String phoneNumber, 
+			final ObjectId kid, final ObjectId terminal);
+	
+	/**
+	 * @param numberList
+	 * @param phoneNumberList
+	 * @param kid
+	 * @param terminal
+	 * @return
+	 */
+	long countByNumberInOrPhoneNumberInAndKidIdAndTerminalId(
+			final List<String> number, final List<String> phoneNumber, 
 			final ObjectId kid, final ObjectId terminal);
 
 	

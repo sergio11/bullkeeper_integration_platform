@@ -9,9 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
 import com.google.common.collect.Iterables;
-
 import io.jsonwebtoken.lang.Assert;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IKidService;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.ITerminalService;
@@ -29,9 +27,12 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.repository.SupervisedChildr
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.TaskRepository;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveGuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveLocationDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ImageDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidGuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.LocationDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.uploads.models.RequestUploadFile;
+import sanchez.sanchez.sergio.bullkeeper.web.uploads.models.UploadFileInfo;
 import sanchez.sanchez.sergio.bullkeeper.web.uploads.service.IUploadFilesService;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -216,7 +217,7 @@ public class KidServiceImpl implements IKidService {
     	terminalService.deleteByKid(id);
     	final String imageId = getProfileImage(id);
     	if(imageId != null && !imageId.isEmpty())
-    		uploadFilesService.deleteImage(imageId);
+    		uploadFilesService.delete(imageId);
     	alertRepository.deleteByKidId(id);
         commentRepository.deleteByKid(id);
         socialMediaRepository.deleteByKidId(id);
@@ -601,6 +602,26 @@ public class KidServiceImpl implements IKidService {
 		
 		return supervisedChildrenEntityMapper
 				.supervisedChildrenEntityToKidGuardiansDTO(supervisedChildrenEntity);
+	}
+	
+	/**
+	 * Upload Kid Profile Image
+	 * @param kid
+	 * @param requestUploadFile
+	 */
+	@Override
+	public ImageDTO uploadKidProfileImage(final ObjectId kid, final RequestUploadFile requestUploadFile) {
+		Assert.notNull(kid, "User Id can not be null");
+	    Assert.notNull(requestUploadFile, "Request Upload File can not be null");
+	    
+	    final KidEntity kidEntity = kidRepository.findOne(kid);
+	    final String profileImageId = uploadFilesService.save(requestUploadFile);
+	    if(kidEntity.getProfileImage() != null)
+	    	uploadFilesService.delete(kidEntity.getProfileImage());
+	    kidEntity.setProfileImage(profileImageId);
+	    kidRepository.save(kidEntity);
+	    return uploadFilesService.getImage(profileImageId);
+	    
 	}
 	
 	

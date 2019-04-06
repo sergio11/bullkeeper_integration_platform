@@ -295,7 +295,7 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
     				GuardianDTO parent = guardiansService.save(registerParent);
                     String profileImageUrl = facebookService.fetchUserPicture(socialAuthRequest.getToken());
                     if(profileImageUrl != null && !profileImageUrl.isEmpty())
-                            uploadFilesService.uploadGuardianProfileImageFromUrl(new ObjectId(parent.getIdentity()), profileImageUrl);
+                    	guardiansService.uploadGuardianProfileImageFromUrl(new ObjectId(parent.getIdentity()), profileImageUrl);
     				// notify event
     				applicationEventPublisher.publishEvent(new ParentRegistrationByFacebookSuccessEvent(parent.getIdentity(), this));
     				return authenticationService.createAuthenticationTokenForGuardian(parent.getEmail(), parent.getFbId(), device);
@@ -343,7 +343,7 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
     				GuardianDTO parent = guardiansService.save(registerParent);
     				
     				if(registerParent.getPicture() != null && !registerParent.getPicture().isEmpty())
-    					uploadFilesService.uploadGuardianProfileImageFromUrl(new ObjectId(parent.getIdentity()), registerParent.getPicture());
+    					guardiansService.uploadGuardianProfileImageFromUrl(new ObjectId(parent.getIdentity()), registerParent.getPicture());
 
     				// notify event
     				applicationEventPublisher.publishEvent(new ParentRegistrationByGoogleSuccessEvent(parent.getIdentity(), this));
@@ -508,7 +508,7 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
     	
     	RequestUploadFile uploadProfileImage = new RequestUploadFile(profileImage.getBytes(), 
                 profileImage.getContentType() != null ? profileImage.getContentType() : MediaType.IMAGE_PNG_VALUE, profileImage.getOriginalFilename());
-    	ImageDTO imageDTO = uploadFilesService.uploadGuardianProfileImage(selfGuardian.getUserId(), uploadProfileImage);
+    	ImageDTO imageDTO = guardiansService.uploadGuardianProfileImage(selfGuardian.getUserId(), uploadProfileImage);
         return ApiHelper.<ImageDTO>createAndSendResponse(GuardianResponseCode.PROFILE_IMAGE_UPLOAD_SUCCESSFULLY, 
         		HttpStatus.OK, imageDTO);
 
@@ -545,10 +545,7 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
     public ResponseEntity<APIResponse<String>> deleteProfileImage(
             @ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfGuardian) {
         
-    	// Get Profile Image
-    	final String profileImage = guardiansService.getProfileImage(selfGuardian.getUserId());
-    	// Delete Image
-        uploadFilesService.deleteImage(profileImage);
+    	guardiansService.deleteProfileImage(selfGuardian.getUserId());
         // Create and Send response
         return ApiHelper.<String>createAndSendResponse(GuardianResponseCode.PROFILE_IMAGE_DELETED_SUCCESSFULLY, 
         		HttpStatus.OK, messageSourceResolver.resolver("image.deleted.successfully"));

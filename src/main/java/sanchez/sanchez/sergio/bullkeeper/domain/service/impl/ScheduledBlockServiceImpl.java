@@ -17,7 +17,11 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.repository.ScheduledBlockRe
 import sanchez.sanchez.sergio.bullkeeper.util.Utils;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveScheduledBlockDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.SaveScheduledBlockStatusDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ImageDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ScheduledBlockDTO;
+import sanchez.sanchez.sergio.bullkeeper.web.uploads.models.RequestUploadFile;
+import sanchez.sanchez.sergio.bullkeeper.web.uploads.models.UploadFileInfo;
+import sanchez.sanchez.sergio.bullkeeper.web.uploads.service.IUploadFilesService;
 
 /**
  * Scheduled Block Service Impl
@@ -38,20 +42,27 @@ public final class ScheduledBlockServiceImpl implements IScheduledBlockService {
 	 * Scheduled Block Mapper
 	 */
 	private final ScheduledBlockMapper scheduledBlockMapper;
+	
+	/**
+	 * Upload File Service
+	 */
+	private final IUploadFilesService uploadFilesService;
 
 	/**
 	 * 
 	 * @param scheduledBlockRepository
 	 * @param scheduledBlockMapper
-	 * @param sseService
+	 * @param uploadFilesService
 	 */
 	@Autowired
 	public ScheduledBlockServiceImpl(
 			final ScheduledBlockRepository scheduledBlockRepository,
-			final ScheduledBlockMapper scheduledBlockMapper) {
+			final ScheduledBlockMapper scheduledBlockMapper,
+			final IUploadFilesService uploadFilesService) {
 		super();
 		this.scheduledBlockRepository = scheduledBlockRepository;
 		this.scheduledBlockMapper = scheduledBlockMapper;
+		this.uploadFilesService = uploadFilesService;
 	}
 
 	/**
@@ -229,6 +240,57 @@ public final class ScheduledBlockServiceImpl implements IScheduledBlockService {
 		if(!scheduledBlockToDisable.isEmpty())
 			scheduledBlockRepository.disableScheduledBlocks(scheduledBlockToDisable);
 		
+	}
+	
+	
+	/**
+     * Upload Scheduled Block Image
+     * @param childId
+     * @param blockId
+     * @param requestUploadFile
+     */
+    @Override
+	public ImageDTO uploadScheduledBlockImage(final ObjectId childId, final ObjectId blockId,
+			final RequestUploadFile requestUploadFile) {
+    	Assert.notNull(childId, "Child Id can not be null");
+        Assert.notNull(blockId, "Block Id can not be null");
+        Assert.notNull(requestUploadFile, "Request Upload File can not be null");
+        
+        // Get Scheduled Block
+        final ScheduledBlockEntity scheduledBlockEntity = 
+        		scheduledBlockRepository.findByIdAndKidId(blockId, childId);
+        
+        // Save File
+        final String scheduledBlockImage = uploadFilesService.save(requestUploadFile);
+        
+        if(scheduledBlockEntity.getImage() != null)
+        	uploadFilesService.delete(scheduledBlockEntity.getImage());
+        
+        scheduledBlockEntity.setImage(scheduledBlockImage);
+        
+        scheduledBlockRepository.save(scheduledBlockEntity);
+        
+        return uploadFilesService.getImage(scheduledBlockImage);
+     
+	}
+    
+    /**
+     * Get Scheduled Block Image
+     * @param childId
+     * @param blockId
+     */
+    @Override
+	public UploadFileInfo getScheduledBlockImage(final ObjectId childId, final ObjectId blockId) {
+    	Assert.notNull(childId, "Child Id can not be null");
+        Assert.notNull(blockId, "Block Id can not be null");
+        
+        // Get Scheduled Block
+        final ScheduledBlockEntity scheduledBlockEntity = 
+        		scheduledBlockRepository.findByIdAndKidId(blockId, childId);
+         
+        // Get Upload file info
+        return uploadFilesService.getFileInfo(scheduledBlockEntity.getImage());
+       
 	}
 
 }
