@@ -133,7 +133,7 @@ public class ImagesController extends BaseController {
             @ApiParam(name = "id", value = "Image Identifier", required = true) 
                 @Valid @PathVariable String id) throws IOException {
         
-        return controllerHelper.downloadProfileImage(id);
+        return controllerHelper.downloadImage(id);
     }
     
     /**
@@ -149,8 +149,10 @@ public class ImagesController extends BaseController {
             @ApiParam(name = "id", value = "Image Identifier", required = true) 
                 @Valid @PathVariable String id) throws IOException {
         
-        return controllerHelper.downloadProfileImage(id);
+        return controllerHelper.downloadImage(id);
     }
+    
+ 
     
     /**
      * Download Profile Image
@@ -167,7 +169,7 @@ public class ImagesController extends BaseController {
             @ApiParam(name = "id", value = "Image Identifier", required = true) 
                 @Valid @PathVariable String id) throws IOException {
         
-        return controllerHelper.downloadProfileImage(id);
+        return controllerHelper.downloadImage(id);
     }
     
     /**

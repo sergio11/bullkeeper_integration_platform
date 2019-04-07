@@ -98,7 +98,6 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.CallDetailShoul
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ContactShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ContactShouldExistsAndEnabled;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.DayNameValidator;
-import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.DevicePhotoShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.DevicePhotoShouldExistsAndEnabled;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.GeofenceShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.KidRequestShouldExists;
@@ -552,7 +551,7 @@ public class ChildrenController extends BaseController
     	// Get Kid By Id
         final KidDTO sonDTO = kidService.getKidById(id);
         // Download Profile Image
-        return controllerHelper.downloadProfileImage(sonDTO.getProfileImage());
+        return controllerHelper.downloadImage(sonDTO.getProfileImage());
         
     }
     
@@ -5333,6 +5332,46 @@ public class ChildrenController extends BaseController
    
   
   /**
+   * 
+   * @param kid
+   * @param terminal
+   * @param photo
+   * @return
+   * @throws Throwable
+   */
+ @RequestMapping(value = "/{kid}/terminal/{terminal}/photos/{photo}/image", method = RequestMethod.GET)
+ @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+ 		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
+ @ApiOperation(value = "DOWNLOAD_DEVICE_PHOTO", nickname = "DOWNLOAD_DEVICE_PHOTO",
+ 	notes = "Download Device Photo")
+ public ResponseEntity<byte[]> downloadDevicePhoto(
+ 		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+     		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
+      			@PathVariable String kid,
+      	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
+ 			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
+  				@PathVariable String terminal,
+  		@ApiParam(name = "photo", value = "Device Photo Identifier", required = true)
+				@Valid @DevicePhotoShouldExistsAndEnabled(message = "{device.photo.not.exists}")
+				@PathVariable String photo) 
+ 		throws Throwable {
+	  
+	   // Get Terminal
+     final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+ 			new ObjectId(terminal), new ObjectId(kid)))
+ 			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+  
+     final DevicePhotoDTO devicePhotoDTO = Optional.ofNullable(terminalService.getDevicePhotoDetail(
+ 			new ObjectId(terminalDTO.getKid()), 
+ 			new ObjectId(terminalDTO.getIdentity()), 
+ 			new ObjectId(photo)))
+ 			 .orElseThrow(() -> { throw new DevicePhotoDetailNotFoundException(); });
+	   
+     
+     return controllerHelper.downloadImage(devicePhotoDTO.getImageId());
+ }
+  
+  /**
    * Disable Contact From Terminal
    * @return
    * @throws Throwable
@@ -5375,7 +5414,7 @@ public class ChildrenController extends BaseController
       // Publish Event
 	 	this.applicationEventPublisher
 	 	   		.publishEvent(new DevicePhotoDisabledEvent(
-	 	   				this, kid, terminal, devicePhotoDTO.getIdentity(),
+	 	   				this, kid, terminal, devicePhotoDTO.getIdentity(), devicePhotoDTO.getPath(),
 	 	   			devicePhotoDTO.getLocalId()));
       
      

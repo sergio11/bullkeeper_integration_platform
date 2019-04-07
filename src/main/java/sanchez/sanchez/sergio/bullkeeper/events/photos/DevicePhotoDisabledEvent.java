@@ -30,6 +30,11 @@ public final class DevicePhotoDisabledEvent extends ApplicationEvent {
 	private String photo;
 	
 	/**
+	 * Path
+	 */
+	private String path;
+	
+	/**
 	 * Local Id
 	 */
 	private String localId;
@@ -40,15 +45,17 @@ public final class DevicePhotoDisabledEvent extends ApplicationEvent {
 	 * @param kid
 	 * @param terminal
 	 * @param photo
+	 * @param path
 	 * @param localId
 	 */
 	public DevicePhotoDisabledEvent(final Object source,
 			final String kid, final String terminal,
-			final String photo, final String localId) {
+			final String photo, final String path, final String localId) {
 		super(source);
 		this.kid = kid;
 		this.terminal = terminal;
 		this.photo = photo;
+		this.path = path;
 		this.localId = localId;
 	}
 
@@ -83,6 +90,16 @@ public final class DevicePhotoDisabledEvent extends ApplicationEvent {
 	}
 
 
+	public String getPath() {
+		return path;
+	}
+
+
+	public void setPath(String path) {
+		this.path = path;
+	}
+
+
 	public String getLocalId() {
 		return localId;
 	}
@@ -95,10 +112,8 @@ public final class DevicePhotoDisabledEvent extends ApplicationEvent {
 
 	@Override
 	public String toString() {
-		return "DevicePhotoDisabledEvent [kid=" + kid + ", terminal=" + terminal + ", photo=" + photo + ", localId="
-				+ localId + "]";
+		return "DevicePhotoDisabledEvent [kid=" + kid + ", terminal=" + terminal + ", photo=" + photo + ", path=" + path
+				+ ", localId=" + localId + "]";
 	}
-
-
 	
 }

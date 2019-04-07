@@ -80,6 +80,12 @@ public final class DevicePhotoDTO implements Serializable {
 	private String localId;
 	
 	/**
+	 * Image Id
+	 */
+	@JsonProperty("image_id")
+	private String imageId;
+	
+	/**
 	 * Terminal
 	 */
 	@JsonProperty("terminal")
@@ -106,12 +112,13 @@ public final class DevicePhotoDTO implements Serializable {
 	 * @param orientation
 	 * @param size
 	 * @param localId
+	 * @param imageId
 	 * @param terminal
 	 * @param kid
 	 */
 	public DevicePhotoDTO(String identity, String displayName, String path, Long dateAdded, Long dateModified,
 			Long dateTaken, Integer height, Integer width, Integer orientation, Integer size, String localId,
-			String terminal, String kid) {
+			String imageId, String terminal, String kid) {
 		super();
 		this.identity = identity;
 		this.displayName = displayName;
@@ -124,6 +131,7 @@ public final class DevicePhotoDTO implements Serializable {
 		this.orientation = orientation;
 		this.size = size;
 		this.localId = localId;
+		this.imageId = imageId;
 		this.terminal = terminal;
 		this.kid = kid;
 	}
@@ -216,6 +224,14 @@ public final class DevicePhotoDTO implements Serializable {
 		this.localId = localId;
 	}
 
+	public String getImageId() {
+		return imageId;
+	}
+
+	public void setImageId(String imageId) {
+		this.imageId = imageId;
+	}
+
 	public String getTerminal() {
 		return terminal;
 	}
@@ -237,6 +253,6 @@ public final class DevicePhotoDTO implements Serializable {
 		return "DevicePhotoDTO [identity=" + identity + ", displayName=" + displayName + ", path=" + path
 				+ ", dateAdded=" + dateAdded + ", dateModified=" + dateModified + ", dateTaken=" + dateTaken
 				+ ", height=" + height + ", width=" + width + ", orientation=" + orientation + ", size=" + size
-				+ ", localId=" + localId + ", terminal=" + terminal + ", kid=" + kid + "]";
+				+ ", localId=" + localId + ", imageId=" + imageId + ", terminal=" + terminal + ", kid=" + kid + "]";
 	}
 }

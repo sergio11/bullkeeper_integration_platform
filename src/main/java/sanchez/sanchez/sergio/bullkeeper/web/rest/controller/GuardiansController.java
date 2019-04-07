@@ -531,7 +531,7 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
         final String profileImage = guardiansService.getProfileImage(selfGuardian.getUserId());
         logger.debug("Download self profile image image with id -> " + profileImage);
         // Download Profile Image
-        return controllerHelper.downloadProfileImage(profileImage);
+        return controllerHelper.downloadImage(profileImage);
     }
     
     /**

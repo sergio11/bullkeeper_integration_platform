@@ -51,7 +51,8 @@ public class DevicePhotosEventHandlers {
 				devicePhotoDisabledEvent.getKid(),
 				devicePhotoDisabledEvent.getTerminal(),
 				devicePhotoDisabledEvent.getPhoto(),
-				devicePhotoDisabledEvent.getLocalId()));
+				devicePhotoDisabledEvent.getLocalId(),
+				devicePhotoDisabledEvent.getPath()));
 	}
 
 }

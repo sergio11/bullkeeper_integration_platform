@@ -46,6 +46,12 @@ public final class DevicePhotoDisabledSSE extends AbstractSseData implements Ser
 	private String localId;
 	
 	/**
+	 * Path
+	 */
+	@JsonProperty("path")
+	private String path;
+	
+	/**
 	 * 
 	 */
 	public DevicePhotoDisabledSSE() {
@@ -59,14 +65,16 @@ public final class DevicePhotoDisabledSSE extends AbstractSseData implements Ser
 	 * @param terminal
 	 * @param photo
 	 * @param localId
+	 * @param path
 	 */
 	public DevicePhotoDisabledSSE(String subscriberId, String kid, String terminal, String photo,
-			String localId) {
+			String localId, String path) {
 		super(EVENT_TYPE, subscriberId);
 		this.kid = kid;
 		this.terminal = terminal;
 		this.photo = photo;
 		this.localId = localId;
+		this.path = path;
 	}
 
 	public String getKid() {
@@ -101,9 +109,18 @@ public final class DevicePhotoDisabledSSE extends AbstractSseData implements Ser
 		this.localId = localId;
 	}
 
+	public String getPath() {
+		return path;
+	}
+
+	public void setPath(String path) {
+		this.path = path;
+	}
+
 	@Override
 	public String toString() {
 		return "DevicePhotoDisabledSSE [kid=" + kid + ", terminal=" + terminal + ", photo=" + photo + ", localId="
-				+ localId + "]";
+				+ localId + ", path=" + path + "]";
 	}
+	
 }

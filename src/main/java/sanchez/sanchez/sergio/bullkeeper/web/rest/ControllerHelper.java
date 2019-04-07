@@ -26,27 +26,28 @@ public class ControllerHelper {
         this.resourceLoader = resourceLoader;
     }
     
-    private UploadFileInfo getUserDefaultImage() throws IOException{
+    private UploadFileInfo getDefaultImage() throws IOException{
         final org.springframework.core.io.Resource userDefault = resourceLoader.getResource("classpath:user_default.png");
         return  new UploadFileInfo(userDefault.contentLength(), MediaType.IMAGE_PNG_VALUE, IOUtils.toByteArray(userDefault.getInputStream()));
     }
     
-    public ResponseEntity<byte[]> downloadProfileImage(String profileImageId) throws IOException {
+    
+    public ResponseEntity<byte[]> downloadImage(String imageId) throws IOException {
         
         UploadFileInfo imageInfo = null;
     	try {
             
-            if(profileImageId != null && !profileImageId.isEmpty()) {
-                imageInfo = uploadFilesService.getFileInfo(profileImageId);
+            if(imageId != null && !imageId.isEmpty()) {
+                imageInfo = uploadFilesService.getFileInfo(imageId);
                 if (imageInfo == null) {
-                   imageInfo = getUserDefaultImage();
+                   imageInfo = getDefaultImage();
                 }
             } else {
-                imageInfo = getUserDefaultImage();
+                imageInfo = getDefaultImage();
             }
                
         } catch (Exception ex) {
-            imageInfo = getUserDefaultImage();
+            imageInfo = getDefaultImage();
         }
     	
         return ResponseEntity.ok()
