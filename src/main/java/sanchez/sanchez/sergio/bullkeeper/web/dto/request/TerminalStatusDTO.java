@@ -4,7 +4,7 @@ import java.io.Serializable;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.KidShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.TerminalShouldExists;
-import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.TerminalStatusType;
+import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.TerminalDeviceStatusType;
 
 /**
  * Terminal Status DTO
@@ -22,7 +22,7 @@ public final class TerminalStatusDTO implements Serializable {
 	 * Screen Status
 	 */
 	@JsonProperty("status")
-	@TerminalStatusType(message="{terminal.status.not.valid}")
+	@TerminalDeviceStatusType(message="{terminal.status.not.valid}")
 	private String status;
 	
 	

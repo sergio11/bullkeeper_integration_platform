@@ -17,16 +17,16 @@ import javax.validation.Payload;
 import javax.validation.constraints.NotNull;
 
 /**
- * Terminal Status Type
+ * Terminal Device Status Type
  * @author sergiosanchezsanchez
  *
  */
 @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE})
 @Retention(RUNTIME)
-@Constraint(validatedBy = TerminalStatusTypeValidator.class)
+@Constraint(validatedBy = TerminalDeviceStatusTypeValidator.class)
 @NotNull
 @Documented
-public @interface TerminalStatusType {
+public @interface TerminalDeviceStatusType {
     String message() default "{constraints.valid.objectid}";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
