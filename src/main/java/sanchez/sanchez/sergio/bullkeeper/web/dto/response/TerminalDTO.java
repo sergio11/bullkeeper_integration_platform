@@ -20,11 +20,6 @@ public class TerminalDTO implements Serializable {
 	@JsonProperty("identity")
 	protected String identity;
 	
-	/**
-	 * Status
-	 */
-	@JsonProperty("status")
-	protected String status;
 	
 	/**
 	 * App Version Name
@@ -50,12 +45,7 @@ public class TerminalDTO implements Serializable {
 	 */
 	@JsonProperty("sdk_version")
 	protected String sdkVersion;
-	
-	/**
-	 * Detached
-	 */
-	@JsonProperty("detached")
-	protected Boolean detached;
+
 	
 	/**
 	 * Manufacturer
@@ -161,16 +151,34 @@ public class TerminalDTO implements Serializable {
 	@JsonProperty("phone_number")
 	private String phoneNumber;
 	
+	
+	/**
+	 * Status
+	 */
+	@JsonProperty("status")
+	protected String status;
+	
+	/**
+	 * Screen Status
+	 */
+	@JsonProperty("screen_status")
+	protected String screenStatus;
+	
+	/**
+	 * Device Status
+	 */
+	@JsonProperty("device_status")
+	protected String deviceStatus;
+	
+
 	public TerminalDTO() {}
 
 	/**
 	 * 
 	 * @param identity
-	 * @param status
 	 * @param appVersionName
 	 * @param appVersionCode
 	 * @param osVersion
-	 * @param detached
 	 * @param sdkVersion
 	 * @param manufacturer
 	 * @param marketName
@@ -189,19 +197,21 @@ public class TerminalDTO implements Serializable {
 	 * @param heartbeat
 	 * @param carrierName
 	 * @param phoneNumber
+	 * @param status
+	 * @param screenStatus
+	 * @param deviceStatus
 	 */
-	public TerminalDTO(String identity, String status, String appVersionName, String appVersionCode, String osVersion,
-			Boolean detached, String sdkVersion, String manufacturer, String marketName, String model, String codeName, String deviceName,
+	public TerminalDTO(String identity, String appVersionName, String appVersionCode, String osVersion,
+			String sdkVersion, String manufacturer, String marketName, String model, String codeName, String deviceName,
 			String deviceId, String kid, Boolean bedTimeEnabled, Boolean screenEnabled, Boolean cameraEnabled,
-			Boolean settingsEnabled, Boolean phoneCallsEnabled, Integer batteryLevel, Boolean isBatteryCharging, TerminalHeartbeatDTO heartbeat,
-			String carrierName, String phoneNumber) {
+			Boolean settingsEnabled, Boolean phoneCallsEnabled, Integer batteryLevel, Boolean isBatteryCharging,
+			TerminalHeartbeatDTO heartbeat, String carrierName, String phoneNumber, String status, String screenStatus,
+			String deviceStatus) {
 		super();
 		this.identity = identity;
-		this.status = status;
 		this.appVersionName = appVersionName;
 		this.appVersionCode = appVersionCode;
 		this.osVersion = osVersion;
-		this.detached = detached;
 		this.sdkVersion = sdkVersion;
 		this.manufacturer = manufacturer;
 		this.marketName = marketName;
@@ -220,6 +230,9 @@ public class TerminalDTO implements Serializable {
 		this.heartbeat = heartbeat;
 		this.carrierName = carrierName;
 		this.phoneNumber = phoneNumber;
+		this.status = status;
+		this.screenStatus = screenStatus;
+		this.deviceStatus = deviceStatus;
 	}
 
 	public String getIdentity() {
@@ -228,14 +241,6 @@ public class TerminalDTO implements Serializable {
 
 	public void setIdentity(String identity) {
 		this.identity = identity;
-	}
-
-	public String getStatus() {
-		return status;
-	}
-
-	public void setStatus(String status) {
-		this.status = status;
 	}
 
 	public String getAppVersionName() {
@@ -260,14 +265,6 @@ public class TerminalDTO implements Serializable {
 
 	public void setOsVersion(String osVersion) {
 		this.osVersion = osVersion;
-	}
-
-	public Boolean getDetached() {
-		return detached;
-	}
-
-	public void setDetached(Boolean detached) {
-		this.detached = detached;
 	}
 
 	public String getSdkVersion() {
@@ -414,15 +411,42 @@ public class TerminalDTO implements Serializable {
 		this.phoneNumber = phoneNumber;
 	}
 
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public String getScreenStatus() {
+		return screenStatus;
+	}
+
+	public void setScreenStatus(String screenStatus) {
+		this.screenStatus = screenStatus;
+	}
+
+	public String getDeviceStatus() {
+		return deviceStatus;
+	}
+
+	public void setDeviceStatus(String deviceStatus) {
+		this.deviceStatus = deviceStatus;
+	}
+
 	@Override
 	public String toString() {
-		return "TerminalDTO [identity=" + identity + ", status=" + status + ", appVersionName=" + appVersionName
-				+ ", appVersionCode=" + appVersionCode + ", osVersion=" + osVersion + ", sdkVersion=" + sdkVersion
-				+ ", detached=" + detached + ", manufacturer=" + manufacturer + ", marketName=" + marketName
-				+ ", model=" + model + ", codeName=" + codeName + ", deviceName=" + deviceName + ", deviceId="
-				+ deviceId + ", kid=" + kid + ", bedTimeEnabled=" + bedTimeEnabled + ", screenEnabled=" + screenEnabled
-				+ ", cameraEnabled=" + cameraEnabled + ", settingsEnabled=" + settingsEnabled + ", phoneCallsEnabled="
-				+ phoneCallsEnabled + ", batteryLevel=" + batteryLevel + ", isBatteryCharging=" + isBatteryCharging
-				+ ", heartbeat=" + heartbeat + ", carrierName=" + carrierName + ", phoneNumber=" + phoneNumber + "]";
+		return "TerminalDTO [identity=" + identity + ", appVersionName=" + appVersionName + ", appVersionCode="
+				+ appVersionCode + ", osVersion=" + osVersion + ", sdkVersion=" + sdkVersion + ", manufacturer="
+				+ manufacturer + ", marketName=" + marketName + ", model=" + model + ", codeName=" + codeName
+				+ ", deviceName=" + deviceName + ", deviceId=" + deviceId + ", kid=" + kid + ", bedTimeEnabled="
+				+ bedTimeEnabled + ", screenEnabled=" + screenEnabled + ", cameraEnabled=" + cameraEnabled
+				+ ", settingsEnabled=" + settingsEnabled + ", phoneCallsEnabled=" + phoneCallsEnabled
+				+ ", batteryLevel=" + batteryLevel + ", isBatteryCharging=" + isBatteryCharging + ", heartbeat="
+				+ heartbeat + ", carrierName=" + carrierName + ", phoneNumber=" + phoneNumber + ", status=" + status
+				+ ", screenStatus=" + screenStatus + ", deviceStatus=" + deviceStatus + "]";
 	}
+	
+	
 }

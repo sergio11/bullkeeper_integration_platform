@@ -117,6 +117,7 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.DrugsLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.FunTimeDaysEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SentimentLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SocialMediaTypeEnum;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.TerminalStatusEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ViolenceLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.util.ValidList;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.AddDevicePhotoDTO;
@@ -1318,52 +1319,6 @@ public class ChildrenController extends BaseController
         
     }
     
-    
-    /**
-     * Detach Terminal By Id
-     * @param kid
-     * @param terminal
-     * @return
-     * @throws Throwable
-     */
-    @RequestMapping(value = "/{kid}/terminal/{terminal}/detach", method = RequestMethod.POST)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
-    @ApiOperation(value = "DETACH_TERMINAL_BY_ID", nickname = "DETACH_TERMINAL_BY_ID", 
-    	notes = "Detach terminal by id",
-            response = String.class)
-    public ResponseEntity<APIResponse<String>> detachTerminalById(
-            @ApiParam(name = "kid", value = "Kid Identifier", required = true)
-            	@Valid @KidShouldExists(message = "{kid.should.be.exists}")
-             		@PathVariable String kid,
-             @ApiParam(name = "terminal", value = "Terminal Identity", required = true)
-            	@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
-             		@PathVariable String terminal) throws Throwable {
-        
-        logger.debug("Detach Terminal by id: " + terminal);
-        
-        // Get Terminal
-        final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
-    			new ObjectId(terminal), new ObjectId(kid)))
-    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
-      
-        
-        // Detach terminal by id
-        terminalService.detach(new ObjectId(terminalDTO.getKid()), new ObjectId(terminalDTO.getIdentity()));
-       
-        
-        // Save Alert
-    	alertService.save(AlertLevelEnum.WARNING, messageSourceResolver.resolver("terminal.detach.title"),
-    			messageSourceResolver.resolver("terminal.detach.description", 
-    					new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ), 
-    			new ObjectId(kid), AlertCategoryEnum.TERMINALS);
-        
-        // Create And Send Response
-        return ApiHelper.<String>createAndSendResponse(
-                ChildrenResponseCode.TERMINAL_WAS_DETACHED_SUCCESSFULLY, HttpStatus.OK, 
-                messageSourceResolver.resolver("terminal.detached.successfully"));
-        
-    }
     
     
     /**
@@ -3893,73 +3848,129 @@ public class ChildrenController extends BaseController
 				@Validated(ICommonSequence.class) 
 					@RequestBody SaveTerminalHeartbeatDTO terminalHeartbeat) throws Throwable {
     	
-    	logger.debug("Terminal Heartbeat");
+    	logger.debug("Save Terminal Heartbeat");
     	
-    	// Get Terminal
-    	final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
-    			new ObjectId(terminal), new ObjectId(kid)))
+    	// Get Terminal Detail
+    	final TerminalDetailDTO terminalDetailDTO = Optional.ofNullable(terminalService.getTerminalDetail(
+    			new ObjectId(kid), terminal))
     			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
     	
     	// Save HeartBeat
     	terminalService.saveHeartbeat(terminalHeartbeat);
     	
- 
-    	if(!terminalHeartbeat.isAccessFineLocationEnabled())
-        	alertService.save(AlertLevelEnum.DANGER, messageSourceResolver.resolver("terminal.access.fine.location.disabled.title", 
-        			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ) , 
-        			messageSourceResolver.resolver("terminal.access.fine.location.disabled.description", 
-        	    			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ),
-        			new ObjectId(kid), AlertCategoryEnum.TERMINALS);
+    	TerminalStatusEnum terminalStatus = TerminalStatusEnum.ACTIVE;
     	
-    	if(!terminalHeartbeat.isAdminAccessEnabled())
-        	alertService.save(AlertLevelEnum.DANGER, messageSourceResolver.resolver("terminal.admin.access.disabled.title", 
-        			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ) , 
-        			messageSourceResolver.resolver("terminal.admin.access.disabled.description", 
-        	    			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ),
-        			new ObjectId(kid), AlertCategoryEnum.TERMINALS);
+    	// Access Fine Location
+    	if(!terminalHeartbeat.isAccessFineLocationEnabled()) {
+    		terminalStatus = TerminalStatusEnum.INVALID;
+    		
+    		if(terminalDetailDTO.getLocationPermissionEnabled())
+    			alertService.save(AlertLevelEnum.DANGER, messageSourceResolver.resolver("terminal.access.fine.location.disabled.title", 
+            			new Object[] { terminalDetailDTO.getModel(), terminalDetailDTO.getDeviceName() } ) , 
+            			messageSourceResolver.resolver("terminal.access.fine.location.disabled.description", 
+            	    			new Object[] { terminalDetailDTO.getModel(), terminalDetailDTO.getDeviceName() } ),
+            			new ObjectId(kid), AlertCategoryEnum.TERMINALS);
+    	}
+    
+        	
+    	// Admin Access Enabled
+    	if(!terminalHeartbeat.isAdminAccessEnabled()) {
+    		terminalStatus = TerminalStatusEnum.INVALID;
+    		
+    		if(terminalDetailDTO.getAdminAccessAllowed())
+    			alertService.save(AlertLevelEnum.DANGER, messageSourceResolver.resolver("terminal.admin.access.disabled.title", 
+            			new Object[] { terminalDetailDTO.getModel(), terminalDetailDTO.getDeviceName() } ) , 
+            			messageSourceResolver.resolver("terminal.admin.access.disabled.description", 
+            	    			new Object[] { terminalDetailDTO.getModel(), terminalDetailDTO.getDeviceName() } ),
+            			new ObjectId(kid), AlertCategoryEnum.TERMINALS);
+    		
+    	}
+        
+    	// Apps Overlay Enabled
+    	if(!terminalHeartbeat.isAppsOverlayEnabled()) {
+    		terminalStatus = TerminalStatusEnum.INVALID;
+    		
+    		if(terminalDetailDTO.getAppsOverlayEnabled())
+    			alertService.save(AlertLevelEnum.DANGER, messageSourceResolver.resolver("terminal.apps.overlay.disabled.title", 
+            			new Object[] { terminalDetailDTO.getModel(), terminalDetailDTO.getDeviceName() } ) , 
+            			messageSourceResolver.resolver("terminal.apps.overlay.disabled.description", 
+            	    			new Object[] { terminalDetailDTO.getModel(), terminalDetailDTO.getDeviceName() } ),
+            			new ObjectId(kid), AlertCategoryEnum.TERMINALS);
+    		
+    	}
+        	
     	
-    	if(!terminalHeartbeat.isAppsOverlayEnabled())
-        	alertService.save(AlertLevelEnum.DANGER, messageSourceResolver.resolver("terminal.apps.overlay.disabled.title", 
-        			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ) , 
-        			messageSourceResolver.resolver("terminal.apps.overlay.disabled.description", 
-        	    			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ),
-        			new ObjectId(kid), AlertCategoryEnum.TERMINALS);
+    	// Hight Accuraccy Location
+    	if(!terminalHeartbeat.isHighAccuraccyLocationEnabled()) {
+    		terminalStatus = TerminalStatusEnum.INVALID;
+    		
+    		if(terminalDetailDTO.getHighAccuraccyLocationEnabled())
+    			alertService.save(AlertLevelEnum.DANGER, messageSourceResolver.resolver("terminal.high.accuraccy.location.disabled.title", 
+            			new Object[] { terminalDetailDTO.getModel(), terminalDetailDTO.getDeviceName() } ) , 
+            			messageSourceResolver.resolver("terminal.high.accuraccy.location.disabled.description", 
+            	    			new Object[] { terminalDetailDTO.getModel(), terminalDetailDTO.getDeviceName() } ),
+            			new ObjectId(kid), AlertCategoryEnum.TERMINALS);
+    		
+    	}
+        	
+    	// Read Call Log
+    	if(!terminalHeartbeat.isReadCallLogEnabled()) {
+    		terminalStatus = TerminalStatusEnum.INVALID;
+    		
+    		if(terminalDetailDTO.getCallsHistoryPermissionEnabled())
+    			alertService.save(AlertLevelEnum.DANGER, messageSourceResolver.resolver("terminal.read.call.log.disabled.title", 
+            			new Object[] { terminalDetailDTO.getModel(), terminalDetailDTO.getDeviceName() } ) , 
+            			messageSourceResolver.resolver("terminal.read.call.log.disabled.description", 
+            	    			new Object[] { terminalDetailDTO.getModel(), terminalDetailDTO.getDeviceName() } ),
+            			new ObjectId(kid), AlertCategoryEnum.TERMINALS);
+    	}
+        	
+    	
+    	// Read Contacts
+    	if(!terminalHeartbeat.isReadContactsEnabled()) {
+    		
+    		terminalStatus = TerminalStatusEnum.INVALID;
+    		
+    		if(terminalDetailDTO.getContactsListPermissionEnabled())
+    			alertService.save(AlertLevelEnum.DANGER, messageSourceResolver.resolver("terminal.read.contacts.disabled.title", 
+            			new Object[] { terminalDetailDTO.getModel(), terminalDetailDTO.getDeviceName() } ) , 
+            			messageSourceResolver.resolver("terminal.read.contacts.disabled.description", 
+            	    			new Object[] { terminalDetailDTO.getModel(), terminalDetailDTO.getDeviceName() } ),
+            			new ObjectId(kid), AlertCategoryEnum.TERMINALS);
+    		
+    	}
+        	
+    	// Usage Stats Allowed
+    	if(!terminalHeartbeat.isUsageStatsAllowed()) {
+    		
+    		terminalStatus = TerminalStatusEnum.INVALID;
+    		
+    		if(terminalDetailDTO.getUsageStatsAllowed())
+    			alertService.save(AlertLevelEnum.DANGER, messageSourceResolver.resolver("terminal.usage.stats.not.allowed.title", 
+            			new Object[] { terminalDetailDTO.getModel(), terminalDetailDTO.getDeviceName() } ) , 
+            			messageSourceResolver.resolver("terminal.usage.stats.not.allowed.description", 
+            	    			new Object[] { terminalDetailDTO.getModel(), terminalDetailDTO.getDeviceName() } ),
+            			new ObjectId(kid), AlertCategoryEnum.TERMINALS);
+    		
+    	}
+        	
+    	// Write External Storage
+    	if(!terminalHeartbeat.isWriteExternalStorageEnabled()) {
+    		
+    		terminalStatus = TerminalStatusEnum.INVALID;
+    		
+    		if(terminalDetailDTO.getStoragePermissionEnabled())
+    			alertService.save(AlertLevelEnum.DANGER, messageSourceResolver.resolver("terminal.write.external.storage.disabled.title", 
+            			new Object[] { terminalDetailDTO.getModel(), terminalDetailDTO.getDeviceName() } ) , 
+            			messageSourceResolver.resolver("terminal.write.external.storage.disabled.description", 
+            	    			new Object[] { terminalDetailDTO.getModel(), terminalDetailDTO.getDeviceName() } ),
+            			new ObjectId(kid), AlertCategoryEnum.TERMINALS);
+    		
+    	}
     	
     	
-    	if(!terminalHeartbeat.isHighAccuraccyLocationEnabled())
-        	alertService.save(AlertLevelEnum.DANGER, messageSourceResolver.resolver("terminal.high.accuraccy.location.disabled.title", 
-        			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ) , 
-        			messageSourceResolver.resolver("terminal.high.accuraccy.location.disabled.description", 
-        	    			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ),
-        			new ObjectId(kid), AlertCategoryEnum.TERMINALS);
-    	
-    	if(!terminalHeartbeat.isReadCallLogEnabled())
-        	alertService.save(AlertLevelEnum.DANGER, messageSourceResolver.resolver("terminal.read.call.log.disabled.title", 
-        			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ) , 
-        			messageSourceResolver.resolver("terminal.read.call.log.disabled.description", 
-        	    			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ),
-        			new ObjectId(kid), AlertCategoryEnum.TERMINALS);
-    	
-    	if(!terminalHeartbeat.isReadContactsEnabled())
-        	alertService.save(AlertLevelEnum.DANGER, messageSourceResolver.resolver("terminal.read.contacts.disabled.title", 
-        			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ) , 
-        			messageSourceResolver.resolver("terminal.read.contacts.disabled.description", 
-        	    			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ),
-        			new ObjectId(kid), AlertCategoryEnum.TERMINALS);
-    	
-    	if(!terminalHeartbeat.isUsageStatsAllowed())
-        	alertService.save(AlertLevelEnum.DANGER, messageSourceResolver.resolver("terminal.usage.stats.not.allowed.title", 
-        			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ) , 
-        			messageSourceResolver.resolver("terminal.usage.stats.not.allowed.description", 
-        	    			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ),
-        			new ObjectId(kid), AlertCategoryEnum.TERMINALS);
-    	
-    	if(!terminalHeartbeat.isWriteExternalStorageEnabled())
-        	alertService.save(AlertLevelEnum.DANGER, messageSourceResolver.resolver("terminal.write.external.storage.disabled.title", 
-        			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ) , 
-        			messageSourceResolver.resolver("terminal.write.external.storage.disabled.description", 
-        	    			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ),
-        			new ObjectId(kid), AlertCategoryEnum.TERMINALS);
+    	terminalService.saveTerminalStatus(new ObjectId(terminalDetailDTO.getIdentity()), terminalStatus);
+        	
     	
     	// Create and send response
     	return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.TERMINAL_HEARTBEAT_NOTIFIED_SUCCESSFULLY, HttpStatus.OK, 

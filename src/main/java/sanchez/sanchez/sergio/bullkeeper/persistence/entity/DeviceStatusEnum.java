@@ -1,10 +1,10 @@
 package sanchez.sanchez.sergio.bullkeeper.persistence.entity;
 
 /**
- * Terminal Status Enum
+ * Device Status Enum
  * @author ssanchez
  *
  */
-public enum TerminalStatusEnum {
-	ACTIVE, INVALID, DETACHED
+public enum DeviceStatusEnum {
+	STATE_ON, STATE_OFF
 }

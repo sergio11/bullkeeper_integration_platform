@@ -34,12 +34,7 @@ public final class TerminalDetailDTO extends TerminalDTO {
      */
     @JsonProperty("total_contacts")
     protected long totalContacts;
-	
-	/**
-	 * Screen Status
-	 */
-	@JsonProperty("screen_status")
-	protected String screenStatus;
+
 	
 	/**
      * Location Permission Enabled
@@ -107,11 +102,9 @@ public final class TerminalDetailDTO extends TerminalDTO {
 	/**
 	 * 
 	 * @param identity
-	 * @param status
 	 * @param appVersionName
 	 * @param appVersionCode
 	 * @param osVersion
-	 * @param detached
 	 * @param sdkVersion
 	 * @param manufacturer
 	 * @param marketName
@@ -130,11 +123,13 @@ public final class TerminalDetailDTO extends TerminalDTO {
 	 * @param heartbeat
 	 * @param carrierName
 	 * @param phoneNumber
+	 * @param status
+	 * @param screenStatus
+	 * @param deviceStatus
 	 * @param totalApps
 	 * @param totalSms
 	 * @param totalCalls
 	 * @param totalContacts
-	 * @param screenStatus
 	 * @param locationPermissionEnabled
 	 * @param callsHistoryPermissionEnabled
 	 * @param contactsListPermissionEnabled
@@ -145,25 +140,24 @@ public final class TerminalDetailDTO extends TerminalDTO {
 	 * @param highAccuraccyLocationEnabled
 	 * @param appsOverlayEnabled
 	 */
-	public TerminalDetailDTO(String identity, String status, String appVersionName, String appVersionCode,
-			String osVersion, Boolean detached, String sdkVersion, String manufacturer, String marketName, String model,
-			String codeName, String deviceName, String deviceId, String kid, Boolean bedTimeEnabled,
-			Boolean screenEnabled, Boolean cameraEnabled, Boolean settingsEnabled, Boolean phoneCallsEnabled,
-			Integer batteryLevel, Boolean isBatteryCharging, TerminalHeartbeatDTO heartbeat, String carrierName,
-			String phoneNumber, long totalApps, long totalSms, long totalCalls, long totalContacts, String screenStatus,
+	public TerminalDetailDTO(String identity, String appVersionName, String appVersionCode, String osVersion,
+			String sdkVersion, String manufacturer, String marketName, String model, String codeName, String deviceName,
+			String deviceId, String kid, Boolean bedTimeEnabled, Boolean screenEnabled, Boolean cameraEnabled,
+			Boolean settingsEnabled, Boolean phoneCallsEnabled, Integer batteryLevel, Boolean isBatteryCharging,
+			TerminalHeartbeatDTO heartbeat, String carrierName, String phoneNumber, String status, String screenStatus,
+			String deviceStatus, long totalApps, long totalSms, long totalCalls, long totalContacts,
 			Boolean locationPermissionEnabled, Boolean callsHistoryPermissionEnabled,
 			Boolean contactsListPermissionEnabled, Boolean textMessagePermissionEnabled,
 			Boolean storagePermissionEnabled, Boolean usageStatsAllowed, Boolean adminAccessAllowed,
 			Boolean highAccuraccyLocationEnabled, Boolean appsOverlayEnabled) {
-		super(identity, status, appVersionName, appVersionCode, osVersion, detached, sdkVersion, manufacturer,
-				marketName, model, codeName, deviceName, deviceId, kid, bedTimeEnabled, screenEnabled, cameraEnabled,
-				settingsEnabled, phoneCallsEnabled, batteryLevel, isBatteryCharging, heartbeat, carrierName,
-				phoneNumber);
+		super(identity, appVersionName, appVersionCode, osVersion, sdkVersion, manufacturer, marketName, model,
+				codeName, deviceName, deviceId, kid, bedTimeEnabled, screenEnabled, cameraEnabled, settingsEnabled,
+				phoneCallsEnabled, batteryLevel, isBatteryCharging, heartbeat, carrierName, phoneNumber, status,
+				screenStatus, deviceStatus);
 		this.totalApps = totalApps;
 		this.totalSms = totalSms;
 		this.totalCalls = totalCalls;
 		this.totalContacts = totalContacts;
-		this.screenStatus = screenStatus;
 		this.locationPermissionEnabled = locationPermissionEnabled;
 		this.callsHistoryPermissionEnabled = callsHistoryPermissionEnabled;
 		this.contactsListPermissionEnabled = contactsListPermissionEnabled;
@@ -174,129 +168,149 @@ public final class TerminalDetailDTO extends TerminalDTO {
 		this.highAccuraccyLocationEnabled = highAccuraccyLocationEnabled;
 		this.appsOverlayEnabled = appsOverlayEnabled;
 	}
+
 
 	public long getTotalApps() {
 		return totalApps;
 	}
 
+
 	public void setTotalApps(long totalApps) {
 		this.totalApps = totalApps;
 	}
+
 
 	public long getTotalSms() {
 		return totalSms;
 	}
 
+
 	public void setTotalSms(long totalSms) {
 		this.totalSms = totalSms;
 	}
+
 
 	public long getTotalCalls() {
 		return totalCalls;
 	}
 
+
 	public void setTotalCalls(long totalCalls) {
 		this.totalCalls = totalCalls;
 	}
+
 
 	public long getTotalContacts() {
 		return totalContacts;
 	}
 
+
 	public void setTotalContacts(long totalContacts) {
 		this.totalContacts = totalContacts;
 	}
 
-	public String getScreenStatus() {
-		return screenStatus;
-	}
-
-	public void setScreenStatus(String screenStatus) {
-		this.screenStatus = screenStatus;
-	}
 
 	public Boolean getLocationPermissionEnabled() {
 		return locationPermissionEnabled;
 	}
 
+
 	public void setLocationPermissionEnabled(Boolean locationPermissionEnabled) {
 		this.locationPermissionEnabled = locationPermissionEnabled;
 	}
+
 
 	public Boolean getCallsHistoryPermissionEnabled() {
 		return callsHistoryPermissionEnabled;
 	}
 
+
 	public void setCallsHistoryPermissionEnabled(Boolean callsHistoryPermissionEnabled) {
 		this.callsHistoryPermissionEnabled = callsHistoryPermissionEnabled;
 	}
+
 
 	public Boolean getContactsListPermissionEnabled() {
 		return contactsListPermissionEnabled;
 	}
 
+
 	public void setContactsListPermissionEnabled(Boolean contactsListPermissionEnabled) {
 		this.contactsListPermissionEnabled = contactsListPermissionEnabled;
 	}
+
 
 	public Boolean getTextMessagePermissionEnabled() {
 		return textMessagePermissionEnabled;
 	}
 
+
 	public void setTextMessagePermissionEnabled(Boolean textMessagePermissionEnabled) {
 		this.textMessagePermissionEnabled = textMessagePermissionEnabled;
 	}
+
 
 	public Boolean getStoragePermissionEnabled() {
 		return storagePermissionEnabled;
 	}
 
+
 	public void setStoragePermissionEnabled(Boolean storagePermissionEnabled) {
 		this.storagePermissionEnabled = storagePermissionEnabled;
 	}
+
 
 	public Boolean getUsageStatsAllowed() {
 		return usageStatsAllowed;
 	}
 
+
 	public void setUsageStatsAllowed(Boolean usageStatsAllowed) {
 		this.usageStatsAllowed = usageStatsAllowed;
 	}
+
 
 	public Boolean getAdminAccessAllowed() {
 		return adminAccessAllowed;
 	}
 
+
 	public void setAdminAccessAllowed(Boolean adminAccessAllowed) {
 		this.adminAccessAllowed = adminAccessAllowed;
 	}
+
 
 	public Boolean getHighAccuraccyLocationEnabled() {
 		return highAccuraccyLocationEnabled;
 	}
 
+
 	public void setHighAccuraccyLocationEnabled(Boolean highAccuraccyLocationEnabled) {
 		this.highAccuraccyLocationEnabled = highAccuraccyLocationEnabled;
 	}
+
 
 	public Boolean getAppsOverlayEnabled() {
 		return appsOverlayEnabled;
 	}
 
+
 	public void setAppsOverlayEnabled(Boolean appsOverlayEnabled) {
 		this.appsOverlayEnabled = appsOverlayEnabled;
 	}
 
+
 	@Override
 	public String toString() {
 		return "TerminalDetailDTO [totalApps=" + totalApps + ", totalSms=" + totalSms + ", totalCalls=" + totalCalls
-				+ ", totalContacts=" + totalContacts + ", screenStatus=" + screenStatus + ", locationPermissionEnabled="
-				+ locationPermissionEnabled + ", callsHistoryPermissionEnabled=" + callsHistoryPermissionEnabled
+				+ ", totalContacts=" + totalContacts + ", locationPermissionEnabled=" + locationPermissionEnabled
+				+ ", callsHistoryPermissionEnabled=" + callsHistoryPermissionEnabled
 				+ ", contactsListPermissionEnabled=" + contactsListPermissionEnabled + ", textMessagePermissionEnabled="
 				+ textMessagePermissionEnabled + ", storagePermissionEnabled=" + storagePermissionEnabled
 				+ ", usageStatsAllowed=" + usageStatsAllowed + ", adminAccessAllowed=" + adminAccessAllowed
 				+ ", highAccuraccyLocationEnabled=" + highAccuraccyLocationEnabled + ", appsOverlayEnabled="
 				+ appsOverlayEnabled + "]";
 	}
+	
 
 }

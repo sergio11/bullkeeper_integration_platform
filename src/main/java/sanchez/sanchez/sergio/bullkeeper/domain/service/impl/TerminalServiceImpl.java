@@ -50,6 +50,7 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SmsEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.TerminalEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.TerminalHeartbeatEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.TerminalStatusEnum;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.DeviceStatusEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.AppInstalledRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.AppModelRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.AppStatsRepository;
@@ -963,7 +964,7 @@ public final class TerminalServiceImpl implements ITerminalService {
 	public void saveHeartbeat(final SaveTerminalHeartbeatDTO terminalHeartbeat) {
 		Assert.notNull(terminalHeartbeat, "Terminal Heart Beat can not be null");
 		
-		terminalRepository.saveTerminalStatus(new ObjectId(terminalHeartbeat.getTerminal()), 
+		terminalRepository.saveHeartbeatStatus(new ObjectId(terminalHeartbeat.getTerminal()), 
 				new ObjectId(terminalHeartbeat.getKid()), 
 				ScreenStatusEnum.valueOf(terminalHeartbeat.getScreenStatus()),
 				terminalHeartbeat.isAccessFineLocationEnabled(),
@@ -1536,8 +1537,8 @@ public final class TerminalServiceImpl implements ITerminalService {
 	public void saveStatus(final TerminalStatusDTO terminalStatus) {
 		Assert.notNull(terminalStatus, "Terminal Status can not be null");
 		
-		this.terminalRepository.saveTerminalStatus(new ObjectId(terminalStatus.getTerminal()),
-				new ObjectId(terminalStatus.getKid()), TerminalStatusEnum.valueOf(terminalStatus.getStatus()));
+		this.terminalRepository.saveDeviceStatus(new ObjectId(terminalStatus.getTerminal()),
+				new ObjectId(terminalStatus.getKid()), DeviceStatusEnum.valueOf(terminalStatus.getStatus()));
 		
 		
 	}
@@ -1614,7 +1615,7 @@ public final class TerminalServiceImpl implements ITerminalService {
 	public Iterable<TerminalDTO> getTerminalsWithTheHeartbeatThresholdExceeded() {
 		
 		final List<TerminalEntity> terminalEntities = terminalRepository
-				.getTerminalsWithHeartbeatAlertThresholdEnabledAndStateOn()
+				.getTerminalsWithHeartbeatAlertThresholdEnabledAndStatusActive()
 				.parallelStream()
 				.filter((terminal) -> {
 					long duration  = new Date().getTime() - terminal.getHeartbeat().getLastTimeNotified().getTime();
@@ -1622,22 +1623,11 @@ public final class TerminalServiceImpl implements ITerminalService {
 					return diffInMinutes > terminal.getHeartbeat().getAlertThresholdInMinutes();
 				}).collect(Collectors.toList());
 		
+		// Update Terminal Status To Detached
+		terminalRepository.setTerminalStatus(terminalEntities.stream().map(terminal -> terminal.getId())
+				.collect(Collectors.toList()), TerminalStatusEnum.DETACHED);
+		
 		return terminalEntityDataMapper.terminalEntityToTerminalDTO(terminalEntities);
-	}
-
-	/**
-	 * Detach
-	 * @param kid
-	 * @param terminal
-	 */
-	@Override
-	public void detach(final ObjectId kid, final ObjectId terminal) {
-		Assert.notNull(terminal, "Terminal can not be null");
-		Assert.notNull(kid, "Kid can not be null");
-		
-	
-		terminalRepository.detach(kid, terminal);
-		
 	}
 
 	/**
@@ -1830,6 +1820,20 @@ public final class TerminalServiceImpl implements ITerminalService {
 		
 		
 		devicePhotoRepository.disableDevicePhoto(kid, terminal, devicePhoto);
+		
+	}
+
+	/**
+	 * Save Terminal Status
+	 * @param terminal
+	 * @param status
+	 */
+	@Override
+	public void saveTerminalStatus(final ObjectId terminal, final TerminalStatusEnum status) {
+		Assert.notNull(terminal, "Terminal can not be null");
+		Assert.notNull(status, "Status can not be null");
+		
+		terminalRepository.setTerminalStatus(terminal, status);
 		
 	}
 }

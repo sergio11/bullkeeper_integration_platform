@@ -5,6 +5,7 @@ import java.util.List;
 import org.bson.types.ObjectId;
 
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.FunTimeDaysEnum;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.TerminalStatusEnum;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.AddDevicePhotoDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.AddKidRequestDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.AddPhoneNumberBlockedDTO;
@@ -73,13 +74,7 @@ public interface ITerminalService {
      * @param terminal
      */
     void delete(final ObjectId kid, final ObjectId terminal);
-    
-    /**
-     * Detach
-     * @param kid
-     * @param terminal
-     */
-    void detach(final ObjectId kid, final ObjectId terminal);
+ 
     
     /**
      * Delete By kid
@@ -767,4 +762,11 @@ public interface ITerminalService {
      * @param ids
      */
     void deleteDevicePhotos(final ObjectId kid, final ObjectId terminal, final List<ObjectId> ids);
+    
+    /**
+     * Save Terminal Status
+     * @param terminal
+     * @param status
+     */
+    void saveTerminalStatus(final ObjectId terminal, final TerminalStatusEnum status);
 }

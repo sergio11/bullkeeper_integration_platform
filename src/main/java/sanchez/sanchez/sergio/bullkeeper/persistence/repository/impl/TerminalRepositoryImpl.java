@@ -18,6 +18,7 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ScreenStatusEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.TerminalEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.TerminalHeartbeatEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.TerminalStatusEnum;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.DeviceStatusEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.TerminalRepositoryCustom;
 
 /**
@@ -36,7 +37,7 @@ public class TerminalRepositoryImpl implements TerminalRepositoryCustom {
 	 * Save Terminal Status
 	 */
 	@Override
-	public void saveTerminalStatus(final ObjectId terminal, final ObjectId kid,
+	public void saveHeartbeatStatus(final ObjectId terminal, final ObjectId kid,
     		final ScreenStatusEnum screenStatus, final boolean accessFineLocationEnabled,
     		final boolean readContactsEnabled, final boolean readCallLogEnabled,
     		final boolean writeExternalStorageEnabled, final boolean usageStatsAllowed,
@@ -64,8 +65,7 @@ public class TerminalRepositoryImpl implements TerminalRepositoryCustom {
 	                	.set("is_battery_charging", isBatteryCharging)
 	                	.set("high_accuraccy_location_enabled", highAccuraccyLocationEnabled)
 	                	.set("apps_overlay_enabled", appsOverlayEnabled)
-	                	.set("detached", false)
-	                	.set("status", TerminalStatusEnum.STATE_ON.name()), TerminalEntity.class);
+	                	.set("device_status", DeviceStatusEnum.STATE_ON.name()), TerminalEntity.class);
 		
 	}
 
@@ -345,16 +345,16 @@ public class TerminalRepositoryImpl implements TerminalRepositoryCustom {
 	 * @param status
 	 */
 	@Override
-	public void saveTerminalStatus(final ObjectId terminal, final ObjectId kid, final TerminalStatusEnum status) {
+	public void saveDeviceStatus(final ObjectId terminal, final ObjectId kid, final DeviceStatusEnum deviceStatus) {
 		Assert.notNull(kid, "Kid can not be null");
 		Assert.notNull(terminal, "Terminal can not be null");
-		Assert.notNull(status, "Terminal Status can not be null");
+		Assert.notNull(deviceStatus, "Device Status can not be null");
 		
 		mongoTemplate.updateFirst(
                 new Query(Criteria.where("_id").in(terminal)
                 		.andOperator(Criteria.where("kid").in(kid))),
                 new Update()
-                	.set("status", status.name()), TerminalEntity.class);
+                	.set("device_status", deviceStatus.name()), TerminalEntity.class);
 		
 	}
 
@@ -435,34 +435,14 @@ public class TerminalRepositoryImpl implements TerminalRepositoryCustom {
 	 * Get Terminals With Heartbeat threshold exceeded
 	 */
 	@Override
-	public List<TerminalEntity> getTerminalsWithHeartbeatAlertThresholdEnabledAndStateOn() {
+	public List<TerminalEntity> getTerminalsWithHeartbeatAlertThresholdEnabledAndStatusActive() {
 		
 		final Criteria criteria = Criteria
 				.where("heartbeat.alert_mode_enabled").is(true)
-				.and("status").is(TerminalStatusEnum.STATE_ON.name())
-				.and("detached").is(false);
+				.and("status").is(TerminalStatusEnum.ACTIVE.name())
+				.and("device_status").is(DeviceStatusEnum.STATE_ON.name());
 				
         return  mongoTemplate.find(new Query(criteria), TerminalEntity.class);
-	}
-
-	/**
-	 * Detach
-	 * @param kid
-	 * @param terminal
-	 */
-	@Override
-	public void detach(final ObjectId kid, final ObjectId terminal) {
-		Assert.notNull(terminal, "Terminal can not be null");
-		Assert.notNull(kid, "Kid can not be null");
-		
-	
-		mongoTemplate.updateFirst(
-				new Query(Criteria.where("_id").in(terminal)
-                		.andOperator(Criteria.where("kid").in(kid))),
-				new Update()
-				    .set("detached", true)
-				    .set("status", TerminalStatusEnum.STATE_OFF.name()),
-				    				TerminalEntity.class);
 	}
 
 	/**
@@ -499,6 +479,42 @@ public class TerminalRepositoryImpl implements TerminalRepositoryCustom {
 				new Update()
 					.set("phone_calls_enabled", false),
 				    				TerminalEntity.class);
+	}
+
+	/**
+	 * Set Terminal Status
+	 * @param terminal
+	 * @param status
+	 */
+	@Override
+	public void setTerminalStatus(final ObjectId terminal, final TerminalStatusEnum status) {
+		Assert.notNull(terminal, "Terminal can not be null");
+		Assert.notNull(status, "Status can not be null");
+		
+		mongoTemplate.updateFirst(
+				new Query(Criteria.where("_id").in(terminal)),
+				new Update()
+					.set("status", status.name()),
+				    				TerminalEntity.class);
+		
+	}
+
+	/**
+	 * Set Terminal Status
+	 * @param terminalList
+	 * @param status
+	 */
+	@Override
+	public void setTerminalStatus(final List<ObjectId> terminalList, final TerminalStatusEnum status) {
+		Assert.notNull(terminalList, "Terminal List can not be null");
+		Assert.notNull(status, "Status can not be null");
+		
+		mongoTemplate.updateFirst(
+				new Query(Criteria.where("_id").in(terminalList)),
+				new Update()
+					.set("status", status.name()),
+				    				TerminalEntity.class);
+		
 	}
 
 }

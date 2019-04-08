@@ -11,6 +11,7 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ScreenStatusEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.TerminalEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.TerminalHeartbeatEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.TerminalStatusEnum;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.DeviceStatusEnum;
 
 /**
  * Terminal Repository Custom
@@ -20,15 +21,15 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.TerminalStatusEnum;
 public interface TerminalRepositoryCustom {
 
 	/**
-	 * Save Terminal Status
+	 * Save Device Status
 	 * @param terminal
 	 * @param kid
 	 * @param status
 	 */
-	void saveTerminalStatus(final ObjectId terminal, final ObjectId kid, final TerminalStatusEnum status);
+	void saveDeviceStatus(final ObjectId terminal, final ObjectId kid, final DeviceStatusEnum status);
 	
     /**
-     * Save terminal status
+     * Save Heartbeat status
      * @param terminal
      * @param kid
      * @param screenStatus
@@ -43,7 +44,7 @@ public interface TerminalRepositoryCustom {
      * @param highAccuraccyLocationEnabled
      * @param appsOverlayEnabled
      */
-    void saveTerminalStatus(final ObjectId terminal, final ObjectId kid,
+    void saveHeartbeatStatus(final ObjectId terminal, final ObjectId kid,
     		final ScreenStatusEnum screenStatus, final boolean accessFineLocationEnabled,
     		final boolean readContactsEnabled, final boolean readCallLogEnabled,
     		final boolean writeExternalStorageEnabled, final boolean usageStatsAllowed,
@@ -61,6 +62,22 @@ public interface TerminalRepositoryCustom {
      */
     void saveTerminalHeartbeatConfiguration(final ObjectId terminal, final ObjectId kid, 
 			final int alertThresholdInMinutes, final boolean alertModeEnabled);
+    
+    
+    /**
+     * Set Terminal Status
+     * @param terminal
+     * @param status
+     */
+    void setTerminalStatus(final ObjectId terminal, TerminalStatusEnum status);
+    
+    
+    /**
+     * Set Terminal Status
+     * @param terminalList
+     * @param status
+     */
+    void setTerminalStatus(final List<ObjectId> terminalList, TerminalStatusEnum status);
     
     
     /**
@@ -178,18 +195,11 @@ public interface TerminalRepositoryCustom {
     
     
     /**
-     * Get Terminals With Heartbeat Alert Threshold Enabled And StateOn
+     * Get Terminals With Heartbeat Alert Threshold Enabled And Status Active
      * @return
      */
-    List<TerminalEntity> getTerminalsWithHeartbeatAlertThresholdEnabledAndStateOn();
-    
-    /**
-     * 
-     * @param kid
-     * @param terminal
-     */
-    void detach(final ObjectId kid, final ObjectId terminal);
-    
+    List<TerminalEntity> getTerminalsWithHeartbeatAlertThresholdEnabledAndStatusActive();
+        
     /**
      * Enable Phone Calls
      * @param kid
