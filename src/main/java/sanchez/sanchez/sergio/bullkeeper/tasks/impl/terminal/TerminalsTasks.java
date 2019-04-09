@@ -9,15 +9,19 @@ import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IAlertService;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.ITerminalService;
+import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalStatusChangedEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.terminal.UnlinkTerminalEvent;
 import sanchez.sanchez.sergio.bullkeeper.i18n.service.IMessageSourceResolverService;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AlertCategoryEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AlertLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.GuardianRolesEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SupervisedChildrenEntity;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.TerminalStatusEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.SupervisedChildrenRepository;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.TerminalDTO;
 
@@ -52,6 +56,12 @@ public class TerminalsTasks {
 	 * Message Source Resolver
 	 */
     protected IMessageSourceResolverService messageSourceResolver;
+    
+
+    /**
+     * Application Event Publisher
+     */
+    protected ApplicationEventPublisher applicationEventPublisher;
 	
 	/**
 	 * 
@@ -59,18 +69,21 @@ public class TerminalsTasks {
 	 * @param terminalService
 	 * @param supervisedChildrenRepository
 	 * @param messageSourceResolver
+	 * @param applicationEventPublisher
 	 */
 	@Autowired
 	public TerminalsTasks(
 			final IAlertService alertsService,
 			final ITerminalService terminalService,
 			final SupervisedChildrenRepository supervisedChildrenRepository,
-			final IMessageSourceResolverService messageSourceResolver) {
+			final IMessageSourceResolverService messageSourceResolver,
+			final ApplicationEventPublisher applicationEventPublisher) {
 		super();
 		this.alertsService = alertsService;
 		this.terminalService = terminalService;
 		this.supervisedChildrenRepository = supervisedChildrenRepository;
 		this.messageSourceResolver = messageSourceResolver;
+		this.applicationEventPublisher = applicationEventPublisher;
 	}
 	
 	/**
@@ -90,6 +103,15 @@ public class TerminalsTasks {
     						GuardianRolesEnum.ADMIN));
         	
         	for(final SupervisedChildrenEntity supervisedChildrenEntity: supervisedChildrenList) {
+        		
+        		
+        		applicationEventPublisher
+        			.publishEvent(new TerminalStatusChangedEvent(this, 
+        					supervisedChildrenEntity.getKid().getId().toString(),
+        					supervisedChildrenEntity.getGuardian().getId().toString(),
+        					TerminalStatusEnum.DETACHED
+        					));
+        		
         
         		alertsService.save(AlertLevelEnum.DANGER, 
         				messageSourceResolver.resolver("terminal.heartbeat.threshold.exceeded.title", new Object[] {

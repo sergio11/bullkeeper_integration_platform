@@ -61,6 +61,7 @@ import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalCameraStatusCha
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalPhoneCallsStatusChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalScreenStatusChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalSettingsStatusChangedEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalStatusChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.UnlinkAllKidTerminalsEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.UnlinkTerminalEvent;
 import sanchez.sanchez.sergio.bullkeeper.exception.AlertNotFoundException;
@@ -3968,6 +3969,16 @@ public class ChildrenController extends BaseController
     		
     	}
     	
+    	
+    	if(!TerminalStatusEnum.valueOf(terminalDetailDTO.getStatus())
+    			.equals(TerminalStatusEnum.INVALID))
+	    	applicationEventPublisher
+				.publishEvent(new TerminalStatusChangedEvent(this, 
+						terminalDetailDTO.getKid(),
+						terminalDetailDTO.getIdentity(),
+						TerminalStatusEnum.INVALID
+						));
+	    	
     	
     	terminalService.saveTerminalStatus(new ObjectId(terminalDetailDTO.getIdentity()), terminalStatus);
         	

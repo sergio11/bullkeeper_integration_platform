@@ -439,8 +439,9 @@ public class TerminalRepositoryImpl implements TerminalRepositoryCustom {
 		
 		final Criteria criteria = Criteria
 				.where("heartbeat.alert_mode_enabled").is(true)
-				.and("status").is(TerminalStatusEnum.ACTIVE.name())
-				.and("device_status").is(DeviceStatusEnum.STATE_ON.name());
+				.and("device_status").is(DeviceStatusEnum.STATE_ON.name())
+				.and("status").ne(TerminalStatusEnum.DETACHED.name());
+				
 				
         return  mongoTemplate.find(new Query(criteria), TerminalEntity.class);
 	}

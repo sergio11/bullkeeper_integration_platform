@@ -1,5 +1,9 @@
 package sanchez.sanchez.sergio.bullkeeper.events.terminal.handler;
 
+import java.util.Arrays;
+import java.util.List;
+
+import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
@@ -13,13 +17,18 @@ import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalCameraStatusCha
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalPhoneCallsStatusChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalScreenStatusChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalSettingsStatusChangedEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalStatusChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.UnlinkAllKidTerminalsEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.terminal.UnlinkTerminalEvent;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.GuardianRolesEnum;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SupervisedChildrenEntity;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.SupervisedChildrenRepository;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.terminal.TerminalBedTimeStatusChangedSSE;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.terminal.TerminalCameraStatusChangedSSE;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.terminal.TerminalPhoneCallsStatusChangedSSE;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.terminal.TerminalScreenStatusChangedSSE;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.terminal.TerminalSettingsStatusChangedSSE;
+import sanchez.sanchez.sergio.bullkeeper.sse.models.terminal.TerminalStatusChangedSSE;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.terminal.UnlinkTerminalSSE;
 import sanchez.sanchez.sergio.bullkeeper.sse.service.ISseService;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.TerminalDTO;
@@ -42,18 +51,26 @@ public class TerminalEventHandlers {
 	 * Terminal Service
 	 */
 	private final ITerminalService terminalService;
+	
+	/**
+	 * Supervised Children Repository
+	 */
+	private final SupervisedChildrenRepository supervisedChildrenRepository;
 
 	/**
 	 * 
 	 * @param sseService
 	 * @param terminalService
+	 * @param supervisedChildrenRepository
 	 */
 	public TerminalEventHandlers(
 			final ISseService sseService,
-			final ITerminalService terminalService) {
+			final ITerminalService terminalService,
+			final SupervisedChildrenRepository supervisedChildrenRepository) {
 		super();
 		this.sseService = sseService;
 		this.terminalService = terminalService;
+		this.supervisedChildrenRepository = supervisedChildrenRepository;
 	}
 
 	/**
@@ -256,6 +273,40 @@ public class TerminalEventHandlers {
 		
 		// Push Event
 		sseService.push(subscriberId, terminalPhoneCallsStatus);
+		
+	}
+	
+	/**
+	 * Handle for Terminal Status Changed Event
+	 * @param terminalStatusChangedEvent
+	 */
+	@EventListener
+	public void handle(final TerminalStatusChangedEvent terminalStatusChangedEvent) {
+		Assert.notNull(terminalStatusChangedEvent, "Terminal Status can not be null");
+		
+		final List<SupervisedChildrenEntity> supervisedChildren = supervisedChildrenRepository.findByKidIdAndRoleInAndIsConfirmedTrue(
+				new ObjectId(terminalStatusChangedEvent.getKid()), 
+				Arrays.asList(GuardianRolesEnum.PARENTAL_CONTROL_RULE_EDITOR,
+						GuardianRolesEnum.ADMIN));
+	
+		for(final SupervisedChildrenEntity supervisedChildrenEntity: supervisedChildren) {
+			
+			final String subscriberId = supervisedChildrenEntity.getGuardian().getId().toString();
+			
+			final TerminalStatusChangedSSE terminalPhoneCallsStatus = 
+					new TerminalStatusChangedSSE(
+							subscriberId, terminalStatusChangedEvent.getKid(),
+							terminalStatusChangedEvent.getTerminal(),
+							terminalStatusChangedEvent.getStatus().name()
+							);
+			
+			
+			// Push Event
+			sseService.push(subscriberId, terminalPhoneCallsStatus);
+			
+			
+		}
+		
 		
 	}
 	

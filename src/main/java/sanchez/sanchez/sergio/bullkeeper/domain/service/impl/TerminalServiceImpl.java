@@ -13,12 +13,14 @@ import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.ITerminalService;
+import sanchez.sanchez.sergio.bullkeeper.events.terminal.TerminalStatusChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.exception.AppInstalledNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.PhoneNumberAlreadyBlockedException;
 import sanchez.sanchez.sergio.bullkeeper.exception.PreviousRequestHasNotExpiredYetException;
@@ -215,6 +217,11 @@ public final class TerminalServiceImpl implements ITerminalService {
      * Device Photo Entity Mapper
      */
     private final DevicePhotoEntityMapper devicePhotoEntityMapper;
+    
+    /**
+     * Application Event Publisher
+     */
+    private final ApplicationEventPublisher applicationEventPublisher;
 	
 
 	/**
@@ -239,6 +246,7 @@ public final class TerminalServiceImpl implements ITerminalService {
 	 * @param uploadFilesService
 	 * @param devicePhotoRepository
 	 * @param devicePhotoEntityMapper
+	 * @param applicationEventPublisher
 	 */
 	@Autowired
 	public TerminalServiceImpl(final TerminalEntityDataMapper terminalEntityDataMapper, 
@@ -262,7 +270,8 @@ public final class TerminalServiceImpl implements ITerminalService {
 			final TerminalHeartbeatEntityDataMapper terminalHeartbeatEntityDataMapper,
 			final IUploadFilesService uploadFilesService,
 			final DevicePhotoRepository devicePhotoRepository,
-			final DevicePhotoEntityMapper devicePhotoEntityMapper) {
+			final DevicePhotoEntityMapper devicePhotoEntityMapper,
+			final ApplicationEventPublisher applicationEventPublisher) {
 		super();
 		this.terminalEntityDataMapper = terminalEntityDataMapper;
 		this.terminalRepository = terminalRepository;
@@ -286,6 +295,7 @@ public final class TerminalServiceImpl implements ITerminalService {
 		this.uploadFilesService = uploadFilesService;
 		this.devicePhotoRepository = devicePhotoRepository;
 		this.devicePhotoEntityMapper = devicePhotoEntityMapper;
+		this.applicationEventPublisher = applicationEventPublisher;
 	}
 
 	/**
@@ -1586,10 +1596,57 @@ public final class TerminalServiceImpl implements ITerminalService {
 	@Override
 	public void saveHeartbeatConfiguration(final SaveTerminalHeartBeatConfigurationDTO terminalHeartbeatConfiguration) {
 		Assert.notNull(terminalHeartbeatConfiguration, "Terminal Heartbeat Configuration");
+	
 		
 		terminalRepository.saveTerminalHeartbeatConfiguration(new ObjectId(terminalHeartbeatConfiguration.getTerminal()),
 				new ObjectId(terminalHeartbeatConfiguration.getKid()), terminalHeartbeatConfiguration.getAlertThresholdInMinutes(),
 				terminalHeartbeatConfiguration.isAlertModeEnabled());
+		
+		
+		final TerminalEntity terminalEntity = terminalRepository.findByIdAndKidId(new ObjectId(terminalHeartbeatConfiguration.getTerminal()), 
+				new ObjectId(terminalHeartbeatConfiguration.getKid()));
+		
+		long duration  = new Date().getTime() - terminalEntity.getHeartbeat().getLastTimeNotified().getTime();
+		long diffInMinutes = TimeUnit.MILLISECONDS.toMinutes(duration);
+		
+		TerminalStatusEnum terminalStatus;
+		
+		if(diffInMinutes > terminalEntity.getHeartbeat().getAlertThresholdInMinutes()) {
+			
+			terminalStatus = TerminalStatusEnum.DETACHED;
+			
+			applicationEventPublisher
+				.publishEvent(new TerminalStatusChangedEvent(this, 
+						terminalEntity.getKid().toString(),
+						terminalEntity.getId().toString(),
+						TerminalStatusEnum.DETACHED
+						));
+			
+			
+		} else if(
+				!terminalEntity.getLocationPermissionEnabled() || 
+				!terminalEntity.getAppsOverlayEnabled() || 
+				!terminalEntity.getHighAccuraccyLocationEnabled() || 
+				!terminalEntity.getCallsHistoryPermissionEnabled() || 
+				!terminalEntity.getContactsListPermissionEnabled() ||
+				!terminalEntity.getUsageStatsAllowed() ||
+				!terminalEntity.getStoragePermissionEnabled()
+				) {
+			terminalStatus = TerminalStatusEnum.INVALID;
+			
+			applicationEventPublisher
+			.publishEvent(new TerminalStatusChangedEvent(this, 
+					terminalEntity.getKid().toString(),
+					terminalEntity.getId().toString(),
+					TerminalStatusEnum.INVALID
+					));
+			
+		} else {
+			
+			terminalStatus = TerminalStatusEnum.ACTIVE;
+		}
+		
+		terminalRepository.setTerminalStatus(terminalEntity.getId(), terminalStatus);
 		
 	}
 
