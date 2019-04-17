@@ -88,5 +88,20 @@ public interface IGeofenceService {
 	GeofenceAlertDTO saveAlert(final String kid, final String geofence, final String type,
 			final String title, final String description);
 	
+	
+	/**
+	 * Disable Geofence
+	 * @param kid
+	 * @param geofence
+	 */
+	void disableGeofence(final ObjectId kid, final ObjectId geofence);
+	
+	/**
+	 * Enable Geofence
+	 * @param kid
+	 * @param geofence
+	 */
+	void enableGeofence(final ObjectId kid, final ObjectId geofence); 
+	
 
 }

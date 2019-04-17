@@ -75,6 +75,12 @@ public final class SummaryMyKidResultDTO implements Serializable {
      */
     @JsonProperty("social_medias")
     private List<SocialMediaDTO> socialMedias;
+    
+    /**
+     * Total Comments
+     */
+    @JsonProperty("total_comments")
+    private long totalComments;
 
     /**
      * Total Comments Analyzed
@@ -140,6 +146,7 @@ public final class SummaryMyKidResultDTO implements Serializable {
      * @param totalDevices
      * @param location
      * @param socialMedias
+     * @param totalComments
      * @param totalCommentsAnalyzed
      * @param totalViolentComments
      * @param totalCommentsAdultContent
@@ -151,7 +158,7 @@ public final class SummaryMyKidResultDTO implements Serializable {
      */
 	public SummaryMyKidResultDTO(final String identity, String firstName, String lastName, String birthdate, Integer age, SchoolDTO school,
 			String profileImage, long totalDevices, LocationDTO location, List<SocialMediaDTO> socialMedias,
-			long totalCommentsAnalyzed, long totalViolentComments, long totalCommentsAdultContent,
+			long totalComments, long totalCommentsAnalyzed, long totalViolentComments, long totalCommentsAdultContent,
 			long totalCommentsDrugs, long totalCommentsBullying, long totalCommentsNegativeSentiment,
 			long totalCommentsPositiveSentiment, long totalCommentsNeutralSentiment) {
 		super();
@@ -165,6 +172,7 @@ public final class SummaryMyKidResultDTO implements Serializable {
 		this.totalDevices = totalDevices;
 		this.location = location;
 		this.socialMedias = socialMedias;
+		this.totalComments = totalComments;
 		this.totalCommentsAnalyzed = totalCommentsAnalyzed;
 		this.totalViolentComments = totalViolentComments;
 		this.totalCommentsAdultContent = totalCommentsAdultContent;
@@ -257,6 +265,14 @@ public final class SummaryMyKidResultDTO implements Serializable {
 		this.socialMedias = socialMedias;
 	}
 
+	public long getTotalComments() {
+		return totalComments;
+	}
+
+	public void setTotalComments(long totalComments) {
+		this.totalComments = totalComments;
+	}
+
 	public long getTotalCommentsAnalyzed() {
 		return totalCommentsAnalyzed;
 	}
@@ -326,13 +342,15 @@ public final class SummaryMyKidResultDTO implements Serializable {
 		return "SummaryMyKidResultDTO [identity=" + identity + ", firstName=" + firstName + ", lastName=" + lastName
 				+ ", birthdate=" + birthdate + ", age=" + age + ", school=" + school + ", profileImage=" + profileImage
 				+ ", totalDevices=" + totalDevices + ", location=" + location + ", socialMedias=" + socialMedias
-				+ ", totalCommentsAnalyzed=" + totalCommentsAnalyzed + ", totalViolentComments=" + totalViolentComments
-				+ ", totalCommentsAdultContent=" + totalCommentsAdultContent + ", totalCommentsDrugs="
-				+ totalCommentsDrugs + ", totalCommentsBullying=" + totalCommentsBullying
-				+ ", totalCommentsNegativeSentiment=" + totalCommentsNegativeSentiment
+				+ ", totalComments=" + totalComments + ", totalCommentsAnalyzed=" + totalCommentsAnalyzed
+				+ ", totalViolentComments=" + totalViolentComments + ", totalCommentsAdultContent="
+				+ totalCommentsAdultContent + ", totalCommentsDrugs=" + totalCommentsDrugs + ", totalCommentsBullying="
+				+ totalCommentsBullying + ", totalCommentsNegativeSentiment=" + totalCommentsNegativeSentiment
 				+ ", totalCommentsPositiveSentiment=" + totalCommentsPositiveSentiment
 				+ ", totalCommentsNeutralSentiment=" + totalCommentsNeutralSentiment + "]";
 	}
+
+	
 
 	
 

@@ -531,6 +531,11 @@ public class AnalysisStatisticsServiceImpl implements IAnalysisStatisticsService
 		summaryMyKidResultDTO.setSocialMedias(socialMediaService.getSocialMediaByKid(kid.toString()));
 		summaryMyKidResultDTO.setTotalDevices(Iterables.size(kidDTO.getTerminals()));
 		
+		final long totalComments = commentRepository.countByKidId(kid);
+		
+		summaryMyKidResultDTO.setTotalComments(totalComments);
+		
+		// Total comments with positive results for dimensions
 		final long totalAdultComments = commentRepository.countByKidIdAndAnalysisResultsAdultResult(kid, 1);
 		final long totalViolenceComments = commentRepository.countByKidIdAndAnalysisResultsViolenceResult(kid, 1);
 		final long totalBullyingComments = commentRepository.countByKidIdAndAnalysisResultsBullyingResult(kid, 1);

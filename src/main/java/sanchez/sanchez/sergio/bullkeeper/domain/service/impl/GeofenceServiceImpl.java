@@ -197,4 +197,32 @@ public final class GeofenceServiceImpl implements IGeofenceService {
 		
 	}
 
+	/**
+	 * Disable Geofence
+	 * @param kid
+	 * @param geofence
+	 */
+	@Override
+	public void disableGeofence(final ObjectId kid, final ObjectId geofence) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(geofence, "Geofence can not be null");
+		
+		geofenceRepository.disableGeofence(kid, geofence);
+		
+	}
+
+	/**
+	 * Enable Geofence
+	 * @param kid
+	 * @param geofence
+	 */
+	@Override
+	public void enableGeofence(final ObjectId kid, final ObjectId geofence) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(geofence, "Geofence can not be null");
+		
+		geofenceRepository.enableGeofence(kid, geofence);
+		
+	}
+
 }

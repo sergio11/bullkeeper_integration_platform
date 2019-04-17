@@ -43,6 +43,7 @@ import sanchez.sanchez.sergio.bullkeeper.events.funtime.SaveFunTimeScheduledEven
 import sanchez.sanchez.sergio.bullkeeper.events.geofences.AllGeofencesDeletedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.geofences.GeofenceAddedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.geofences.GeofenceDeletedEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.geofences.GeofenceStatusChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.geofences.GeofencesDeletedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.location.CurrentLocationUpdateEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.phonenumbers.AddPhoneNumberBlockedEvent;
@@ -75,6 +76,7 @@ import sanchez.sanchez.sergio.bullkeeper.exception.CurrentLocationException;
 import sanchez.sanchez.sergio.bullkeeper.exception.DevicePhotoDetailNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.FunTimeDayScheduledNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.FunTimeScheduledNotFoundException;
+import sanchez.sanchez.sergio.bullkeeper.exception.GeofenceNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.KidNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.KidRequestNotFoundException;
 import sanchez.sanchez.sergio.bullkeeper.exception.NoAlertsByKidFoundException;
@@ -3970,8 +3972,8 @@ public class ChildrenController extends BaseController
     	}
     	
     	
-    	if(!TerminalStatusEnum.valueOf(terminalDetailDTO.getStatus())
-    			.equals(TerminalStatusEnum.INVALID))
+    	if(TerminalStatusEnum.valueOf(terminalDetailDTO.getStatus())
+    			.equals(TerminalStatusEnum.ACTIVE) && terminalStatus.equals(TerminalStatusEnum.INVALID))
 	    	applicationEventPublisher
 				.publishEvent(new TerminalStatusChangedEvent(this, 
 						terminalDetailDTO.getKid(),
@@ -4924,6 +4926,83 @@ public class ChildrenController extends BaseController
     	// Create and send response
     	return ApiHelper.<GeofenceDTO>createAndSendResponse(GeofenceResponseCode.GEOFENCE_DETAIL, 
         		HttpStatus.OK, geofenceDTO);
+    	
+    }
+    
+    /**
+     * Enable Geofence
+     */
+    @RequestMapping(value = "/{kid}/geofences/{id}/enable", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
+    @ApiOperation(
+    		value = "ENABLE_GEOFENCE_BY_ID", nickname = "ENABLE_GEOFENCE_BY_ID",
+    		notes = "Enable Geofence By Id", response = String.class)
+    public ResponseEntity<APIResponse<String>> enableGeofenceById(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+         		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
+          			@PathVariable String kid,
+          	@ApiParam(name = "id", value = "Geofence Id", required = true)
+     			@Valid @GeofenceShouldExists(message = "{geofence.should.be.exists}")
+      				@PathVariable String id) throws Throwable {
+    	
+    	logger.debug("Enable Geofence By Id -> " + kid);
+    	
+    	// Get Geofence
+    	final GeofenceDTO geofenceDTO = Optional.ofNullable(geofenceService.findById(
+    			new ObjectId(kid), new ObjectId(id)))
+    			 .orElseThrow(() -> { throw new GeofenceNotFoundException(); });
+    	
+    	geofenceService.enableGeofence(new ObjectId(geofenceDTO.getKid()), 
+    			new ObjectId(geofenceDTO.getIdentity()));
+    	
+    	// Push Event
+    	this.applicationEventPublisher
+    		.publishEvent(new GeofenceStatusChangedEvent(
+    				this, id, kid, true));
+   
+    	// Create and send response
+    	return ApiHelper.<String>createAndSendResponse(GeofenceResponseCode.GEOFENCE_ENABLED_SUCCESSFULLY, 
+        		HttpStatus.OK, messageSourceResolver.resolver("geofence.enabled.successfully"));
+    	
+    }
+    
+    /**
+     * Disable Geofence
+     */
+    @RequestMapping(value = "/{kid}/geofences/{id}/disable", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
+    @ApiOperation(
+    		value = "DISABLE_GEOFENCE_BY_ID", nickname = "DISABLE_GEOFENCE_BY_ID",
+    		notes = "Disable Geofence By Id", response = String.class)
+    public ResponseEntity<APIResponse<String>> disableGeofenceById(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+         		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
+          			@PathVariable String kid,
+          	@ApiParam(name = "id", value = "Geofence Id", required = true)
+     			@Valid @GeofenceShouldExists(message = "{geofence.should.be.exists}")
+      				@PathVariable String id) throws Throwable {
+    	
+    	logger.debug("Disable Geofence By Id -> " + kid);
+    	
+    	// Get Geofence
+    	final GeofenceDTO geofenceDTO = Optional.ofNullable(geofenceService.findById(
+    			new ObjectId(kid), new ObjectId(id)))
+    			 .orElseThrow(() -> { throw new GeofenceNotFoundException(); });
+    	
+    	geofenceService.disableGeofence(new ObjectId(geofenceDTO.getKid()), 
+    			new ObjectId(geofenceDTO.getIdentity()));
+    	
+    	// Push Event
+    	this.applicationEventPublisher
+    		.publishEvent(new GeofenceStatusChangedEvent(
+    				this, id, kid, false));
+    	
+    	
+    	// Create and send response
+    	return ApiHelper.<String>createAndSendResponse(GeofenceResponseCode.GEOFENCE_DISABLED_SUCCESSFULLY, 
+        		HttpStatus.OK, messageSourceResolver.resolver("geofence.disabled.successfully"));
     	
     }
     

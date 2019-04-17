@@ -62,4 +62,38 @@ public final class GeofenceRepositoryImpl implements GeofenceRepositoryCustom {
                 new Update().set("alerts", new ArrayList<>()), GeofenceEntity.class);
 	}
 
+	/**
+	 * Enable Geofence
+	 * @param kid
+	 * @param geofence
+	 */
+	@Override
+	public void enableGeofence(final ObjectId kid, final ObjectId geofence) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(geofence, "Geofence can not be null");
+		
+		mongoTemplate.updateFirst(
+				new Query(Criteria.where("kid").is(kid)
+		        		.andOperator(Criteria.where("_id").is(geofence))),
+                new Update().set("is_enabled", true), GeofenceEntity.class);
+		
+	}
+
+	/**
+	 * Disable Geofence
+	 * @param kid
+	 * @param geofence
+	 */
+	@Override
+	public void disableGeofence(final ObjectId kid, final ObjectId geofence) {
+		Assert.notNull(kid, "Kid can not be null");
+		Assert.notNull(geofence, "Geofence can not be null");
+		
+		mongoTemplate.updateFirst(
+				new Query(Criteria.where("kid").is(kid)
+		        		.andOperator(Criteria.where("_id").is(geofence))),
+                new Update().set("is_enabled", false), GeofenceEntity.class);
+		
+	}
+
 }

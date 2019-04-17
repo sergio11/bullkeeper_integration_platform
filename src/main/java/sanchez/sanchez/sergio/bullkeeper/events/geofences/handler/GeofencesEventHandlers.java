@@ -10,6 +10,7 @@ import org.springframework.util.Assert;
 import sanchez.sanchez.sergio.bullkeeper.events.geofences.AllGeofencesDeletedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.geofences.GeofenceAddedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.geofences.GeofenceDeletedEvent;
+import sanchez.sanchez.sergio.bullkeeper.events.geofences.GeofenceStatusChangedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.geofences.GeofencesDeletedEvent;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.TerminalEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.TerminalRepository;
@@ -17,6 +18,7 @@ import sanchez.sanchez.sergio.bullkeeper.sse.models.AbstractSseData;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.location.AllGeofenceDeletedSSE;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.location.GeofenceAddedSSE;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.location.GeofenceDeletedSSE;
+import sanchez.sanchez.sergio.bullkeeper.sse.models.location.GeofenceStatusChangedSSE;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.location.GeofencesDeletedSSE;
 import sanchez.sanchez.sergio.bullkeeper.sse.service.ISseService;
 
@@ -127,6 +129,23 @@ public class GeofencesEventHandlers {
 		// Send Event to all terminals
 		sendEventToAllTerminals(geofencesDeletedEvent.getKid(), event);
 		
+	}
+	
+	/**
+	 * Handle for Geofence Status Changed Event
+	 * @param geofenceStatusChangedEvent
+	 */
+	@EventListener
+	public void handle(final GeofenceStatusChangedEvent geofenceStatusChangedEvent) {
+		Assert.notNull(geofenceStatusChangedEvent, "Geofences Status Changed Event can not be null");
+	
+		final GeofenceStatusChangedSSE event = new GeofenceStatusChangedSSE();
+		event.setGeofence(geofenceStatusChangedEvent.getIdentity());
+		event.setKid(geofenceStatusChangedEvent.getKid());
+		event.setIsEnabled(geofenceStatusChangedEvent.getIsEnabled());
+		
+		// Send Event to all terminals
+		sendEventToAllTerminals(geofenceStatusChangedEvent.getKid(), event);
 	}
 	
 	/**

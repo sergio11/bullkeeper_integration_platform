@@ -414,6 +414,13 @@ public interface CommentRepository extends MongoRepository<CommentEntity, Object
     		final Date from, final Integer result);
     
     /**
+     * Count By Kid
+     * @param kid
+     * @return
+     */
+    Long countByKidId(final ObjectId kid);
+    
+    /**
      * 
      * @param kid
      * @param result
