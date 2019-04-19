@@ -9,10 +9,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.GuardianAccountShouldNotLocked;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.GuardianEmailShouldExist;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ParentAccountShouldActive;
+import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ParentAccountShouldNotPendingDelete;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ShouldNotBeAFacebookUser;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ShouldNotBeAGoogleUser;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.group.IGroups.IAccountShouldActive;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.group.IGroups.IAccountShouldNotLocked;
+import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.group.IGroups.IAccountShouldNotPendingDelete;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.group.IGroups.IEmailShouldExist;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.group.IGroups.IShouldNotBeAFacebookUser;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.group.IGroups.IShouldNotBeAGoogleUser;
@@ -26,6 +28,7 @@ public final class ResetPasswordRequestDTO {
     @ShouldNotBeAFacebookUser(message = "{user.should.not.be.a.facebook.user}", groups = IShouldNotBeAFacebookUser.class)
     @ShouldNotBeAGoogleUser(message = "{user.should.not.be.a.google.user}", groups = IShouldNotBeAGoogleUser.class)
     @ParentAccountShouldActive(message = "{user.email.not.activate}", groups = IAccountShouldActive.class)
+    @ParentAccountShouldNotPendingDelete(message = "{user.email.not.pending.delete}", groups = IAccountShouldNotPendingDelete.class)
     @GuardianAccountShouldNotLocked(message = "{user.email.not.locked}", groups = IAccountShouldNotLocked.class)
     @JsonProperty("email")
     private String email;

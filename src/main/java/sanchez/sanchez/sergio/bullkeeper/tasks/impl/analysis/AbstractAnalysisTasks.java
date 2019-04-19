@@ -50,6 +50,12 @@ public abstract class AbstractAnalysisTasks {
 	@Value("${task.analysis.maximum.hours.of.an.analysis}")
 	protected Integer maximumHoursOfAnAnalysis;
 	
+	
+	/**
+	 * 
+	 * @param type
+	 * @param comments
+	 */
 	@SuppressWarnings("unchecked")
 	protected void startAnalysisFor(final AnalysisTypeEnum type, List<CommentEntity> comments) {
 		Assert.notNull(type, "Type can not be null");

@@ -94,7 +94,7 @@ public class AuthorizationServiceImpl implements IAuthorizationService {
     public CommonUserDetailsAware<ObjectId> getUserDetails() {
         CommonUserDetailsAware<ObjectId> userDetails = null;
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (!(auth instanceof AnonymousAuthenticationToken)) {
+        if (auth != null && !(auth instanceof AnonymousAuthenticationToken)) {
             userDetails = (CommonUserDetailsAware<ObjectId>) auth.getPrincipal();
         }
         return userDetails;
@@ -256,7 +256,7 @@ public class AuthorizationServiceImpl implements IAuthorizationService {
 	@Override
 	public ObjectId getCurrentUserId() {
 		final CommonUserDetailsAware<ObjectId> userDetails = getUserDetails();
-		return userDetails.getUserId();
+		return userDetails != null ? userDetails.getUserId():  null;
 	}
 	
 

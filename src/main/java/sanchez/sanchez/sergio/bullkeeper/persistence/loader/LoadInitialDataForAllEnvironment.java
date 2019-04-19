@@ -27,15 +27,36 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SocialMediaTypeEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SupervisedChildrenEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.UserSystemEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.AlertRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.AppInstalledRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.AppStatsRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.AuthorityRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.CallDetailRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.CommentRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.ContactEntityRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.ConversationRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.DeviceGroupRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.DevicePhotoRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.EmailRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.GeofenceRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.GuardianRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.IterationRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.KidRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.KidRequestRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.MessageRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.PasswordResetTokenRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.PendingDeviceRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.PhoneNumberBlockedRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.RememberMeTokenRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.ScheduledBlockRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.SchoolRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.SmsRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.SocialMediaRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.SseEventRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.SupervisedChildrenRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.TaskRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.TerminalRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.UserSystemRepository;
+import sanchez.sanchez.sergio.bullkeeper.web.uploads.service.IUploadFilesService;
 
 /**
  * @author sergio
@@ -60,6 +81,27 @@ public class LoadInitialDataForAllEnvironment implements CommandLineRunner {
     private final DeviceGroupRepository deviceGroupRepository;
     private final CommentRepository commentRepository;
     private final SupervisedChildrenRepository supervisedChildrenRepository;
+    private final AppInstalledRepository appInstalledRepository;
+    private final AppStatsRepository appStatsRepository;
+    private final CallDetailRepository callDetailRepository;
+    private final ContactEntityRepository contactEntityRepository;
+    private final DevicePhotoRepository devicePhotoRepository;
+    private final GeofenceRepository geofenceRepository;
+    private final IterationRepository iterationRepository;
+    private final KidRequestRepository kidRequestRepository;
+    private final ConversationRepository conversationRepository;
+    private final MessageRepository messageRepository;
+    private final PhoneNumberBlockedRepository phoneNumberBlockedRepository;
+    private final ScheduledBlockRepository scheduledBlockRepository;
+    private final SmsRepository smsRepository;
+    private final SseEventRepository sseEventRepository;
+    private final TaskRepository taskRepository;
+    private final TerminalRepository terminalRepository;
+    private final PendingDeviceRepository pendingDeviceRepository;
+    private final EmailRepository emailRepository;
+    private final RememberMeTokenRepository rememberMeTokenRepository;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final IUploadFilesService uploadFilesService;
     
     
     private static List<AuthorityEntity> authoritiesList = new ArrayList<>();
@@ -269,14 +311,62 @@ public class LoadInitialDataForAllEnvironment implements CommandLineRunner {
 
 
     
-    public LoadInitialDataForAllEnvironment(SchoolRepository schoolRepository, GuardianRepository parentRepository,
-			KidRepository sonRepository, SocialMediaRepository socialMediaRepository, AuthorityRepository authorityRepository, 
-			UserSystemRepository userSystemRepository, AlertRepository alertRepository, DeviceGroupRepository deviceGroupRepository, 
-			CommentRepository commentRepository, SupervisedChildrenRepository supervisedChildrenRepository) {
+    /**
+     * 
+     * @param schoolRepository
+     * @param guardianRepository
+     * @param kidRepository
+     * @param socialMediaRepository
+     * @param authorityRepository
+     * @param userSystemRepository
+     * @param alertRepository
+     * @param deviceGroupRepository
+     * @param commentRepository
+     * @param supervisedChildrenRepository
+     * @param appInstalledRepository
+     * @param appStatsRepository
+     * @param callDetailRepository
+     * @param contactEntityRepository
+     * @param devicePhotoRepository
+     * @param geofenceRepository
+     * @param iterationRepository
+     * @param kidRequestRepository
+     * @param conversationRepository
+     * @param messageRepository
+     * @param phoneNumberBlockedRepository
+     * @param scheduledBlockRepository
+     * @param smsRepository
+     * @param sseEventRepository
+     * @param taskRepository
+     * @param terminalRepository
+     * @param pendingDeviceRepository
+     * @param emailRepository
+     * @param rememberMeTokenRepository
+     * @param passwordResetTokenRepository
+     * @param uploadFilesService
+     */
+
+	public LoadInitialDataForAllEnvironment(SchoolRepository schoolRepository, GuardianRepository guardianRepository,
+			KidRepository kidRepository, SocialMediaRepository socialMediaRepository,
+			AuthorityRepository authorityRepository, UserSystemRepository userSystemRepository,
+			AlertRepository alertRepository, DeviceGroupRepository deviceGroupRepository,
+			CommentRepository commentRepository, SupervisedChildrenRepository supervisedChildrenRepository,
+			AppInstalledRepository appInstalledRepository, AppStatsRepository appStatsRepository,
+			CallDetailRepository callDetailRepository, ContactEntityRepository contactEntityRepository,
+			DevicePhotoRepository devicePhotoRepository, GeofenceRepository geofenceRepository,
+			IterationRepository iterationRepository, KidRequestRepository kidRequestRepository,
+			ConversationRepository conversationRepository, MessageRepository messageRepository,
+			PhoneNumberBlockedRepository phoneNumberBlockedRepository,
+			ScheduledBlockRepository scheduledBlockRepository, SmsRepository smsRepository,
+			SseEventRepository sseEventRepository, TaskRepository taskRepository, TerminalRepository terminalRepository,
+			PendingDeviceRepository pendingDeviceRepository, EmailRepository emailRepository,
+			RememberMeTokenRepository rememberMeTokenRepository,
+			PasswordResetTokenRepository passwordResetTokenRepository,
+			IUploadFilesService uploadFilesService) {
 		super();
 		this.schoolRepository = schoolRepository;
-		this.guardianRepository = parentRepository;
-		this.kidRepository = sonRepository;
+		this.guardianRepository = guardianRepository;
+		this.kidRepository = kidRepository;
 		this.socialMediaRepository = socialMediaRepository;
 		this.authorityRepository = authorityRepository;
 		this.userSystemRepository = userSystemRepository;
@@ -284,9 +374,30 @@ public class LoadInitialDataForAllEnvironment implements CommandLineRunner {
 		this.deviceGroupRepository = deviceGroupRepository;
 		this.commentRepository = commentRepository;
 		this.supervisedChildrenRepository = supervisedChildrenRepository;
+		this.appInstalledRepository = appInstalledRepository;
+		this.appStatsRepository = appStatsRepository;
+		this.callDetailRepository = callDetailRepository;
+		this.contactEntityRepository = contactEntityRepository;
+		this.devicePhotoRepository = devicePhotoRepository;
+		this.geofenceRepository = geofenceRepository;
+		this.iterationRepository = iterationRepository;
+		this.kidRequestRepository = kidRequestRepository;
+		this.conversationRepository = conversationRepository;
+		this.messageRepository = messageRepository;
+		this.phoneNumberBlockedRepository = phoneNumberBlockedRepository;
+		this.scheduledBlockRepository = scheduledBlockRepository;
+		this.smsRepository = smsRepository;
+		this.sseEventRepository = sseEventRepository;
+		this.taskRepository = taskRepository;
+		this.terminalRepository = terminalRepository;
+		this.pendingDeviceRepository = pendingDeviceRepository;
+		this.emailRepository = emailRepository;
+		this.rememberMeTokenRepository = rememberMeTokenRepository;
+		this.passwordResetTokenRepository = passwordResetTokenRepository;
+		this.uploadFilesService = uploadFilesService;
 	}
-    
-    private static List<CommentEntity> getCommentsForFacebook(final KidEntity kid){
+
+	private static List<CommentEntity> getCommentsForFacebook(final KidEntity kid){
     	
     	final List<CommentEntity> commentsList = new ArrayList<>();
     	
@@ -525,7 +636,8 @@ public class LoadInitialDataForAllEnvironment implements CommandLineRunner {
     
     @Override
     public void run(String...args) throws Exception {
-        logger.debug("Delete all data");
+        
+    	logger.debug("Delete all data");
         kidRepository.deleteAll();
         guardianRepository.deleteAll();
         schoolRepository.deleteAll();
@@ -536,6 +648,29 @@ public class LoadInitialDataForAllEnvironment implements CommandLineRunner {
         deviceGroupRepository.deleteAll();
         commentRepository.deleteAll();
         supervisedChildrenRepository.deleteAll();
+        appInstalledRepository.deleteAll();
+        appStatsRepository.deleteAll();
+        callDetailRepository.deleteAll();
+        contactEntityRepository.deleteAll();
+        devicePhotoRepository.deleteAll();
+        geofenceRepository.deleteAll();
+        iterationRepository.deleteAll();
+        kidRequestRepository.deleteAll();
+        conversationRepository.deleteAll();
+        messageRepository.deleteAll();
+        phoneNumberBlockedRepository.deleteAll();
+        scheduledBlockRepository.deleteAll();
+        smsRepository.deleteAll();
+        sseEventRepository.deleteAll();
+        taskRepository.deleteAll();
+        terminalRepository.deleteAll();
+        pendingDeviceRepository.deleteAll();
+        emailRepository.deleteAll();
+        rememberMeTokenRepository.deleteAll();
+        passwordResetTokenRepository.deleteAll();
+        uploadFilesService.deleteAll();
+        
+        
         logger.debug("Load Initial Data ...");
         authorityRepository.save(authoritiesList);
         schoolRepository.save(schoolList);

@@ -78,6 +78,14 @@ public final class UploadFilesServiceImpl implements IUploadFilesService {
 		uploadStrategy.delete(id);
 		
 	}
+	
+	/**
+	 * Delete All
+	 */
+	@Override
+	public void deleteAll() {
+		uploadStrategy.deleteAll();
+	}
     
 	/**
 	 * 
@@ -87,5 +95,7 @@ public final class UploadFilesServiceImpl implements IUploadFilesService {
         Assert.notNull(uploadStrategy, "Upload Strategy can not be null");
         Assert.notNull(imageUploadMapper, "Image Upload Mapper can not be null");
     }
+
+	
 	
 }

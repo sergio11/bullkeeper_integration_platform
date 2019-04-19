@@ -38,4 +38,9 @@ public interface IUploadStrategy<T, E extends RequestUploadFile> {
      * @return
      */
     Boolean exists(T id);
+    
+    /**
+     * Delete All
+     */
+    void deleteAll();
 }

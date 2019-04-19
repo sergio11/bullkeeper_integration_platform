@@ -23,6 +23,12 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.BullyingResultsEntit
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.CommentEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.KidEntity;
 
+
+/**
+ * Bullying Analysis Tasks
+ * @author ssanchez
+ *
+ */
 @Component
 public class BullyingAnalysisTasks extends AbstractAnalysisTasks {
 	
@@ -53,7 +59,7 @@ public class BullyingAnalysisTasks extends AbstractAnalysisTasks {
 	@Scheduled(cron = "${task.analysis.bullying.cancel.not.finished.interval}")
 	public void cancelingUnfinishedBullyingAnalysisTasks(){
 		logger.debug("Canceling unfinished bullying analysis tasks");
-		commentRepository.cancelAnalyzesThatAreTakingMoreThanNHours(AnalysisTypeEnum.BULLYING, maximumHoursOfAnAnalysis);
+		commentRepository.cancelAnalyzesThatAreTakingMoreThanNMinutes(AnalysisTypeEnum.BULLYING, maximumHoursOfAnAnalysis);
 	}
 	
 	

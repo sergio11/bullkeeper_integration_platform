@@ -56,6 +56,13 @@ public interface GuardianRepository extends MongoRepository<GuardianEntity, Obje
      * @return
      */
     Long countByEmailAndActiveTrue(String email);
+    
+    /**
+     * 
+     * @param email
+     * @return
+     */
+    Long countByEmailAndPendingDeletionFalse(final String email);
 
     /**
      * 

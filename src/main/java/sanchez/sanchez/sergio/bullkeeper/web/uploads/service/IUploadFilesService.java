@@ -38,6 +38,11 @@ public interface IUploadFilesService {
      * @param id
      */
     void delete(final String id);
+    
+    /**
+     * Delete All
+     */
+    void deleteAll();
    
     
 }

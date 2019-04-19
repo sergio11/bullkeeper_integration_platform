@@ -98,10 +98,10 @@ public interface CommentRepositoryCustom {
     /**
      * 
      * @param type
-     * @param hours
+     * @param minutes
      */
-    void cancelAnalyzesThatAreTakingMoreThanNHours(final AnalysisTypeEnum type, 
-    		final Integer hours);
+    void cancelAnalyzesThatAreTakingMoreThanNMinutes(final AnalysisTypeEnum type, 
+    		final Integer minutes);
     
     /**
      * 

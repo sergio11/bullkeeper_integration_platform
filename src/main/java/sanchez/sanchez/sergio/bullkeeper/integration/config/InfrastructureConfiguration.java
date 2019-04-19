@@ -113,7 +113,10 @@ public class InfrastructureConfiguration {
         return messageSource;
     }
     
-    
+    /**
+     * Iteration Finished Channel
+     * @return
+     */
     @Bean
     public SubscribableChannel iterationFinishedPubSubChannel()
     {
@@ -193,11 +196,11 @@ public class InfrastructureConfiguration {
                 .<SocialMediaEntity, SocialMediaTypeEnum>route(p -> p.getType(),
                         m
                         -> m.subFlowMapping(SocialMediaTypeEnum.FACEBOOK, 
-                                sf -> sf.handle(SocialMediaEntity.class, (p, h) -> facebookService.getCommentsReceived(p.getAccessToken())))
+                                sf -> sf.handle(SocialMediaEntity.class, (p, h) -> facebookService.getComments(p)))
                             .subFlowMapping(SocialMediaTypeEnum.YOUTUBE, 
-                                sf -> sf.handle(SocialMediaEntity.class, (p, h) -> youtubeService.getCommentsReceived(p.getAccessToken(), p.getRefreshToken())))
+                                sf -> sf.handle(SocialMediaEntity.class, (p, h) -> youtubeService.getComments(p)))
                             .subFlowMapping(SocialMediaTypeEnum.INSTAGRAM, 
-                                sf -> sf.handle(SocialMediaEntity.class, (p, h) -> instagramService.getCommentsReceived(p.getAccessToken())))
+                                sf -> sf.handle(SocialMediaEntity.class, (p, h) -> instagramService.getComments(p)))
                 )
                 .channel("directChannel_1")
                 .transform(mergeCommentsTransformer)

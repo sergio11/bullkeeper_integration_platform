@@ -41,9 +41,15 @@ public class IterationServiceImpl implements IIterationService {
     private final IterationEntityMapper iterationEntityMapper;
     private final SimpMessagingTemplate simpMessagingTemplate;
     
-
-    public IterationServiceImpl(IterationRepository iterationRepository, 
-            IterationEntityMapper iterationEntityMapper, SimpMessagingTemplate simpMessagingTemplate,
+    /**
+     * 
+     * @param iterationRepository
+     * @param iterationEntityMapper
+     * @param simpMessagingTemplate
+     * @param sonRepository
+     */
+    public IterationServiceImpl(final IterationRepository iterationRepository, 
+            final IterationEntityMapper iterationEntityMapper,final  SimpMessagingTemplate simpMessagingTemplate,
              KidRepository sonRepository) {
         this.iterationRepository = iterationRepository;
         this.iterationEntityMapper = iterationEntityMapper;
@@ -51,20 +57,9 @@ public class IterationServiceImpl implements IIterationService {
     }
     
     
-    private List<CommentsByKidDTO> getCommentsBySonForIteration(IterationEntity iterationEntity) {
-    	Map<String, Long> commentsBySon = new HashMap<String, Long>();
-    	iterationEntity.getTasks().stream().flatMap(task -> task.getComments().stream()).forEach(comment -> 
-			commentsBySon.compute(comment.getKid().getFullName(), (k, v) -> (v == null) ? 1 : ++v));
-        
-        return commentsBySon
-        	.entrySet()
-        		.stream()
-        			.map(entry -> new CommentsByKidDTO(entry.getKey(), entry.getValue()))
-        				.collect(Collectors.toList());
-    }
-    
- 
-  
+    /**
+     * Save Iteration
+     */
     @Override
     public IterationWithTasksDTO save(IterationEntity iterationEntity) {
     
@@ -92,12 +87,17 @@ public class IterationServiceImpl implements IIterationService {
  
     }
     
-   
+   /**
+    * Get Total Iterations
+    */
     @Override
     public Long getTotalIterations() {
         return iterationRepository.count();
     }
 
+    /**
+     * Find Paginated
+     */
     @Override
     public Page<IterationDTO> findPaginated(Integer page, Integer size) {
         Pageable pageable = new PageRequest(page, size);
@@ -110,6 +110,9 @@ public class IterationServiceImpl implements IIterationService {
         });
     }
     
+    /**
+     * Get Last Probing
+     */
     @Override
 	public Date getLastProbing() {
     	PageRequest request = new PageRequest(0, 1, new Sort(Sort.Direction.DESC, "finishDate"));
@@ -117,6 +120,9 @@ public class IterationServiceImpl implements IIterationService {
     	return iterations.size() > 0 ? iterations.get(0).getFinishDate() : null;
 	}
     
+    /**
+     *
+     */
     @Override
 	public Page<IterationDTO> findPaginated(Pageable pageable) {
     	Page<IterationEntity> iterationsPage = iterationRepository.findAll(pageable);
@@ -145,6 +151,33 @@ public class IterationServiceImpl implements IIterationService {
 	public Double getAvgDuration() {
 		return iterationRepository.getAvgDuration().getAvgDuration();
 	}
+    
+    /**
+     * 
+     * Private Methods
+     * ===================
+     * 
+     */
+    
+    /**
+     * 
+     * @param iterationEntity
+     * @return
+     */
+    private List<CommentsByKidDTO> getCommentsBySonForIteration(IterationEntity iterationEntity) {
+    	Map<String, Long> commentsBySon = new HashMap<String, Long>();
+    	iterationEntity.getTasks().stream().flatMap(task -> task.getComments().stream()).forEach(comment -> 
+			commentsBySon.compute(comment.getKid().getFullName(), (k, v) -> (v == null) ? 1 : ++v));
+        
+        return commentsBySon
+        	.entrySet()
+        		.stream()
+        			.map(entry -> new CommentsByKidDTO(entry.getKey(), entry.getValue()))
+        				.collect(Collectors.toList());
+    }
+    
+    
+  
     
     @PostConstruct
     protected void init() {

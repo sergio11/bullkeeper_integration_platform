@@ -61,17 +61,26 @@ public class UserImagesGridFSUploadStrategy implements IUploadStrategy<String, R
      * Delete
      */
     @Override
-    public void delete(String id) {
+    public void delete(final String id) {
         Assert.hasLength(id, "Id can not be empty");
         // delete image via id
         gridOperations.delete(new Query(Criteria.where("_id").is(id)));
+        
     }
+    
+    /**
+     * Delete All
+     */
+    @Override
+	public void deleteAll() {
+    	gridOperations.delete(new Query());
+	}
 
     /**
      * Get
      */
     @Override
-    public UploadFileInfo get(String id) throws UploadFailException {
+    public UploadFileInfo get(final String id) throws UploadFailException {
         Assert.hasLength(id, "Id can not be empty");
         try {
             // read file from MongoDB

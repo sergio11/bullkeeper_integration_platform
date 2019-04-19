@@ -10,6 +10,7 @@ public interface IGroups {
     public interface IValidEmail {}
     public interface IEmailShouldExist {}
     public interface IAccountShouldActive {}
+    public interface IAccountShouldNotPendingDelete {}
     public interface IAccountShouldNotActive {}
     public interface IAccountShouldNotLocked {}
     public interface IShouldNotBeAFacebookUser {}

@@ -23,6 +23,11 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AnalysisTypeEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.CommentEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.KidEntity;
 
+/**
+ * Adult Analysis Tasks
+ * @author ssanchez
+ *
+ */
 @Component
 @ConditionalOnProperty(name = "task.analysis.adult.status", havingValue = "enable", matchIfMissing = false)
 public class AdultAnalysisTasks extends AbstractAnalysisTasks {
@@ -52,7 +57,7 @@ public class AdultAnalysisTasks extends AbstractAnalysisTasks {
 	@Scheduled(cron = "${task.analysis.adult.cancel.not.finished.interval}")
 	public void cancelingUnfinishedAdultAnalysisTasks(){
 		logger.debug("Canceling unfinished adult analysis tasks");
-		commentRepository.cancelAnalyzesThatAreTakingMoreThanNHours(AnalysisTypeEnum.ADULT, maximumHoursOfAnAnalysis);
+		commentRepository.cancelAnalyzesThatAreTakingMoreThanNMinutes(AnalysisTypeEnum.ADULT, maximumHoursOfAnAnalysis);
 	}
 	
 	/**
@@ -62,7 +67,6 @@ public class AdultAnalysisTasks extends AbstractAnalysisTasks {
 	public void adultAnalysisResults() {
 		
 		logger.debug("adult analysis results");
-		
 		
 		Map<KidEntity, Map<AdultLevelEnum, Long>> adultContentBySon = sonRepository
 				.findAllByResultsAdultObsolete(Boolean.TRUE)
@@ -76,7 +80,7 @@ public class AdultAnalysisTasks extends AbstractAnalysisTasks {
 						.filter(comment -> comment.getResult() != null)
 						.collect(Collectors.groupingBy(analysisResult -> AdultLevelEnum.fromResult(analysisResult.getResult()), Collectors.counting()))));
 		
-		logger.debug("Adult content by son -> " + adultContentBySon.toString());
+		logger.debug("Adult content by kid -> " + adultContentBySon.toString());
 		
 		for (Map.Entry<KidEntity, Map<AdultLevelEnum, Long>> adultContentBySonEntry : adultContentBySon.entrySet())
 	     {

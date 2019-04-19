@@ -64,8 +64,8 @@ public abstract class KidEntityMapper implements Injectable {
         @Mapping(expression="java(schoolEntityMapper.schoolEntityToSchoolDTO(kidEntity.getSchool()))", target = "school" ),
         @Mapping(source = "kidEntity.birthdate", target = "birthdate", dateFormat = "yyyy/MM/dd"),
         @Mapping(source = "kidEntity.age", target = "age"),
-        @Mapping(expression="java(alertservice.getTotalAlertsByKidAndGuardianId("
-        		+ "kidEntity.getId(), authorizationService.getCurrentUserId()))", target = "alertsStatistics" ),
+        @Mapping(expression="java( authorizationService.getCurrentUserId() != null  ? alertservice.getTotalAlertsByKidAndGuardianId("
+        		+ "kidEntity.getId(), authorizationService.getCurrentUserId()) : null )", target = "alertsStatistics" ),
         @Mapping(expression="java(terminalService.getTerminalsByKidId(kidEntity.getId().toString()))", 
         	target="terminals"),
         @Mapping(expression="java(locationEntityMapper"

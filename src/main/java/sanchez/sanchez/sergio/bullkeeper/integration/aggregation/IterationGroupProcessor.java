@@ -4,23 +4,29 @@ package sanchez.sanchez.sergio.bullkeeper.integration.aggregation;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.integration.aggregator.AbstractAggregatingMessageGroupProcessor;
 import org.springframework.integration.store.MessageGroup;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
-
 import sanchez.sanchez.sergio.bullkeeper.integration.constants.IntegrationConstants;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.IterationEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.TaskEntity;
 
+/**
+ * Iteration Group Processor
+ * @author ssanchez
+ *
+ */
 public class IterationGroupProcessor extends AbstractAggregatingMessageGroupProcessor {
 	
 	private Logger logger = LoggerFactory.getLogger(IterationGroupProcessor.class);
 
 	
+	/**
+	 * 
+	 */
 	@Override
 	protected Map<String, Object> aggregateHeaders(MessageGroup messageGroup) {
 		
@@ -39,6 +45,9 @@ public class IterationGroupProcessor extends AbstractAggregatingMessageGroupProc
 		
 	}
 
+	/**
+	 * 
+	 */
 	@Override
 	protected Object aggregatePayloads(MessageGroup messageGroup, Map<String, Object> headers) {
 		logger.debug("IterationGroupProcessor ... ");

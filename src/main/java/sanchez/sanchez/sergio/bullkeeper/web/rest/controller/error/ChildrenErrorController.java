@@ -151,7 +151,7 @@ public class ChildrenErrorController extends BaseController {
     @ResponseBody
     protected ResponseEntity<APIResponse<String>> handlePhoneNumberAlreadyBlockedException(PhoneNumberAlreadyBlockedException phoneNumberAlreadyBlockedException, HttpServletRequest request){
         return ApiHelper.<String>createAndSendErrorResponseWithHeader(
-        		ChildrenResponseCode.PHONE_NUMBER_ALREADY_BLOCKED, HttpStatus.NOT_FOUND,
+        		ChildrenResponseCode.PHONE_NUMBER_ALREADY_BLOCKED, HttpStatus.BAD_REQUEST,
         		messageSourceResolver.resolver("phone.number.already.blocked.exception"));
     } 
     

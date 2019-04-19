@@ -28,6 +28,7 @@ import sanchez.sanchez.sergio.bullkeeper.exception.InvalidAccessTokenException;
 import sanchez.sanchez.sergio.bullkeeper.i18n.service.IMessageSourceResolverService;
 import sanchez.sanchez.sergio.bullkeeper.mapper.YoutubeCommentMapper;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.CommentEntity;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SocialMediaEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SocialMediaTypeEnum;
 import sanchez.sanchez.sergio.bullkeeper.rrss.service.IYoutubeService;
 import sanchez.sanchez.sergio.bullkeeper.util.StreamUtils;
@@ -53,6 +54,12 @@ public class YoutubeServiceImpl implements IYoutubeService {
     private final YoutubeCommentMapper youtubeCommentMapper;
     private final IMessageSourceResolverService messageSourceResolver;
 
+    /**
+     * 
+     * @param appCtx
+     * @param youtubeCommentMapper
+     * @param messageSourceResolver
+     */
     public YoutubeServiceImpl(ApplicationContext appCtx, YoutubeCommentMapper youtubeCommentMapper, IMessageSourceResolverService messageSourceResolver) {
         this.appCtx = appCtx;
         this.youtubeCommentMapper = youtubeCommentMapper;
@@ -60,6 +67,73 @@ public class YoutubeServiceImpl implements IYoutubeService {
     }
     
     
+    /**
+     * Get Comments
+     * @param socialMedia
+     */
+    @Override
+	public Set<CommentEntity> getComments(final SocialMediaEntity socialMedia) {
+		return getComments(null, socialMedia);
+	}
+
+    /**
+     * Get Comments
+     * @param startDate
+     * @param socialMedia
+     */
+	@Override
+	public Set<CommentEntity> getComments(Date startDate, final SocialMediaEntity socialMedia) {
+		logger.debug("Call Youtube Data API for access token : "
+				+ socialMedia.getAccessToken() + " and refresh token " + socialMedia.getRefreshToken() + "on thread: " + Thread.currentThread().getName());
+        Set<CommentEntity> userComments = new HashSet<>();
+    
+           
+        try {
+            YouTube youTube = appCtx.getBean(YouTube.class, socialMedia.getAccessToken(), 
+            		socialMedia.getRefreshToken());
+            // Get Channels for User
+            userComments = Optional.ofNullable(getChannelsForCurrentUser(youTube))
+            	.map(channelResult -> channelResult.getItems())
+            	.map(Collection::stream)
+            	.filter(Objects::nonNull)
+            	.orElse(Stream.empty())
+            	.flatMap(channel -> getCommentRelatedToChannelAfterThan(youTube, channel.getId(), startDate))
+            	.map(comment -> youtubeCommentMapper.youtubeCommentToCommentEntity(comment))
+            	.collect(Collectors.toSet());
+            
+            logger.debug("·Total Youtube Comments: " + userComments.size());
+        
+        } catch (Throwable e) {
+        	logger.error("Exception on Youtube Service");
+        	if(e.getCause() instanceof GoogleJsonResponseException) {
+        		int code = ((GoogleJsonResponseException)e.getCause()).getDetails().getCode();
+        		
+        		if(code == 401 || code == 403) {
+        			logger.debug("InvalidAccessTokenException FOR YOUTUBE");
+            		throw new InvalidAccessTokenException(
+                    		messageSourceResolver.resolver("invalid.access.token", new Object[]{ SocialMediaTypeEnum.YOUTUBE.name() }),
+                    		SocialMediaTypeEnum.YOUTUBE, socialMedia.getAccessToken());
+        		}
+        		
+        	}
+            throw new GetCommentsProcessException(e.toString());
+        }
+        return userComments;
+	}
+	
+	
+	/**
+	 * 
+	 * Private Methods
+	 * =======================
+	 * 
+	 */
+	
+	/**
+     * Get Channels For Current User
+     * @param youTube
+     * @return
+     */
     private ChannelListResponse getChannelsForCurrentUser(final YouTube youTube) {
     	try {
     		return youTube.channels().list("snippet").setMine(Boolean.TRUE).execute();
@@ -70,7 +144,12 @@ public class YoutubeServiceImpl implements IYoutubeService {
     	
     }
     
-    
+    /**
+     * Get Comment Thread Lists
+     * @param youTube
+     * @param channelId
+     * @return
+     */
     private CommentThreadListResponse getCommentThreadLists(final YouTube youTube, final String channelId) {
     	try {
 			return youTube.commentThreads().list("snippet, replies")
@@ -81,6 +160,12 @@ public class YoutubeServiceImpl implements IYoutubeService {
 		}
     }
     
+    /**
+     * Get Replies For Comment
+     * @param youTube
+     * @param parentId
+     * @return
+     */
     private CommentListResponse getRepliesForComment(final YouTube youTube, final String parentId){
     	try {
     		return youTube.comments().list("snippet")
@@ -91,9 +176,17 @@ public class YoutubeServiceImpl implements IYoutubeService {
     	
     }
     
-    
+    /**
+     * Get Comment Related to Channel After Than
+     * @param youTube
+     * @param channelId
+     * @param startDate
+     * @return
+     */
     private Stream<Comment> getCommentRelatedToChannelAfterThan(final YouTube youTube, final String channelId, Date startDate) {
 
+    	logger.debug("Get Comments for YouTube Channel Id -> " + channelId);
+    	
 		return Optional.ofNullable(getCommentThreadLists(youTube, channelId))
 				.map(commentThreadListResult -> commentThreadListResult.getItems()).map(Collection::stream)
 				.filter(Objects::nonNull).orElse(Stream.empty())
@@ -114,54 +207,10 @@ public class YoutubeServiceImpl implements IYoutubeService {
 					
 					String authorChannelId = ((ArrayMap<String, String>)comment.getSnippet().getAuthorChannelId()).getValue(0);
 					Date publishAt = new Date(comment.getSnippet().getPublishedAt().getValue());
-					return !authorChannelId.equals(channelId) && ( startDate != null ? publishAt.after(startDate) : true);
+					return authorChannelId.equals(channelId) && ( startDate != null ? publishAt.after(startDate) : true);
 					
 				});
     }
-    
-    
-    
-    @Override
-	public Set<CommentEntity> getCommentsReceived(String accessToken, String refreshToken) {
-		return getCommentsReceived(null, accessToken, refreshToken);
-	}
-
-
-	@Override
-	public Set<CommentEntity> getCommentsReceived(Date startDate, String accessToken, String refreshToken) {
-		logger.debug("Call Youtube Data API for access token : "
-				+ accessToken + " and refresh token " + refreshToken + "on thread: " + Thread.currentThread().getName());
-        Set<CommentEntity> userComments = new HashSet<>();
-        try {
-            YouTube youTube = appCtx.getBean(YouTube.class, accessToken, refreshToken);
-            // Get Channels for User
-            userComments = Optional.ofNullable(getChannelsForCurrentUser(youTube))
-            	.map(channelResult -> channelResult.getItems())
-            	.map(Collection::stream)
-            	.filter(Objects::nonNull)
-            	.orElse(Stream.empty())
-            	.flatMap(channel -> getCommentRelatedToChannelAfterThan(youTube, channel.getId(), startDate))
-            	.map(comment -> youtubeCommentMapper.youtubeCommentToCommentEntity(comment))
-            	.collect(Collectors.toSet());
-            
-            logger.debug("·Total Youtube Comments: " + userComments.size());
-        
-        } catch (Throwable e) {
-        	if(e.getCause() instanceof GoogleJsonResponseException) {
-        		int code = ((GoogleJsonResponseException)e.getCause()).getDetails().getCode();
-        		
-        		if(code == 401 || code == 403) {
-        			logger.debug("InvalidAccessTokenException FOR YOUTUBE");
-            		throw new InvalidAccessTokenException(
-                    		messageSourceResolver.resolver("invalid.access.token", new Object[]{ SocialMediaTypeEnum.YOUTUBE.name() }),
-                    		SocialMediaTypeEnum.YOUTUBE, accessToken);
-        		}
-        		
-        	}
-            throw new GetCommentsProcessException(e.toString());
-        }
-        return userComments;
-	}
 	
     
     @PostConstruct

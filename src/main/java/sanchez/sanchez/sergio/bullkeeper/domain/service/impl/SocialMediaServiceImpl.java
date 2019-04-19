@@ -127,8 +127,14 @@ public class SocialMediaServiceImpl implements ISocialMediaService {
         SocialMediaEntity socialMediaEntityToUpdate = socialMediaRepository.findByTypeAndKidId(
                 SocialMediaTypeEnum.valueOf(socialMedia.getType()), new ObjectId(socialMedia.getKid()));
         if (socialMediaEntityToUpdate != null) {
-        	socialMediaEntityToUpdate.setUserSocialName(getUserNameForSocialMedia(socialMediaEntityToUpdate.getType(), socialMedia.getAccessToken()));
-        	socialMediaEntityToUpdate.setUserPicture(getUserPictureForSocialMedia(socialMediaEntityToUpdate.getType(), socialMedia.getAccessToken()));
+        	socialMediaEntityToUpdate.setUserSocialName(
+        			socialMedia.getUserSocialName() != null &&
+        			!socialMedia.getUserSocialName().isEmpty() ? socialMedia.getUserSocialName() : 
+        				getUserNameForSocialMedia(socialMediaEntityToUpdate.getType(), socialMedia.getAccessToken()));
+        	socialMediaEntityToUpdate.setUserSocialFullName(socialMedia.getUserSocialFullName());
+        	socialMediaEntityToUpdate.setUserPicture(socialMedia.getUserPicture() != null &&
+        			!socialMedia.getUserPicture().isEmpty() ? socialMedia.getUserPicture() : 
+        				getUserPictureForSocialMedia(socialMediaEntityToUpdate.getType(), socialMedia.getAccessToken()));
             socialMediaEntityToUpdate.setAccessToken(socialMediaEntityToUpdate.getType().equals(SocialMediaTypeEnum.FACEBOOK) ? 
             		facebookService.obtainExtendedAccessToken(socialMedia.getAccessToken()): socialMedia.getAccessToken());
             socialMediaEntityToUpdate.setRefreshToken(socialMedia.getRefreshToken());
@@ -148,16 +154,26 @@ public class SocialMediaServiceImpl implements ISocialMediaService {
         SocialMediaEntity socialMediaEntityToSave = socialMediaRepository.findByTypeAndKidId(
                 SocialMediaTypeEnum.valueOf(socialMedia.getType()), new ObjectId(socialMedia.getKid()));
         if (socialMediaEntityToSave != null) {
-        	socialMediaEntityToSave.setUserSocialName(getUserNameForSocialMedia(socialMediaEntityToSave.getType(), socialMedia.getAccessToken()));
-        	socialMediaEntityToSave.setUserPicture(getUserPictureForSocialMedia(socialMediaEntityToSave.getType(), socialMedia.getAccessToken()));
+        	socialMediaEntityToSave.setUserSocialName(socialMedia.getUserSocialName() != null &&
+        			!socialMedia.getUserSocialName().isEmpty() ? socialMedia.getUserSocialName() : 
+        				getUserNameForSocialMedia(socialMediaEntityToSave.getType(), socialMedia.getAccessToken()));
+        	socialMediaEntityToSave.setUserSocialFullName(socialMedia.getUserSocialFullName());
+        	socialMediaEntityToSave.setUserPicture(socialMedia.getUserPicture() != null &&
+        			!socialMedia.getUserPicture().isEmpty() ? socialMedia.getUserPicture() : 
+        				getUserPictureForSocialMedia(socialMediaEntityToSave.getType(), socialMedia.getAccessToken()));
             socialMediaEntityToSave.setAccessToken(socialMediaEntityToSave.getType().equals(SocialMediaTypeEnum.FACEBOOK) ? 
             		facebookService.obtainExtendedAccessToken(socialMedia.getAccessToken()): socialMedia.getAccessToken());
             socialMediaEntityToSave.setRefreshToken(socialMedia.getRefreshToken());
             socialMediaEntityToSave.setScheduledFor(itegrationFlowService.getDateForNextPoll().getTime());
         } else {
             socialMediaEntityToSave = socialMediaMapper.addSocialMediaDTOToSocialMediaEntity(socialMedia);
-            socialMediaEntityToSave.setUserSocialName(getUserNameForSocialMedia(socialMediaEntityToSave.getType(), socialMedia.getAccessToken()));
-            socialMediaEntityToSave.setUserPicture(getUserPictureForSocialMedia(socialMediaEntityToSave.getType(), socialMedia.getAccessToken()));
+            socialMediaEntityToSave.setUserSocialName(socialMedia.getUserSocialName() != null &&
+        			!socialMedia.getUserSocialName().isEmpty() ? socialMedia.getUserSocialName() : 
+        				getUserNameForSocialMedia(socialMediaEntityToSave.getType(), socialMedia.getAccessToken()));
+            socialMediaEntityToSave.setUserSocialFullName(socialMedia.getUserSocialFullName());
+            socialMediaEntityToSave.setUserPicture(socialMedia.getUserPicture() != null &&
+        			!socialMedia.getUserPicture().isEmpty() ? socialMedia.getUserPicture() : 
+        				getUserPictureForSocialMedia(socialMediaEntityToSave.getType(), socialMedia.getAccessToken()));
         }
         SocialMediaEntity socialMediaEntitySaved = socialMediaRepository.save(socialMediaEntityToSave);
         return socialMediaMapper.socialMediaEntityToSocialMediaDTO(socialMediaEntitySaved);
@@ -206,8 +222,17 @@ public class SocialMediaServiceImpl implements ISocialMediaService {
                 
                 // check if it is necessary to update the token
                 if(!currentSocialMedia.getAccessToken().equals(newSocialMedia.getAccessToken())) {
-                	currentSocialMedia.setUserSocialName(getUserNameForSocialMedia(currentSocialMedia.getType(), newSocialMedia.getAccessToken()));
-                	currentSocialMedia.setUserPicture(getUserPictureForSocialMedia(currentSocialMedia.getType(), newSocialMedia.getAccessToken()));
+                	
+                	// User Social Name
+                	currentSocialMedia.setUserSocialName(newSocialMedia.getUserSocialName() != null &&
+                			!newSocialMedia.getUserSocialName().isEmpty() ? newSocialMedia.getUserSocialName() : 
+                				getUserNameForSocialMedia(currentSocialMedia.getType(), newSocialMedia.getAccessToken()));
+                	// User Social Fullname
+                	currentSocialMedia.setUserSocialFullName(newSocialMedia.getUserSocialFullName());
+                	// User Picture
+                	currentSocialMedia.setUserPicture(newSocialMedia.getUserPicture() != null &&
+                			!newSocialMedia.getUserPicture().isEmpty() ? newSocialMedia.getUserPicture() : 
+                				getUserPictureForSocialMedia(currentSocialMedia.getType(), newSocialMedia.getAccessToken()));
                     currentSocialMedia.setAccessToken(currentSocialMedia.getType().equals(SocialMediaTypeEnum.FACEBOOK) ? 
                     		facebookService.obtainExtendedAccessToken(newSocialMedia.getAccessToken()): newSocialMedia.getAccessToken());
                     currentSocialMedia.setRefreshToken(newSocialMedia.getRefreshToken());
@@ -220,9 +245,16 @@ public class SocialMediaServiceImpl implements ISocialMediaService {
             } else if(i == -1 && j >= 0) {
             	// Add New Social Media
                 final SocialMediaEntity newSocialMedia = socialMediaMapper.addSocialMediaDTOToSocialMediaEntity(socialMediaList.get(j));
-                newSocialMedia.setUserSocialName(getUserNameForSocialMedia(newSocialMedia.getType(), newSocialMedia.getAccessToken()));
-                newSocialMedia.setUserPicture(getUserPictureForSocialMedia(newSocialMedia.getType(), newSocialMedia.getAccessToken()));
-                logger.debug(newSocialMedia.toString());
+                // User Social Name
+                newSocialMedia.setUserSocialName(newSocialMedia.getUserSocialName() != null &&
+            			!newSocialMedia.getUserSocialName().isEmpty() ? newSocialMedia.getUserSocialName() : 
+            				getUserNameForSocialMedia(newSocialMedia.getType(), newSocialMedia.getAccessToken()));
+                // User Social Fullname
+                newSocialMedia.setUserSocialFullName(newSocialMedia.getUserSocialFullName());
+                // User Picture
+                newSocialMedia.setUserPicture(newSocialMedia.getUserPicture() != null &&
+            			!newSocialMedia.getUserPicture().isEmpty() ? newSocialMedia.getUserPicture() : 
+            				getUserPictureForSocialMedia(newSocialMedia.getType(), newSocialMedia.getAccessToken()));
                 result.add(newSocialMedia);
             } else if ( i >= 0 && j == -1) {
             	// delete social media

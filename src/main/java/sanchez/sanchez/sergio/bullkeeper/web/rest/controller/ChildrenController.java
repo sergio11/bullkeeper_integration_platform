@@ -191,6 +191,8 @@ import sanchez.sanchez.sergio.bullkeeper.web.security.utils.OnlyAccessForAdmin;
 import sanchez.sanchez.sergio.bullkeeper.web.uploads.models.RequestUploadFile;
 import sanchez.sanchez.sergio.bullkeeper.web.uploads.models.UploadFileInfo;
 import sanchez.sanchez.sergio.bullkeeper.web.uploads.service.IUploadFilesService;
+
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.annotation.PostConstruct;
@@ -3292,7 +3294,7 @@ public class ChildrenController extends BaseController
     }
     
     
-    /**
+   /**
      * Delete Apps installed
      * @param kid
      * @param terminal
@@ -3679,17 +3681,17 @@ public class ChildrenController extends BaseController
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
     		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(value = "ADD_PHONE_NUMBER_BLOCKED", nickname = "ADD_PHONE_NUMBER_BLOCKED",
-    	notes = "Add Phone Number Blocked", response = PhoneNumberBlockedDTO.class)
-    public ResponseEntity<APIResponse<PhoneNumberBlockedDTO>> addPhoneNumberBlocked(
+    	notes = "Add Phone Number Blocked", response = Iterable.class)
+    public ResponseEntity<APIResponse<Iterable<PhoneNumberBlockedDTO>>> addPhoneNumberBlocked(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
          		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
           			@PathVariable String kid,
           	@ApiParam(name = "terminal", value = "Terminal Identifier", required = true)
      			@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
       				@PathVariable String terminal,
-      		@ApiParam(name="phonenumber", value = "phonenumber", required = true) 
+      		@ApiParam(name="phonenumbers", value = "phonenumbers", required = true) 
 				@Validated(ICommonSequence.class) 
-					@RequestBody AddPhoneNumberBlockedDTO addPhoneNumberBlocked) throws Throwable {
+					@RequestBody ValidList<AddPhoneNumberBlockedDTO> addPhoneNumberBlockedList) throws Throwable {
     	
     	logger.debug("Add Phone Number Blocked");
     	
@@ -3698,33 +3700,35 @@ public class ChildrenController extends BaseController
     			new ObjectId(terminal), new ObjectId(kid)))
     			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
     	
+    
     	// Add Phone Number
-    	final PhoneNumberBlockedDTO phoneNumberBlocked = 
-    			terminalService.addPhoneNumberBlocked(addPhoneNumberBlocked);
+    	final Iterable<PhoneNumberBlockedDTO> phoneNumberBlockedList = 
+    			terminalService.addPhoneNumberBlocked(addPhoneNumberBlockedList);
 
-   
-    	// Save Alert
-    	alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver("add.phone.number.blocked.title", 
-    			new Object[] { phoneNumberBlocked.getPhoneNumber(), terminalDTO.getModel(), terminalDTO.getDeviceName() } ),
-    			messageSourceResolver.resolver("add.phone.number.blocked.description", 
-    					new Object[] { phoneNumberBlocked.getPhoneNumber(), terminalDTO.getModel(), terminalDTO.getDeviceName() }), 
-    			new ObjectId(kid), AlertCategoryEnum.PHONE_NUMBERS);
+    	for(final PhoneNumberBlockedDTO phoneNumberBlocked: phoneNumberBlockedList) {
+	    	// Save Alert
+	    	alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver("add.phone.number.blocked.title", 
+	    			new Object[] { phoneNumberBlocked.getPhoneNumber(), terminalDTO.getModel(), terminalDTO.getDeviceName() } ),
+	    			messageSourceResolver.resolver("add.phone.number.blocked.description", 
+	    					new Object[] { phoneNumberBlocked.getPhoneNumber(), terminalDTO.getModel(), terminalDTO.getDeviceName() }), 
+	    			new ObjectId(kid), AlertCategoryEnum.PHONE_NUMBERS);
     	
-    	
-    	// Publish Event
-    	this.applicationEventPublisher
-			.publishEvent(new AddPhoneNumberBlockedEvent(this, 
-					phoneNumberBlocked.getIdentity(),
-					phoneNumberBlocked.getKid(), 
-					phoneNumberBlocked.getTerminal(),
-					phoneNumberBlocked.getPrefix(), 
-					phoneNumberBlocked.getNumber(),
-					phoneNumberBlocked.getPhoneNumber(), 
-					phoneNumberBlocked.getBlockedAt()));
+	    	// Publish Event
+	    	this.applicationEventPublisher
+				.publishEvent(new AddPhoneNumberBlockedEvent(this, 
+						phoneNumberBlocked.getIdentity(),
+						phoneNumberBlocked.getKid(), 
+						phoneNumberBlocked.getTerminal(),
+						phoneNumberBlocked.getPrefix(), 
+						phoneNumberBlocked.getNumber(),
+						phoneNumberBlocked.getPhoneNumber(), 
+						phoneNumberBlocked.getBlockedAt()));
+    	}
+  
     	
     	// Create and send response
-        return ApiHelper.<PhoneNumberBlockedDTO>createAndSendResponse(ChildrenResponseCode.PHONE_NUMBER_BLOCKED_ADDED, 
-        		HttpStatus.OK, phoneNumberBlocked);
+        return ApiHelper.<Iterable<PhoneNumberBlockedDTO>>createAndSendResponse(ChildrenResponseCode.PHONE_NUMBER_BLOCKED_ADDED, 
+        		HttpStatus.OK, phoneNumberBlockedList);
     	
     }
     
@@ -3772,6 +3776,64 @@ public class ChildrenController extends BaseController
     	return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.ALL_PHONE_NUMBERS_UNBLOCKED_SUCCESSFULLY, HttpStatus.OK, 
         		messageSourceResolver.resolver("all.phone.numbers.unblocked.successfully"));
     	
+    }
+    
+    
+    /**
+     * Delete Phone Numbers Blocked
+     * @param kid
+     * @param terminal
+     * @return
+     * @throws Throwable
+     */
+    @RequestMapping(value = "/{kid}/terminal/{terminal}/phonenumbers-blocked/delete", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
+    @ApiOperation(value = "DELETE_PHONE_NUMBERS_BLOCKED", nickname = "DELETE_PHONE_NUMBERS_BLOCKED", 
+    	notes = "Delete Phone Numbers Blocked", response = String.class)
+    public ResponseEntity<APIResponse<String>> deletePhoneNumbersBlocked(
+            @ApiParam(name = "kid", value = "Kid Identifier", required = true)
+            	@Valid @KidShouldExists(message = "{kid.should.be.exists}")
+             		@PathVariable String kid,
+            @ApiParam(name = "terminal", value = "Terminal id", required = true)
+        		@Valid @TerminalShouldExists(message = "{terminal.not.exists}")
+         			@PathVariable String terminal,
+         	@ApiParam(name="ids", value = "idOrPhoneNumber", required = true) 
+            	@RequestBody final ArrayList<String> phoneNumberBlockedList) throws Throwable {
+        
+        
+        // Get Terminal
+    	final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+    			new ObjectId(terminal), new ObjectId(kid)))
+    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+    	
+    	
+    	for(final String phoneNumberBlocked: phoneNumberBlockedList) {
+    		
+    		// Unblock Phone Number
+        	terminalService.unBlockPhoneNumber(new ObjectId(terminalDTO.getKid()), 
+        			new ObjectId(terminalDTO.getIdentity()), phoneNumberBlocked);
+        	
+        	
+        	// Save Alert
+        	alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver("phone.number.unblocked.title", 
+        			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ),
+        			messageSourceResolver.resolver("phone.number.unblocked.description", 
+        					new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() }), 
+        			new ObjectId(kid), AlertCategoryEnum.PHONE_NUMBERS);
+        	
+        	
+        	// Publish Event
+        	this.applicationEventPublisher
+    			.publishEvent(new DeletePhoneNumberBlockedEvent(this, kid, terminal,
+    					phoneNumberBlocked));
+    		
+    	}
+        
+    	// Create and send response
+    	return ApiHelper.<String>createAndSendResponse(ChildrenResponseCode.PHONE_NUMBER_UNBLOCKED_SUCCESSFULLY, HttpStatus.OK, 
+        		messageSourceResolver.resolver("phone.number.unblocked.successfully"));
+        
     }
     
     

@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
@@ -100,17 +101,7 @@ public class UserImagesFileSystemUploadStrategy implements IUploadStrategy<Strin
     public void delete(final String id) {
         Assert.notNull(id, "id can not be null");
         Assert.hasLength(id, "id can not be empty");
-        
-        ImageEntity imageToDelete = imageRepository.findOne(new ObjectId(id));
-        if(imageToDelete == null)
-            throw new FileNotFoundException();
-        String fileName = imageToDelete.getFileName();
-        File file = new File(realPathtoUploads, fileName);
-        if (file.exists()) {
-            file.delete();
-        }
-        imageRepository.delete(new ObjectId(id));
-        
+        delete(imageRepository.findOne(new ObjectId(id)));
     }
 
     /**
@@ -160,6 +151,39 @@ public class UserImagesFileSystemUploadStrategy implements IUploadStrategy<Strin
     }
     
     /**
+     * Delete All
+     */
+    @Override
+	public void deleteAll() {
+		final List<ImageEntity> images = imageRepository.findAll();
+		for(final ImageEntity image: images)
+			delete(image);
+	}
+    
+    /**
+     * 
+     * Private Method
+     * =================
+     * 
+     */
+    
+    /**
+     * Delete
+     * @param image
+     */
+    private void delete(final ImageEntity imageToDelete) {
+    	Assert.notNull(imageToDelete, "Image to Delete");
+    	if(imageToDelete == null)
+            throw new FileNotFoundException();
+        String fileName = imageToDelete.getFileName();
+        File file = new File(realPathtoUploads, fileName);
+        if (file.exists()) {
+            file.delete();
+        }
+        imageRepository.delete(imageToDelete);
+    }
+    
+    /**
      * 
      */
     @PostConstruct
@@ -172,4 +196,6 @@ public class UserImagesFileSystemUploadStrategy implements IUploadStrategy<Strin
         }
         logger.debug("init UserImagesFileSystemUploadStrategy on " + realPathtoUploads);
     }
+
+	
 }

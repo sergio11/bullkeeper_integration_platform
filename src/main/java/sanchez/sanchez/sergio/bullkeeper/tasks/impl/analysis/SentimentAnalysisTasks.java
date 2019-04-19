@@ -23,6 +23,11 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.KidEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SentimentLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SentimentResultsEntity;
 
+/**
+ * Sentiment Analysis Tasks
+ * @author ssanchez
+ *
+ */
 @Component
 public class SentimentAnalysisTasks extends AbstractAnalysisTasks {
 
@@ -53,7 +58,7 @@ public class SentimentAnalysisTasks extends AbstractAnalysisTasks {
 	@Scheduled(cron = "${task.analysis.sentiment.cancel.not.finished.interval}")
 	public void cancelingUnfinishedSentimentAnalysisTasks(){
 		logger.debug("Canceling unfinished sentiment analysis tasks");
-		commentRepository.cancelAnalyzesThatAreTakingMoreThanNHours(AnalysisTypeEnum.SENTIMENT, maximumHoursOfAnAnalysis);
+		commentRepository.cancelAnalyzesThatAreTakingMoreThanNMinutes(AnalysisTypeEnum.SENTIMENT, maximumHoursOfAnAnalysis);
 	}
 	
 	

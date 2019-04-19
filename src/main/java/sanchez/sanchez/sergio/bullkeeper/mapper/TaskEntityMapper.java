@@ -33,7 +33,6 @@ public abstract class TaskEntityMapper {
         @Mapping(expression="java(taskEntity.getComments().size())", target = "totalComments"),
         @Mapping(expression="java(kidEntityMapper.kidEntityToKidDTO(taskEntity.getKid()))", target = "kid"),
         @Mapping(expression="java(taskEntity.getSocialMediaId().toString())", target = "socialMediaId")
-        //@Mapping(expression="java(socialMediaRepository.getSocialMediaTypeById(taskEntity.getSocialMediaId()))", target = "socialMediaType")
     })
     @Named("taskEntityToTaskDTO")
     public abstract TaskDTO taskEntityToTaskDTO(TaskEntity taskEntity); 

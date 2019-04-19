@@ -700,6 +700,18 @@ public final class TerminalServiceImpl implements ITerminalService {
 				.phoneNumberBlockedEntityToPhoneNumberBlockedDTO(phoneNumberBlockedSaved);
 		
 	}
+	
+	/**
+	 * @param addPhoneNumberList
+	 */
+	@Override
+	public Iterable<PhoneNumberBlockedDTO> addPhoneNumberBlocked(final List<AddPhoneNumberBlockedDTO> addPhoneNumberList) {
+		Assert.notNull(addPhoneNumberList, "Add Phone Number can not be null");
+		final List<PhoneNumberBlockedDTO> phoneNumberBlockedList = new ArrayList<>();
+		for(final AddPhoneNumberBlockedDTO addPhoneNumberBlockedDTO: addPhoneNumberList)
+			phoneNumberBlockedList.add(addPhoneNumberBlocked(addPhoneNumberBlockedDTO));
+		return phoneNumberBlockedList;
+	}
 
 	/**
 	 * Remove Phone Number Blocked
@@ -1893,4 +1905,6 @@ public final class TerminalServiceImpl implements ITerminalService {
 		terminalRepository.setTerminalStatus(terminal, status);
 		
 	}
+
+	
 }

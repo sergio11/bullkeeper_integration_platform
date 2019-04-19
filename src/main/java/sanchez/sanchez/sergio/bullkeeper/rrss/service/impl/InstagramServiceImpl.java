@@ -1,7 +1,6 @@
 package sanchez.sanchez.sergio.bullkeeper.rrss.service.impl;
 
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -10,8 +9,6 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import org.jinstagram.Instagram;
 import org.jinstagram.entity.users.basicinfo.UserInfoData;
-import org.jinstagram.entity.users.feed.MediaFeed;
-import org.jinstagram.entity.users.feed.MediaFeedData;
 import org.jinstagram.exceptions.InstagramBadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,12 +16,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-
 import sanchez.sanchez.sergio.bullkeeper.exception.GetCommentsProcessException;
 import sanchez.sanchez.sergio.bullkeeper.exception.InvalidAccessTokenException;
 import sanchez.sanchez.sergio.bullkeeper.i18n.service.IMessageSourceResolverService;
 import sanchez.sanchez.sergio.bullkeeper.mapper.IInstagramCommentMapper;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.CommentEntity;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SocialMediaEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SocialMediaTypeEnum;
 import sanchez.sanchez.sergio.bullkeeper.rrss.service.IInstagramService;
 import sanchez.sanchez.sergio.bullkeeper.util.Unthrow;
@@ -45,30 +42,44 @@ public class InstagramServiceImpl implements IInstagramService {
     private final IInstagramCommentMapper instagramMapper;
     private final IMessageSourceResolverService messageSourceResolver;
     
-
-    public InstagramServiceImpl(IInstagramCommentMapper instagramMapper, IMessageSourceResolverService messageSourceResolver) {
+    /**
+     * 
+     * @param instagramMapper
+     * @param messageSourceResolver
+     */
+    public InstagramServiceImpl(final IInstagramCommentMapper instagramMapper, final IMessageSourceResolverService messageSourceResolver) {
 		super();
 		this.instagramMapper = instagramMapper;
 		this.messageSourceResolver = messageSourceResolver;
 	}
 	
+    /**
+     * Get Comments For Social Media Instance
+     * @param socialMedia
+     */
 	@Override
-	public Set<CommentEntity> getCommentsReceived(String accessToken) {
-		return getCommentsReceived(null, accessToken);
+	public Set<CommentEntity> getComments(final SocialMediaEntity socialMedia) {
+		return getComments(null, socialMedia);
 	}
 
+	/**
+	 * Get Comments
+	 * @param startDate
+	 * @param socialMedia
+	 */
 	@Override
-	public Set<CommentEntity> getCommentsReceived(Date startDate, String accessToken) {
-		logger.debug("Call Instagram API for accessToken : " + accessToken + " on thread: " + Thread.currentThread().getName());
+	public Set<CommentEntity> getComments(final Date startDate, final SocialMediaEntity socialMedia) {
+		logger.debug("Call Instagram API for accessToken : " + socialMedia.getAccessToken()
+			+ " on thread: " + Thread.currentThread().getName());
         
         Set<CommentEntity> userComments = new HashSet<>();
         
         try {
         	
-        	final Instagram instagram = new Instagram(accessToken, appSecret);
+        	final Instagram instagram = new Instagram(socialMedia.getAccessToken(), appSecret);
  
             final UserInfoData userInfo = instagram.getCurrentUserInfo().getData();
-      
+            
             userComments = instagram
             	.getUserRecentMedia()
             	.getData()
@@ -76,9 +87,22 @@ public class InstagramServiceImpl implements IInstagramService {
             	.map(mediaFeed -> Unthrow.wrap(() -> instagram.getMediaComments(mediaFeed.getId())))
             	.map(mediaCommentsFeed -> mediaCommentsFeed.getCommentDataList())
             	.flatMap(List::stream)
+            	.map(commentData -> {
+            		
+            		if(commentData.getCommentFrom().getFullName() == null || 
+            				commentData.getCommentFrom().getFullName().isEmpty()) 
+            			commentData.getCommentFrom().setFullName(socialMedia.getUserSocialFullName());
+            		
+            		if(commentData.getCommentFrom().getProfilePicture() == null || 
+            				commentData.getCommentFrom().getProfilePicture().isEmpty()) 
+            			commentData.getCommentFrom().setProfilePicture(socialMedia.getUserPicture());
+            	
+    
+   	        	 return commentData;
+   	         })
             	.filter(commentData ->  ((commentData.getCommentFrom().getId() != null &&  userInfo.getId() != null
-            	&& !commentData.getCommentFrom().getId().equals(userInfo.getId())) || (commentData.getCommentFrom().getUsername() != null && userInfo.getUsername() != null 
-            	&& !commentData.getCommentFrom().getUsername().equals(userInfo.getUsername()))) &&
+            	&& commentData.getCommentFrom().getId().equals(userInfo.getId())) || (commentData.getCommentFrom().getUsername() != null && userInfo.getUsername() != null 
+            	&& commentData.getCommentFrom().getUsername().equals(userInfo.getUsername()))) &&
                 		( startDate != null ? new Date(Long.parseLong(commentData.getCreatedTime())).after(startDate) : true ))
             	.map(commentData -> instagramMapper.instagramCommentToCommentEntity(commentData))
             	.collect(Collectors.toSet());
@@ -88,9 +112,8 @@ public class InstagramServiceImpl implements IInstagramService {
         } catch (InstagramBadRequestException  e) {
         	throw new InvalidAccessTokenException(
             		messageSourceResolver.resolver("invalid.access.token", new Object[]{ SocialMediaTypeEnum.INSTAGRAM.name() }),
-            		SocialMediaTypeEnum.INSTAGRAM, accessToken);
+            		SocialMediaTypeEnum.INSTAGRAM, socialMedia.getAccessToken());
         } catch (Exception e) {
-        	logger.error(e.fillInStackTrace().toString());
             throw new GetCommentsProcessException(e.toString());
         }
   

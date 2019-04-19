@@ -23,6 +23,11 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.DrugsLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.DrugsResultsEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.KidEntity;
 
+/**
+ * Drugs Analysis Tasks
+ * @author ssanchez
+ *
+ */
 @Component
 public class DrugsAnalysisTasks extends AbstractAnalysisTasks {
 	
@@ -51,7 +56,7 @@ public class DrugsAnalysisTasks extends AbstractAnalysisTasks {
 	@Scheduled(cron = "${task.analysis.drugs.cancel.not.finished.interval}")
 	public void cancelingUnfinishedDrugsAnalysisTasks(){
 		logger.debug("Canceling unfinished drugs analysis tasks");
-		commentRepository.cancelAnalyzesThatAreTakingMoreThanNHours(AnalysisTypeEnum.DRUGS, maximumHoursOfAnAnalysis);
+		commentRepository.cancelAnalyzesThatAreTakingMoreThanNMinutes(AnalysisTypeEnum.DRUGS, maximumHoursOfAnAnalysis);
 	}
 	
 	

@@ -303,6 +303,15 @@ public interface ITerminalService {
     
     
     /**
+     * Add Phone Number Blocked
+     * @param addPhoneNumber
+     * @return
+     */
+    Iterable<PhoneNumberBlockedDTO> addPhoneNumberBlocked(
+    		final List<AddPhoneNumberBlockedDTO> addPhoneNumberList);
+    
+    
+    /**
      * Remove Phone Number Blocked
      * @param kid
      * @param terminal

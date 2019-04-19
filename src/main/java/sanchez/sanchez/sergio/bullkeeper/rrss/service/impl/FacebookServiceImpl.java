@@ -13,7 +13,6 @@ import com.restfb.types.Post;
 import com.restfb.types.ProfilePictureSource;
 import com.restfb.types.User;
 import com.restfb.types.Video;
-
 import sanchez.sanchez.sergio.bullkeeper.exception.GetCommentsProcessException;
 import sanchez.sanchez.sergio.bullkeeper.exception.GetInformationFromFacebookException;
 import sanchez.sanchez.sergio.bullkeeper.exception.InvalidAccessTokenException;
@@ -23,13 +22,12 @@ import sanchez.sanchez.sergio.bullkeeper.mapper.IFacebookCommentMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.IFacebookPostMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.UserFacebookMapper;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.CommentEntity;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SocialMediaEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SocialMediaTypeEnum;
 import sanchez.sanchez.sergio.bullkeeper.rrss.service.IFacebookService;
 import sanchez.sanchez.sergio.bullkeeper.util.StreamUtils;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.RegisterGuardianByFacebookDTO;
-
 import com.restfb.types.Photo;
-
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -64,6 +62,13 @@ public class FacebookServiceImpl implements IFacebookService {
     private final IMessageSourceResolverService messageSourceResolver;
     private final UserFacebookMapper userFacebookMapper;
 
+    /**
+     * 
+     * @param facebookCommentMapper
+     * @param facebookPostMapper
+     * @param messageSourceResolver
+     * @param userFacebookMapper
+     */
     public FacebookServiceImpl(IFacebookCommentMapper facebookCommentMapper, IFacebookPostMapper facebookPostMapper,
             IMessageSourceResolverService messageSourceResolver, UserFacebookMapper userFacebookMapper) {
         this.facebookCommentMapper = facebookCommentMapper;
@@ -72,6 +77,166 @@ public class FacebookServiceImpl implements IFacebookService {
         this.userFacebookMapper = userFacebookMapper;
     }
     
+    
+    /**
+     * Get Comments for social media instance
+     * @param socialMedia
+     */
+    @Override
+	public Set<CommentEntity> getComments(final SocialMediaEntity socialMedia) {
+		return getComments(null, socialMedia);
+	}
+
+    /**
+     * Get Comments
+     * @param startDate
+     * @param socialMedia
+     */
+    @Override
+    public Set<CommentEntity> getComments(final Date startDate, final SocialMediaEntity socialMedia) {
+
+        Set<CommentEntity> comments = new HashSet<CommentEntity>();
+        try {
+            logger.debug("Call Facebook API for accessToken : " + socialMedia.getAccessToken() 
+            		+ " on thread: " + Thread.currentThread().getName());            
+            
+            FacebookClient facebookClient = new DefaultFacebookClient(socialMedia.getAccessToken(), Version.VERSION_2_8);
+            // Get Information about access token owner
+            User user = facebookClient.fetchObject("me", User.class);
+            logger.debug("Get Comments For User : " + user.getName() + " after than " + startDate);
+           
+            
+            comments = StreamUtils.concat(
+            		getAllCommentsFromPosts(facebookClient, startDate, user),
+            		getAllCommentsFromAlbumsReceived(facebookClient, startDate, user),
+            		getAllCommentsFromPhotosUploaded(facebookClient, startDate, user),
+            		getAllCommentsFromTaggedPhotos(facebookClient, startDate, user)
+            		//getAllCommentsFromUploadedVideos(facebookClient, startDate, user),
+            		//getAllCommentsFromTaggedVideos(facebookClient, startDate, user)
+            )
+             .collect(Collectors.toSet());
+
+            // 
+            logger.debug("Total Facebook comments : " + comments.size());
+            
+            comments.forEach(commentToSaved -> {
+            	 logger.debug("Comment -> " + commentToSaved.getMessage() + " Created Time : " + commentToSaved.getCreatedTime());
+                 logger.debug("From -> " + commentToSaved.getAuthor());
+            });
+            
+           
+        } catch (FacebookOAuthException e) {
+            throw new InvalidAccessTokenException(
+                    messageSourceResolver.resolver("invalid.access.token", new Object[]{SocialMediaTypeEnum.FACEBOOK.name()}),
+                    SocialMediaTypeEnum.FACEBOOK, socialMedia.getAccessToken());
+        } catch (Exception e) {
+            throw new GetCommentsProcessException(e.toString());
+        }
+        return comments;
+    }
+
+    /**
+     * Get Registration Information For The Parent
+     */
+    @Override
+    public RegisterGuardianByFacebookDTO getRegistrationInformationForTheParent(final String fbId, final String accessToken) {
+
+        Assert.notNull(accessToken, "Token can not be null");
+        Assert.hasLength(accessToken, "Token can not be empty");
+
+        RegisterGuardianByFacebookDTO registerParent = null;
+
+        try {
+            FacebookClient facebookClient = new DefaultFacebookClient(accessToken, Version.VERSION_2_8);
+            // Get Information about access token owner
+            User user = facebookClient.fetchObject("me", User.class, Parameter.with("fields", "email, name, first_name, last_name, birthday, locale"));
+            if (!user.getId().equals(fbId)) {
+                throw new InvalidFacebookIdException();
+            }
+            registerParent = userFacebookMapper.userFacebookToRegisterParentByFacebookDTO(user);
+            registerParent.setFbAccessToken(accessToken);
+        } catch (FacebookOAuthException e) {
+            throw new GetInformationFromFacebookException();
+        }
+
+        return registerParent;
+
+    }
+
+    /**
+     * Get Facebook id by access token
+     */
+    @Override
+    public String getFbIdByAccessToken(final String accessToken) {
+        Assert.notNull(accessToken, "Token can not be null");
+        Assert.hasLength(accessToken, "Token can not be empty");
+        String fbId = null;
+        try {
+            FacebookClient facebookClient = new DefaultFacebookClient(accessToken, Version.VERSION_2_8);
+            User user = facebookClient.fetchObject("me", User.class);
+            fbId = user.getId();
+        } catch (FacebookOAuthException e) {
+            throw new GetInformationFromFacebookException();
+        }
+
+        return fbId;
+    }
+    
+    /**
+     * Fetch User Picture
+     */
+    @Override
+    public String fetchUserPicture(final String accessToken) {
+    	Assert.notNull(accessToken, "Access Token can not be null");
+        FacebookClient client = new DefaultFacebookClient(accessToken, Version.VERSION_2_8);
+        User user = client.fetchObject("me", User.class, Parameter.with("fields", "picture"));
+        String profileImageUrl = null;
+        final ProfilePictureSource picture = user.getPicture();
+        if(picture != null) {
+        	picture.setWidth(100);
+            picture.setHeight(100);
+            profileImageUrl = picture.getUrl();
+            logger.debug("Profile Image " + profileImageUrl);
+        }
+        return profileImageUrl;
+    }
+    
+    
+    /**
+     * Obtain Extended Access Token
+     */
+    @Override
+	public String obtainExtendedAccessToken(final String shortLivedToken) {
+    	FacebookClient facebookClient = new DefaultFacebookClient(shortLivedToken, Version.VERSION_2_8);
+    	AccessToken extendedAccessToken = facebookClient.obtainExtendedAccessToken(appKey, appSecret, shortLivedToken);
+    	return extendedAccessToken.getAccessToken();
+	}
+    
+    /**
+     * Get Username for Access Token
+     */
+    @Override
+	public String getUserNameForAccessToken(final String accessToken) throws FacebookOAuthException {
+    	Assert.notNull(accessToken, "Token can not be null");
+        Assert.hasLength(accessToken, "Token can not be empty");
+        
+        FacebookClient facebookClient = new DefaultFacebookClient(accessToken, Version.VERSION_2_8);
+        User user = facebookClient.fetchObject("me", User.class, Parameter.with("fields", "name"));
+        
+    
+        
+        return user != null ? user.getName() : "";
+	}
+    
+    
+    /**
+     * 
+     * Private Methods
+     * ========================
+     * 
+     */
+    
+
     /**
      * Get recursive comments by Object Id.
      * @param facebookClient
@@ -108,18 +273,25 @@ public class FacebookServiceImpl implements IFacebookService {
     	
     }
     
+    /**
+     * 
+     * @param facebookClient
+     * @param objectId
+     * @param filter
+     * @return
+     */
     private Stream<Comment> getCommentsByObject(final FacebookClient facebookClient, final String objectId,  final Predicate<Comment> filter) {
     	return getCommentsByObject(facebookClient, objectId, 0, 100000, filter);
     }
 
     /**
-     * Get all the comments received in the posts from.
+     * Get all the comments in the posts from.
      * @param facebookClient
      * @param startDate
      * @param user
      * @return
      */
-    private Stream<CommentEntity> getAllCommentsFromPostsReceived(final FacebookClient facebookClient, final Date startDate, User user) {
+    private Stream<CommentEntity> getAllCommentsFromPosts(final FacebookClient facebookClient, final Date startDate, User user) {
         
     	Connection<Post> userFeed = facebookClient.fetchConnection("me/feed", 
         		Post.class, Parameter.with("fields", "message, link, from, created_time, comments.summary(true) , likes.limit(1).summary(true)"));
@@ -127,15 +299,14 @@ public class FacebookServiceImpl implements IFacebookService {
 
         return StreamUtils.asStream(userFeed.iterator())
                 .flatMap(List::stream)
-                .filter(post -> ( !post.getFrom().getId().equals(user.getId()) &&
+                .filter(post -> ( post.getFrom().getId().equals(user.getId()) &&
                 		( post.getMessage() != null && !post.getMessage().isEmpty()) ) || 
                 		post.getCommentsCount() > 0)
                 .flatMap(post -> {
                 	
                 	Stream<CommentEntity> streamComments;
                 	
-                	
-                	if((!post.getFrom().getId().equals(user.getId()) &&
+                	if((post.getFrom().getId().equals(user.getId()) &&
                     		( post.getMessage() != null && !post.getMessage().isEmpty())) && post.getCommentsCount() > 0) {
                 		
                 		// Obtemos texto de la publicación y sus comentarios
@@ -147,7 +318,7 @@ public class FacebookServiceImpl implements IFacebookService {
                 		
                 		if(post.getCommentsCount() > 0){
                 			
-                			streamComments = getCommentsByObject(facebookClient, post.getId(), comment -> !comment.getFrom().getId().equals(user.getId())
+                			streamComments = getCommentsByObject(facebookClient, post.getId(), comment -> comment.getFrom().getId().equals(user.getId())
                           	         && (startDate != null ? comment.getCreatedTime().after(startDate) : true)).map(comment -> facebookCommentMapper.facebookCommentToCommentEntity(comment));
                 			
                 		} else {
@@ -177,7 +348,7 @@ public class FacebookServiceImpl implements IFacebookService {
     	
     	return StreamUtils.asStream(userUploadedVideos.iterator())
     			.flatMap(List::stream)
-                .flatMap(video -> getCommentsByObject(facebookClient, video.getId(), comment -> !comment.getFrom().getId().equals(user.getId())
+                .flatMap(video -> getCommentsByObject(facebookClient, video.getId(), comment -> comment.getFrom().getId().equals(user.getId())
             	         && (startDate != null ? comment.getCreatedTime().after(startDate) : true)))
                 .map(comment -> facebookCommentMapper.facebookCommentToCommentEntity(comment));
     	
@@ -203,7 +374,7 @@ public class FacebookServiceImpl implements IFacebookService {
     				logger.debug(video.toString());
     				return video;
     			})
-                .flatMap(video -> getCommentsByObject(facebookClient, video.getId(), comment -> (comment.getMessage() != null && !comment.getMessage().isEmpty()) 
+                .flatMap(video -> getCommentsByObject(facebookClient, video.getId(), comment -> (comment.getMessage() != null && comment.getMessage().isEmpty()) 
                 		&& !comment.getFrom().getId().equals(user.getId()) && (startDate != null ? comment.getCreatedTime().after(startDate) : true) 
                 		&&  comment.getMessage().contains(user.getName()) ))
                 .map(comment -> facebookCommentMapper.facebookCommentToCommentEntity(comment));
@@ -224,7 +395,7 @@ public class FacebookServiceImpl implements IFacebookService {
     	return StreamUtils
 			.asStream(photosUploaded.iterator())
 			.flatMap(List::stream)
-			.flatMap(photo -> getCommentsByObject(facebookClient, photo.getId(), comment ->  !comment.getFrom().getId().equals(user.getId())
+			.flatMap(photo -> getCommentsByObject(facebookClient, photo.getId(), comment ->  comment.getFrom().getId().equals(user.getId())
         	         && (startDate != null ? comment.getCreatedTime().after(startDate) : true)))
 			.map(comment -> facebookCommentMapper.facebookCommentToCommentEntity(comment));
     	
@@ -244,7 +415,7 @@ public class FacebookServiceImpl implements IFacebookService {
 			.asStream(photosUploaded.iterator())
 			.flatMap(List::stream)
 			.flatMap(photo -> getCommentsByObject(facebookClient, photo.getId(), comment -> (comment.getMessage() != null && !comment.getMessage().isEmpty()) 
-            		&& !comment.getFrom().getId().equals(user.getId()) && (startDate != null ? comment.getCreatedTime().after(startDate) : true) 
+            		&& comment.getFrom().getId().equals(user.getId()) && (startDate != null ? comment.getCreatedTime().after(startDate) : true) 
             		&&  comment.getMessage().contains(user.getName())   ))
 			.map(comment -> facebookCommentMapper.facebookCommentToCommentEntity(comment));
     	
@@ -264,133 +435,10 @@ public class FacebookServiceImpl implements IFacebookService {
         // Iterate over the albums to access the particular pages
         return StreamUtils.asStream(userAlbums.iterator())
                 .flatMap(List::stream)
-                .flatMap(album -> getCommentsByObject(facebookClient, album.getId(), comment -> !comment.getFrom().getId().equals(user.getId())
+                .flatMap(album -> getCommentsByObject(facebookClient, album.getId(), comment -> comment.getFrom().getId().equals(user.getId())
             	         && (startDate != null ? comment.getCreatedTime().after(startDate) : true))
                 ).map(comment -> facebookCommentMapper.facebookCommentToCommentEntity(comment));
     }
-    
-    
-    @Override
-	public Set<CommentEntity> getCommentsReceived(String accessToken) {
-		return getCommentsReceived(null, accessToken);
-	}
-
-    @Override
-    public Set<CommentEntity> getCommentsReceived(Date startDate, String accessToken) {
-
-        Set<CommentEntity> comments = new HashSet<CommentEntity>();
-        try {
-            logger.debug("Call Facebook API for accessToken : " + accessToken + " on thread: " + Thread.currentThread().getName());            
-            FacebookClient facebookClient = new DefaultFacebookClient(accessToken, Version.VERSION_2_8);
-            // Get Information about access token owner
-            User user = facebookClient.fetchObject("me", User.class);
-            logger.debug("Get Comments For User : " + user.getName() + " after than " + startDate);
-            
-            comments = StreamUtils.concat(
-            		getAllCommentsFromPostsReceived(facebookClient, startDate, user),
-            		getAllCommentsFromAlbumsReceived(facebookClient, startDate, user),
-            		getAllCommentsFromPhotosUploaded(facebookClient, startDate, user),
-            		getAllCommentsFromTaggedPhotos(facebookClient, startDate, user)
-            		//getAllCommentsFromUploadedVideos(facebookClient, startDate, user),
-            		//getAllCommentsFromTaggedVideos(facebookClient, startDate, user)
-            )
-             .collect(Collectors.toSet());
-
-            // 
-            logger.debug("Total Facebook comments : " + comments.size());
-            
-            comments.forEach(commentToSaved -> {
-            	 logger.debug("Comment -> " + commentToSaved.getMessage() + " Created Time : " + commentToSaved.getCreatedTime());
-                 logger.debug("From -> " + commentToSaved.getAuthor());
-            });
-            
-           
-        } catch (FacebookOAuthException e) {
-            logger.error(e.getErrorMessage());
-            throw new InvalidAccessTokenException(
-                    messageSourceResolver.resolver("invalid.access.token", new Object[]{SocialMediaTypeEnum.FACEBOOK.name()}),
-                    SocialMediaTypeEnum.FACEBOOK, accessToken);
-        } catch (Exception e) {
-            throw new GetCommentsProcessException(e.toString());
-        }
-        return comments;
-    }
-
-    @Override
-    public RegisterGuardianByFacebookDTO getRegistrationInformationForTheParent(String fbId, String accessToken) {
-
-        Assert.notNull(accessToken, "Token can not be null");
-        Assert.hasLength(accessToken, "Token can not be empty");
-
-        RegisterGuardianByFacebookDTO registerParent = null;
-
-        try {
-            FacebookClient facebookClient = new DefaultFacebookClient(accessToken, Version.VERSION_2_8);
-            // Get Information about access token owner
-            User user = facebookClient.fetchObject("me", User.class, Parameter.with("fields", "email, name, first_name, last_name, birthday, locale"));
-            if (!user.getId().equals(fbId)) {
-                throw new InvalidFacebookIdException();
-            }
-            registerParent = userFacebookMapper.userFacebookToRegisterParentByFacebookDTO(user);
-            registerParent.setFbAccessToken(accessToken);
-        } catch (FacebookOAuthException e) {
-            throw new GetInformationFromFacebookException();
-        }
-
-        return registerParent;
-
-    }
-
-    @Override
-    public String getFbIdByAccessToken(String accessToken) {
-        Assert.notNull(accessToken, "Token can not be null");
-        Assert.hasLength(accessToken, "Token can not be empty");
-
-        String fbId = null;
-
-        try {
-            FacebookClient facebookClient = new DefaultFacebookClient(accessToken, Version.VERSION_2_8);
-            User user = facebookClient.fetchObject("me", User.class);
-            fbId = user.getId();
-        } catch (FacebookOAuthException e) {
-            throw new GetInformationFromFacebookException();
-        }
-
-        return fbId;
-
-    }
-    
-    @Override
-    public String fetchUserPicture(String accessToken) {
-        FacebookClient client = new DefaultFacebookClient(accessToken, Version.VERSION_2_8);
-        User user = client.fetchObject("me", User.class, Parameter.with("fields", "picture"));
-        String profileImageUrl = null;
-        final ProfilePictureSource picture = user.getPicture();
-        if(picture != null) {
-        	picture.setWidth(100);
-            picture.setHeight(100);
-            profileImageUrl = picture.getUrl();
-            logger.debug("Profile Image " + profileImageUrl);
-        }
-        return profileImageUrl;
-    }
-    
-    @Override
-	public String obtainExtendedAccessToken(String shortLivedToken) {
-    	FacebookClient facebookClient = new DefaultFacebookClient(shortLivedToken, Version.VERSION_2_8);
-    	AccessToken extendedAccessToken = facebookClient.obtainExtendedAccessToken(appKey, appSecret, shortLivedToken);
-    	return extendedAccessToken.getAccessToken();
-	}
-    
-    @Override
-	public String getUserNameForAccessToken(String accessToken) throws FacebookOAuthException {
-    	Assert.notNull(accessToken, "Token can not be null");
-        Assert.hasLength(accessToken, "Token can not be empty");
-        
-        FacebookClient facebookClient = new DefaultFacebookClient(accessToken, Version.VERSION_2_8);
-        User user = facebookClient.fetchObject("me", User.class, Parameter.with("fields", "name"));
-        return user != null ? user.getName() : "";
-	}
 
     @PostConstruct
     protected void init() {

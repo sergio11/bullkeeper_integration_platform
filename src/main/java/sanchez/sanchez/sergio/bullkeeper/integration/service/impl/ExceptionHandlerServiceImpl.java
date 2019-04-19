@@ -27,22 +27,29 @@ public class ExceptionHandlerServiceImpl implements IExceptionHandlerService, IE
     private final SocialMediaRepository socialMediaRepository;
     private final IAlertService alertService;
     
-
-    public ExceptionHandlerServiceImpl(SocialMediaRepository socialMediaRepository, IAlertService alertService) {
+    /**
+     * 
+     * @param socialMediaRepository
+     * @param alertService
+     */
+    public ExceptionHandlerServiceImpl(final SocialMediaRepository socialMediaRepository, final IAlertService alertService) {
         this.socialMediaRepository = socialMediaRepository;
         this.alertService = alertService;
     }
     
+    /**
+     * 
+     */
     @Override
     public void handleException(Message<Exception> messageException) {
         Throwable cause = messageException.getPayload().getCause();
         if (cause instanceof IVisitable)
-                ((IVisitable<IExceptionVisitor>)cause).accept(this);
-        else {
-            //logger.error(cause.fillInStackTrace().toString());
-        }   
+                ((IVisitable<IExceptionVisitor>)cause).accept(this);  
     }
 
+    /**
+     * Invalid Access Token Exception Handler
+     */
     @Override
     public void visit(InvalidAccessTokenException exception) {
     	Assert.notNull(exception.getAccessToken(), "Access Token can not be null");
@@ -56,9 +63,12 @@ public class ExceptionHandlerServiceImpl implements IExceptionHandlerService, IE
        
     }
     
+    /**
+     * Get Comments Process Exception Exception Handler
+     */
     @Override
     public void visit(GetCommentsProcessException exception) {
-        logger.error(exception.getMessage());
+        logger.debug("Get Comments Process Exception");
     }
     
    

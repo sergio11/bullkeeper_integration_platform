@@ -217,15 +217,15 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
 	 * 
 	 */
 	@Override
-	public void cancelAnalyzesThatAreTakingMoreThanNHours(final AnalysisTypeEnum type, 
-			final Integer hours) {
+	public void cancelAnalyzesThatAreTakingMoreThanNMinutes(final AnalysisTypeEnum type, 
+			final Integer minutes) {
 		Assert.notNull(type, "Type can not be null");
-		Assert.notNull(hours, "hours can not be null");
-		Assert.isTrue(hours > 0, "hours should be grather than 0");
+		Assert.notNull(minutes, "minutes can not be null");
+		Assert.isTrue(minutes > 0, "minutes should be grather than 0");
 		
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(new Date());
-		calendar.add(Calendar.HOUR, -hours);
+		calendar.add(Calendar.MINUTE, -minutes);
 		
 		logger.debug("date let -> " + calendar.getTime());
 		

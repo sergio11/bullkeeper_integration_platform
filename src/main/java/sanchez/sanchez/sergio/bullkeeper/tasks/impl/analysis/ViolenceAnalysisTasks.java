@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AlertCategoryEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AlertLevelEnum;
-import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AnalysisEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AnalysisStatusEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AnalysisTypeEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.CommentEntity;
@@ -23,6 +22,11 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.KidEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ViolenceLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ViolenceResultsEntity;
 
+/**
+ * Violence Analysis Tasks
+ * @author ssanchez
+ *
+ */
 @Component
 public class ViolenceAnalysisTasks extends AbstractAnalysisTasks {
 	
@@ -53,7 +57,7 @@ public class ViolenceAnalysisTasks extends AbstractAnalysisTasks {
 	@Scheduled(cron = "${task.analysis.violence.cancel.not.finished.interval}")
 	public void cancelingUnfinishedViolenceAnalysisTasks(){
 		logger.debug("Canceling unfinished violence analysis tasks");
-		commentRepository.cancelAnalyzesThatAreTakingMoreThanNHours(AnalysisTypeEnum.VIOLENCE, maximumHoursOfAnAnalysis);
+		commentRepository.cancelAnalyzesThatAreTakingMoreThanNMinutes(AnalysisTypeEnum.VIOLENCE, maximumHoursOfAnAnalysis);
 	}
 	
 	/**
