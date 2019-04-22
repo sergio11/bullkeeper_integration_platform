@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>sanchez.sanchez.sergio</groupId>
     <artifactId>bullkeeper-integration-platform</artifactId>
-    <version>0.1.60-SNAPSHOT</version>
+    <version>0.1.61-SNAPSHOT</version>
     <packaging>${packaging.type}</packaging>
     <name>BullKeeper Integration Platform</name>
     <description>BullKeeper Integration Platform. EIPs patterns with Spring Integration.</description>

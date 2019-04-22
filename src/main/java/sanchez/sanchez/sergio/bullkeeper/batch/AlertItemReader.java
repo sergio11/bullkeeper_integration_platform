@@ -26,45 +26,61 @@ public class AlertItemReader extends AbstractItemCountingItemStreamItemReader<Al
 
 	private Logger logger = LoggerFactory.getLogger(AlertItemReader.class);
 	
-	private final GuardianRepository parentRepository;
+	private final GuardianRepository guardianRepository;
 	private final AlertRepository alertRepository;
 	
-	private List<GuardianEntity> parents;
+	private List<GuardianEntity> guardians;
 	
-	public AlertItemReader(GuardianRepository parentRepository, AlertRepository alertRepository) {
+	/**
+	 * 
+	 * @param guardianRepository
+	 * @param alertRepository
+	 */
+	public AlertItemReader(GuardianRepository guardianRepository, AlertRepository alertRepository) {
 		super();
-		this.parentRepository = parentRepository;
+		this.guardianRepository = guardianRepository;
 		this.alertRepository = alertRepository;
 		this.setName("alertItemReader");
 		this.setExecutionContextName("alertItemReader");
 	}
 	
-
-	@Override
-	protected AlertsByGuardian doRead() throws Exception {
-		if (parents == null) {
-            throw new ReaderNotOpenException("Reader must be open before it can be read.");
-        }
-		logger.debug("AlertItemReader doRead called ...");
-		GuardianEntity currentParent = parents.get(getCurrentItemCount() - 1);
-		List<AlertEntity> alerts = alertRepository
-				.findByGuardianIdAndDeliveredFalseAndDeliveryModeAndCreateAtGreaterThan(currentParent.getId(), AlertDeliveryModeEnum.PUSH_NOTIFICATION, currentParent.getLastAccessToAlerts());
-		return new AlertsByGuardian(currentParent.getId(), alerts);
-	}
-
+	/**
+	 * 
+	 */
 	@Override
 	protected void doOpen() throws Exception {
 		logger.debug("AlertItemReader doOpen called ...");
-		parents = parentRepository.findByPreferencesPushNotificationsEnabledAndActiveTrueAndLockedFalseAndPendingDeletionFalse(Boolean.TRUE);
-		setMaxItemCount(parents.size()); 
+		guardians = guardianRepository
+				.findByPreferencesPushNotificationsEnabledAndActiveTrueAndLockedFalseAndPendingDeletionFalse(Boolean.TRUE);
+		setMaxItemCount(guardians.size()); 
 		
 	}
+	
+	/**
+	 * 
+	 */
+	@Override
+	protected AlertsByGuardian doRead() throws Exception {
+		if (guardians == null) {
+            throw new ReaderNotOpenException("Reader must be open before it can be read.");
+        }
+		logger.debug("AlertItemReader doRead called ...");
+		GuardianEntity currentParent = guardians.get(getCurrentItemCount() - 1);
+		List<AlertEntity> alerts = alertRepository
+				.findByGuardianIdAndDeliveredFalseAndDeliveryModeAndCreateAtGreaterThan(currentParent.getId(),
+						AlertDeliveryModeEnum.PUSH_NOTIFICATION, currentParent.getLastAccessToAlerts());
+		return new AlertsByGuardian(currentParent.getId(), alerts);
+	}
 
+
+	/**
+	 * 
+	 */
 	@Override
 	protected void doClose() throws Exception {
 		logger.debug("AlertItemReader doClose called ...");
-		if(parents != null)
-			parents.clear();
+		if(guardians != null)
+			guardians.clear();
 	    setMaxItemCount(0);
 	    setCurrentItemCount(0);
 	}

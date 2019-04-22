@@ -106,6 +106,15 @@ public class AuthorizationServiceImpl implements IAuthorizationService {
     @SuppressWarnings("unchecked")
     @Override
     public Boolean isYourGuardian(String id) {
+    	return isYourGuardian(id, true);
+    }
+    
+    /**
+     * Is Your Guardian
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public Boolean isYourGuardian(String id, final Boolean confirmationRequired) {
     	
         boolean isYourGuardian = Boolean.FALSE;
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -114,15 +123,18 @@ public class AuthorizationServiceImpl implements IAuthorizationService {
             
         	final CommonUserDetailsAware<ObjectId> userDetails = 
             		(CommonUserDetailsAware<ObjectId>) auth.getPrincipal();
+        	
+        	isYourGuardian = confirmationRequired ? supervisedChildrenRepository
+                	.countByGuardianIdAndKidIdAndIsConfirmedTrue(userDetails.getUserId(), 
+                			new ObjectId(id)) > 0 : supervisedChildrenRepository
+                						.countByGuardianIdAndKidId(userDetails.getUserId(), 
+                	                			new ObjectId(id)) > 0;
             
-        	// Check is your guardian
-            isYourGuardian = supervisedChildrenRepository
-            	.countByGuardianIdAndKidIdAndIsConfirmedTrue(userDetails.getUserId(), 
-            			new ObjectId(id)) > 0;
             
         }
         return isYourGuardian;
     }
+
 
     /**
      * 

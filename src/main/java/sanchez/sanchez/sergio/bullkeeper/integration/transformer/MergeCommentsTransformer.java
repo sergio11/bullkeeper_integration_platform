@@ -14,6 +14,11 @@ import org.springframework.stereotype.Component;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.CommentEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.CommentRepository;
 
+/**
+ * Merge Comments Transformer
+ * @author ssanchez
+ *
+ */
 @Component
 public class MergeCommentsTransformer implements GenericTransformer<Message<Set<CommentEntity>>, Set<CommentEntity>> {
 	

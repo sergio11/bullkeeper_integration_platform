@@ -29,6 +29,11 @@ import org.bson.types.ObjectId;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * 
+ * @author ssanchez
+ *
+ */
 @Service("integrationFlowService")
 public final class ItegrationFlowServiceImpl implements IIntegrationFlowService {
 	
@@ -40,7 +45,15 @@ public final class ItegrationFlowServiceImpl implements IIntegrationFlowService 
 	private final IMessageSourceResolverService messageSourceResolver;
 	private final IIterationService iterationService;
 	
-	
+	/**
+	 * 
+	 * @param integrationFlowProperties
+	 * @param socialMediaRepository
+	 * @param iterationService
+	 * @param commentRepository
+	 * @param alertService
+	 * @param messageSourceResolver
+	 */
 	@Autowired
 	public ItegrationFlowServiceImpl(IntegrationFlowProperties integrationFlowProperties,
 			SocialMediaRepository socialMediaRepository, IIterationService iterationService,
@@ -54,18 +67,27 @@ public final class ItegrationFlowServiceImpl implements IIntegrationFlowService 
 		this.messageSourceResolver = messageSourceResolver;
 	}
 
-
+	/**
+	 * Get Date For Next Poll
+	 */
 	@Override
 	public Date getDateForNextPoll() {
 		Date scheduledFor = new Date();
+		// Get Total Social Media with valid token
     	Long socialMediaCount = socialMediaRepository.countByInvalidTokenFalse();
     	
     	if(socialMediaCount > integrationFlowProperties.getMinSocialMediaPerCycle()) {
     		
+    		//Calculation of the number of social media per iteration or cycle
     		Double socialMediaPerCycle = Math.ceil( socialMediaCount * integrationFlowProperties.getPercentageSocialMedia() / 100);
-        	Double totalCycles = Math.ceil(socialMediaCount / socialMediaPerCycle);
+        	// Calculation of the number of iterations needed to poll all valid 
+    		// social media according to the configured revision percentage
+    		Double totalCycles = Math.ceil(socialMediaCount / socialMediaPerCycle);
+    		// Average duration of an iteration
         	Double avgIterationDuration = iterationService.getAvgDuration();
-        	Long nextIterationMilli = Math.round(totalCycles * avgIterationDuration + totalCycles * integrationFlowProperties.getFlowFixedDelayMillis() - avgIterationDuration);
+        	// Calculation of the time required for the next iteration
+        	Long nextIterationMilli = Math.round(totalCycles * avgIterationDuration + totalCycles * 
+        			integrationFlowProperties.getFlowFixedDelayMillis() - avgIterationDuration);
         	Long currentTime = new Date().getTime();
         	
         	logger.debug("SOCIAL MEDIA COUNT -> " + socialMediaCount);
@@ -82,26 +104,29 @@ public final class ItegrationFlowServiceImpl implements IIntegrationFlowService 
     	return scheduledFor;
 	}
 	
+	/**
+	 * Schedule Social Media For Next Iteration
+	 */
 	@Override
 	public void scheduleSocialMediaForNextIteration(IterationWithTasksDTO iteration) {
 		logger.debug("Schedule Valid Social Media For Next Iteration ....");
 
-        
+		// Get Valid Social Media IIds
         final List<ObjectId> validSocialMediaIds = iteration.getTasks().stream()
         		.filter(task -> task.getSuccess())
         		.map(task -> new ObjectId(task.getSocialMediaId()))
         		.collect(Collectors.toList());
         
-        
         if(!validSocialMediaIds.isEmpty()) {
         	final Date scheduledFor = getDateForNextPoll();
+        	// save next scheduled and last probing
         	socialMediaRepository.setScheduledForAndLastProbing(validSocialMediaIds, scheduledFor, iteration.getFinishDate());
         }
-        	
-		
 	}
 	
-	
+	/**
+	 * Generate Alerts For Interation
+	 */
 	@Override
 	public void generateAlertsForIteration(IterationWithTasksDTO iteration) {
 		logger.debug("Generate Alerts for this iteration");

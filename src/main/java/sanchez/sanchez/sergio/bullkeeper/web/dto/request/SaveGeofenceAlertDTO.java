@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.GeofenceShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.GeofenceTransitionType;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.KidShouldExists;
+import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.TerminalShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ValidObjectId;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.group.Extended;
 
@@ -41,6 +42,14 @@ public final class SaveGeofenceAlertDTO implements Serializable {
 	@GeofenceTransitionType(message = "{geofence.transition.not.valid}")
 	@JsonProperty("type")
 	private String type;
+	
+	/**
+	 * Terminal
+	 */
+	@TerminalShouldExists(message = "{terminal.not.exists}")
+	@JsonProperty("terminal")
+ 	private String terminal;
+
 
 	/**
 	 * 
@@ -52,40 +61,51 @@ public final class SaveGeofenceAlertDTO implements Serializable {
 	 * @param geofence
 	 * @param kid
 	 * @param type
+	 * @param address
 	 */
-	public SaveGeofenceAlertDTO(String geofence, String kid, String type) {
+	public SaveGeofenceAlertDTO(String geofence, String kid, String type, String terminal) {
 		super();
 		this.geofence = geofence;
 		this.kid = kid;
 		this.type = type;
+		this.terminal = terminal;
 	}
 
 	public String getGeofence() {
 		return geofence;
 	}
 
-	public String getKid() {
-		return kid;
-	}
-
-	public String getType() {
-		return type;
-	}
-
 	public void setGeofence(String geofence) {
 		this.geofence = geofence;
+	}
+
+	public String getKid() {
+		return kid;
 	}
 
 	public void setKid(String kid) {
 		this.kid = kid;
 	}
 
+	public String getType() {
+		return type;
+	}
+
 	public void setType(String type) {
 		this.type = type;
 	}
 
+	public String getTerminal() {
+		return terminal;
+	}
+
+	public void setTerminal(String terminal) {
+		this.terminal = terminal;
+	}
+
 	@Override
 	public String toString() {
-		return "SaveGeofenceAlertDTO [geofence=" + geofence + ", kid=" + kid + ", type=" + type + "]";
+		return "SaveGeofenceAlertDTO [geofence=" + geofence + ", kid=" + kid + ", type=" + type + ", terminal="
+				+ terminal + "]";
 	}
 }

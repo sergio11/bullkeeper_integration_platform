@@ -37,6 +37,14 @@ public interface IAuthorizationService {
     Boolean isYourGuardian(final String id);
     
     /**
+     * Is Your Son
+     * @param id
+     * @param confirmationRequired
+     * @return
+     */
+    Boolean isYourGuardian(final String id, final Boolean confirmationRequired);
+    
+    /**
      * Is Your Guardian And Has Admin Permission
      * @param id
      * @return

@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +49,6 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.PhoneNumberBlockedEn
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ScreenStatusEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SmsEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.TerminalEntity;
-import sanchez.sanchez.sergio.bullkeeper.persistence.entity.TerminalHeartbeatEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.TerminalStatusEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.DeviceStatusEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.AppInstalledRepository;
@@ -1477,6 +1475,7 @@ public final class TerminalServiceImpl implements ITerminalService {
 		// Map To Fun Time Scheduled
 		final FunTimeScheduledEntity funTimeScheduledToSave = funTimeScheduledEntityMapper
 				.saveFunTimeScheduledDtoToFunTimeScheduledEntity(funTimeScheduled);
+
 				
 		logger.debug("Fun Time Scheduled to saved -> " + funTimeScheduled.toString());
 		

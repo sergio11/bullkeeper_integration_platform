@@ -45,7 +45,8 @@ public class SentimentAnalysisTasks extends AbstractAnalysisTasks {
         logger.debug("scheduling sentiment analysis for comments at " + new Date());
         
         Pageable pageable = new PageRequest(0, maximumNumberOfCommentsForSentimentAnalysis);
-        Page<CommentEntity> pendingComments = commentRepository.findAllByAnalysisResultsSentimentStatus(AnalysisStatusEnum.PENDING, pageable);
+        Page<CommentEntity> pendingComments = commentRepository.findAllByAnalysisResultsSentimentStatus(
+        		AnalysisStatusEnum.PENDING, pageable);
         if(pendingComments.hasContent()) 
         	startAnalysisFor(AnalysisTypeEnum.SENTIMENT, pendingComments.getContent());
 

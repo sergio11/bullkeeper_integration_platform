@@ -81,6 +81,8 @@ public interface SupervisedChildrenRepository extends
 	long countByKidIdAndRoleAndIsConfirmed(final ObjectId id, 
 			final GuardianRolesEnum role, final boolean isConfirmed);
 	
+	
+	
 	/**
 	 * Find By Kid Id And Is Confirmed
 	 * @param id
@@ -122,6 +124,17 @@ public interface SupervisedChildrenRepository extends
 	 * @return
 	 */
 	long countByGuardianIdAndIsConfirmed(final ObjectId id, final boolean isConfirmed);
+	
+	
+	/**
+	 *
+	 * @param guardian
+	 * @param kid
+	 * @param isConfirmed
+	 * @return
+	 */
+	long countByGuardianIdAndKidIdAndIsConfirmed(final ObjectId guardian, final ObjectId kid, final boolean isConfirmed);
+
 	
 	/**
 	 * Count By Guardian Id And Kid Id And is confirmed true

@@ -353,7 +353,8 @@ public class ChildrenController extends BaseController
     		 		@PathVariable String id,
     		@ApiParam(name="guadians", value = "guardians", required = true) 
 				@Validated(ICommonSequence.class)
-    				@RequestBody final ValidList<SaveGuardianDTO> guardians) throws Throwable {
+    				@RequestBody final ValidList<SaveGuardianDTO> guardians,
+    		@ApiIgnore @CurrentUser CommonUserDetailsAware<ObjectId> selfGuardian) throws Throwable {
     	
     	logger.debug("Save Guardians -> " + guardians.size());
     	
@@ -365,10 +366,14 @@ public class ChildrenController extends BaseController
     		
     		if(!kidGuardian.isConfirmed())
     			// Save Alert
-    			alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver("supervised.children.invitation.title"),
-        			messageSourceResolver.resolver("supervised.children.invitation.description"), 
+    			alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver("supervised.children.invitation.title", new Object[] {
+    					kidGuardian.getKid().getFirstName(), kidGuardian.getKid().getLastName()
+    			}),
+        			messageSourceResolver.resolver("supervised.children.invitation.description" , new Object[] {
+        					selfGuardian.getFullName(), kidGuardian.getKid().getFirstName(), kidGuardian.getKid().getLastName()
+        			}), 
         			new ObjectId(kidGuardian.getKid().getIdentity()), 
-        			new ObjectId(kidGuardian.getGuardian().getIdentity()),  AlertCategoryEnum.INFORMATION_KID);
+        			new ObjectId(kidGuardian.getGuardian().getIdentity()),  AlertCategoryEnum.KID_SUPERVISION_INVITATION);
     		
     	}
     	
@@ -802,7 +807,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{id}/alerts", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole()"
-    		+ " && @authorizationService.isYourGuardian(#id) )")
+    		+ " && @authorizationService.isYourGuardian(#id, false) )")
     @ApiOperation(value = "GET_ALERTS_BY_KID", nickname = "GET_ALERTS_BY_KID", 
     	notes = "Get Alerts By KId Id",
             response = Iterable.class)
@@ -844,7 +849,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{id}/alerts/warning", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#id) )")
+    		+ "&& @authorizationService.isYourGuardian(#id, false) )")
     @ApiOperation(value = "GET_WARNING_ALERTS_BY_KID", nickname = "GET_WARNING_ALERTS_BY_KID", 
     	notes = "Get Warning Alerts By Kid Id", response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<AlertDTO>>> getWarningAlertsByKidId(
@@ -880,7 +885,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{id}/alerts/info", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#id) )")
+    		+ "&& @authorizationService.isYourGuardian(#id, false) )")
     @ApiOperation(value = "GET_INFO_ALERTS_BY_KID", nickname = "GET_INFO_ALERTS_BY_KID",
     notes = "Get Information Alerts By Kid Id",
             response = Iterable.class)
@@ -917,7 +922,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{id}/alerts/danger", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole()"
-    		+ " && @authorizationService.isYourGuardian(#id) )")
+    		+ " && @authorizationService.isYourGuardian(#id, false) )")
     @ApiOperation(value = "GET_DANGER_ALERTS_BY_KID", nickname = "GET_DANGER_ALERTS_BY_KID",
     notes = "Get Danger Alerts By Kid Id",
             response = Iterable.class)
@@ -955,7 +960,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{id}/alerts/success", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole()"
-    		+ " && @authorizationService.isYourGuardian(#id) )")
+    		+ " && @authorizationService.isYourGuardian(#id, false) )")
     @ApiOperation(value = "GET_SUCCESS_ALERTS_BY_KID", nickname = "GET_SUCCESS_ALERTS_BY_KID",
     notes = "Get Success Alerts By Kid Id",
             response = Iterable.class)
@@ -990,7 +995,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{id}/alerts/warning", method = RequestMethod.DELETE)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole()"
-    		+ " && @authorizationService.isYourGuardian(#id) )")
+    		+ " && @authorizationService.isYourGuardian(#id, false) )")
     @ApiOperation(value = "CLEAR_CHILD_WARNING_ALERTS",
     	nickname = "CLEAR_CHILD_WARNING_ALERTS", notes = "Clear Child Warning Alerts",
             response = String.class)
@@ -1018,7 +1023,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{id}/alerts/info", method = RequestMethod.DELETE)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole()"
-    		+ " && @authorizationService.isYourGuardian(#id) )")
+    		+ " && @authorizationService.isYourGuardian(#id, false) )")
     @ApiOperation(value = "CLEAR_CHILD_INFO_ALERTS", nickname = "CLEAR_CHILD_INFO_ALERTS",
     notes = "Clear Info Child Alerts",
             response = String.class)
@@ -1044,7 +1049,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{id}/alerts/danger", method = RequestMethod.DELETE)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole()"
-    		+ " && @authorizationService.isYourGuardian(#id) )")
+    		+ " && @authorizationService.isYourGuardian(#id, false) )")
     @ApiOperation(value = "CLEAR_CHILD_DANGER_ALERTS", nickname = "CLEAR_CHILD_DANGER_ALERTS",
     notes = "Clear Info Child Alerts",
             response = String.class)
@@ -1070,7 +1075,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{id}/alerts/success", method = RequestMethod.DELETE)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& @authorizationService.isYourGuardian(#id) )")
+    		+ "&& @authorizationService.isYourGuardian(#id, false) )")
     @ApiOperation(value = "CLEAR_CHILD_SUCCESS_ALERTS", nickname = "CLEAR_CHILD_SUCCESS_ALERTS",
     notes = "Clear Success Child Alerts",
             response = String.class)
@@ -1095,7 +1100,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{id}/alerts", method = RequestMethod.DELETE)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#id) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardian(#id, false) )")
     @ApiOperation(value = "CLEAR_CHILD_ALERTS", nickname = "CLEAR_CHILD_ALERTS", notes = "Clear Child Alerts",
             response = String.class)
     public ResponseEntity<APIResponse<String>> clearChildAlerts(
@@ -1120,7 +1126,8 @@ public class ChildrenController extends BaseController
      * @throws Throwable
      */
     @RequestMapping(value = "/{kid}/alerts/{alert}", method = RequestMethod.GET)
-    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() && @authorizationService.isYourGuardian(#kid) )")
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole()"
+    		+ " && @authorizationService.isYourGuardian(#kid, false) )")
     @ApiOperation(value = "GET_ALERT_BY_ID", nickname = "GET_ALERT_BY_ID", notes = "Get alert by id",
             response = AlertDTO.class)
     public ResponseEntity<APIResponse<AlertDTO>> getAlertById(
@@ -1148,7 +1155,7 @@ public class ChildrenController extends BaseController
      */
     @RequestMapping(value = "/{kid}/alerts/{alert}", method = RequestMethod.DELETE)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole()"
-    		+ " && @authorizationService.isYourGuardian(#kid) )")
+    		+ " && @authorizationService.isYourGuardian(#kid, false) )")
     @ApiOperation(value = "DELETE_ALERT_BY_ID", nickname = "DELETE_ALERT_BY_ID", notes = "Delete alert by id",
             response = String.class)
     public ResponseEntity<APIResponse<String>> deleteAlertById(
@@ -2521,7 +2528,7 @@ public class ChildrenController extends BaseController
 				@RequestBody ValidList<ObjectId> contactsList) 
   		throws Throwable {
       
-	   logger.debug("Delete all contacts from terminal");
+	   logger.debug("Delete contacts from terminal");
 	   
 	   // Get Terminal
       final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
@@ -3819,7 +3826,7 @@ public class ChildrenController extends BaseController
         	alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver("phone.number.unblocked.title", 
         			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ),
         			messageSourceResolver.resolver("phone.number.unblocked.description", 
-        					new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() }), 
+        					new Object[] { phoneNumberBlocked, terminalDTO.getModel(), terminalDTO.getDeviceName() }), 
         			new ObjectId(kid), AlertCategoryEnum.PHONE_NUMBERS);
         	
         	
@@ -4078,11 +4085,12 @@ public class ChildrenController extends BaseController
     	
     	terminalService.saveHeartbeatConfiguration(configuration);
     
-    	
     	// Save Alert
-    	alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver("terminal.heartbeat.configuration.title", 
+    	alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver(configuration.isAlertModeEnabled() ? 
+    			"terminal.heartbeat.configuration.alert.enable.title" : "terminal.heartbeat.configuration.alert.disable.title", 
     			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ),
-    			messageSourceResolver.resolver("terminal.heartbeat.configuration.description", 
+    			messageSourceResolver.resolver(configuration.isAlertModeEnabled() ?
+    					"terminal.heartbeat.configuration.alert.enable.description" : "terminal.heartbeat.configuration.alert.disable.description", 
     					new Object[] { configuration.getAlertThresholdInMinutes(), terminalDTO.getModel(), terminalDTO.getDeviceName() }), 
     			new ObjectId(kid), AlertCategoryEnum.TERMINALS);
     	
@@ -4234,11 +4242,13 @@ public class ChildrenController extends BaseController
   	final DayScheduledDTO dayScheduledDTO = terminalService.saveFunTimeDayScheduled(new ObjectId(terminalDTO.getKid()), 
 				new ObjectId(terminalDTO.getIdentity()), FunTimeDaysEnum.valueOf(day), saveDayScheduled);
   	
+  	
   	// Save Alert
-	alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver("terminal.save.fun.time.day.scheduled.title", 
-			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ),
-			messageSourceResolver.resolver("terminal.save.fun.time.day.scheduled.description", 
-					new Object[] { saveDayScheduled.getDay(), terminalDTO.getModel(), terminalDTO.getDeviceName() }), 
+	alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver(dayScheduledDTO.getEnabled() ? 
+				"terminal.fun.time.day.scheduled.enable.title" : "terminal.fun.time.day.scheduled.disable.title", 
+		new Object[] { dayScheduledDTO.getDay(), terminalDTO.getModel(), terminalDTO.getDeviceName() } ), messageSourceResolver.resolver(dayScheduledDTO.getEnabled() ? 
+				"terminal.fun.time.day.scheduled.enable.description" : "terminal.fun.time.day.scheduled.disable.description", 
+		new Object[] { dayScheduledDTO.getDay(), dayScheduledDTO.getTotalHours(), terminalDTO.getModel(), terminalDTO.getDeviceName() } ),
 			new ObjectId(kid), AlertCategoryEnum.FUN_TIME);
   
   	// Publish Event
@@ -4271,6 +4281,7 @@ public class ChildrenController extends BaseController
 					@RequestBody SaveFunTimeScheduledDTO saveFunTimeScheduledDTO) 
     		throws Throwable {
         
+    	
     	logger.debug("Save Fun Time Scheduled");
     	
     	 // Get Terminal
@@ -4285,9 +4296,11 @@ public class ChildrenController extends BaseController
     					saveFunTimeScheduledDTO);
     
     	// Save Alert
-    	alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver("terminal.save.fun.time.scheduled.title", 
+    	alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver(funTimeScheduledDTO.getEnabled() ? 
+    			"terminal.fun.time.scheduled.enable.title" : "terminal.fun.time.scheduled.disable.title", 
     			new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() } ),
-    			messageSourceResolver.resolver("terminal.save.fun.time.scheduled.description", 
+    			messageSourceResolver.resolver(funTimeScheduledDTO.getEnabled() ?  
+    					"terminal.fun.time.scheduled.enable.description" : "terminal.fun.time.scheduled.disable.description", 
     					new Object[] { terminalDTO.getModel(), terminalDTO.getDeviceName() }), 
     			new ObjectId(kid), AlertCategoryEnum.FUN_TIME);
       
@@ -4516,13 +4529,21 @@ public class ChildrenController extends BaseController
         
         logger.debug("Delete Scheduled Block by id ");
         
+     // Get Scheduled Block By Id
+    	final ScheduledBlockDTO scheduledBlockToDelete =
+    			scheduledBlockService.getScheduledBlockById(new ObjectId(block));
+        
         // Delete By Child ID
-        scheduledBlockService.delete(new ObjectId(block));
+        scheduledBlockService.delete(new ObjectId(scheduledBlockToDelete.getIdentity()));
       
         
      // Save Alert
-    	alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver("delete.scheduled.block.title"),
-    			messageSourceResolver.resolver("delete.scheduled.block.description"), 
+    	alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver("delete.scheduled.block.title", new Object[] {
+    			scheduledBlockToDelete.getName()
+    	}),
+    			messageSourceResolver.resolver("delete.scheduled.block.description", new Object[] {
+    	    			scheduledBlockToDelete.getName()
+    	    	}), 
     			new ObjectId(kid), AlertCategoryEnum.SCHEDULED_BLOCK);
         
         
@@ -4910,9 +4931,11 @@ public class ChildrenController extends BaseController
     	final GeofenceDTO geofenceDTO = geofenceService.save(saveGeofenceDTO);
     	
     	 // Save Alert
-    	alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver("save.geofence.for.kid.title", 
+    	alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver(geofenceDTO.getIsEnabled() ? 
+    			"save.geofence.for.kid.enable.title" : "save.geofence.for.kid.disable.title", 
     			new Object[] { saveGeofenceDTO.getName() }),
-    			messageSourceResolver.resolver("save.geofence.for.kid.description",
+    			messageSourceResolver.resolver(geofenceDTO.getIsEnabled() ?  
+    					"save.geofence.for.kid.enable.description" : "save.geofence.for.kid.disable.description",
     					 new Object[] { saveGeofenceDTO.getName() }), 
     			new ObjectId(kid), AlertCategoryEnum.GEOFENCES);
    
@@ -5018,6 +5041,15 @@ public class ChildrenController extends BaseController
     	geofenceService.enableGeofence(new ObjectId(geofenceDTO.getKid()), 
     			new ObjectId(geofenceDTO.getIdentity()));
     	
+    	
+    	// Save Alert
+    	alertService.save(AlertLevelEnum.WARNING, messageSourceResolver.resolver("geofence.enable.title", new Object[] {
+    			geofenceDTO.getName()
+    	}), messageSourceResolver.resolver("geofence.enable.description", new Object[] {
+    			geofenceDTO.getName()
+    	}), new ObjectId(kid), AlertCategoryEnum.GEOFENCES);
+    	
+
     	// Push Event
     	this.applicationEventPublisher
     		.publishEvent(new GeofenceStatusChangedEvent(
@@ -5060,6 +5092,14 @@ public class ChildrenController extends BaseController
     	this.applicationEventPublisher
     		.publishEvent(new GeofenceStatusChangedEvent(
     				this, id, kid, false));
+    	
+    	
+    	// Save Alert
+    	alertService.save(AlertLevelEnum.WARNING, messageSourceResolver.resolver("geofence.disable.title", new Object[] {
+    			geofenceDTO.getName()
+    	}), messageSourceResolver.resolver("geofence.disable.description", new Object[] {
+    			geofenceDTO.getName()
+    	}), new ObjectId(kid), AlertCategoryEnum.GEOFENCES);
     	
     	
     	// Create and send response
@@ -5152,20 +5192,29 @@ public class ChildrenController extends BaseController
     	
     	logger.debug("Save Geofence Alerts");
     	
+    	// Get Terminal
+        final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+    			new ObjectId(saveGeofenceAlertDTO.getTerminal()), new ObjectId(kid)))
+    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+    	
     	final GeofenceDTO geofence = 
     			geofenceService.findById(new ObjectId(kid), new ObjectId(id));
-    
-    
-    	final String title = "Título de la Alerta", description = "Descripción de la Alerta";
-    	
+   
     	// Save Geofence Alert
     	final GeofenceAlertDTO geofenceAlertDTO = 
     			geofenceService.saveAlert(saveGeofenceAlertDTO.getKid(), saveGeofenceAlertDTO.getGeofence(),
-    					saveGeofenceAlertDTO.getType(), title, description);
+    					saveGeofenceAlertDTO.getType(), messageSourceResolver.resolver("geofence.alert.title", new Object[] {
+    							terminalDTO.getModel(), terminalDTO.getDeviceName()
+    					}), messageSourceResolver.resolver("geofence.alert.description", new Object[] {
+    							terminalDTO.getModel(), terminalDTO.getDeviceName()
+    					}));
     	
     	 // Save Alert
-    	alertService.save(AlertLevelEnum.DANGER, geofenceAlertDTO.getTitle(), geofenceAlertDTO.getDescription(), 
-    			new ObjectId(kid), AlertCategoryEnum.GEOFENCES);
+    	alertService.save(AlertLevelEnum.DANGER, messageSourceResolver.resolver("save.geofence.alert.title", new Object[] {
+    			geofence.getName(), terminalDTO.getModel(), terminalDTO.getDeviceName()
+    	}), messageSourceResolver.resolver("save.geofence.alert.description", new Object[] {
+    			geofence.getName(), terminalDTO.getModel(), terminalDTO.getDeviceName()
+    	}), new ObjectId(kid), AlertCategoryEnum.GEOFENCES);
     
     	// Create and send response
     	return ApiHelper.<GeofenceAlertDTO>createAndSendResponse(GeofenceResponseCode.GEOFENCE_ALERT_SAVED, 
@@ -5231,13 +5280,22 @@ public class ChildrenController extends BaseController
   					@PathVariable String id) throws Throwable {
     	
 		logger.debug("Delete Geofences by id -> " + id);
+		
+		// Get Geofence
+    	final GeofenceDTO geofenceDTO = Optional.ofNullable(geofenceService.findById(
+    			new ObjectId(kid), new ObjectId(id)))
+    			 .orElseThrow(() -> { throw new GeofenceNotFoundException(); });
     	
     	// Delete Geofence By Id
     	geofenceService.deleteById(new ObjectId(kid), new ObjectId(id));
     	
     	// Save Alert
-    	alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver("delete.single.geofence.for.kid.title"),
-    			messageSourceResolver.resolver("delete.single.geofence.for.kid.description"), 
+    	alertService.save(AlertLevelEnum.INFO, messageSourceResolver.resolver("delete.single.geofence.for.kid.title" , new Object[] {
+    			geofenceDTO.getName()
+    	}),
+    			messageSourceResolver.resolver("delete.single.geofence.for.kid.description", new Object[] {
+    	    			geofenceDTO.getName()
+    	    	}), 
     			new ObjectId(kid), AlertCategoryEnum.GEOFENCES);
     	
     	// Push Event
@@ -5320,10 +5378,8 @@ public class ChildrenController extends BaseController
     	final RequestUploadFile uploadPhotoImage = new RequestUploadFile(photoFile.getBytes(), 
     			photoFile.getContentType() != null ? photoFile.getContentType() : MediaType.IMAGE_PNG_VALUE, photoFile.getOriginalFilename());
     	 
-    	
     	final DevicePhotoDTO devicePhotoDTO = this.terminalService.saveDevicePhoto(
     			new ObjectId(terminalDTO.getKid()), new ObjectId(terminalDTO.getIdentity()), devicePhoto, uploadPhotoImage);
-    	
     	
     	// Create and send response
     	return ApiHelper.<DevicePhotoDTO>createAndSendResponse(DevicePhotosResponseCode.DEVICE_PHOTO_SAVED_SUCCESSFULLY, 

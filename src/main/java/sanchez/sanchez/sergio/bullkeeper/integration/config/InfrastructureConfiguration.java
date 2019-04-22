@@ -48,6 +48,7 @@ import sanchez.sanchez.sergio.bullkeeper.rrss.service.IInstagramService;
 import sanchez.sanchez.sergio.bullkeeper.rrss.service.IYoutubeService;
 
 /**
+ * Platform Integration Component Configuration
  * @author sergio
  */
 @Configuration
@@ -87,6 +88,10 @@ public class InfrastructureConfiguration {
         return Pollers.fixedDelay(integrationFlowProperties.getFlowFixedDelay(), TimeUnit.SECONDS).get();
     }
     
+    /**
+     * Integration Task Executor
+     * @return
+     */
     @Bean
     public TaskExecutor integrationTaskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();

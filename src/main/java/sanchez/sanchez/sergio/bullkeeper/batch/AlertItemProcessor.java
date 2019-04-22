@@ -33,7 +33,13 @@ public class AlertItemProcessor  implements ItemProcessor<AlertsByGuardian, FCMN
 	private final DeviceGroupRepository deviceGroupRepository;
     private final IMessageSourceResolverService messageSourceResolver;
 	
-	public AlertItemProcessor(DeviceGroupRepository deviceGroupRepository, IMessageSourceResolverService messageSourceResolver) {
+    /**
+     * 
+     * @param deviceGroupRepository
+     * @param messageSourceResolver
+     */
+	public AlertItemProcessor(DeviceGroupRepository deviceGroupRepository, 
+			IMessageSourceResolverService messageSourceResolver) {
 		super();
 		this.deviceGroupRepository = deviceGroupRepository;
 		this.messageSourceResolver = messageSourceResolver;
@@ -69,7 +75,8 @@ public class AlertItemProcessor  implements ItemProcessor<AlertsByGuardian, FCMN
 		if(!dangerAlerts.isEmpty()) {
 	
 			notificationBody = dangerAlerts.size() == 1 ? 
-					messageSourceResolver.resolver("fcm.notifications.body.danger.one", new Object[]{ dangerAlerts.get(0).getKid().getFullName() }) :
+					messageSourceResolver.resolver("fcm.notifications.body.danger.one", new Object[]{ 
+							dangerAlerts.get(0).getKid().getFullName() }) :
 						messageSourceResolver.resolver("fcm.notifications.body.danger.many");
 	
 		} else {
@@ -81,7 +88,8 @@ public class AlertItemProcessor  implements ItemProcessor<AlertsByGuardian, FCMN
 			if(!warningAlerts.isEmpty()) { 
 				
 				notificationBody = warningAlerts.size() == 1 ? 
-						messageSourceResolver.resolver("fcm.notifications.body.warnig.one", new Object[]{ warningAlerts.get(0).getKid().getFullName() }) :
+						messageSourceResolver.resolver("fcm.notifications.body.warnig.one", new Object[]{
+								warningAlerts.get(0).getKid().getFullName() }) :
 							messageSourceResolver.resolver("fcm.notifications.body.warnig.many");
 				
 			} else {

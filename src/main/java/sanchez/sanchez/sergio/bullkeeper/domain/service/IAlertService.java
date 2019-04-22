@@ -10,7 +10,6 @@ import org.springframework.data.domain.Pageable;
 
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AlertCategoryEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AlertLevelEnum;
-import sanchez.sanchez.sergio.bullkeeper.persistence.entity.GuardianEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.KidEntity;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.AddAlertDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.AlertDTO;

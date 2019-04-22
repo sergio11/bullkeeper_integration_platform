@@ -62,19 +62,19 @@ public abstract class FunTimeScheduledEntityMapper {
 	 */
     @Mappings({
         @Mapping(expression="java(saveDayScheduledDtoToDayScheduledEntity(saveFunTimeScheduledDTO"
-        		+ ".getMonday()))", target = "monday" ),
+        		+ ".getMonday(), saveFunTimeScheduledDTO.getEnabled()))", target = "monday" ),
         @Mapping(expression="java(saveDayScheduledDtoToDayScheduledEntity(saveFunTimeScheduledDTO"
-        		+ ".getTuesday()))", target = "tuesday" ),
+        		+ ".getTuesday(), saveFunTimeScheduledDTO.getEnabled()))", target = "tuesday" ),
         @Mapping(expression="java(saveDayScheduledDtoToDayScheduledEntity(saveFunTimeScheduledDTO"
-        		+ ".getWednesday()))", target = "wednesday" ),
+        		+ ".getWednesday(), saveFunTimeScheduledDTO.getEnabled()))", target = "wednesday" ),
         @Mapping(expression="java(saveDayScheduledDtoToDayScheduledEntity(saveFunTimeScheduledDTO"
-        		+ ".getThursday()))", target = "thursday" ),
+        		+ ".getThursday(), saveFunTimeScheduledDTO.getEnabled()))", target = "thursday" ),
         @Mapping(expression="java(saveDayScheduledDtoToDayScheduledEntity(saveFunTimeScheduledDTO"
-        		+ ".getFriday()))", target = "friday" ),
+        		+ ".getFriday(), saveFunTimeScheduledDTO.getEnabled()))", target = "friday" ),
         @Mapping(expression="java(saveDayScheduledDtoToDayScheduledEntity(saveFunTimeScheduledDTO"
-        		+ ".getSaturday()))", target = "saturday" ),
+        		+ ".getSaturday(), saveFunTimeScheduledDTO.getEnabled()))", target = "saturday" ),
         @Mapping(expression="java(saveDayScheduledDtoToDayScheduledEntity(saveFunTimeScheduledDTO"
-        		+ ".getSunday()))", target = "sunday" )
+        		+ ".getSunday(), saveFunTimeScheduledDTO.getEnabled()))", target = "sunday" )
     })
     @Named("saveFunTimeScheduledDtoToFunTimeScheduledEntity")
     public abstract FunTimeScheduledEntity saveFunTimeScheduledDtoToFunTimeScheduledEntity(
@@ -111,11 +111,29 @@ public abstract class FunTimeScheduledEntityMapper {
 	 */
     @Mappings({
         @Mapping(expression="java(sanchez.sanchez.sergio.bullkeeper.persistence.entity.FunTimeDaysEnum.valueOf(saveDayScheduledDTO.getDay()))", 
-        		target = "day" )
+        		target = "day" ),
+        @Mapping(expression="java(funTimeEnabled && saveDayScheduledDTO.getEnabled())", 
+				target = "enabled" ),
+        @Mapping(expression="java(funTimeEnabled && saveDayScheduledDTO.getEnabled() ? saveDayScheduledDTO.getTotalHours() : 0)", 
+			target = "totalHours" )
     })
     @Named("saveDayScheduledDtoToDayScheduledEntity")
     public abstract DayScheduledEntity saveDayScheduledDtoToDayScheduledEntity(
-    		final SaveDayScheduledDTO saveDayScheduledDTO); 
+    		final SaveDayScheduledDTO saveDayScheduledDTO, final Boolean funTimeEnabled); 
+    
+    
+    /**
+   	 * Day Scheduled Entity To Save Day Scheduled DTO
+   	 * @param saveDayScheduledDTO
+   	 * @return
+   	 */
+       @Mappings({
+           @Mapping(expression="java(sanchez.sanchez.sergio.bullkeeper.persistence.entity.FunTimeDaysEnum.valueOf(saveDayScheduledDTO.getDay()))", 
+           		target = "day" )
+       })
+       @Named("saveDayScheduledDtoToDayScheduledEntity")
+       public abstract DayScheduledEntity saveDayScheduledDtoToDayScheduledEntity(
+       		final SaveDayScheduledDTO saveDayScheduledDTO); 
 	
     
 }

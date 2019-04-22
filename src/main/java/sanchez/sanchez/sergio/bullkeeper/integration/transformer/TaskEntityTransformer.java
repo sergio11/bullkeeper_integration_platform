@@ -16,6 +16,11 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.CommentEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.KidEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.TaskEntity;
 
+/**
+ * Task Entity Transformer
+ * @author ssanchez
+ *
+ */
 public class TaskEntityTransformer implements GenericTransformer<Message<Set<CommentEntity>>, TaskEntity> {
 	
 	private Logger logger = LoggerFactory.getLogger(TaskEntityTransformer.class);
