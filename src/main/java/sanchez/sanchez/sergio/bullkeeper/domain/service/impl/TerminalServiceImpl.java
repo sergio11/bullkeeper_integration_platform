@@ -386,9 +386,12 @@ public final class TerminalServiceImpl implements ITerminalService {
 		AppInstalledEntity appInstalledSaved = appsInstalledRepository
 			.findOneByPackageName(appIntalledToSave.getPackageName());
 		
-		if(appInstalledSaved != null) 
+		if(appInstalledSaved != null)  {
 			appIntalledToSave.setId(appInstalledSaved.getId());
-		else {
+			appIntalledToSave.setModel(appInstalledSaved.getModel());
+			appIntalledToSave.setAppRuleEnum(appInstalledSaved.getAppRuleEnum());
+			appIntalledToSave.setDisabled(appInstalledSaved.getDisabled());
+		} else {
 			
 			final AppModelEntity appModelEntity = appModelRepository
 					.findOne(appIntalledToSave.getPackageName());
@@ -414,34 +417,10 @@ public final class TerminalServiceImpl implements ITerminalService {
 	@Override
 	public Iterable<AppInstalledDTO> save(Iterable<SaveAppInstalledDTO> saveAppsInstalledDTO) {
 		Assert.notNull(saveAppsInstalledDTO, "Apps installed can not be null");
-		
-		final Iterable<AppInstalledEntity> appsInstalledToSave = 
-				appInstalledEntityDataMapper.saveAppInstalledDtoToAppInstalledEntity(saveAppsInstalledDTO);
-		
-		for(final AppInstalledEntity appInstalledToSave: appsInstalledToSave) {
-			
-			final AppInstalledEntity appInstalledSaved = appsInstalledRepository
-					.findOneByPackageName(appInstalledToSave.getPackageName());
-			
-			if(appInstalledSaved != null)
-				appInstalledToSave.setId(appInstalledSaved.getId());
-			else {
-				final AppModelEntity appModelEntity = appModelRepository
-						.findOne(appInstalledToSave.getPackageName());
-				
-				if(appModelEntity != null) {
-					appInstalledToSave.setModel(appModelEntity);
-					appInstalledToSave.setAppRuleEnum(appModelEntity.getCategory().getDefaultRule());
-				}
-			}
-			
-		}
-		
-		// Save apps installed list
-		final Iterable<AppInstalledEntity> appsInstalledSaved = 
-				appsInstalledRepository.save(appsInstalledToSave);
-		
-		return appInstalledEntityDataMapper.appInstalledEntityToAppInstalledDTO(appsInstalledSaved);
+		final List<AppInstalledDTO> appInstalledList = new ArrayList<>();
+		for(final SaveAppInstalledDTO saveAppInstalledDTO: saveAppsInstalledDTO)
+			appInstalledList.add(save(saveAppInstalledDTO));
+		return appInstalledList;
 	
 	}
 

@@ -81,6 +81,12 @@ public class ScheduledBlockSavedSSE extends AbstractSseData implements Serializa
 	private LocalTime endAt;
 	
 	/**
+	 * Create At
+	 */
+	@JsonProperty("create_at")
+	private String createAt;
+	
+	/**
 	 * Weekly Frequency
 	 */
 	@JsonProperty("weekly_frequency")
@@ -127,6 +133,7 @@ public class ScheduledBlockSavedSSE extends AbstractSseData implements Serializa
 	 * @param description
 	 * @param startAt
 	 * @param endAt
+	 * @param createAt
 	 * @param weeklyFrequency
 	 * @param image
 	 * @param kid
@@ -135,7 +142,7 @@ public class ScheduledBlockSavedSSE extends AbstractSseData implements Serializa
 	 */
 	public ScheduledBlockSavedSSE(final String subscriberId, final String identity, final String name, 
 			boolean enable, boolean repeatable, boolean allowCalls, final String description, 
-			final LocalTime startAt, final LocalTime endAt, final int[] weeklyFrequency,
+			final LocalTime startAt, final LocalTime endAt, final String createAt, final int[] weeklyFrequency,
 			final String image, final String kid, final Iterable<AppAllowedByScheduledBlockDTO> appsAllowed,
 			final GeofenceDTO geofence) {
 		super(EVENT_TYPE, subscriberId);
@@ -147,6 +154,7 @@ public class ScheduledBlockSavedSSE extends AbstractSseData implements Serializa
 		this.description = description;
 		this.startAt = startAt;
 		this.endAt = endAt;
+		this.createAt = createAt;
 		this.weeklyFrequency = weeklyFrequency;
 		this.image = image;
 		this.kid = kid;
@@ -230,6 +238,14 @@ public class ScheduledBlockSavedSSE extends AbstractSseData implements Serializa
 		this.endAt = endAt;
 	}
 
+	public String getCreateAt() {
+		return createAt;
+	}
+
+	public void setCreateAt(String createAt) {
+		this.createAt = createAt;
+	}
+
 	public void setWeeklyFrequency(int[] weeklyFrequency) {
 		this.weeklyFrequency = weeklyFrequency;
 	}
@@ -249,8 +265,6 @@ public class ScheduledBlockSavedSSE extends AbstractSseData implements Serializa
 	public void setAppsAllowed(Iterable<AppAllowedByScheduledBlockDTO> appsAllowed) {
 		this.appsAllowed = appsAllowed;
 	}
-	
-	
 
 	public GeofenceDTO getGeofence() {
 		return geofence;
@@ -264,7 +278,10 @@ public class ScheduledBlockSavedSSE extends AbstractSseData implements Serializa
 	public String toString() {
 		return "ScheduledBlockSavedSSE [identity=" + identity + ", name=" + name + ", enable=" + enable
 				+ ", repeatable=" + repeatable + ", allowCalls=" + allowCalls + ", description=" + description
-				+ ", startAt=" + startAt + ", endAt=" + endAt + ", weeklyFrequency=" + Arrays.toString(weeklyFrequency)
-				+ ", image=" + image + ", kid=" + kid + "]";
+				+ ", startAt=" + startAt + ", endAt=" + endAt + ", createAt=" + createAt + ", weeklyFrequency="
+				+ Arrays.toString(weeklyFrequency) + ", image=" + image + ", kid=" + kid + ", appsAllowed="
+				+ appsAllowed + ", geofence=" + geofence + "]";
 	}
+
+	
 }

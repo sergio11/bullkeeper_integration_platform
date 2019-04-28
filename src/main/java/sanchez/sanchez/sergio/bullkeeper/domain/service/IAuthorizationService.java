@@ -123,6 +123,13 @@ public interface IAuthorizationService {
     Boolean isYourProfilePublic(final String id);
     
     /**
+     * 
+     * @param imageId
+     * @return
+     */
+    Boolean isProfileImageOfPublicAccount(final String imageId);
+    
+    /**
      * Is Member of the conversation
      * @param id
      * @return

@@ -15,7 +15,8 @@ public enum CommonErrorResponseCode implements IResponseCodeTypes {
     VALIDATION_ERROR(505L),
     ACCOUNT_LOCKED(505L), 
     MESSAGE_NOT_READABLE(506L), 
-    ACCOUNT_PENDING_TO_BE_REMOVE(507L);
+    ACCOUNT_PENDING_TO_BE_REMOVE(507L),
+    AUTHENTICATION_FAILED_EXCEPTION(508L);
 
     private Long code;
 

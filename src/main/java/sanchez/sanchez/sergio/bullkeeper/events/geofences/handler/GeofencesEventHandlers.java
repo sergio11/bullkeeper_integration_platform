@@ -160,11 +160,15 @@ public class GeofencesEventHandlers {
 		// Find Terminal By Kid
 		final List<TerminalEntity> kidTerminals = 
 			terminalRepository.findByKidId(new ObjectId(kid));
+		
+		logger.debug("Total terminal for kid " + kid + ": " + kidTerminals.size());
 						
 		for(final TerminalEntity terminal: kidTerminals) {
 			// Subscriber Id
 			final String subscriberId = terminal.getId().toString();
+			logger.debug("Terminal Subscriber Id " + subscriberId);
 			event.setSubscriberId(subscriberId);
+			
 			// Push Event		
 			sseService.push(subscriberId, event);
 		}

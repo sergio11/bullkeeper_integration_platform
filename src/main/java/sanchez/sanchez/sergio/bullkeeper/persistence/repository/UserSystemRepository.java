@@ -12,5 +12,6 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.UserSystemEntity;
 @Repository
 public interface UserSystemRepository extends MongoRepository<UserSystemEntity, ObjectId>, UserSystemRepositoryCustom {
 	UserSystemEntity findOneByEmail(String email);
+	UserSystemEntity findOneByEmailOrUserName(String email, String userName);
 	Long countByEmail(String email);
 }

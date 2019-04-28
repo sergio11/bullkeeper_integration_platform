@@ -23,6 +23,7 @@ public class UserDetailsImpl<T> implements CommonUserDetailsAware<T> {
     private static final long serialVersionUID = 1L;
 
     private T id;
+    private String userName;
     private String email;
     private String password;
     private String firstName;
@@ -41,6 +42,7 @@ public class UserDetailsImpl<T> implements CommonUserDetailsAware<T> {
     /**
      * 
      * @param id
+     * @param userName
      * @param email
      * @param password
      * @param firstName
@@ -54,12 +56,13 @@ public class UserDetailsImpl<T> implements CommonUserDetailsAware<T> {
      * @param pendingDeletion
      * @param isPublicProfile
      */
-    public UserDetailsImpl(T id, String email, String password, String firstName, String lastName,
+    public UserDetailsImpl(T id, String userName, String email, String password, String firstName, String lastName,
             Boolean locked, Date lastPasswordResetDate, Boolean active,
             Set<SimpleGrantedAuthority> grantedAuthorities, Date lastAccessToAlerts,
             Date lastLoginAccess, Boolean pendingDeletion, Boolean isPublicProfile) {
         super();
         this.id = id;
+        this.userName = userName;
         this.email = email;
         this.password = password;
         this.firstName = firstName;
@@ -138,7 +141,7 @@ public class UserDetailsImpl<T> implements CommonUserDetailsAware<T> {
 
     @Override
     public String getUsername() {
-        return email;
+        return userName;
     }
 
     @Override

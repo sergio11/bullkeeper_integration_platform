@@ -42,11 +42,11 @@ public class GuardiansDetailsServiceImpl implements UserDetailsService {
 
 	@Override
 	@Transactional
-	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+	public UserDetails loadUserByUsername(String userNameOrEmail) throws UsernameNotFoundException {
 		
-		logger.debug("Autenticate User with email: " + email);
+		logger.debug("Autenticate User with email: " + userNameOrEmail);
 		
-		return Optional.ofNullable(guardianRepository.findOneByEmail(email))
+		return Optional.ofNullable(guardianRepository.findOneByEmailOrUserName(userNameOrEmail, userNameOrEmail))
         	.map(guardianEntity -> {
         
         		logger.debug(guardianEntity.toString());
@@ -56,7 +56,7 @@ public class GuardiansDetailsServiceImpl implements UserDetailsService {
         		
             	grantedAuthorities.add(new SimpleGrantedAuthority(guardianEntity.getAuthority().getAuthority()));
             	
-            	UserDetailsImpl<ObjectId> userDetails =  new UserDetailsImpl<ObjectId>(guardianEntity.getId(), guardianEntity.getEmail(),
+            	UserDetailsImpl<ObjectId> userDetails =  new UserDetailsImpl<ObjectId>(guardianEntity.getId(), guardianEntity.getUserName(), guardianEntity.getEmail(),
                 		guardianEntity.getPassword(), guardianEntity.getFirstName(), guardianEntity.getLastName(), guardianEntity.isLocked(),
                 		guardianEntity.getLastPasswordResetDate(), guardianEntity.isActive(), grantedAuthorities, 
                 		guardianEntity.getLastAccessToAlerts(), guardianEntity.getLastLoginAccess(), guardianEntity.isPendingDeletion(),
@@ -64,7 +64,7 @@ public class GuardiansDetailsServiceImpl implements UserDetailsService {
 
                 return userDetails;
                 
-        	}).orElseThrow(() -> new UsernameNotFoundException("User " + email + " was not found in the " +
+        	}).orElseThrow(() -> new UsernameNotFoundException("User " + userNameOrEmail + " was not found in the " +
         "database"));
 	}
 

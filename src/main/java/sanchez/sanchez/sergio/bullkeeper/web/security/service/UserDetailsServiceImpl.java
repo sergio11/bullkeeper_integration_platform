@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.GuardianRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.UserSystemRepository;
-import sanchez.sanchez.sergio.bullkeeper.web.security.exception.AccountPendingToBeRemoveException;
 import sanchez.sanchez.sergio.bullkeeper.web.security.userdetails.impl.UserDetailsImpl;
 
 import org.bson.types.ObjectId;
@@ -29,27 +28,30 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	private static Logger logger = LoggerFactory.getLogger(UserDetailsServiceImpl.class);
 	
 	private final UserSystemRepository userSystemRepository;
-	private final GuardianRepository parentRepository;
+	private final GuardianRepository guardianRepository;
 	
-	public UserDetailsServiceImpl(UserSystemRepository userSystemRepository, GuardianRepository parentRepository) {
+	public UserDetailsServiceImpl(UserSystemRepository userSystemRepository, GuardianRepository guardianRepository) {
 		super();
 		this.userSystemRepository = userSystemRepository;
-		this.parentRepository = parentRepository;
+		this.guardianRepository = guardianRepository;
 	}
 
 	@Override
 	@Transactional
-	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+	public UserDetails loadUserByUsername(String userNameOrEmail) throws UsernameNotFoundException {
 		
-		return Optional.ofNullable(userSystemRepository.findOneByEmail(email))
+		logger.debug("Load User By Username: " + userNameOrEmail);
+		
+		return Optional.ofNullable(userSystemRepository.findOneByEmailOrUserName(userNameOrEmail, userNameOrEmail))
 			.map(Optional::of)
-        	.orElseGet(() -> Optional.ofNullable(parentRepository.findOneByEmail(email)))
+        	.orElseGet(() -> Optional.ofNullable((guardianRepository
+        			.findOneByEmailOrUserName(userNameOrEmail, userNameOrEmail))))
         	.map(userSystemEntity -> {
         		Set<SimpleGrantedAuthority> grantedAuthorities = new HashSet<SimpleGrantedAuthority>();
             	
             	grantedAuthorities.add(new SimpleGrantedAuthority(userSystemEntity.getAuthority().getAuthority()));
             
-            	UserDetailsImpl<ObjectId> userDetails =  new UserDetailsImpl<ObjectId>(userSystemEntity.getId(), userSystemEntity.getEmail(),
+            	UserDetailsImpl<ObjectId> userDetails =  new UserDetailsImpl<ObjectId>(userSystemEntity.getId(), userSystemEntity.getUserName(), userSystemEntity.getEmail(),
                 		userSystemEntity.getPassword(), userSystemEntity.getFirstName(), userSystemEntity.getLastName(), userSystemEntity.isLocked(),
                 		userSystemEntity.getLastPasswordResetDate(), userSystemEntity.isActive(),
                 		grantedAuthorities, userSystemEntity.getLastAccessToAlerts(), userSystemEntity.getLastLoginAccess(), 
@@ -58,7 +60,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             	
             	return userDetails;
                 
-        	}).orElseThrow(() -> new UsernameNotFoundException("User " + email + " was not found in the " +
+        	}).orElseThrow(() -> new UsernameNotFoundException("User " + userNameOrEmail + " was not found in the " +
         "database"));
 	}
 

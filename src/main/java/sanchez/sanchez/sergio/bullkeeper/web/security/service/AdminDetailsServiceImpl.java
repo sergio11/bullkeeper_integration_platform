@@ -36,15 +36,15 @@ public class AdminDetailsServiceImpl implements UserDetailsService {
 
 	@Override
 	@Transactional
-	public UserDetails loadUserByUsername(String usernameOrEmail) throws UsernameNotFoundException {
+	public UserDetails loadUserByUsername(String userNameOrEmail) throws UsernameNotFoundException {
 		
-		return Optional.ofNullable(userSystemRepository.findOneByEmail(usernameOrEmail))
+		return Optional.ofNullable(userSystemRepository.findOneByEmailOrUserName(userNameOrEmail, userNameOrEmail))
         	.map(userSystemEntity -> {
         		Set<SimpleGrantedAuthority> grantedAuthorities = new HashSet<SimpleGrantedAuthority>();
             	
             	grantedAuthorities.add(new SimpleGrantedAuthority(userSystemEntity.getAuthority().getAuthority()));
             
-            	UserDetailsImpl<ObjectId> userDetails = new UserDetailsImpl<ObjectId>(userSystemEntity.getId(), userSystemEntity.getEmail(),
+            	UserDetailsImpl<ObjectId> userDetails = new UserDetailsImpl<ObjectId>(userSystemEntity.getId(), userSystemEntity.getUserName(), userSystemEntity.getEmail(),
                 		userSystemEntity.getPassword(), userSystemEntity.getFirstName(), userSystemEntity.getLastName(), userSystemEntity.isLocked(),
                 		userSystemEntity.getLastPasswordResetDate(), userSystemEntity.isActive(), grantedAuthorities,
                 		userSystemEntity.getLastAccessToAlerts(), userSystemEntity.getLastLoginAccess(),
@@ -53,7 +53,7 @@ public class AdminDetailsServiceImpl implements UserDetailsService {
             	
             	return userDetails;
             	
-        	}).orElseThrow(() -> new UsernameNotFoundException("User " + usernameOrEmail + " was not found in the " +
+        	}).orElseThrow(() -> new UsernameNotFoundException("User " + userNameOrEmail + " was not found in the " +
         "database"));
 	}
 

@@ -35,6 +35,14 @@ public interface GuardianRepository extends MongoRepository<GuardianEntity, Obje
 	 * @return
 	 */
     GuardianEntity findOneByEmail(String email);
+    
+    /**
+	 * 
+	 * @param email
+	 * @param userName
+	 * @return
+	 */
+    GuardianEntity findOneByEmailOrUserName(String email, String userName);
 
     /**
      * 

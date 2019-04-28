@@ -56,6 +56,7 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.repository.SupervisedChildr
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.TaskRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.TerminalRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.UserSystemRepository;
+import sanchez.sanchez.sergio.bullkeeper.util.Utils;
 import sanchez.sanchez.sergio.bullkeeper.web.uploads.service.IUploadFilesService;
 
 /**
@@ -151,7 +152,7 @@ public class LoadInitialDataForAllEnvironment implements CommandLineRunner {
     	
     
     	GuardianEntity federico = new GuardianEntity("Federico", "Martín", guardiansBirthdate.getTime(),
-    			"federico@gmail.com", "$2a$10$0eCQpFRdw8i6jJzjj/IuNuKpJYnLaO5Yp9xSJ3itcfPmQNXVhmNyu", 
+    			"federico@gmail.com", Utils.generateRandomUUID(), "$2a$10$0eCQpFRdw8i6jJzjj/IuNuKpJYnLaO5Yp9xSJ3itcfPmQNXVhmNyu", 
     			guardianRole);
     	
     	federico.setVisible(true);
@@ -159,7 +160,7 @@ public class LoadInitialDataForAllEnvironment implements CommandLineRunner {
     	guardianList.add(federico);
     	
     	GuardianEntity fernando = new GuardianEntity("Fernando", "Muñoz", guardiansBirthdate.getTime(),
-    			"fernando@gmail.com", "$2a$10$0eCQpFRdw8i6jJzjj/IuNuKpJYnLaO5Yp9xSJ3itcfPmQNXVhmNyu",
+    			"fernando@gmail.com", Utils.generateRandomUUID(), "$2a$10$0eCQpFRdw8i6jJzjj/IuNuKpJYnLaO5Yp9xSJ3itcfPmQNXVhmNyu",
     			guardianRole);
     	
     	fernando.setVisible(true);
@@ -167,7 +168,7 @@ public class LoadInitialDataForAllEnvironment implements CommandLineRunner {
     	guardianList.add(fernando);
     	
     	GuardianEntity jaime = new GuardianEntity("Jaime", "Gómez", guardiansBirthdate.getTime(),
-    			"jaime@gmail.com", "$2a$10$0eCQpFRdw8i6jJzjj/IuNuKpJYnLaO5Yp9xSJ3itcfPmQNXVhmNyu", guardianRole);
+    			"jaime@gmail.com", Utils.generateRandomUUID(), "$2a$10$0eCQpFRdw8i6jJzjj/IuNuKpJYnLaO5Yp9xSJ3itcfPmQNXVhmNyu", guardianRole);
     	
     	jaime.setVisible(true);
     	
@@ -175,7 +176,8 @@ public class LoadInitialDataForAllEnvironment implements CommandLineRunner {
     	
     	// ADMIN
     	
-    	UserSystemEntity admin = new UserSystemEntity("Admin", "Admin", guardiansBirthdate.getTime(), "admin@gmail.com", "$2a$10$0eCQpFRdw8i6jJzjj/IuNuKpJYnLaO5Yp9xSJ3itcfPmQNXVhmNyu", adminRole);
+    	UserSystemEntity admin = new UserSystemEntity("Admin", "Admin", guardiansBirthdate.getTime(), 
+    			"admin@gmail.com", Utils.generateRandomUUID(),  "$2a$10$0eCQpFRdw8i6jJzjj/IuNuKpJYnLaO5Yp9xSJ3itcfPmQNXVhmNyu", adminRole);
     	
     	admins.add(admin);
     	

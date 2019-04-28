@@ -5171,15 +5171,15 @@ public class ChildrenController extends BaseController
     
     
     /**
-     * Post Geofence Alert
+     * Save a single Geofence Alert
      */
     @RequestMapping(value = "/{kid}/geofences/{id}/alerts", method = RequestMethod.POST)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
     		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
     @ApiOperation(
-    		value = "SAVE_GEOFENCE_ALERTS", nickname = "SAVE_GEOFENCE_ALERTS",
-    		notes = "Save Geofence Alerts", response = GeofenceAlertDTO.class)
-    public ResponseEntity<APIResponse<GeofenceAlertDTO>> saveGeofenceAlerts(
+    		value = "SAVE_SINGLE_GEOFENCE_ALERT", nickname = "SAVE_SINGLE_GEOFENCE_ALERT",
+    		notes = "Save Single Geofence Alert", response = GeofenceAlertDTO.class)
+    public ResponseEntity<APIResponse<GeofenceAlertDTO>> saveGeofenceAlert(
     		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
          		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
           			@PathVariable String kid,
@@ -5190,7 +5190,7 @@ public class ChildrenController extends BaseController
 				@Validated(ICommonSequence.class) 
 					@RequestBody SaveGeofenceAlertDTO saveGeofenceAlertDTO) throws Throwable {
     	
-    	logger.debug("Save Geofence Alerts");
+    	logger.debug("Save Geofence Alert");
     	
     	// Get Terminal
         final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
@@ -5222,6 +5222,66 @@ public class ChildrenController extends BaseController
     	
     }
     
+    
+    /**
+     * Save Geofence Alerts
+     */
+    @RequestMapping(value = "/{kid}/geofences/alerts", method = RequestMethod.POST)
+    @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
+    		+ "&& @authorizationService.isYourGuardianAndCanEditParentalControlRules(#kid) )")
+    @ApiOperation(
+    		value = "SAVE_SINGLE_GEOFENCE_ALERT", nickname = "SAVE_SINGLE_GEOFENCE_ALERT",
+    		notes = "Save Geofence Alerts", response = Iterable.class)
+    public ResponseEntity<APIResponse<Iterable<GeofenceAlertDTO>>> saveGeofenceAlerts(
+    		@ApiParam(name = "kid", value = "Kid Identifier", required = true)
+         		@Valid @KidShouldExists(message = "{kid.should.be.exists}")
+          			@PathVariable String kid,
+      		@ApiParam(name="alert", value = "alert", required = true) 
+				@Validated(ICommonSequence.class) 
+					@RequestBody ValidList<SaveGeofenceAlertDTO> saveGeofenceAlertDTOList) throws Throwable {
+    	
+    	logger.debug("Save Geofence Alerts");
+    	
+    	final List<GeofenceAlertDTO> geofenceAlertsList = new ArrayList<>();
+    	
+    	for(final SaveGeofenceAlertDTO saveGeofenceAlertDTO: saveGeofenceAlertDTOList) {
+    	
+	    	// Get Terminal
+	        final TerminalDTO terminalDTO = Optional.ofNullable(terminalService.getTerminalByIdAndKidId(
+	    			new ObjectId(saveGeofenceAlertDTO.getTerminal()), new ObjectId(kid)))
+	    			 .orElseThrow(() -> { throw new TerminalNotFoundException(); });
+	    	
+	    	
+	   
+	    	// Save Geofence Alert
+	    	final GeofenceAlertDTO geofenceAlertDTO = 
+	    			geofenceService.saveAlert(saveGeofenceAlertDTO.getKid(), saveGeofenceAlertDTO.getGeofence(),
+	    					saveGeofenceAlertDTO.getType(), messageSourceResolver.resolver("geofence.alert.title", new Object[] {
+	    							terminalDTO.getModel(), terminalDTO.getDeviceName()
+	    					}), messageSourceResolver.resolver("geofence.alert.description", new Object[] {
+	    							terminalDTO.getModel(), terminalDTO.getDeviceName()
+	    					}));
+	    	
+	    	
+	    	geofenceAlertsList.add(geofenceAlertDTO);
+	    	
+	    	final GeofenceDTO geofence = 
+	    			geofenceService.findById(new ObjectId(kid), new ObjectId(saveGeofenceAlertDTO.getGeofence()));
+	    	
+	    	 // Save Alert
+	    	alertService.save(AlertLevelEnum.DANGER, messageSourceResolver.resolver("save.geofence.alert.title", new Object[] {
+	    			geofence.getName(), terminalDTO.getModel(), terminalDTO.getDeviceName()
+	    	}), messageSourceResolver.resolver("save.geofence.alert.description", new Object[] {
+	    			geofence.getName(), terminalDTO.getModel(), terminalDTO.getDeviceName()
+	    	}), new ObjectId(kid), AlertCategoryEnum.GEOFENCES);
+    	}
+    
+    
+    	// Create and send response
+    	return ApiHelper.<Iterable<GeofenceAlertDTO>>createAndSendResponse(GeofenceResponseCode.GEOFENCE_ALERT_SAVED, 
+        		HttpStatus.OK, geofenceAlertsList);
+    	
+    }
     
     /**
      * Delete Geofences for ids

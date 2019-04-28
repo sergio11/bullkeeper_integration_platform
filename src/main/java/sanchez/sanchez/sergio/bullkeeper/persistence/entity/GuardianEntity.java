@@ -45,13 +45,13 @@ public final class GuardianEntity extends UserSystemEntity {
     }
 
     @PersistenceConstructor
-    public GuardianEntity(String firstName, String lastName, Date birthdate, String profileImage, String email,
+    public GuardianEntity(String firstName, String lastName, Date birthdate, String profileImage, String email, String userName,
             String password, String passwordRequestedAt, Boolean active, Boolean locked, Date lastLoginAccess,
             Boolean pendingDeletion, Locale locale, Date lastPasswordResetDate, String confirmationToken,
             Date lastAccessToAlerts, PreferencesEntity preferences, AuthorityEntity authority,
             String telephone, String fbAccessToken, 
             String fbId, String googleId, Boolean visible) {
-        super(firstName, lastName, birthdate, profileImage, email, password, passwordRequestedAt, active, locked,
+        super(firstName, lastName, birthdate, profileImage, email, userName, password, passwordRequestedAt, active, locked,
                 lastLoginAccess, pendingDeletion, locale, lastPasswordResetDate, confirmationToken, lastAccessToAlerts,
                 preferences, authority);
         this.telephone = telephone;
@@ -61,9 +61,9 @@ public final class GuardianEntity extends UserSystemEntity {
         this.visible = visible;
     }
 
-    public GuardianEntity(String firstName, String lastName, Date birthdate, String email, String password,
+    public GuardianEntity(String firstName, String lastName, Date birthdate, String email, String userName, String password,
             AuthorityEntity authority) {
-        super(firstName, lastName, birthdate, email, password, authority);
+        super(firstName, lastName, birthdate, email, userName, password, authority);
     }
 
     public String getTelephone() {

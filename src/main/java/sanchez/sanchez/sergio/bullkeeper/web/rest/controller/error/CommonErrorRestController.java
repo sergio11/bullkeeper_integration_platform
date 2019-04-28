@@ -11,7 +11,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
+import sanchez.sanchez.sergio.bullkeeper.exception.AuthenticationFailedException;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.ValidationErrorDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.ApiHelper;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.controller.BaseController;
@@ -110,11 +112,26 @@ public class CommonErrorRestController extends BaseController {
      * @return
      */
     @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseBody
     public ResponseEntity<APIResponse<String>> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
     	logger.error(ex.getMessage());
     	return ApiHelper.<String>createAndSendErrorResponseWithHeader(CommonErrorResponseCode.MESSAGE_NOT_READABLE, HttpStatus.BAD_REQUEST, 
     			messageSourceResolver.resolver("message.not.readable"));
     }
+    
+    /**
+     * Authentication Failed Exception
+     * @param ex
+     * @return
+     */
+    @ResponseStatus(value = HttpStatus.FORBIDDEN)
+    @ExceptionHandler(AuthenticationFailedException.class)
+    @ResponseBody
+    public ResponseEntity<APIResponse<String>> handleAuthenticationFailedException(AuthenticationFailedException ex) {
+    	return ApiHelper.<String>createAndSendErrorResponseWithHeader(CommonErrorResponseCode.AUTHENTICATION_FAILED_EXCEPTION, HttpStatus.FORBIDDEN, 
+    			messageSourceResolver.resolver("authentication.failed.exception"));
+    }
+    
     
     /**
      * Generic Exception handler
@@ -125,7 +142,7 @@ public class CommonErrorRestController extends BaseController {
      */
     @ExceptionHandler(Throwable.class)
     @ResponseBody
-    protected ResponseEntity<APIResponse<String>> handleException(
+    public ResponseEntity<APIResponse<String>> handleException(
     		Throwable exception, HttpServletRequest request, HttpServletResponse response) {
     	logger.error(exception.getMessage());
     	exception.printStackTrace();

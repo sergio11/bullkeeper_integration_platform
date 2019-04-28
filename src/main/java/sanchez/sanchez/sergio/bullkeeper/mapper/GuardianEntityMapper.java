@@ -13,6 +13,7 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.GuardianEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.AuthorityRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.KidRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.SupervisedChildrenRepository;
+import sanchez.sanchez.sergio.bullkeeper.util.Utils;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.RegisterGuardianByFacebookDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.RegisterGuardianByGoogleDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.RegisterGuardianDTO;
@@ -86,7 +87,8 @@ public abstract class GuardianEntityMapper {
 		@Mapping(expression="java(passwordEncoder.encode(registerGuardianDTO.getPasswordClear()))", target = "password"),
 		@Mapping(expression="java(authorityRepository.findByType(sanchez.sanchez.sergio.bullkeeper.persistence.entity.AuthorityEnum.ROLE_GUARDIAN))", target = "authority"),
         @Mapping(expression="java(com.google.i18n.phonenumbers.PhoneNumberUtil.getInstance().format(registerGuardianDTO.getTelephone(),"
-        		+ " com.google.i18n.phonenumbers.PhoneNumberUtil.PhoneNumberFormat.E164))", target = "telephone" )
+        		+ " com.google.i18n.phonenumbers.PhoneNumberUtil.PhoneNumberFormat.E164))", target = "telephone" ),
+        @Mapping(expression="java(sanchez.sanchez.sergio.bullkeeper.util.Utils.generateRandomUUID())", target = "userName" )
 	})
     public abstract GuardianEntity registerGuardianDTOToGuardianEntity(RegisterGuardianDTO registerGuardianDTO);
     
@@ -99,7 +101,8 @@ public abstract class GuardianEntityMapper {
 		@Mapping(expression="java(passwordEncoder.encode(registerGuardianByFacebookDTO.getPasswordClear()))", target = "password"),
 		@Mapping(expression="java(authorityRepository.findByType(sanchez.sanchez.sergio.bullkeeper.persistence.entity.AuthorityEnum.ROLE_GUARDIAN))",
 			target = "authority"),
-        @Mapping(source="registerGuardianByFacebookDTO.telephone.rawInput", target = "telephone" )
+        @Mapping(source="registerGuardianByFacebookDTO.telephone.rawInput", target = "telephone" ),
+        @Mapping(expression="java(sanchez.sanchez.sergio.bullkeeper.util.Utils.generateRandomUUID())", target = "userName" )
 	})
     public abstract GuardianEntity registerGuardianByFacebookDTOToGuardianEntity(RegisterGuardianByFacebookDTO registerGuardianByFacebookDTO);
     
@@ -113,6 +116,7 @@ public abstract class GuardianEntityMapper {
     	@Mapping(target = "telephone", ignore=true),
 		@Mapping(expression="java(passwordEncoder.encode(registerGuardianByGoogleDTO.getPasswordClear()))", target = "password"),
 		@Mapping(expression="java(authorityRepository.findByType(sanchez.sanchez.sergio.bullkeeper.persistence.entity.AuthorityEnum.ROLE_GUARDIAN))", target = "authority"),
+		@Mapping(expression="java(sanchez.sanchez.sergio.bullkeeper.util.Utils.generateRandomUUID())", target = "userName" )
 	})
     public abstract GuardianEntity registerGuardianByGoogleDTOToGuardianEntity(RegisterGuardianByGoogleDTO registerGuardianByGoogleDTO);
     

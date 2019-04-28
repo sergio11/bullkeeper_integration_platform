@@ -21,6 +21,12 @@ public class UserSystemEntity extends PersonEntity {
      */
     @Field("email")
     protected String email;
+    
+    /**
+     * User Name
+     */
+    @Field("user_name")
+    protected String userName;
 
     /**
      * Password
@@ -97,10 +103,11 @@ public class UserSystemEntity extends PersonEntity {
 
     @PersistenceConstructor
     public UserSystemEntity(String firstName, String lastName, Date birthdate, String profileImage, String email,
-            String password, String passwordRequestedAt, Boolean active, Boolean locked, Date lastLoginAccess,
+            String userName, String password, String passwordRequestedAt, Boolean active, Boolean locked, Date lastLoginAccess,
             Boolean pendingDeletion, Locale locale, Date lastPasswordResetDate, String confirmationToken,
             Date lastAccessToAlerts, PreferencesEntity preferences, AuthorityEntity authority) {
         super(firstName, lastName, birthdate, profileImage);
+        this.userName = userName;
         this.email = email;
         this.password = password;
         this.passwordRequestedAt = passwordRequestedAt;
@@ -116,8 +123,9 @@ public class UserSystemEntity extends PersonEntity {
         this.authority = authority;
     }
 
-    public UserSystemEntity(String firstName, String lastName, Date birthdate, String email, String password, AuthorityEntity authority) {
+    public UserSystemEntity(String firstName, String lastName, Date birthdate,  String email, String userName, String password, AuthorityEntity authority) {
         super(firstName, lastName, birthdate);
+        this.userName = userName;
         this.email = email;
         this.password = password;
         this.authority = authority;
@@ -130,8 +138,30 @@ public class UserSystemEntity extends PersonEntity {
     public void setEmail(String email) {
         this.email = email;
     }
+    
+    
 
-    public String getPassword() {
+    public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public Boolean getActive() {
+		return active;
+	}
+
+	public Boolean getLocked() {
+		return locked;
+	}
+
+	public Boolean getPendingDeletion() {
+		return pendingDeletion;
+	}
+
+	public String getPassword() {
         return password;
     }
 
@@ -230,8 +260,14 @@ public class UserSystemEntity extends PersonEntity {
 	}
 
 	@Override
-    public String toString() {
-        return "UserSystemEntity [email=" + email + ", password=" + password + ", locked=" + locked + ", authority="
-                + authority + "]";
-    }
+	public String toString() {
+		return "UserSystemEntity [email=" + email + ", userName=" + userName + ", password=" + password
+				+ ", passwordRequestedAt=" + passwordRequestedAt + ", active=" + active + ", locked=" + locked
+				+ ", lastLoginAccess=" + lastLoginAccess + ", pendingDeletion=" + pendingDeletion + ", locale=" + locale
+				+ ", lastPasswordResetDate=" + lastPasswordResetDate + ", confirmationToken=" + confirmationToken
+				+ ", lastAccessToAlerts=" + lastAccessToAlerts + ", preferences=" + preferences + ", authority="
+				+ authority + "]";
+	}
+
+	
 }

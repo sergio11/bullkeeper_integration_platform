@@ -126,7 +126,7 @@ public class ImagesController extends BaseController {
      */
     @RequestMapping(value = "/guardians/{id}", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || ( @authorizationService.hasGuardianRole() "
-    		+ "&& (@authorizationService.isYourProfilePublic(#id) || @authorizationService.isYourProfileImage(#id) ))")
+    		+ "&& (@authorizationService.isProfileImageOfPublicAccount(#id) || @authorizationService.isYourProfileImage(#id) ))")
     @ApiOperation(value = "DOWNLOAD_GUARDIAN_PROFILE_IMAGE", 
     	nickname = "DOWNLOAD_GUARDIAN_PROFILE_IMAGE", notes = "Download Guardian Profile Image")
     public ResponseEntity<byte[]> downloadGuardianProfileImage(
@@ -162,8 +162,8 @@ public class ImagesController extends BaseController {
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     @PreAuthorize("@authorizationService.hasAdminRole() || "
-    		+ "( @authorizationService.hasGuardianRole() && @authorizationService.itIsAProfileImageOfSupervisedKid(#id)) || "
-    		+ "( @authorizationService.hasGuardianRole() && (@authorizationService.isYourProfilePublic(#id) || @authorizationService.isYourProfileImage(#id) ))")
+    		+ " @authorizationService.hasGuardianRole() && (@authorizationService.itIsAProfileImageOfSupervisedKid(#id) || "
+    		+ "@authorizationService.isProfileImageOfPublicAccount(#id) || @authorizationService.isYourProfileImage(#id) )")
     @ApiOperation(value = "DOWNLOAD_PROFILE_IMAGE", nickname = "DOWNLOAD_PROFILE_IMAGE", notes = "Download Profile Image")
     public ResponseEntity<byte[]> downloadProfileImage(
             @ApiParam(name = "id", value = "Image Identifier", required = true) 

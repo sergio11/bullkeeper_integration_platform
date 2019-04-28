@@ -263,6 +263,26 @@ public class AuthorizationServiceImpl implements IAuthorizationService {
 	}
 	
 	/**
+	 * Is Profile Image of public account
+	 */
+	@Override
+	public Boolean isProfileImageOfPublicAccount(final String imageId) {
+		Assert.notNull(imageId, "Image Id can not be null");
+		boolean isPublic = Boolean.FALSE;
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (!(auth instanceof AnonymousAuthenticationToken)) {
+        	final GuardianEntity guardianEntity = guardianRepository.findByProfileImage(imageId);
+        	if(guardianEntity != null) {
+        		isPublic = guardianEntity.isVisible();
+        		logger.debug("Guardian Entity is not null");
+        	} else {
+        		logger.debug("Guradian ENtity is null");
+        	}
+        }
+        return isPublic;
+	}
+	
+	/**
 	 * Get Current User ID
 	 */
 	@Override
@@ -411,6 +431,4 @@ public class AuthorizationServiceImpl implements IAuthorizationService {
         Assert.notNull(guardianRepository, "Guardian Repository can not be null");
 
     }
-
-	
 }
