@@ -1,6 +1,6 @@
 package sanchez.sanchez.sergio.bullkeeper.events.request.handler;
 
-import java.util.Arrays;
+
 import java.util.List;
 
 import org.bson.types.ObjectId;
@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import sanchez.sanchez.sergio.bullkeeper.events.request.KidRequestCreatedEvent;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.GuardianEntity;
-import sanchez.sanchez.sergio.bullkeeper.persistence.entity.GuardianRolesEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SupervisedChildrenEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.SupervisedChildrenRepository;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.request.KidRequestCreatedSSE;

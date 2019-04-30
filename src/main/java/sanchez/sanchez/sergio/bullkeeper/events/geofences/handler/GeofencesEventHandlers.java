@@ -14,7 +14,6 @@ import sanchez.sanchez.sergio.bullkeeper.events.geofences.GeofenceStatusChangedE
 import sanchez.sanchez.sergio.bullkeeper.events.geofences.GeofencesDeletedEvent;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.TerminalEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.TerminalRepository;
-import sanchez.sanchez.sergio.bullkeeper.sse.models.AbstractSseData;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.location.AllGeofenceDeletedSSE;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.location.GeofenceAddedSSE;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.location.GeofenceDeletedSSE;
@@ -64,21 +63,29 @@ public class GeofencesEventHandlers {
 	public void handle(final GeofenceAddedEvent geofenceAddedEvent) {
 		Assert.notNull(geofenceAddedEvent, "Geofence Added Event can not be null");
 		
-		final GeofenceAddedSSE geofenceAddedSSE = new GeofenceAddedSSE();
-		geofenceAddedSSE.setIdentity(geofenceAddedEvent.getIdentity());
-		geofenceAddedSSE.setName(geofenceAddedEvent.getName());
-		geofenceAddedSSE.setLat(geofenceAddedEvent.getLat());
-		geofenceAddedSSE.setLog(geofenceAddedEvent.getLog());
-		geofenceAddedSSE.setRadius(geofenceAddedEvent.getRadius());
-		geofenceAddedSSE.setKid(geofenceAddedEvent.getKid());
-		geofenceAddedSSE.setType(geofenceAddedEvent.getType());
-		geofenceAddedSSE.setAddress(geofenceAddedEvent.getAddress());
-		geofenceAddedSSE.setCreateAt(geofenceAddedEvent.getCreateAt());
-		geofenceAddedSSE.setUpdateAt(geofenceAddedEvent.getUpdateAt());
-		geofenceAddedSSE.setIsEnabled(geofenceAddedEvent.getIsEnabled());
+		// Find Terminal By Kid
+		final List<TerminalEntity> kidTerminals = 
+					terminalRepository.findByKidId(new ObjectId(geofenceAddedEvent.getKid()));
 		
-		// Send Event to all terminals
-		sendEventToAllTerminals(geofenceAddedEvent.getKid(), geofenceAddedSSE);
+		for(final TerminalEntity terminal: kidTerminals) { 
+			final GeofenceAddedSSE geofenceAddedSSE = new GeofenceAddedSSE();
+			geofenceAddedSSE.setIdentity(geofenceAddedEvent.getIdentity());
+			geofenceAddedSSE.setName(geofenceAddedEvent.getName());
+			geofenceAddedSSE.setLat(geofenceAddedEvent.getLat());
+			geofenceAddedSSE.setLog(geofenceAddedEvent.getLog());
+			geofenceAddedSSE.setRadius(geofenceAddedEvent.getRadius());
+			geofenceAddedSSE.setKid(geofenceAddedEvent.getKid());
+			geofenceAddedSSE.setType(geofenceAddedEvent.getType());
+			geofenceAddedSSE.setAddress(geofenceAddedEvent.getAddress());
+			geofenceAddedSSE.setCreateAt(geofenceAddedEvent.getCreateAt());
+			geofenceAddedSSE.setUpdateAt(geofenceAddedEvent.getUpdateAt());
+			geofenceAddedSSE.setIsEnabled(geofenceAddedEvent.getIsEnabled());
+			// Subscriber Id
+			final String subscriberId = terminal.getId().toString();
+			geofenceAddedSSE.setSubscriberId(subscriberId);										
+			// Push Event		
+			sseService.push(subscriberId, geofenceAddedSSE);
+		}
 
 	}
 	
@@ -91,11 +98,20 @@ public class GeofencesEventHandlers {
 	public void handle(final AllGeofencesDeletedEvent allGeofencesDeletedEvent) {
 		Assert.notNull(allGeofencesDeletedEvent, "All Geofence Deleted Event can not be null");
 	
-		final AllGeofenceDeletedSSE event = new AllGeofenceDeletedSSE();
-		event.setKid(allGeofencesDeletedEvent.getKid());
+		// Find Terminal By Kid
+		final List<TerminalEntity> kidTerminals = 
+						terminalRepository.findByKidId(new ObjectId(allGeofencesDeletedEvent.getKid()));
 		
-		// Send Event to all terminals
-		sendEventToAllTerminals(allGeofencesDeletedEvent.getKid(), event);
+		for(final TerminalEntity terminal: kidTerminals) { 
+			final AllGeofenceDeletedSSE event = new AllGeofenceDeletedSSE();
+			event.setKid(allGeofencesDeletedEvent.getKid());
+			// Subscriber Id
+			final String subscriberId = terminal.getId().toString();
+			event.setSubscriberId(subscriberId);
+												
+			// Push Event		
+			sseService.push(subscriberId, event);
+		}
 	}
 	
 	/**
@@ -105,13 +121,23 @@ public class GeofencesEventHandlers {
 	@EventListener
 	public void handle(final GeofenceDeletedEvent geofenceDeletedEvent) {
 		Assert.notNull(geofenceDeletedEvent, "Geofence Deleted Event can not be null");
-	
-		final GeofenceDeletedSSE event = new GeofenceDeletedSSE();
-		event.setIdentity(geofenceDeletedEvent.getIdentity());
-		event.setKid(geofenceDeletedEvent.getKid());
 		
-		// Send Event to all terminals
-		sendEventToAllTerminals(geofenceDeletedEvent.getKid(), event);
+		// Find Terminal By Kid
+		final List<TerminalEntity> kidTerminals = 
+					terminalRepository.findByKidId(new ObjectId(geofenceDeletedEvent.getKid()));
+	
+		for(final TerminalEntity terminal: kidTerminals) { 
+			
+			final GeofenceDeletedSSE event = new GeofenceDeletedSSE();
+			event.setIdentity(geofenceDeletedEvent.getIdentity());
+			event.setKid(geofenceDeletedEvent.getKid());
+			// Subscriber Id
+			final String subscriberId = terminal.getId().toString();
+			event.setSubscriberId(subscriberId);
+									
+			// Push Event		
+			sseService.push(subscriberId, event);
+		}
 	}
 	
 	
@@ -123,11 +149,20 @@ public class GeofencesEventHandlers {
 	public void handle(final GeofencesDeletedEvent geofencesDeletedEvent) {
 		Assert.notNull(geofencesDeletedEvent, "Geofences Deleted Event can not be null");
 		
-		final GeofencesDeletedSSE event = new GeofencesDeletedSSE();
-		event.setKid(geofencesDeletedEvent.getKid());
+		// Find Terminal By Kid
+		final List<TerminalEntity> kidTerminals = 
+					terminalRepository.findByKidId(new ObjectId(geofencesDeletedEvent.getKid()));
 		
-		// Send Event to all terminals
-		sendEventToAllTerminals(geofencesDeletedEvent.getKid(), event);
+		for(final TerminalEntity terminal: kidTerminals) {
+			final GeofencesDeletedSSE event = new GeofencesDeletedSSE();
+			event.setKid(geofencesDeletedEvent.getKid());
+			// Subscriber Id
+			final String subscriberId = terminal.getId().toString();
+			event.setSubscriberId(subscriberId);
+						
+			// Push Event		
+			sseService.push(subscriberId, event);
+		}
 		
 	}
 	
@@ -138,41 +173,25 @@ public class GeofencesEventHandlers {
 	@EventListener
 	public void handle(final GeofenceStatusChangedEvent geofenceStatusChangedEvent) {
 		Assert.notNull(geofenceStatusChangedEvent, "Geofences Status Changed Event can not be null");
-	
-		final GeofenceStatusChangedSSE event = new GeofenceStatusChangedSSE();
-		event.setGeofence(geofenceStatusChangedEvent.getIdentity());
-		event.setKid(geofenceStatusChangedEvent.getKid());
-		event.setIsEnabled(geofenceStatusChangedEvent.getIsEnabled());
-		
-		// Send Event to all terminals
-		sendEventToAllTerminals(geofenceStatusChangedEvent.getKid(), event);
-	}
-	
-	/**
-	 * Send Event To All Terminals
-	 * @param kid
-	 * @param event
-	 */
-	private void sendEventToAllTerminals(final String kid, final AbstractSseData event) {
-		Assert.notNull(kid, "Kid can not be null");
-		Assert.notNull(event, "Event can not be null");
 		
 		// Find Terminal By Kid
 		final List<TerminalEntity> kidTerminals = 
-			terminalRepository.findByKidId(new ObjectId(kid));
+					terminalRepository.findByKidId(new ObjectId(geofenceStatusChangedEvent.getKid()));
 		
-		logger.debug("Total terminal for kid " + kid + ": " + kidTerminals.size());
-						
 		for(final TerminalEntity terminal: kidTerminals) {
+	
+			final GeofenceStatusChangedSSE event = new GeofenceStatusChangedSSE();
+			event.setGeofence(geofenceStatusChangedEvent.getIdentity());
+			event.setKid(geofenceStatusChangedEvent.getKid());
+			event.setIsEnabled(geofenceStatusChangedEvent.getIsEnabled());
 			// Subscriber Id
 			final String subscriberId = terminal.getId().toString();
-			logger.debug("Terminal Subscriber Id " + subscriberId);
 			event.setSubscriberId(subscriberId);
 			
 			// Push Event		
 			sseService.push(subscriberId, event);
 		}
-		
 	}
+	
 	
 }

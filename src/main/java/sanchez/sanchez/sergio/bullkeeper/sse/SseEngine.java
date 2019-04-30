@@ -86,7 +86,7 @@ public class SseEngine {
 		Assert.notNull(target, "Target can not be null");
 		Assert.notNull(eventData, "Event Data can not be null");
 		if(emitters.get(target) != null){
-			logger.debug("Subscriber Found");
+			logger.debug("Subscriber Found for -> " + target);
 			sseService.handle(eventData);
 		} else {
 			sseService.save(eventData);

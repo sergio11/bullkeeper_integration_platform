@@ -58,16 +58,6 @@ public class LocationEventHandlers {
 	public void handle(final CurrentLocationUpdateEvent currentLocationUpdateEvent) {
 		Assert.notNull(currentLocationUpdateEvent, "Current Location Update can not be null");
 
-		final CurrentLocationUpdateSSE currentLocationUpdateSSE = 
-					new CurrentLocationUpdateSSE();
-		currentLocationUpdateSSE.setAddress(
-				currentLocationUpdateEvent.getLocation().getAddress());
-		currentLocationUpdateSSE.setKid(
-				currentLocationUpdateEvent.getKid());
-		currentLocationUpdateSSE.setLat(
-				currentLocationUpdateEvent.getLocation().getLat());
-		currentLocationUpdateSSE.setLog(
-				currentLocationUpdateEvent.getLocation().getLog());
 		
 		final List<SupervisedChildrenEntity> supervisedChildren = supervisedChildrenRepository.findByKidIdAndRoleInAndIsConfirmedTrue(
 				new ObjectId(currentLocationUpdateEvent.getKid()), 
@@ -75,6 +65,18 @@ public class LocationEventHandlers {
 						GuardianRolesEnum.ADMIN));
 		
 		for(final SupervisedChildrenEntity supervisedChildrenEntity: supervisedChildren) {
+			
+			final CurrentLocationUpdateSSE currentLocationUpdateSSE = 
+						new CurrentLocationUpdateSSE();
+			currentLocationUpdateSSE.setAddress(
+					currentLocationUpdateEvent.getLocation().getAddress());
+			currentLocationUpdateSSE.setKid(
+					currentLocationUpdateEvent.getKid());
+			currentLocationUpdateSSE.setLat(
+					currentLocationUpdateEvent.getLocation().getLat());
+			currentLocationUpdateSSE.setLog(
+					currentLocationUpdateEvent.getLocation().getLog());
+			
 			final GuardianEntity guardian = supervisedChildrenEntity.getGuardian();
 			currentLocationUpdateSSE.setSubscriberId(guardian.getId().toString());
 			sseService.push(guardian.getId().toString(), currentLocationUpdateSSE);

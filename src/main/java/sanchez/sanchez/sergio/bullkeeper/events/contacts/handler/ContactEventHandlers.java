@@ -5,12 +5,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
-
 import sanchez.sanchez.sergio.bullkeeper.events.contacts.ContactDisabledEvent;
-import sanchez.sanchez.sergio.bullkeeper.events.conversation.ConversationDeletedEvent;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.TerminalRepository;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.contact.ContactDisabledSSE;
-import sanchez.sanchez.sergio.bullkeeper.sse.models.conversation.DeletedConversationSSE;
 import sanchez.sanchez.sergio.bullkeeper.sse.service.ISseService;
 
 /**

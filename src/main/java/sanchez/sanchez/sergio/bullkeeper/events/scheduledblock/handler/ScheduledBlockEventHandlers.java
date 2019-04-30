@@ -18,7 +18,6 @@ import sanchez.sanchez.sergio.bullkeeper.events.scheduledblock.ScheduledBlockSta
 import sanchez.sanchez.sergio.bullkeeper.mapper.ScheduledBlockMapper;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.TerminalEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.TerminalRepository;
-import sanchez.sanchez.sergio.bullkeeper.sse.models.AbstractSseData;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.scheduledblocks.DeleteAllScheduledBlockSSE;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.scheduledblocks.DeleteScheduledBlockSSE;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.scheduledblocks.ScheduledBlockImageChangedSSE;
@@ -68,23 +67,6 @@ public class ScheduledBlockEventHandlers {
 		this.terminalRepository = terminalRepository;
 	}
 	
-	/**
-	 * Send To All Terminals
-	 * @param kid
-	 * @param data
-	 */
-	private <T extends AbstractSseData> void sendToAllTerminals(final String kid, final T data) {
-		
-		// Find By Kid Id
-		final Iterable<TerminalEntity> terminals = terminalRepository.findByKidId(
-					new ObjectId(kid));
-								
-		// Push Event on each terminal
-		for(final TerminalEntity terminal: terminals) {
-			data.setSubscriberId(terminal.getId().toString());
-			sseService.push(terminal.getId().toString(), data);
-		}
-	}
 
 	/**
 	 * Handle Scheduled Block Saved Event
@@ -94,11 +76,18 @@ public class ScheduledBlockEventHandlers {
 	public void handle(final ScheduledBlockSavedEvent scheduledBlockSavedEvent) {
 		Assert.notNull(scheduledBlockSavedEvent, "Scheduled Block Saved Event can not be null");
 	
-		final ScheduledBlockSavedSSE scheduledBlockSavedSSE = 
-				scheduledBlockMapper.scheduledBlockDTOToScheduledBlockSavedSSE(scheduledBlockSavedEvent.getScheduledBlockDTO());
+		// Find By Kid Id
+		final Iterable<TerminalEntity> terminals = terminalRepository.findByKidId(
+				new ObjectId(scheduledBlockSavedEvent.getKid()));
+										
+		// Push Event on each terminal
+		for(final TerminalEntity terminal: terminals) {
+			final ScheduledBlockSavedSSE scheduledBlockSavedSSE = 
+					scheduledBlockMapper.scheduledBlockDTOToScheduledBlockSavedSSE(scheduledBlockSavedEvent.getScheduledBlockDTO());
+			scheduledBlockSavedSSE.setSubscriberId(terminal.getId().toString());
+			sseService.push(terminal.getId().toString(), scheduledBlockSavedSSE);
+		}
 		
-		sendToAllTerminals(scheduledBlockSavedEvent.getKid(),
-				scheduledBlockSavedSSE);
 	}
 	
 	
@@ -110,13 +99,19 @@ public class ScheduledBlockEventHandlers {
 	public void handle(final DeleteScheduledBlockEvent deleteScheduledBlockEvent) {
 		Assert.notNull(deleteScheduledBlockEvent, "Delete Scheduled Block Removed Event can not be null");
 		
-		final DeleteScheduledBlockSSE deleteScheduledBlockSSE = 
-				new DeleteScheduledBlockSSE();
-		deleteScheduledBlockSSE.setKid(deleteScheduledBlockEvent.getKid());
-		deleteScheduledBlockSSE.setBlock(deleteScheduledBlockEvent.getBlock());
+		// Find By Kid Id
+		final Iterable<TerminalEntity> terminals = terminalRepository.findByKidId(
+						new ObjectId(deleteScheduledBlockEvent.getKid()));
 		
-		sendToAllTerminals(deleteScheduledBlockEvent.getKid(),
-				deleteScheduledBlockSSE);
+		// Push Event on each terminal
+		for(final TerminalEntity terminal: terminals) {
+			final DeleteScheduledBlockSSE deleteScheduledBlockSSE = 
+					new DeleteScheduledBlockSSE();
+			deleteScheduledBlockSSE.setKid(deleteScheduledBlockEvent.getKid());
+			deleteScheduledBlockSSE.setBlock(deleteScheduledBlockEvent.getBlock());
+			deleteScheduledBlockSSE.setSubscriberId(terminal.getId().toString());
+			sseService.push(terminal.getId().toString(), deleteScheduledBlockSSE);
+		}
 	}
 	
 	
@@ -128,12 +123,18 @@ public class ScheduledBlockEventHandlers {
 	public void handle(final DeleteAllScheduledBlockEvent deleteAllScheduledBlockEvent) {
 		Assert.notNull(deleteAllScheduledBlockEvent, "Delete All Scheduled Block can not be null");
 		
-		final DeleteAllScheduledBlockSSE deleteAllScheduledBlockSSE 
-			= new DeleteAllScheduledBlockSSE();
-		deleteAllScheduledBlockSSE.setKid(deleteAllScheduledBlockEvent.getKid());
-		
-		sendToAllTerminals(deleteAllScheduledBlockEvent.getKid(),
-				deleteAllScheduledBlockSSE);
+		// Find By Kid Id
+		final Iterable<TerminalEntity> terminals = terminalRepository.findByKidId(
+								new ObjectId(deleteAllScheduledBlockEvent.getKid()));
+				
+		// Push Event on each terminal
+		for(final TerminalEntity terminal: terminals) {
+			final DeleteAllScheduledBlockSSE deleteAllScheduledBlockSSE 
+				= new DeleteAllScheduledBlockSSE();
+			deleteAllScheduledBlockSSE.setKid(deleteAllScheduledBlockEvent.getKid());
+			deleteAllScheduledBlockSSE.setSubscriberId(terminal.getId().toString());
+			sseService.push(terminal.getId().toString(), deleteAllScheduledBlockSSE);
+		}
 	}
 	
 	
@@ -145,14 +146,20 @@ public class ScheduledBlockEventHandlers {
 	public void handle(final ScheduledBlockImageChangedEvent scheduledBlockImageChangedEvent) {
 		Assert.notNull(scheduledBlockImageChangedEvent, "Scheduled Block Image Changed Event can not be null");
 	
-		final ScheduledBlockImageChangedSSE scheduledBlockImageChangedSSE = 
-				new ScheduledBlockImageChangedSSE();
-		scheduledBlockImageChangedSSE.setKid(scheduledBlockImageChangedEvent.getKid());
-		scheduledBlockImageChangedSSE.setBlock(scheduledBlockImageChangedEvent.getBlock());
-		scheduledBlockImageChangedSSE.setImage(scheduledBlockImageChangedEvent.getImage());
-		
-		sendToAllTerminals(scheduledBlockImageChangedEvent.getKid(),
-				scheduledBlockImageChangedSSE);
+		// Find By Kid Id
+		final Iterable<TerminalEntity> terminals = terminalRepository.findByKidId(
+								new ObjectId(scheduledBlockImageChangedEvent.getKid()));
+						
+		// Push Event on each terminal
+		for(final TerminalEntity terminal: terminals) {
+			final ScheduledBlockImageChangedSSE scheduledBlockImageChangedSSE = 
+					new ScheduledBlockImageChangedSSE();
+			scheduledBlockImageChangedSSE.setKid(scheduledBlockImageChangedEvent.getKid());
+			scheduledBlockImageChangedSSE.setBlock(scheduledBlockImageChangedEvent.getBlock());
+			scheduledBlockImageChangedSSE.setImage(scheduledBlockImageChangedEvent.getImage());
+			scheduledBlockImageChangedSSE.setSubscriberId(terminal.getId().toString());
+			sseService.push(terminal.getId().toString(), scheduledBlockImageChangedSSE);
+		}
 		
 		
 	}
@@ -165,22 +172,31 @@ public class ScheduledBlockEventHandlers {
 	@EventListener
 	public void handle(final ScheduledBlockStatusChangedEvent scheduledBlockStatusChangedEvent) {
 		Assert.notNull(scheduledBlockStatusChangedEvent, "Scheduled Block Status Changed Event");
-	
-		final List<ScheduledBlockStatusChangedSSE.ScheduledBlockStatus> 
-				scheduledBlockStatus = new ArrayList<>();
-		
-		for(final SaveScheduledBlockStatusDTO scheduledBlockDTO: scheduledBlockStatusChangedEvent.getScheduledBlockStatusList()) {
-			scheduledBlockStatus.add(new ScheduledBlockStatusChangedSSE.ScheduledBlockStatus(scheduledBlockDTO.getIdentity(), 
-					scheduledBlockDTO.isEnable()));
-		}
 
-		final ScheduledBlockStatusChangedSSE scheduledBlockStatusChangedSSE = 
-				new ScheduledBlockStatusChangedSSE();
-		scheduledBlockStatusChangedSSE.setKid(scheduledBlockStatusChangedEvent.getKid());
-		scheduledBlockStatusChangedSSE.setScheduledBlockStatusList(scheduledBlockStatus);
+		// Find By Kid Id
+		final Iterable<TerminalEntity> terminals = terminalRepository.findByKidId(
+								new ObjectId(scheduledBlockStatusChangedEvent.getKid()));
+								
+		// Push Event on each terminal
+		for(final TerminalEntity terminal: terminals) {
+			
+			final List<ScheduledBlockStatusChangedSSE.ScheduledBlockStatus> 
+			scheduledBlockStatus = new ArrayList<>();
 	
-		sendToAllTerminals(scheduledBlockStatusChangedEvent.getKid(),
-				scheduledBlockStatusChangedSSE);
+			for(final SaveScheduledBlockStatusDTO scheduledBlockDTO: scheduledBlockStatusChangedEvent.getScheduledBlockStatusList()) {
+				scheduledBlockStatus.add(new ScheduledBlockStatusChangedSSE.ScheduledBlockStatus(scheduledBlockDTO.getIdentity(), 
+						scheduledBlockDTO.isEnable()));
+			}
+		
+			final ScheduledBlockStatusChangedSSE scheduledBlockStatusChangedSSE = 
+					new ScheduledBlockStatusChangedSSE();
+			scheduledBlockStatusChangedSSE.setKid(scheduledBlockStatusChangedEvent.getKid());
+			scheduledBlockStatusChangedSSE.setScheduledBlockStatusList(scheduledBlockStatus);
+			scheduledBlockStatusChangedSSE.setSubscriberId(terminal.getId().toString());
+			
+			sseService.push(terminal.getId().toString(), scheduledBlockStatusChangedSSE);
+		}
+		
 		
 	}
 }

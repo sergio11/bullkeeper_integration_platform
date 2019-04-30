@@ -15,7 +15,6 @@ import sanchez.sanchez.sergio.bullkeeper.events.conversation.MessageSavedEvent;
 import sanchez.sanchez.sergio.bullkeeper.events.conversation.SetMessagesAsViewedEvent;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.TerminalEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.TerminalRepository;
-import sanchez.sanchez.sergio.bullkeeper.sse.models.AbstractSseData;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.conversation.AllMessagesDeletedSSE;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.conversation.DeletedConversationSSE;
 import sanchez.sanchez.sergio.bullkeeper.sse.models.conversation.DeletedMessagesSSE;
@@ -69,10 +68,19 @@ public class ConversationEventHandlers {
 				subscriberOne,
 				allConversationMessagesDeletedEvent.getConversation()));
 		
-		sendToAllTerminals(subscriberOne,
-				new AllMessagesDeletedSSE(
-						subscriberOne,
-						allConversationMessagesDeletedEvent.getConversation()));
+		// Find By Kid Id
+		final Iterable<TerminalEntity> terminalsForSubscriberOne = terminalRepository.findByKidId(
+							new ObjectId(subscriberOne));
+										
+		// Push Event on each terminal
+		for(final TerminalEntity terminal: terminalsForSubscriberOne) {
+			final AllMessagesDeletedSSE allMessageDeletedSSE = new AllMessagesDeletedSSE(
+					subscriberOne,
+					allConversationMessagesDeletedEvent.getConversation());
+			allMessageDeletedSSE.setSubscriberId(terminal.getId().toString());
+			sseService.push(terminal.getId().toString(), allMessageDeletedSSE);
+		}
+
 		
 		final String subscriberTwo = allConversationMessagesDeletedEvent.getMemberTwo();
 		
@@ -80,10 +88,19 @@ public class ConversationEventHandlers {
 				subscriberTwo,
 				allConversationMessagesDeletedEvent.getConversation()));
 		
-		sendToAllTerminals(subscriberTwo,
-				new AllMessagesDeletedSSE(
-						subscriberTwo,
-						allConversationMessagesDeletedEvent.getConversation()));
+		
+		// Find By Kid Id
+		final Iterable<TerminalEntity> terminalsForSubscriberTwo = terminalRepository.findByKidId(
+									new ObjectId(subscriberTwo));
+		
+		// Push Event on each terminal
+		for(final TerminalEntity terminal: terminalsForSubscriberTwo) {
+			final AllMessagesDeletedSSE allMessageDeletedSSE = new AllMessagesDeletedSSE(
+					subscriberTwo,
+					allConversationMessagesDeletedEvent.getConversation());
+			allMessageDeletedSSE.setSubscriberId(terminal.getId().toString());
+			sseService.push(terminal.getId().toString(), allMessageDeletedSSE);
+		}
 	}
 	
 	/**
@@ -102,12 +119,19 @@ public class ConversationEventHandlers {
 				conversationDeletedEvent.getMemberOne(),
 				conversationDeletedEvent.getMemberTwo()));
 		
-		sendToAllTerminals(subscriberOne,
-				new DeletedConversationSSE(
-						subscriberOne,
-						conversationDeletedEvent.getConversation(),
-						conversationDeletedEvent.getMemberOne(),
-						conversationDeletedEvent.getMemberTwo()));
+		// Find By Kid Id
+		final Iterable<TerminalEntity> terminalsForSubscriberOne = terminalRepository.findByKidId(
+										new ObjectId(subscriberOne));
+		// Push Event on each terminal
+		for(final TerminalEntity terminal: terminalsForSubscriberOne) {
+			final DeletedConversationSSE deletedConversationSSE = new DeletedConversationSSE(
+					subscriberOne,
+					conversationDeletedEvent.getConversation(),
+					conversationDeletedEvent.getMemberOne(),
+					conversationDeletedEvent.getMemberTwo());
+			deletedConversationSSE.setSubscriberId(terminal.getId().toString());
+			sseService.push(terminal.getId().toString(), deletedConversationSSE);
+		}
 		
 		final String subscriberTwo = conversationDeletedEvent.getMemberTwo();
 		
@@ -116,13 +140,21 @@ public class ConversationEventHandlers {
 				conversationDeletedEvent.getConversation(),
 				conversationDeletedEvent.getMemberOne(),
 				conversationDeletedEvent.getMemberTwo()));
-		
-		sendToAllTerminals(subscriberTwo,
-				new DeletedConversationSSE(
-						subscriberTwo,
-						conversationDeletedEvent.getConversation(),
-						conversationDeletedEvent.getMemberOne(),
-						conversationDeletedEvent.getMemberTwo()));
+
+		// Find By Kid Id
+		final Iterable<TerminalEntity> terminalsForSubscriberTwo = terminalRepository.findByKidId(
+												new ObjectId(subscriberTwo));
+		// Push Event on each terminal
+		for(final TerminalEntity terminal: terminalsForSubscriberTwo) {
+			final DeletedConversationSSE deletedConversationSSE = new DeletedConversationSSE(
+					subscriberTwo,
+					conversationDeletedEvent.getConversation(),
+					conversationDeletedEvent.getMemberOne(),
+					conversationDeletedEvent.getMemberTwo());
+			deletedConversationSSE.setSubscriberId(terminal.getId().toString());
+			sseService.push(terminal.getId().toString(), deletedConversationSSE);
+		}
+
 	}
 	
 	/**
@@ -143,11 +175,17 @@ public class ConversationEventHandlers {
 				messageIds));
 		
 		
-		sendToAllTerminals(subscriberOne,
-				new DeletedMessagesSSE(
+		// Find By Kid Id
+		final Iterable<TerminalEntity> terminalsForSubscriberOne = terminalRepository.findByKidId(
+												new ObjectId(subscriberOne));
+		// Push Event on each terminal
+		for(final TerminalEntity terminal: terminalsForSubscriberOne) {
+			final DeletedMessagesSSE deletedMessagesSSE =new DeletedMessagesSSE(
 						subscriberOne, conversationMessagesDeletedEvent.getConversation(),
-						messageIds));
-		
+						messageIds);
+			deletedMessagesSSE.setSubscriberId(terminal.getId().toString());
+			sseService.push(terminal.getId().toString(), deletedMessagesSSE);
+		}
 	
 		final String subscriberTwo = conversationMessagesDeletedEvent.getMemberTwo();
 	
@@ -155,10 +193,17 @@ public class ConversationEventHandlers {
 				subscriberTwo, conversationMessagesDeletedEvent.getConversation(),
 				messageIds));
 	
-		sendToAllTerminals(subscriberTwo,
-				new DeletedMessagesSSE(
-						subscriberTwo, conversationMessagesDeletedEvent.getConversation(),
-						messageIds));
+		// Find By Kid Id
+		final Iterable<TerminalEntity> terminalsForSubscriberTwo = terminalRepository.findByKidId(
+														new ObjectId(subscriberTwo));
+		// Push Event on each terminal
+		for(final TerminalEntity terminal: terminalsForSubscriberTwo) {
+			final DeletedMessagesSSE deletedMessagesSSE =new DeletedMessagesSSE(
+					subscriberTwo, conversationMessagesDeletedEvent.getConversation(),
+								messageIds);
+			deletedMessagesSSE.setSubscriberId(terminal.getId().toString());
+			sseService.push(terminal.getId().toString(), deletedMessagesSSE);
+		}
 	}
 	
 	/**
@@ -184,18 +229,25 @@ public class ConversationEventHandlers {
 				messageSavedEvent.getMessage().isViewed()
 		));
 		
-		sendToAllTerminals(subscriberOne,
-				new MessageSavedSSE(
-						messageSavedEvent.getMessage().getFrom().getIdentity(),
-						messageSavedEvent.getMessage().getIdentity(),
-						messageSavedEvent.getMessage().getText(),
-						messageSavedEvent.getMessage().getCreateAt(),
-						messageSavedEvent.getMessage().getConversation(),
-						messageSavedEvent.getMessage().getFrom(),
-						messageSavedEvent.getMessage().getTo(),
-						messageSavedEvent.getMessage().isViewed()
-				));
-		
+		// Find By Kid Id
+		final Iterable<TerminalEntity> terminalsForSubscriberOne = terminalRepository.findByKidId(
+																new ObjectId(subscriberOne));
+		// Push Event on each terminal
+		for(final TerminalEntity terminal: terminalsForSubscriberOne) {
+			final MessageSavedSSE messageSavedSSE = new MessageSavedSSE(
+					messageSavedEvent.getMessage().getFrom().getIdentity(),
+					messageSavedEvent.getMessage().getIdentity(),
+					messageSavedEvent.getMessage().getText(),
+					messageSavedEvent.getMessage().getCreateAt(),
+					messageSavedEvent.getMessage().getConversation(),
+					messageSavedEvent.getMessage().getFrom(),
+					messageSavedEvent.getMessage().getTo(),
+					messageSavedEvent.getMessage().isViewed()
+			);
+			messageSavedSSE.setSubscriberId(terminal.getId().toString());
+			sseService.push(terminal.getId().toString(), messageSavedSSE);
+		}
+
 		
 		final String subscriberTwo = messageSavedEvent.getMessage().getTo().getIdentity();
 		
@@ -211,17 +263,24 @@ public class ConversationEventHandlers {
 				messageSavedEvent.getMessage().isViewed()
 		));
 		
-		sendToAllTerminals(subscriberTwo,
-				new MessageSavedSSE(
-						messageSavedEvent.getMessage().getTo().getIdentity(),
-						messageSavedEvent.getMessage().getIdentity(),
-						messageSavedEvent.getMessage().getText(),
-						messageSavedEvent.getMessage().getCreateAt(),
-						messageSavedEvent.getMessage().getConversation(),
-						messageSavedEvent.getMessage().getFrom(),
-						messageSavedEvent.getMessage().getTo(),
-						messageSavedEvent.getMessage().isViewed()
-				));
+		// Find By Kid Id
+		final Iterable<TerminalEntity> terminalsForSubscriberTwo = terminalRepository.findByKidId(
+																		new ObjectId(subscriberTwo));
+		// Push Event on each terminal
+		for(final TerminalEntity terminal: terminalsForSubscriberTwo) {
+			final MessageSavedSSE messageSavedSSE = new MessageSavedSSE(
+					messageSavedEvent.getMessage().getFrom().getIdentity(),
+					messageSavedEvent.getMessage().getIdentity(),
+					messageSavedEvent.getMessage().getText(),
+					messageSavedEvent.getMessage().getCreateAt(),
+					messageSavedEvent.getMessage().getConversation(),
+					messageSavedEvent.getMessage().getFrom(),
+					messageSavedEvent.getMessage().getTo(),
+					messageSavedEvent.getMessage().isViewed()
+			);
+			messageSavedSSE.setSubscriberId(terminal.getId().toString());
+			sseService.push(terminal.getId().toString(), messageSavedSSE);
+		}
 	}
 	
 	/**
@@ -241,10 +300,17 @@ public class ConversationEventHandlers {
 				messageIds));
 		
 		
-		sendToAllTerminals(subscriberOne,
-				new SetMessagesAsViewedSSE(
-						subscriberOne, setMessagesAsViewedEvent.getConversation(),
-						messageIds));
+		// Find By Kid Id
+		final Iterable<TerminalEntity> terminalsForSubscriberOne = terminalRepository.findByKidId(
+																	new ObjectId(subscriberOne));
+		// Push Event on each terminal
+		for(final TerminalEntity terminal: terminalsForSubscriberOne) {
+			final SetMessagesAsViewedSSE setMessagesAsViewedSSE = new SetMessagesAsViewedSSE(
+					subscriberOne, setMessagesAsViewedEvent.getConversation(),
+					messageIds);
+			setMessagesAsViewedSSE.setSubscriberId(terminal.getId().toString());
+			sseService.push(terminal.getId().toString(), setMessagesAsViewedSSE);
+		}
 		
 		
 		final String subscriberTwo = setMessagesAsViewedEvent.getMemberTwo();
@@ -253,31 +319,21 @@ public class ConversationEventHandlers {
 				subscriberTwo, setMessagesAsViewedEvent.getConversation(),
 				messageIds));
 		
-		sendToAllTerminals(subscriberTwo,
-				new SetMessagesAsViewedSSE(
-						subscriberTwo, setMessagesAsViewedEvent.getConversation(),
-						messageIds));
-		
-	}
-	
-	
-	/**
-	 * Send To All Terminals
-	 * @param kid
-	 * @param data
-	 */
-	private <T extends AbstractSseData> void sendToAllTerminals(final String kid, final T data) {
-		
 		// Find By Kid Id
-		final Iterable<TerminalEntity> terminals = terminalRepository.findByKidId(
-					new ObjectId(kid));
-								
+		final Iterable<TerminalEntity> terminalsForSubscriberTwo = terminalRepository.findByKidId(
+																			new ObjectId(subscriberTwo));
 		// Push Event on each terminal
-		for(final TerminalEntity terminal: terminals) {
-			data.setSubscriberId(terminal.getId().toString());
-			sseService.push(terminal.getId().toString(), data);
+		for(final TerminalEntity terminal: terminalsForSubscriberTwo) {
+			final SetMessagesAsViewedSSE setMessagesAsViewedSSE = new SetMessagesAsViewedSSE(
+					subscriberTwo, setMessagesAsViewedEvent.getConversation(),
+							messageIds);
+			setMessagesAsViewedSSE.setSubscriberId(terminal.getId().toString());
+			sseService.push(terminal.getId().toString(), setMessagesAsViewedSSE);
 		}
+		
 	}
+	
+
 	
 	
 }
