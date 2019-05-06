@@ -88,25 +88,31 @@ public class ViolenceAnalysisTasks extends AbstractAnalysisTasks {
 			
 			final KidEntity sonEntity = violenceBySonEntry.getKey();
 			logger.debug("Analysis Violence Results for -> " + sonEntity.getFullName());
-			final Integer totalComments = violenceBySonEntry.getValue().values().stream().mapToInt(Number::intValue).sum();
+			
 			final Map<ViolenceLevelEnum, Long> results = violenceBySonEntry.getValue();
 			
 			final ViolenceResultsEntity  violenceResults = sonEntity.getResults().getViolence();
 			
-			final Long totalCommentsAnalyzedForViolence = commentRepository.countByAnalysisResultsViolenceFinishAtGreaterThanEqual(violenceResults.getDate());
+			final Long totalCommentsAnalyzedForViolenceForThisPeriod = commentRepository
+					.countByAnalysisResultsViolenceFinishAtGreaterThanEqual(violenceResults.getDate());
 			
-			if(totalCommentsAnalyzedForViolence > 0) {
+			
+			if(totalCommentsAnalyzedForViolenceForThisPeriod > 0) {
 				alertService.save(AlertLevelEnum.INFO, 
 						messageSourceResolver.resolver("alerts.violence.total.analyzed.title"),
-						messageSourceResolver.resolver("alerts.violence.total.analyzed.body", new Object[] { totalCommentsAnalyzedForViolence, prettyTime.format(violenceResults.getDate()) }),
+						messageSourceResolver.resolver("alerts.violence.total.analyzed.body", new Object[] { totalCommentsAnalyzedForViolenceForThisPeriod, 
+								prettyTime.format(violenceResults.getDate()) }),
 						sonEntity.getId(), AlertCategoryEnum.STATISTICS_KID);
 			}
 			
 			
 			if(results.containsKey(ViolenceLevelEnum.POSITIVE)) {
 				
+				final Long totalCommentsAnalyzedForViolence = 
+						commentRepository.countByAnalysisResultsViolenceStatus(AnalysisStatusEnum.FINISHED);
+				
 				final Long totalViolenceComments = results.get(ViolenceLevelEnum.POSITIVE);
-				final int percentage = Math.round((float)totalViolenceComments/totalComments*100);
+				final int percentage = Math.round((float)totalViolenceComments/totalCommentsAnalyzedForViolence*100);
 				if(percentage <= 30) {
 					alertService.save(AlertLevelEnum.SUCCESS, 
 							messageSourceResolver.resolver("alerts.violence.negative.title"),

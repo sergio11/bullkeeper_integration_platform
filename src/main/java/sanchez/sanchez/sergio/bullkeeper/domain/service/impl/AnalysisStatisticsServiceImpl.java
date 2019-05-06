@@ -473,7 +473,7 @@ public class AnalysisStatisticsServiceImpl implements IAnalysisStatisticsService
     	
     	return new CommentsStatisticsDTO<CommentsPerSocialMediaDTO>(
     			messageSourceResolverService.resolver("statistics.comments.extracted.by.social.media.title", new Object[] { pt.format(from) }), 
-    			messageSourceResolverService.resolver("statistics..comments.extracted.by.social.media.subtitle", new Object[] { totalCommnents  }),
+    			messageSourceResolverService.resolver("statistics.comments.extracted.by.social.media.subtitle", new Object[] { totalCommnents  }),
     			totalCommnents,
     			commentsData);
 	

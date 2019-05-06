@@ -70,11 +70,11 @@ public class SentimentAnalysisTasks extends AbstractAnalysisTasks {
 	public void sentimentAnalysisResults() {
 		logger.debug("sentiment analysis results");
 		
-		List<KidEntity> sonEntities = sonRepository.findAllByResultsSentimentObsolete(Boolean.TRUE);
+		List<KidEntity> resultSentimentObsolete = sonRepository.findAllByResultsSentimentObsolete(Boolean.TRUE);
 		
-		logger.debug(sonEntities.toString());
+		logger.debug(resultSentimentObsolete.toString());
 		
-		Map<KidEntity, Map<SentimentLevelEnum, Long>> sentimentResults = sonEntities.parallelStream()
+		Map<KidEntity, Map<SentimentLevelEnum, Long>> sentimentResults = resultSentimentObsolete.parallelStream()
 			.collect(Collectors.toMap(
 				sonEntity -> sonEntity,
 				sonEntity -> commentRepository
@@ -93,24 +93,27 @@ public class SentimentAnalysisTasks extends AbstractAnalysisTasks {
 			
 			final KidEntity sonEntity = sentimentResultEntry.getKey();
 			
-			final Integer totalComments = sentimentResultEntry.getValue().values().stream().mapToInt(Number::intValue).sum();
 			final SentimentResultsEntity sentimentResultsEntity = sonEntity.getResults().getSentiment();
-			final Long totalCommentsAnalyzedForSentiment = commentRepository.countByAnalysisResultsSentimentFinishAtGreaterThanEqual(sentimentResultsEntity.getDate());
+			final Long totalCommentsAnalyzedForSentimentForThisPeriod = 
+					commentRepository.countByAnalysisResultsSentimentFinishAtGreaterThanEqual(sentimentResultsEntity.getDate());
 			
-			logger.debug("Analysis Sentiment Results for -> " + sonEntity.getFullName() + " Total comments: " + totalComments + "totalCommentsAnalyzedForSentiment" + totalCommentsAnalyzedForSentiment);
 			
-			if(totalCommentsAnalyzedForSentiment > 0) {
+			if(totalCommentsAnalyzedForSentimentForThisPeriod > 0) {
 				alertService.save(AlertLevelEnum.INFO, 
 						messageSourceResolver.resolver("alerts.sentiment.total.analyzed.title"),
-						messageSourceResolver.resolver("alerts.sentiment.total.analyzed.body", new Object[] { totalCommentsAnalyzedForSentiment, prettyTime.format(sentimentResultsEntity.getDate()) }),
+						messageSourceResolver.resolver("alerts.sentiment.total.analyzed.body", new Object[] { totalCommentsAnalyzedForSentimentForThisPeriod,
+								prettyTime.format(sentimentResultsEntity.getDate()) }),
 						sonEntity.getId(), AlertCategoryEnum.STATISTICS_KID);
 			}
 			
 			if(sentimentResultEntry.getValue().containsKey(SentimentLevelEnum.NEGATIVE)) {
 				
+				final Long totalCommentsAnalyzedForSentiment = 
+						commentRepository.countByAnalysisResultsSentimentStatus(AnalysisStatusEnum.FINISHED);
+				
 				final Long totalNegativeComments = sentimentResultEntry.getValue().get(SentimentLevelEnum.NEGATIVE);
 	
-				final int percentage = Math.round((float)totalNegativeComments/totalComments*100);
+				final int percentage = Math.round((float)totalNegativeComments/totalCommentsAnalyzedForSentiment*100);
 				logger.debug("Percentage -> " + percentage);
 				
 				if(percentage <= 30) {
@@ -133,9 +136,12 @@ public class SentimentAnalysisTasks extends AbstractAnalysisTasks {
 			}
 			
 
-			sonRepository.updateSentimentResultsFor(sonEntity.getId(), sentimentResultEntry.getValue().containsKey(SentimentLevelEnum.POSITIVE) ? 
-					sentimentResultEntry.getValue().get(SentimentLevelEnum.POSITIVE): 0L, sentimentResultEntry.getValue().containsKey(SentimentLevelEnum.NEGATIVE)
-					? sentimentResultEntry.getValue().get(SentimentLevelEnum.NEGATIVE) : 0L, sentimentResultEntry.getValue().containsKey(SentimentLevelEnum.NEUTRO) ? 
+			sonRepository.updateSentimentResultsFor(sonEntity.getId(), 
+					sentimentResultEntry.getValue().containsKey(SentimentLevelEnum.POSITIVE) ? 
+					sentimentResultEntry.getValue().get(SentimentLevelEnum.POSITIVE): 0L, 
+					sentimentResultEntry.getValue().containsKey(SentimentLevelEnum.NEGATIVE)
+					? sentimentResultEntry.getValue().get(SentimentLevelEnum.NEGATIVE) : 0L,
+							sentimentResultEntry.getValue().containsKey(SentimentLevelEnum.NEUTRO) ? 
 							sentimentResultEntry.getValue().get(SentimentLevelEnum.NEUTRO): 0L);
 			
 	     }

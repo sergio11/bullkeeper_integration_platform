@@ -91,22 +91,25 @@ public class BullyingAnalysisTasks extends AbstractAnalysisTasks {
 			final KidEntity sonEntity = bullyingBySonEntry.getKey();
 			logger.debug("Analysis Drugs Results for -> " + sonEntity.getFullName());
 			final Map<BullyingLevelEnum, Long> results = bullyingBySonEntry.getValue();
-			final Integer totalComments = bullyingBySonEntry.getValue().values().stream().mapToInt(Number::intValue).sum();;
 			final BullyingResultsEntity bullyingResultsEntity = sonEntity.getResults().getBullying();
 			
-			final Long totalCommentsAnalyzedForBullying = commentRepository.countByAnalysisResultsBullyingFinishAtGreaterThanEqual(bullyingResultsEntity.getDate());
+			final Long totalCommentsAnalyzedForBullyingForThisPeriod = commentRepository.countByAnalysisResultsBullyingFinishAtGreaterThanEqual(bullyingResultsEntity.getDate());
 			
-			if(totalCommentsAnalyzedForBullying > 0) {
+			if(totalCommentsAnalyzedForBullyingForThisPeriod > 0) {
 				alertService.save(AlertLevelEnum.INFO, 
 						messageSourceResolver.resolver("alerts.bullying.total.analyzed.title"),
-						messageSourceResolver.resolver("alerts.bullying.total.analyzed.body", new Object[] { totalCommentsAnalyzedForBullying, prettyTime.format(bullyingResultsEntity.getDate()) }),
+						messageSourceResolver.resolver("alerts.bullying.total.analyzed.body", new Object[] { 
+								totalCommentsAnalyzedForBullyingForThisPeriod, prettyTime.format(bullyingResultsEntity.getDate()) }),
 						sonEntity.getId(), AlertCategoryEnum.STATISTICS_KID);
 			}
 			
 			if(results.containsKey(BullyingLevelEnum.POSITIVE)) {
 				
+				final Long totalCommentsAnalyzedForBullying = 
+						commentRepository.countByAnalysisResultsBullyingStatus(AnalysisStatusEnum.FINISHED);
+				
 				final Long totalCommentsBullyingContent = results.get(BullyingLevelEnum.POSITIVE);
-				final int percentage = Math.round((float)totalCommentsBullyingContent/totalComments*100);
+				final int percentage = Math.round((float)totalCommentsBullyingContent/totalCommentsAnalyzedForBullying*100);
 				if(percentage <= 30) {
 					alertService.save(AlertLevelEnum.SUCCESS, 
 							messageSourceResolver.resolver("alerts.bullying.negative.title"),

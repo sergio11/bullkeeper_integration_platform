@@ -78,5 +78,14 @@ public interface SmsRepository extends MongoRepository<SmsEntity, Long>{
 	 */
 	SmsEntity findByLocalId(final String localId);
 	
+	/**
+	 * Find By Local Id
+	 * @param localId
+	 * @param kid
+	 * @param terminal
+	 * @return
+	 */
+	SmsEntity findByLocalIdAndKidIdAndTerminalId(final String localId, final ObjectId kid, final ObjectId terminal);
+	
 
 }

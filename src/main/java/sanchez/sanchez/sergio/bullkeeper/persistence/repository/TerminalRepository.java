@@ -45,6 +45,13 @@ public interface TerminalRepository extends MongoRepository<TerminalEntity, Obje
 	Long countByDeviceId(final String deviceId);
 	
 	/**
+	 * Count By Kid Id
+	 * @param kid
+	 * @return
+	 */
+	Long countByKidId(final ObjectId kid);
+	
+	/**
 	 * Find by id and KId id
 	 * @param id
 	 * @param kid

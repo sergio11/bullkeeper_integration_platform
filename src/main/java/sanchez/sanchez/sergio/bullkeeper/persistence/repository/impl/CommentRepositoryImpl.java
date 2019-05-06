@@ -7,8 +7,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import org.bson.types.ObjectId;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -19,8 +17,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.Assert;
-
-import sanchez.sanchez.sergio.bullkeeper.domain.service.impl.SocialMediaServiceImpl;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AdultLevelEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AnalysisStatusEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AnalysisTypeEnum;
@@ -34,12 +30,11 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.repository.CommentRepositor
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.CommentsByKidDTO;
 
 /**
- *
+ * Comment Repository 
  * @author sergio
  */
 public class CommentRepositoryImpl implements CommentRepositoryCustom {
 	
-	private static Logger logger = LoggerFactory.getLogger(CommentRepositoryImpl.class);
     
     @Autowired
     private MongoTemplate mongoTemplate;
@@ -227,7 +222,7 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
 		calendar.setTime(new Date());
 		calendar.add(Calendar.MINUTE, -minutes);
 		
-		logger.debug("date let -> " + calendar.getTime());
+	
 		
 		mongoTemplate.updateMulti(
 				new Query(Criteria
@@ -251,8 +246,6 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
 		Assert.notNull(socialMedia, "Social Media can not be null");
 		Assert.notNull(kid, "Kid id can not be null");
 		
-		logger.debug("Kid Id -> " + kid);
-		logger.debug("Social Media -> " + socialMedia);
 		
 		Query query = new Query(
 				Criteria.where("social_media").is(socialMedia));
@@ -317,10 +310,29 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
 					.where("analysis_results.adult.status").is(AnalysisStatusEnum.FINISHED.name())
 					.and("analysis_results.adult.result").is(adult.ordinal()));
 	
-		if(sentiment != null && !sentiment.equals(SentimentLevelEnum.UNKNOWN))
-			dimensionCriterias.add(Criteria
-					.where("analysis_results.sentiment.status").is(AnalysisStatusEnum.FINISHED.name())
-					.and("analysis_results.sentiment.result").is(sentiment.ordinal()));
+		if(sentiment != null && !sentiment.equals(SentimentLevelEnum.UNKNOWN)) {
+			
+			if(sentiment.equals(SentimentLevelEnum.NEGATIVE)) {
+				
+				dimensionCriterias.add(Criteria
+						.where("analysis_results.sentiment.status").is(AnalysisStatusEnum.FINISHED.name())
+						.and("analysis_results.sentiment.result").gte(-10).lte(-5));
+				
+			} else if(sentiment.equals(SentimentLevelEnum.NEUTRO)) {
+				
+				dimensionCriterias.add(Criteria
+						.where("analysis_results.sentiment.status").is(AnalysisStatusEnum.FINISHED.name())
+						.and("analysis_results.sentiment.result").gt(-5).lte(5));
+				
+			} else {
+				
+				dimensionCriterias.add(Criteria
+						.where("analysis_results.sentiment.status").is(AnalysisStatusEnum.FINISHED.name())
+						.and("analysis_results.sentiment.result").gt(5));
+			}
+			
+		}
+			
 		
 
 		if(!dimensionCriterias.isEmpty())
@@ -392,10 +404,28 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
 					.and("analysis_results.adult.result").is(adult.ordinal()));
 		
 		// Sentiment Filter
-		if(sentiment != null && !sentiment.equals(SentimentLevelEnum.UNKNOWN))
-			dimensionCriterias.add(Criteria
-					.where("analysis_results.sentiment.status").is(AnalysisStatusEnum.FINISHED.name())
-					.and("analysis_results.sentiment.result").is(sentiment.ordinal()));
+		if(sentiment != null && !sentiment.equals(SentimentLevelEnum.UNKNOWN)) {
+			
+			if(sentiment.equals(SentimentLevelEnum.NEGATIVE)) {
+				
+				dimensionCriterias.add(Criteria
+						.where("analysis_results.sentiment.status").is(AnalysisStatusEnum.FINISHED.name())
+						.and("analysis_results.sentiment.result").gte(-10).lte(-5));
+				
+			} else if(sentiment.equals(SentimentLevelEnum.NEUTRO)) {
+				
+				dimensionCriterias.add(Criteria
+						.where("analysis_results.sentiment.status").is(AnalysisStatusEnum.FINISHED.name())
+						.and("analysis_results.sentiment.result").gt(-5).lte(5));
+				
+			} else {
+				
+				dimensionCriterias.add(Criteria
+						.where("analysis_results.sentiment.status").is(AnalysisStatusEnum.FINISHED.name())
+						.and("analysis_results.sentiment.result").gt(5));
+			}
+			
+		}
 	
 		if(!dimensionCriterias.isEmpty())
 			commonCriteria.andOperator(dimensionCriterias.toArray(new Criteria[dimensionCriterias.size()]));

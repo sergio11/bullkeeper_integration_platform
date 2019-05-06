@@ -1,8 +1,10 @@
 package sanchez.sanchez.sergio.bullkeeper.domain.service.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -34,6 +36,7 @@ import sanchez.sanchez.sergio.bullkeeper.mapper.PhoneNumberEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.SmsEntityMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.TerminalEntityDataMapper;
 import sanchez.sanchez.sergio.bullkeeper.mapper.TerminalHeartbeatEntityDataMapper;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AppAllowedByScheduledBlockEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AppInstalledEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AppModelEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AppRuleEnum;
@@ -46,6 +49,7 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.entity.FunTimeDaysEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.FunTimeScheduledEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.KidRequestEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.PhoneNumberBlockedEntity;
+import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ScheduledBlockEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.ScreenStatusEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.SmsEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.TerminalEntity;
@@ -57,8 +61,10 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.repository.AppStatsReposito
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.CallDetailRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.ContactEntityRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.DevicePhotoRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.GeofenceRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.KidRequestRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.PhoneNumberBlockedRepository;
+import sanchez.sanchez.sergio.bullkeeper.persistence.repository.ScheduledBlockRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.SmsRepository;
 import sanchez.sanchez.sergio.bullkeeper.persistence.repository.TerminalRepository;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.request.AddDevicePhotoDTO;
@@ -220,6 +226,16 @@ public final class TerminalServiceImpl implements ITerminalService {
      * Application Event Publisher
      */
     private final ApplicationEventPublisher applicationEventPublisher;
+    
+    /**
+	 * Scheduled Block Repository
+	 */
+	private final ScheduledBlockRepository scheduledBlockRepository;
+	
+	/**
+	 * Geofence Repository
+	 */
+	private final GeofenceRepository geofenceRepository;
 	
 
 	/**
@@ -245,6 +261,8 @@ public final class TerminalServiceImpl implements ITerminalService {
 	 * @param devicePhotoRepository
 	 * @param devicePhotoEntityMapper
 	 * @param applicationEventPublisher
+	 * @param scheduledBlockRepository
+	 * @param geofenceRepository
 	 */
 	@Autowired
 	public TerminalServiceImpl(final TerminalEntityDataMapper terminalEntityDataMapper, 
@@ -269,7 +287,9 @@ public final class TerminalServiceImpl implements ITerminalService {
 			final IUploadFilesService uploadFilesService,
 			final DevicePhotoRepository devicePhotoRepository,
 			final DevicePhotoEntityMapper devicePhotoEntityMapper,
-			final ApplicationEventPublisher applicationEventPublisher) {
+			final ApplicationEventPublisher applicationEventPublisher,
+			final ScheduledBlockRepository scheduledBlockRepository,
+			final GeofenceRepository geofenceRepository) {
 		super();
 		this.terminalEntityDataMapper = terminalEntityDataMapper;
 		this.terminalRepository = terminalRepository;
@@ -294,6 +314,8 @@ public final class TerminalServiceImpl implements ITerminalService {
 		this.devicePhotoRepository = devicePhotoRepository;
 		this.devicePhotoEntityMapper = devicePhotoEntityMapper;
 		this.applicationEventPublisher = applicationEventPublisher;
+		this.scheduledBlockRepository = scheduledBlockRepository;
+		this.geofenceRepository = geofenceRepository;
 	}
 
 	/**
@@ -340,6 +362,17 @@ public final class TerminalServiceImpl implements ITerminalService {
 	public void delete(final ObjectId kid, final ObjectId terminal) {
 		Assert.notNull(kid, "Kid can not be null");
 		Assert.notNull(terminal, "Terminal can not be null");
+		
+		final Long totalTerminalByKid = terminalRepository.countByKidId(kid);
+		
+		if(totalTerminalByKid == 1) {
+			scheduledBlockRepository.deleteByKidId(kid);
+			geofenceRepository.deleteAllByKid(kid);
+		} else {
+			deleteAppAllowedInScheduledBlock(kid, terminal);
+		}
+		
+		
 		appsInstalledRepository.deleteByKidIdAndTerminalId(kid, terminal);
 		callDetailRepository.deleteByKidIdAndTerminalId(kid, terminal);
 		smsRepository.deleteByKidIdAndTerminalId(kid, terminal);
@@ -384,7 +417,10 @@ public final class TerminalServiceImpl implements ITerminalService {
 				
 		// Find By Package Name
 		AppInstalledEntity appInstalledSaved = appsInstalledRepository
-			.findOneByPackageName(appIntalledToSave.getPackageName());
+			.findOneByPackageNameAndKidIdAndTerminalId(
+					appIntalledToSave.getPackageName(),
+					appIntalledToSave.getKid().getId(), 
+					appIntalledToSave.getTerminal().getId());
 		
 		if(appInstalledSaved != null)  {
 			appIntalledToSave.setId(appInstalledSaved.getId());
@@ -432,6 +468,7 @@ public final class TerminalServiceImpl implements ITerminalService {
 		Assert.notNull(kid, "Kid id can not be null");
 		Assert.notNull(terminalId, "Terminal id can not be null");
 		
+		deleteAppAllowedInScheduledBlock(kid, terminalId);
 		appStatsRepository.deleteByKidIdAndTerminalId(kid, terminalId);
 		appsInstalledRepository.deleteByKidIdAndTerminalId(kid, terminalId);
 	}
@@ -447,6 +484,7 @@ public final class TerminalServiceImpl implements ITerminalService {
 		final AppInstalledEntity appInstalled = Optional.ofNullable(appsInstalledRepository.findById(appId))
 			.orElseThrow(() -> { throw new AppInstalledNotFoundException(); });
 		
+		deleteAppAllowedInScheduledBlock(Arrays.asList(appId));
 		appStatsRepository.deleteByAppId(appInstalled.getId());
 		appsInstalledRepository.delete(appInstalled);
 		
@@ -722,31 +760,7 @@ public final class TerminalServiceImpl implements ITerminalService {
 				phoneNumberBlockedRepository.findAll());
 	}
 
-	/**
-	 * Save SMS
-	 */
-	@Override
-	public Iterable<SmsDTO> saveSms(final List<SaveSmsDTO> smsList) {
-		Assert.notNull(smsList, "Sms list can not be null");
-		
-		// Save Sms DTO To Sms Entity
-		final Iterable<SmsEntity> smsEntityListToSave = 
-						smsEntityMapper.saveSmsDtoToSmsEntities(smsList);
-		
-		for(final SmsEntity smsEntityToSave: smsEntityListToSave) {
-			
-			SmsEntity smsEntitySaved = smsRepository.findByLocalId(smsEntityToSave.getLocalId());
-			
-			if(smsEntitySaved != null) {
-				smsEntityToSave.setId(smsEntitySaved.getId());
-			}
-		}
-		
-		final Iterable<SmsEntity> smsEntitiesSaved = 
-				smsRepository.save(smsEntityListToSave);
-		
-		return smsEntityMapper.smsEntityToSmsDTOs(smsEntitiesSaved);
-	}
+
 
 	/**
 	 * Save Calls
@@ -761,7 +775,10 @@ public final class TerminalServiceImpl implements ITerminalService {
 		for(final CallDetailEntity callDetailEntityToSave: callDetailListToSave) {
 			
 			final CallDetailEntity callDetailEntitySaved = callDetailRepository
-						.findOneByLocalId(callDetailEntityToSave.getLocalId());
+						.findOneByLocalIdAndKidIdAndTerminalId(
+								callDetailEntityToSave.getLocalId(),
+								callDetailEntityToSave.getKid().getId(),
+								callDetailEntityToSave.getTerminal().getId());
 					
 			if(callDetailEntitySaved != null) {
 				callDetailEntityToSave.setId(callDetailEntitySaved.getId());
@@ -786,7 +803,10 @@ public final class TerminalServiceImpl implements ITerminalService {
 				smsEntityMapper.saveSmsDtoToSmsEntity(sms);
 		
 		// Find By Local Id
-		SmsEntity smsEntity = smsRepository.findByLocalId(smsEntityToSave.getLocalId());
+		SmsEntity smsEntity = smsRepository.findByLocalIdAndKidIdAndTerminalId(
+				smsEntityToSave.getLocalId(),
+				smsEntityToSave.getKid().getId(),
+				smsEntityToSave.getTerminal().getId());
 		
 		if(smsEntity != null) 
 			smsEntityToSave.setId(smsEntity.getId());
@@ -794,6 +814,19 @@ public final class TerminalServiceImpl implements ITerminalService {
 		final SmsEntity smsEntitySaved = smsRepository.save(smsEntityToSave);
 		
 		return smsEntityMapper.smsEntityToSmsDTO(smsEntitySaved);
+	}
+	
+	/**
+	 * Save SMS
+	 */
+	@Override
+	public Iterable<SmsDTO> saveSms(final List<SaveSmsDTO> smsList) {
+		Assert.notNull(smsList, "Sms list can not be null");
+		final List<SmsDTO> smsDTOList = new ArrayList<>();
+		for(final SaveSmsDTO saveSms: smsList) {
+			smsDTOList.add(saveSms(saveSms));
+		}
+		return smsDTOList;
 	}
 
 	/**
@@ -907,34 +940,6 @@ public final class TerminalServiceImpl implements ITerminalService {
 	}
 
 	/**
-	 * Save Contacts
-	 */
-	@Override
-	public Iterable<ContactDTO> saveContacts(List<SaveContactDTO> contacts) {
-		Assert.notNull(contacts, "Contacts can not be null");
-		
-		final Iterable<ContactEntity> contactsToSave = 
-				this.contactEntityMapper.saveContactDTOToContactEntities(contacts);
-		
-		for(ContactEntity contactEntity: contactsToSave) {
-			
-			final ContactEntity currentContactSaved = 
-					contactRepository.findOneByLocalId(contactEntity.getLocalId());
-			
-			if(currentContactSaved != null)
-				contactEntity.setId(currentContactSaved.getId());
-		}
-		
-		// Save Contacts
-		final Iterable<ContactEntity> contactsSaved = 
-				contactRepository.save(contactsToSave);
-		
-		// Map Results
-		return contactEntityMapper.contactEntityToContactDTOs(contactsSaved);
-		
-	}
-
-	/**
 	 * Save Contact
 	 */
 	@Override
@@ -945,7 +950,10 @@ public final class TerminalServiceImpl implements ITerminalService {
 				contactEntityMapper.saveContactDTOToContactEntity(contact);
 		
 		final ContactEntity currentContactSaved = 
-				contactRepository.findOneByLocalId(contactToSave.getLocalId());
+				contactRepository.findOneByLocalIdAndKidIdAndTerminalId(
+						contactToSave.getLocalId(),
+						contactToSave.getKid().getId(),
+						contactToSave.getTerminal().getId());
 		
 		if(currentContactSaved != null)
 			contactToSave.setId(currentContactSaved.getId());
@@ -953,6 +961,19 @@ public final class TerminalServiceImpl implements ITerminalService {
 		final ContactEntity contactSaved = contactRepository.save(contactToSave);
 		
 		return contactEntityMapper.contactEntityToContactDTO(contactSaved);
+		
+	}
+	
+	/**
+	 * Save Contacts
+	 */
+	@Override
+	public Iterable<ContactDTO> saveContacts(List<SaveContactDTO> contacts) {
+		Assert.notNull(contacts, "Contacts can not be null");
+		final List<ContactDTO> contactDTOList = new ArrayList<>();
+		for(final SaveContactDTO saveContact: contacts)
+			contactDTOList.add(saveContact(saveContact));
+		return contactDTOList;
 		
 	}
 
@@ -1026,6 +1047,7 @@ public final class TerminalServiceImpl implements ITerminalService {
 		Assert.notNull(terminal, "Terminal can not be null");
 		Assert.notNull(apps, "Apps can not be null");
 		
+		deleteAppAllowedInScheduledBlock(apps);
 		appStatsRepository.deleteByKidIdAndTerminalIdAndAppIdIn(kid, terminal, apps);
 		appsInstalledRepository.deleteByKidIdAndTerminalIdAndIdIn(kid, terminal, apps);
 		
@@ -1883,6 +1905,58 @@ public final class TerminalServiceImpl implements ITerminalService {
 		terminalRepository.setTerminalStatus(terminal, status);
 		
 	}
-
+	
+	/**
+	 * Delete App Allowed In Scheduled Block
+	 * @param apps
+	 */
+	private void deleteAppAllowedInScheduledBlock(final List<ObjectId> apps) {
+		final List<ScheduledBlockEntity> scheduledBlockList = 
+				scheduledBlockRepository.findByAppAllowedAppIdIn(apps);
+		
+		for(final ScheduledBlockEntity scheduledBlock: scheduledBlockList) {
+			
+			final Iterator<AppAllowedByScheduledBlockEntity> iterator = 
+					scheduledBlock.getAppAllowed().iterator();
+			
+			while(iterator.hasNext()) {
+				final AppAllowedByScheduledBlockEntity appAllowed = iterator.next();
+				if(apps.contains(appAllowed.getApp().getId())) {
+					iterator.remove();
+				}
+			}
+			
+		}
+		
+		scheduledBlockRepository.save(scheduledBlockList);
+	}
+	
+	/**
+	 * 
+	 * @param kid
+	 * @param terminal
+	 */
+	private void deleteAppAllowedInScheduledBlock(final ObjectId kid, final ObjectId terminal) {
+		
+		final List<ScheduledBlockEntity> scheduledBlockList = 
+				scheduledBlockRepository.findByKidIdAndAppAllowedTerminalId(kid, terminal);
+		
+		for(final ScheduledBlockEntity scheduledBlock: scheduledBlockList) {
+			
+			final Iterator<AppAllowedByScheduledBlockEntity> iterator = 
+					scheduledBlock.getAppAllowed().iterator();
+			
+			while(iterator.hasNext()) {
+				final AppAllowedByScheduledBlockEntity appAllowed = iterator.next();
+				if(appAllowed.getTerminal().getId().equals(terminal))
+					iterator.remove();
+			}
+			
+		}
+		
+		scheduledBlockRepository.save(scheduledBlockList);
+		
+	}
+	
 	
 }

@@ -82,4 +82,13 @@ public interface CallDetailRepository extends MongoRepository<CallDetailEntity, 
 	 */
 	CallDetailEntity findOneByLocalId(final String localId);
 	
+	/**
+	 * Find One By Local Id And Kid Id And Terminal Id
+	 * @param localId
+	 * @param kid
+	 * @param terminal
+	 * @return
+	 */
+	CallDetailEntity findOneByLocalIdAndKidIdAndTerminalId(final String localId, final ObjectId kid, final ObjectId terminal);
+	
 }

@@ -130,6 +130,16 @@ public interface AppInstalledRepository extends MongoRepository<AppInstalledEnti
 	 * @return
 	 */
 	AppInstalledEntity findOneByPackageName(final String packageName);
+	
+	/**
+	 * Find By Package Name
+	 * @param packageName
+	 * @param kidId
+	 * @param terminalId
+	 * @return
+	 */
+	AppInstalledEntity findOneByPackageNameAndKidIdAndTerminalId(final String packageName, final ObjectId kidId, final ObjectId terminalId);
+	
 
 	
 }

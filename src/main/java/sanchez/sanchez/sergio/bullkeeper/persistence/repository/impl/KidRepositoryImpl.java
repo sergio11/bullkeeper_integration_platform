@@ -136,7 +136,6 @@ public class KidRepositoryImpl implements KidRepositoryCustom {
 			final long totalCommentsNoDrugs) {
 		Assert.notNull(id, "Id can not be null");
 		
-		
 		mongoTemplate.updateFirst(
                 new Query(Criteria.where("_id").is(id)),
                 new Update()

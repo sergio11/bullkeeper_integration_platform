@@ -112,4 +112,13 @@ public interface ContactEntityRepository extends MongoRepository<ContactEntity, 
 	 * @return
 	 */
 	ContactEntity findOneByLocalId(final String localId);
+	
+	/**
+	 * Find One By Local id
+	 * @param localId
+	 * @param kid
+	 * @param terminal
+	 * @return
+	 */
+	ContactEntity findOneByLocalIdAndKidIdAndTerminalId(final String localId, final ObjectId kid, final ObjectId terminal);
 }

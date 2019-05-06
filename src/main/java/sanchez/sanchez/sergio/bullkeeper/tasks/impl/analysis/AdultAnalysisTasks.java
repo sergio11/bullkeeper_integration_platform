@@ -87,23 +87,25 @@ public class AdultAnalysisTasks extends AbstractAnalysisTasks {
 			
 			final KidEntity sonEntity = adultContentBySonEntry.getKey();
 			logger.debug("Analysis Adult Content Results for -> " + sonEntity.getFullName());
-			final Integer totalComments = adultContentBySonEntry.getValue().values().stream().mapToInt(Number::intValue).sum();
 			final Map<AdultLevelEnum, Long> results = adultContentBySonEntry.getValue();
 			final AdultResultsEntity adultResultsEntity = sonEntity.getResults().getAdult();
 			
-			final Long totalCommentsAnalyzedForAdult = commentRepository.countByAnalysisResultsAdultFinishAtGreaterThanEqual(adultResultsEntity.getDate());
+			final Long totalCommentsAnalyzedForAdultForThisPeriod = commentRepository.countByAnalysisResultsAdultFinishAtGreaterThanEqual(adultResultsEntity.getDate());
 			
-			if(totalCommentsAnalyzedForAdult > 0) {
+			if(totalCommentsAnalyzedForAdultForThisPeriod > 0) {
 				alertService.save(AlertLevelEnum.INFO, 
 						messageSourceResolver.resolver("alerts.adult.total.analyzed.title"),
-						messageSourceResolver.resolver("alerts.adult.total.analyzed.body", new Object[] { totalCommentsAnalyzedForAdult, prettyTime.format(adultResultsEntity.getDate()) }),
+						messageSourceResolver.resolver("alerts.adult.total.analyzed.body", new Object[] { totalCommentsAnalyzedForAdultForThisPeriod, prettyTime.format(adultResultsEntity.getDate()) }),
 						sonEntity.getId(), AlertCategoryEnum.STATISTICS_KID);
 			}
 			
 			if(results.containsKey(AdultLevelEnum.POSITIVE)) {
 				
+				final Long totalCommentsAnalyzedForAdult = 
+						commentRepository.countByAnalysisResultsAdultStatus(AnalysisStatusEnum.FINISHED);
+				
 				final Long totalCommentsAdultContent = results.get(AdultLevelEnum.POSITIVE);
-				final int percentage = Math.round((float)totalCommentsAdultContent/totalComments*100);
+				final int percentage = Math.round((float)totalCommentsAdultContent/totalCommentsAnalyzedForAdult*100);
 				if(percentage <= 30) {
 					alertService.save(AlertLevelEnum.SUCCESS, 
 							messageSourceResolver.resolver("alerts.adult.negative.title"),

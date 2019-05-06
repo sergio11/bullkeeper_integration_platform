@@ -104,7 +104,7 @@ public class YoutubeServiceImpl implements IYoutubeService {
             logger.debug("·Total Youtube Comments: " + userComments.size());
         
         } catch (Throwable e) {
-        	logger.error("Exception on Youtube Service");
+        	logger.error("Exception on Youtube Service, Message -> " + e.getMessage());
         	if(e.getCause() instanceof GoogleJsonResponseException) {
         		int code = ((GoogleJsonResponseException)e.getCause()).getDetails().getCode();
         		

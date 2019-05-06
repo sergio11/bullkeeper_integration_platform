@@ -108,7 +108,7 @@ public class DeviceHelperImpl implements IDeviceHelper {
 	@Override
 	public Optional<DeviceDTO> updateDevice(ObjectId owner, String deviceId, String registrationToken) {
 		return Optional.ofNullable(deviceGroupsService.getDeviceByDeviceId(deviceId))
-				 .map((deviceSaved) -> deviceSaved.getOwner().equals(owner.toString())  ? 
+				 .map((deviceSaved) -> deviceSaved.getOwner() != null && deviceSaved.getOwner().equals(owner.toString())  ? 
 						 deviceSaved.getRegistrationToken() != null && 
 		                   !deviceSaved.getRegistrationToken().isEmpty() &&
 		                   deviceSaved.getRegistrationToken().equals(registrationToken) ? 

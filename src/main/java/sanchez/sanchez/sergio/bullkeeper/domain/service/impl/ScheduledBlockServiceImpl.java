@@ -133,19 +133,25 @@ public final class ScheduledBlockServiceImpl implements IScheduledBlockService {
 					}
 					
 					
-					if(matchSomeDayOfWeek)
-						if(!(scheduledBlockEntityToSave.getStartAt()
-								.isBefore(scheduledBlockConfigured.getStartAt()) && 
-							scheduledBlockEntityToSave.getEndAt()
-								.isBefore(scheduledBlockConfigured.getStartAt())) ||
-							
+					if(matchSomeDayOfWeek) 
+						
+						if(
 							(scheduledBlockEntityToSave.getStartAt()
-									.isAfter(scheduledBlockConfigured.getEndAt()) && 
-								scheduledBlockEntityToSave.getEndAt()
-									.isAfter(scheduledBlockConfigured.getEndAt()))) {
+									.isAfter(scheduledBlockConfigured.getStartAt()) && 
+							scheduledBlockEntityToSave.getStartAt()
+									.isBefore(scheduledBlockConfigured.getEndAt())) ||
+							
+								(scheduledBlockEntityToSave.getStartAt()
+									.isBefore(scheduledBlockConfigured.getStartAt()) && 
+							!scheduledBlockEntityToSave.getEndAt()
+									.isBefore(scheduledBlockConfigured.getStartAt())) ||
+								
+							(scheduledBlockEntityToSave.getStartAt()
+								.isAfter(scheduledBlockConfigured.getEndAt()) && 
+							!scheduledBlockEntityToSave.getEndAt()
+								.isAfter(scheduledBlockConfigured.getEndAt())))   
 							canBeSaved = false;
 							break;
-						}
 				}
 				
 			}

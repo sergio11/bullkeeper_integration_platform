@@ -89,22 +89,25 @@ public class DrugsAnalysisTasks extends AbstractAnalysisTasks {
 			
 			logger.debug("Analysis Drugs Results for -> " + sonEntity.getFullName());
 			final Map<DrugsLevelEnum, Long> results = drugsBySonEntry.getValue();
-			final Integer totalComments = drugsBySonEntry.getValue().values().stream().mapToInt(Number::intValue).sum();
 			final DrugsResultsEntity  drugsResultsEntity = sonEntity.getResults().getDrugs();
 			
-			final Long totalCommentsAnalyzedForDrugs = commentRepository.countByAnalysisResultsDrugsFinishAtGreaterThanEqual(drugsResultsEntity.getDate());
+			final Long totalCommentsAnalyzedForDrugsForThisPeriod = commentRepository.countByAnalysisResultsDrugsFinishAtGreaterThanEqual(drugsResultsEntity.getDate());
 
-			if(totalCommentsAnalyzedForDrugs > 0) {
+			if(totalCommentsAnalyzedForDrugsForThisPeriod > 0) {
 				alertService.save(AlertLevelEnum.INFO, 
 						messageSourceResolver.resolver("alerts.drugs.total.analyzed.title"),
-						messageSourceResolver.resolver("alerts.drugs.total.analyzed.body", new Object[] { totalCommentsAnalyzedForDrugs, prettyTime.format(drugsResultsEntity.getDate()) }),
+						messageSourceResolver.resolver("alerts.drugs.total.analyzed.body", new Object[] { totalCommentsAnalyzedForDrugsForThisPeriod, 
+								prettyTime.format(drugsResultsEntity.getDate()) }),
 						sonEntity.getId(), AlertCategoryEnum.STATISTICS_KID);
 			}
 			
 			if(results.containsKey(DrugsLevelEnum.POSITIVE)) {
 				
+				final Long totalCommentsAnalyzedForDrugs = 
+						commentRepository.countByAnalysisResultsDrugsStatus(AnalysisStatusEnum.FINISHED);
+				
 				final Long totalDrugsComments = results.get(DrugsLevelEnum.POSITIVE);
-				final int percentage = Math.round((float)totalDrugsComments/totalComments*100);
+				final int percentage = Math.round((float)totalDrugsComments/totalCommentsAnalyzedForDrugs*100);
 				if(percentage <= 30) {
 					alertService.save(AlertLevelEnum.SUCCESS, 
 							messageSourceResolver.resolver("alerts.drugs.negative.title"),

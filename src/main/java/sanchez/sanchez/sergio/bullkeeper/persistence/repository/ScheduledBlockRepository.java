@@ -1,5 +1,7 @@
 package sanchez.sanchez.sergio.bullkeeper.persistence.repository;
 
+import java.util.List;
+
 import org.bson.types.ObjectId;
 import org.joda.time.LocalTime;
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -69,6 +71,30 @@ public interface ScheduledBlockRepository extends MongoRepository<ScheduledBlock
 	Iterable<ScheduledBlockEntity> findAllByStartAtLessThanEqualAndEndAtGreaterThanEqual(final LocalTime localTime);
 
 
+	/**
+	 * Find By App Allowed App Id In
+	 */
+	List<ScheduledBlockEntity> findByAppAllowedAppIdIn(final List<ObjectId> appList);
 	
+	
+	/**
+	 * Find By App Allowed App Id In
+	 */
+	ScheduledBlockEntity findByAppAllowedAppId(final ObjectId app);
+	
+	
+	/**
+	 * 
+	 * @param terminal
+	 * @return
+	 */
+	List<ScheduledBlockEntity> findByKidIdAndAppAllowedTerminalId(final ObjectId kid, final ObjectId terminal);
+	
+	/**
+	 * 
+	 * @param kid
+	 * @param terminal
+	 */
+	void deleteByKidIdAndAppAllowedTerminalId(final ObjectId kid, final ObjectId terminal);
 	
 }
