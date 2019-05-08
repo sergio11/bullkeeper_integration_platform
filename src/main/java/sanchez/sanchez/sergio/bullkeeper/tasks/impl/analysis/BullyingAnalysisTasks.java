@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AlertCategoryEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AlertLevelEnum;
-import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AnalysisEntity;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AnalysisStatusEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.AnalysisTypeEnum;
 import sanchez.sanchez.sergio.bullkeeper.persistence.entity.BullyingLevelEnum;
@@ -93,7 +92,9 @@ public class BullyingAnalysisTasks extends AbstractAnalysisTasks {
 			final Map<BullyingLevelEnum, Long> results = bullyingBySonEntry.getValue();
 			final BullyingResultsEntity bullyingResultsEntity = sonEntity.getResults().getBullying();
 			
-			final Long totalCommentsAnalyzedForBullyingForThisPeriod = commentRepository.countByAnalysisResultsBullyingFinishAtGreaterThanEqual(bullyingResultsEntity.getDate());
+			final Long totalCommentsAnalyzedForBullyingForThisPeriod = commentRepository
+					.countByKidIdAndAnalysisResultsBullyingFinishAtGreaterThanEqual(
+							sonEntity.getId(), bullyingResultsEntity.getDate());
 			
 			if(totalCommentsAnalyzedForBullyingForThisPeriod > 0) {
 				alertService.save(AlertLevelEnum.INFO, 
@@ -106,7 +107,8 @@ public class BullyingAnalysisTasks extends AbstractAnalysisTasks {
 			if(results.containsKey(BullyingLevelEnum.POSITIVE)) {
 				
 				final Long totalCommentsAnalyzedForBullying = 
-						commentRepository.countByAnalysisResultsBullyingStatus(AnalysisStatusEnum.FINISHED);
+						commentRepository.countByKidIdAndAnalysisResultsBullyingStatus(
+								sonEntity.getId(), AnalysisStatusEnum.FINISHED);
 				
 				final Long totalCommentsBullyingContent = results.get(BullyingLevelEnum.POSITIVE);
 				final int percentage = Math.round((float)totalCommentsBullyingContent/totalCommentsAnalyzedForBullying*100);

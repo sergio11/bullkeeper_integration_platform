@@ -95,7 +95,8 @@ public class SentimentAnalysisTasks extends AbstractAnalysisTasks {
 			
 			final SentimentResultsEntity sentimentResultsEntity = sonEntity.getResults().getSentiment();
 			final Long totalCommentsAnalyzedForSentimentForThisPeriod = 
-					commentRepository.countByAnalysisResultsSentimentFinishAtGreaterThanEqual(sentimentResultsEntity.getDate());
+					commentRepository.countByKidIdAndAnalysisResultsSentimentFinishAtGreaterThanEqual(
+							sonEntity.getId(), sentimentResultsEntity.getDate());
 			
 			
 			if(totalCommentsAnalyzedForSentimentForThisPeriod > 0) {
@@ -109,7 +110,8 @@ public class SentimentAnalysisTasks extends AbstractAnalysisTasks {
 			if(sentimentResultEntry.getValue().containsKey(SentimentLevelEnum.NEGATIVE)) {
 				
 				final Long totalCommentsAnalyzedForSentiment = 
-						commentRepository.countByAnalysisResultsSentimentStatus(AnalysisStatusEnum.FINISHED);
+						commentRepository.countByKidIdAndAnalysisResultsSentimentStatus(
+								sonEntity.getId(), AnalysisStatusEnum.FINISHED);
 				
 				final Long totalNegativeComments = sentimentResultEntry.getValue().get(SentimentLevelEnum.NEGATIVE);
 	

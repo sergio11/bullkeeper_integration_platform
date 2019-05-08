@@ -90,7 +90,9 @@ public class AdultAnalysisTasks extends AbstractAnalysisTasks {
 			final Map<AdultLevelEnum, Long> results = adultContentBySonEntry.getValue();
 			final AdultResultsEntity adultResultsEntity = sonEntity.getResults().getAdult();
 			
-			final Long totalCommentsAnalyzedForAdultForThisPeriod = commentRepository.countByAnalysisResultsAdultFinishAtGreaterThanEqual(adultResultsEntity.getDate());
+			final Long totalCommentsAnalyzedForAdultForThisPeriod = commentRepository
+					.countByKidIdAndAnalysisResultsAdultFinishAtGreaterThanEqual(
+							sonEntity.getId(), adultResultsEntity.getDate());
 			
 			if(totalCommentsAnalyzedForAdultForThisPeriod > 0) {
 				alertService.save(AlertLevelEnum.INFO, 
@@ -102,7 +104,8 @@ public class AdultAnalysisTasks extends AbstractAnalysisTasks {
 			if(results.containsKey(AdultLevelEnum.POSITIVE)) {
 				
 				final Long totalCommentsAnalyzedForAdult = 
-						commentRepository.countByAnalysisResultsAdultStatus(AnalysisStatusEnum.FINISHED);
+						commentRepository.countByKidIdAndAnalysisResultsAdultStatus(
+								sonEntity.getId(), AnalysisStatusEnum.FINISHED);
 				
 				final Long totalCommentsAdultContent = results.get(AdultLevelEnum.POSITIVE);
 				final int percentage = Math.round((float)totalCommentsAdultContent/totalCommentsAnalyzedForAdult*100);

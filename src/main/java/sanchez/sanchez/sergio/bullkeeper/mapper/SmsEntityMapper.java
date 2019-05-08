@@ -48,7 +48,7 @@ public abstract class SmsEntityMapper {
         		target = "terminal" ),
         @Mapping(expression="java(smsEntity.getKid().getId().toString())", 
 				target = "kid" ),
-        @Mapping(source = "smsEntity.date", target = "date", dateFormat = "yyyy/MM/dd"),
+        @Mapping(source = "smsEntity.date", target = "date", dateFormat = "yyyy/MM/dd HH:mm:ss.SSS"),
     })
     @Named("smsEntityToSmsDTO")
     public abstract SmsDTO smsEntityToSmsDTO(final SmsEntity smsEntity); 

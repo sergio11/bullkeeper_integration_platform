@@ -282,10 +282,24 @@ public interface CommentRepository extends MongoRepository<CommentEntity, Object
     Long countByAnalysisResultsSentimentFinishAtGreaterThanEqual(final Date from);
     
     /**
+     * 
+     * @param from
+     * @return
+     */
+    Long countByKidIdAndAnalysisResultsSentimentFinishAtGreaterThanEqual(final ObjectId kid, final Date from);
+    
+    /**
      * @param status
      * @return
      */
     Long countByAnalysisResultsSentimentStatus(final AnalysisStatusEnum status);
+    
+    /**
+     * @param kid
+     * @param status
+     * @return
+     */
+    Long countByKidIdAndAnalysisResultsSentimentStatus(final ObjectId kid, final AnalysisStatusEnum status);
     
     /**
      * 
@@ -295,10 +309,24 @@ public interface CommentRepository extends MongoRepository<CommentEntity, Object
     Long countByAnalysisResultsViolenceFinishAtGreaterThanEqual(final Date from);
     
     /**
+     * @param kid
+     * @param from
+     * @return
+     */
+    Long countByKidIdAndAnalysisResultsViolenceFinishAtGreaterThanEqual(final ObjectId kid, final Date from);
+    
+    /**
      * @param status
      * @return
      */
     Long countByAnalysisResultsViolenceStatus(final AnalysisStatusEnum status);
+    
+    /**
+     * @param kid
+     * @param status
+     * @return
+     */
+    Long countByKidIdAndAnalysisResultsViolenceStatus(final ObjectId kid, final AnalysisStatusEnum status);
     
     /**
      * 
@@ -308,11 +336,28 @@ public interface CommentRepository extends MongoRepository<CommentEntity, Object
     Long countByAnalysisResultsDrugsFinishAtGreaterThanEqual(final Date from);
     
     /**
+     * @param kid
+     * @param from
+     * @return
+     */
+    Long countByKidIdAndAnalysisResultsDrugsFinishAtGreaterThanEqual(final ObjectId kid, final Date from);
+    
+    /**
      * 
      * @param status
      * @return
      */
     Long countByAnalysisResultsDrugsStatus(final AnalysisStatusEnum status);
+    
+  
+    
+    /**
+     * 
+     * @param status
+     * @return
+     */
+    Long countByKidIdAndAnalysisResultsDrugsStatus(final ObjectId kid, final AnalysisStatusEnum status);
+    
     
     /**
      * 
@@ -320,6 +365,13 @@ public interface CommentRepository extends MongoRepository<CommentEntity, Object
      * @return
      */
     Long countByAnalysisResultsAdultFinishAtGreaterThanEqual(final Date from);
+    
+    /**
+     * @param kid
+     * @param from
+     * @return
+     */
+    Long countByKidIdAndAnalysisResultsAdultFinishAtGreaterThanEqual(final ObjectId kid, final Date from);
     
     /**
      * 
@@ -330,6 +382,13 @@ public interface CommentRepository extends MongoRepository<CommentEntity, Object
     
     /**
      * 
+     * @param status
+     * @return
+     */
+    Long countByKidIdAndAnalysisResultsAdultStatus(final ObjectId kid, final AnalysisStatusEnum status);
+    
+    /**
+     * 
      * @param from
      * @return
      */
@@ -337,10 +396,21 @@ public interface CommentRepository extends MongoRepository<CommentEntity, Object
     
     /**
      * 
+     * @param kid
+     * @param from
+     * @return
+     */
+    Long countByKidIdAndAnalysisResultsBullyingFinishAtGreaterThanEqual(final ObjectId kid, final Date from);
+    
+    
+    
+    /**
+     * 
+     * @param kid
      * @param status
      * @return
      */
-    Long countByAnalysisResultsBullyingStatus(final AnalysisStatusEnum status);
+    Long countByKidIdAndAnalysisResultsBullyingStatus(final ObjectId kid, final AnalysisStatusEnum status);
     
     /**
      * 

@@ -91,7 +91,9 @@ public class DrugsAnalysisTasks extends AbstractAnalysisTasks {
 			final Map<DrugsLevelEnum, Long> results = drugsBySonEntry.getValue();
 			final DrugsResultsEntity  drugsResultsEntity = sonEntity.getResults().getDrugs();
 			
-			final Long totalCommentsAnalyzedForDrugsForThisPeriod = commentRepository.countByAnalysisResultsDrugsFinishAtGreaterThanEqual(drugsResultsEntity.getDate());
+			final Long totalCommentsAnalyzedForDrugsForThisPeriod = commentRepository
+					.countByKidIdAndAnalysisResultsDrugsFinishAtGreaterThanEqual(
+							sonEntity.getId(), drugsResultsEntity.getDate());
 
 			if(totalCommentsAnalyzedForDrugsForThisPeriod > 0) {
 				alertService.save(AlertLevelEnum.INFO, 
@@ -104,7 +106,8 @@ public class DrugsAnalysisTasks extends AbstractAnalysisTasks {
 			if(results.containsKey(DrugsLevelEnum.POSITIVE)) {
 				
 				final Long totalCommentsAnalyzedForDrugs = 
-						commentRepository.countByAnalysisResultsDrugsStatus(AnalysisStatusEnum.FINISHED);
+						commentRepository.countByKidIdAndAnalysisResultsDrugsStatus(
+								sonEntity.getId(), AnalysisStatusEnum.FINISHED);
 				
 				final Long totalDrugsComments = results.get(DrugsLevelEnum.POSITIVE);
 				final int percentage = Math.round((float)totalDrugsComments/totalCommentsAnalyzedForDrugs*100);

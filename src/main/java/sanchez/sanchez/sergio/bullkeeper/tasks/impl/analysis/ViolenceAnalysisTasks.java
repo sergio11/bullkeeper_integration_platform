@@ -94,7 +94,8 @@ public class ViolenceAnalysisTasks extends AbstractAnalysisTasks {
 			final ViolenceResultsEntity  violenceResults = sonEntity.getResults().getViolence();
 			
 			final Long totalCommentsAnalyzedForViolenceForThisPeriod = commentRepository
-					.countByAnalysisResultsViolenceFinishAtGreaterThanEqual(violenceResults.getDate());
+					.countByKidIdAndAnalysisResultsViolenceFinishAtGreaterThanEqual(
+							sonEntity.getId(), violenceResults.getDate());
 			
 			
 			if(totalCommentsAnalyzedForViolenceForThisPeriod > 0) {
@@ -109,7 +110,8 @@ public class ViolenceAnalysisTasks extends AbstractAnalysisTasks {
 			if(results.containsKey(ViolenceLevelEnum.POSITIVE)) {
 				
 				final Long totalCommentsAnalyzedForViolence = 
-						commentRepository.countByAnalysisResultsViolenceStatus(AnalysisStatusEnum.FINISHED);
+						commentRepository.countByKidIdAndAnalysisResultsViolenceStatus(sonEntity.getId(),
+								AnalysisStatusEnum.FINISHED);
 				
 				final Long totalViolenceComments = results.get(ViolenceLevelEnum.POSITIVE);
 				final int percentage = Math.round((float)totalViolenceComments/totalCommentsAnalyzedForViolence*100);
