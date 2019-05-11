@@ -39,7 +39,7 @@ public class GoogleAPIConfig {
     /**
      * Application Name
      */
-    @Value("{youtube.application.name}")
+    @Value("${youtube.application.name}")
     private String applicationName;
     
     

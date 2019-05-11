@@ -9,9 +9,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.apache.http.client.methods.HttpGet;
 import sanchez.sanchez.sergio.bullkeeper.domain.service.IMapGateway;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import java.io.InputStream;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.util.Locale;
+
 import org.json.JSONObject;
 
 /**
@@ -32,13 +36,13 @@ public final class HereMapGatewayImpl implements IMapGateway {
 	/**
 	 * Here App Id
 	 */
-	 @Value("{here.app.id}")
+	@Value("${here.app.id}")
 	private String hereAppId;
 	
 	/**
 	 * Here App Code
 	 */
-	 @Value("{here.app.code}")
+	@Value("${here.app.code}")
 	private String hereAppCode;
 	
 	/**
@@ -53,18 +57,19 @@ public final class HereMapGatewayImpl implements IMapGateway {
 
         try (CloseableHttpClient httpClient = HttpClientBuilder.create().build()) {
 
-            final String url = String.format(REVERSE_GEOCODE_URL, latitude, longitude, hereAppId, hereAppCode);
+            final String url = String.format(Locale.US, REVERSE_GEOCODE_URL, latitude, longitude, hereAppId, hereAppCode);
 
             logger.error("URL -> " + url);
             final StringBuilder stringBuilder = new StringBuilder();
             HttpResponse response = httpClient.execute(new HttpGet(url));
 
-            HttpEntity entity = response.getEntity();
-            InputStream stream = entity.getContent();
-            int b;
-            while ((b = stream.read()) != -1) {
-                stringBuilder.append((char) b);
+            BufferedReader buffer = new BufferedReader(new InputStreamReader(
+            		response.getEntity().getContent(), Charset.forName("UTF-8")));
+            String line;
+            while ((line = buffer.readLine()) != null) {
+            	stringBuilder.append(line);
             }
+       
 
             locationJsonObject = new JSONObject(stringBuilder.toString());
 
@@ -87,7 +92,7 @@ public final class HereMapGatewayImpl implements IMapGateway {
         try {
             final JSONObject location = ret.getJSONObject("Response").getJSONArray("View").getJSONObject(0)
             		.getJSONArray("Result").getJSONObject(0).getJSONObject("Location").getJSONObject("Address");
-            location_string = location.getString("label");
+            location_string = location.getString("Label");
         } catch (Exception e) {
             e.printStackTrace();
         }
