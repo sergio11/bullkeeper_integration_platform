@@ -405,7 +405,7 @@ public class LoadInitialDataForAllEnvironment implements CommandLineRunner {
     	
     	final CommentAuthorEntity author = new CommentAuthorEntity();
     	author.setName("Sergio Martín");
-    	author.setImage("https://scontent.fmad3-6.fna.fbcdn.net/v/t1.0-1/c27.0.160.160a/p160x160/25680_102397813134846_2757118_n.jpg?_nc_cat=109&_nc_ht=scontent.fmad3-6.fna&oh=031a58b226f0e426ddd0809e05deb0e2&oe=5CBDBD5B");
+    	author.setImage("https://scontent-mad1-1.xx.fbcdn.net/v/t1.0-1/p160x160/59553042_2689784944396107_5958943609083396096_n.jpg?_nc_cat=101&_nc_ht=scontent-mad1-1.xx&oh=8c9191dac86faced5f3531af95a6c62f&oe=5D29738F");
     	author.setExternalId("1234243");
     	
     	final CommentEntity comment1 = new CommentEntity();
@@ -510,7 +510,7 @@ public class LoadInitialDataForAllEnvironment implements CommandLineRunner {
 	    	
 	    	final CommentAuthorEntity author = new CommentAuthorEntity();
 	    	author.setName("Sergio Martín");
-	    	author.setImage("https://instagram.fmad3-7.fna.fbcdn.net/vp/c1adf612ddd178306d30daf29dc9fb3c/5CC96388/t51.2885-19/s150x150/44456119_184243215847397_3702603430850723840_n.jpg?_nc_ht=instagram.fmad3-7.fna.fbcdn.net");
+	    	author.setImage("https://scontent-mad1-1.cdninstagram.com/vp/b71d5401cbd258650551198a2f631b46/5D6023AC/t51.2885-19/s150x150/56536451_861112200917781_218723760759373824_n.jpg?_nc_ht=scontent-mad1-1.cdninstagram.com");
 	    	author.setExternalId("1234243");
 	    	
 	    	final CommentEntity comment1 = new CommentEntity();
@@ -598,7 +598,7 @@ public class LoadInitialDataForAllEnvironment implements CommandLineRunner {
 		
 		final CommentAuthorEntity author = new CommentAuthorEntity();
 		author.setName("Sergio Martín");
-		author.setImage("https://scontent.fmad3-6.fna.fbcdn.net/v/t1.0-1/c27.0.160.160a/p160x160/25680_102397813134846_2757118_n.jpg?_nc_cat=109&_nc_ht=scontent.fmad3-6.fna&oh=031a58b226f0e426ddd0809e05deb0e2&oe=5CBDBD5B");
+		author.setImage("https://scontent-mad1-1.cdninstagram.com/vp/b71d5401cbd258650551198a2f631b46/5D6023AC/t51.2885-19/s150x150/56536451_861112200917781_218723760759373824_n.jpg?_nc_ht=scontent-mad1-1.cdninstagram.com");
 		author.setExternalId("1234243");
 		
 		final CommentEntity comment1 = new CommentEntity();

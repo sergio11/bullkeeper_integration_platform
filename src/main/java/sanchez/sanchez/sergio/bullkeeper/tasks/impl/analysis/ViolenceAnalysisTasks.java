@@ -132,6 +132,12 @@ public class ViolenceAnalysisTasks extends AbstractAnalysisTasks {
 							sonEntity.getId(), AlertCategoryEnum.STATISTICS_KID);
 				}
 				
+			} else {
+				alertService.save(AlertLevelEnum.SUCCESS, 
+						messageSourceResolver.resolver("alerts.violence.negative.title"),
+						messageSourceResolver.resolver("alerts.violence.negative.nothing"),
+						sonEntity.getId(), AlertCategoryEnum.STATISTICS_KID);
+					
 			}
 			
 			sonRepository.updateViolenceResultsFor(sonEntity.getId(), 

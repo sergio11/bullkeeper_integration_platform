@@ -67,7 +67,7 @@ public final class SaveGeofenceDTO implements Serializable {
 	/**
 	 * Type
 	 */
-	@GeofenceTransitionType(message = "geofence.transition.not.valid")
+	@GeofenceTransitionType(message = "{geofence.transition.not.valid}")
 	@JsonProperty("transition_type")
 	private String type;
 	

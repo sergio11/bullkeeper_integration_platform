@@ -129,6 +129,11 @@ public class BullyingAnalysisTasks extends AbstractAnalysisTasks {
 							sonEntity.getId(), AlertCategoryEnum.STATISTICS_KID);
 				}
 				
+			} else {
+				alertService.save(AlertLevelEnum.SUCCESS, 
+						messageSourceResolver.resolver("alerts.bullying.negative.title"),
+						messageSourceResolver.resolver("alerts.bullying.negative.nothing"),
+						sonEntity.getId(), AlertCategoryEnum.STATISTICS_KID);
 			}
 
 			sonRepository.updateBullyingResultsFor(sonEntity.getId(), 

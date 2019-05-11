@@ -191,7 +191,6 @@ import sanchez.sanchez.sergio.bullkeeper.web.security.utils.OnlyAccessForAdmin;
 import sanchez.sanchez.sergio.bullkeeper.web.uploads.models.RequestUploadFile;
 import sanchez.sanchez.sergio.bullkeeper.web.uploads.models.UploadFileInfo;
 import sanchez.sanchez.sergio.bullkeeper.web.uploads.service.IUploadFilesService;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -349,7 +348,7 @@ public class ChildrenController extends BaseController
     	notes = "Save Guardians for kid", response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<KidGuardianDTO>>> saveGuardians(
     		@ApiParam(name= "id", value = "Kid identified", required = true)
-    			@Valid @KidShouldExists(message = "{id.not.valid}")
+    			@Valid @KidShouldExists(message = "{kid.should.be.exists}")
     		 		@PathVariable String id,
     		@ApiParam(name="guadians", value = "guardians", required = true) 
 				@Validated(ICommonSequence.class)
@@ -395,7 +394,7 @@ public class ChildrenController extends BaseController
     	notes = "Get Guardians for kid", response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<KidGuardianDTO>>> getGuardians(
     		@ApiParam(name= "id", value = "Kid identified", required = true)
-    			@Valid @KidShouldExists(message = "{id.not.valid}")
+    			@Valid @KidShouldExists(message = "{kid.should.be.exists}")
     		 		@PathVariable String id) throws Throwable {
     	
     	logger.debug("Get Guardians for -> " + id);
@@ -427,7 +426,7 @@ public class ChildrenController extends BaseController
     	notes = "Get Confirmed Guardians for kid", response = Iterable.class)
     public ResponseEntity<APIResponse<Iterable<KidGuardianDTO>>> getConfirmedGuardians(
     		@ApiParam(name= "id", value = "Kid identified", required = true)
-    			@Valid @KidShouldExists(message = "{id.not.valid}")
+    			@Valid @KidShouldExists(message = "{kid.should.be.exists}")
     		 		@PathVariable String id) throws Throwable {
     	
     	logger.debug("Get Guardians for -> " + id);

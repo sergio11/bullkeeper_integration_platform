@@ -3,14 +3,12 @@ package sanchez.sanchez.sergio.bullkeeper.web.dto.request;
 import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.GuardianShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.KidShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.SupervisedChildrenShouldExistsIfPresent;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ValidGuardianRolesType;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ValidObjectId;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.group.Extended;
-import sanchez.sanchez.sergio.bullkeeper.persistence.entity.GuardianRolesEnum;
 
 
 /**

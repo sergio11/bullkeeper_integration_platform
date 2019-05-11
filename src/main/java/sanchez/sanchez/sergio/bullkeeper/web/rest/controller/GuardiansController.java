@@ -1586,7 +1586,7 @@ public class GuardiansController extends BaseController implements IGuardianHAL,
     		@ApiParam(hidden = true) 
 				@CurrentUser CommonUserDetailsAware<ObjectId> selfGuardian,
 			@ApiParam(name= "kid", value = "Kid identified", required = true)
-				@Valid @KidShouldExists(message = "{kid.not.found}")
+				@Valid @KidShouldExists(message = "{kid.should.be.exists}")
 		 			@PathVariable String kid) throws Throwable {
         
     	logger.debug("Get Supervised Child Confirmed By Id");

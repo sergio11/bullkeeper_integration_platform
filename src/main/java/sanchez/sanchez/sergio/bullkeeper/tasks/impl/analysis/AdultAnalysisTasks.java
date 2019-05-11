@@ -126,6 +126,11 @@ public class AdultAnalysisTasks extends AbstractAnalysisTasks {
 							sonEntity.getId(), AlertCategoryEnum.STATISTICS_KID);
 				}
 				
+			}  else {
+				alertService.save(AlertLevelEnum.SUCCESS, 
+						messageSourceResolver.resolver("alerts.adult.negative.title"),
+						messageSourceResolver.resolver("alerts.adult.negative.nothing"),
+						sonEntity.getId(), AlertCategoryEnum.STATISTICS_KID);
 			}
 
 			sonRepository.updateAdultResultsFor(sonEntity.getId(), 

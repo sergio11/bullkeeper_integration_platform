@@ -2,7 +2,6 @@
 package sanchez.sanchez.sergio.bullkeeper.web.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.GuardianAccountShouldNotActive;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.GuardianAccountShouldNotLocked;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.GuardianEmailShouldExist;
@@ -14,7 +13,6 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.group.IGroups.I
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.group.IGroups.IShouldNotBeAFacebookUser;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.group.IGroups.IShouldNotBeAGoogleUser;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.group.IGroups.IValidEmail;
-
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
 

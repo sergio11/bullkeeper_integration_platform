@@ -13,6 +13,7 @@ public final class JwtAuthenticationRequestDTO {
 	@Email(message="{user.email.invalid}")
 	@JsonProperty("email")
 	private String email;
+	
 	@NotBlank(message="{user.pass.notnull}")
     @Size(min=8, max=25, message="{user.pass.size}")
 	@JsonProperty("password")

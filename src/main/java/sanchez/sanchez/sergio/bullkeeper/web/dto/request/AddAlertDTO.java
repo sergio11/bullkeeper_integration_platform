@@ -1,11 +1,8 @@
 package sanchez.sanchez.sergio.bullkeeper.web.dto.request;
 
 import javax.validation.constraints.Size;
-
 import org.hibernate.validator.constraints.NotBlank;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.KidShouldExists;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ValidAlertLevel;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.ValidObjectId;

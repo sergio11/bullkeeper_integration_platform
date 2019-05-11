@@ -32,7 +32,6 @@ import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.KidGuardianDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.dto.response.LocationDTO;
 import sanchez.sanchez.sergio.bullkeeper.web.uploads.models.RequestUploadFile;
-import sanchez.sanchez.sergio.bullkeeper.web.uploads.models.UploadFileInfo;
 import sanchez.sanchez.sergio.bullkeeper.web.uploads.service.IUploadFilesService;
 import java.util.ArrayList;
 import java.util.Iterator;

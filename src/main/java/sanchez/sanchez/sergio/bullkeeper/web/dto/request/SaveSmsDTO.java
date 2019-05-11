@@ -10,7 +10,6 @@ import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.KidShouldExists
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.SmsFolderNameType;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.SmsReadStateType;
 import sanchez.sanchez.sergio.bullkeeper.persistence.constraints.TerminalShouldExists;
-import sanchez.sanchez.sergio.bullkeeper.web.rest.deserializers.ClearStringDeserializer;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.deserializers.ClearStringNoSpacesDeserializer;
 import sanchez.sanchez.sergio.bullkeeper.web.rest.deserializers.DateTimeDeserializer;
 

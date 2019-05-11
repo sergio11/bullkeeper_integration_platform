@@ -135,6 +135,12 @@ public class SentimentAnalysisTasks extends AbstractAnalysisTasks {
 							sonEntity.getId(), AlertCategoryEnum.STATISTICS_KID);
 				}
 				
+			} else {
+				
+				alertService.save(AlertLevelEnum.SUCCESS, 
+						messageSourceResolver.resolver("alerts.sentiment.negative.title"),
+						messageSourceResolver.resolver("alerts.sentiment.negative.nothing"),
+						sonEntity.getId(), AlertCategoryEnum.STATISTICS_KID);
 			}
 			
 
