@@ -2,6 +2,9 @@
 
 BullKeeper Integration Platform. EIPs patterns with Spring Integration
 
+The platform offers interoperability with other systems, allows information from social media, users under analysis, parents, schools. It can be updated, deleted, consulted and saved. These services are not freely accessible, the parent/guardian must prove her identity and obtain an access token to the API.
+The system will only allow you to check and manipulate the information of the tutored children.
+
 Platform structured in four clearly differentiated components:
 
 1. **ETL process** (Extract, Transform and Load):
