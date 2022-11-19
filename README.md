@@ -2,6 +2,11 @@
 
 BullKeeper Integration Platform. EIPs patterns with Spring Integration
 
+Backend that supports the functionality of the applications:
+
+* [Bullkeeper (Android App - Parental control tool focused on the management of the digital lifestyle of children/adolescents)](https://github.com/sergio11/bullkeeper_app) 
+* [BullKeeper Kids Android App - Tool aimed at children/adolescents to manage their fun time and ensure the rules of parental control set.](https://github.com/sergio11/bullkeeper_kids_app) 
+
 The platform offers interoperability with other systems, allows information from social media, users under analysis, parents, schools. It can be updated, deleted, consulted and saved. These services are not freely accessible, the parent/guardian must prove her identity and obtain an access token to the API.
 The system will only allow you to check and manipulate the information of the tutored children.
 
@@ -32,3 +37,7 @@ The system will be integrated with the Firebase push notification service called
 
 
 ![Bullkeeper Arquitecture](bullkeeper_arquitecture.png "Bullkeeper Arquitecture")
+
+## Visitors Count
+
+<img width="auto" src="https://profile-counter.glitch.me/bullkeeper_integration_platform/count.svg" />
