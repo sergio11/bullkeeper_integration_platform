@@ -41,3 +41,12 @@ The system will be integrated with the Firebase push notification service called
 ## Visitors Count
 
 <img width="auto" src="https://profile-counter.glitch.me/bullkeeper_integration_platform/count.svg" />
+
+## Please Share & Star the repository to keep me motivated.
+  <a href = "https://github.com/sergio11/bullkeeper_integration_platform/stargazers">
+     <img src = "https://img.shields.io/github/stars/sergio11/bullkeeper_integration_platform" />
+  </a>
+  <a href = "https://twitter.com/SergioReact418">
+     <img src = "https://img.shields.io/twitter/url?label=follow&style=social&url=https%3A%2F%2Ftwitter.com%2FSergioReact418" />
+  </a>
+
